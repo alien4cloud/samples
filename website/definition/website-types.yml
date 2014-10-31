@@ -9,6 +9,10 @@ node_types:
     derived_from: tosca.nodes.WebApplication
     description: A static website packaged in a zip file.
     properties:
+      zip_url:
+        type: string
+        required: false
+        default: ""
       context_path:
         type: string
         required: true

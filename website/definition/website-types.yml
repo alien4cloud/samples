@@ -3,12 +3,6 @@ tosca_definitions_version: tosca_simple_yaml_1_0_0
 description: >
    TOSCA simple profile with Apache
 
-# inputs:
-#   port:
-#     type: integer
-#     description: Port for the Apache server
-#     constraints:
-#       - greater_or_equal: 1
 
 node_types:
   alien.nodes.WebSite:

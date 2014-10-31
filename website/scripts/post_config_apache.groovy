@@ -21,6 +21,9 @@ def getArtifactFrom(artifactName, String... artifacts) {
 def websiteRelativePath = getArtifactFrom("website_zip", args)
 def websiteAbsolutePath = "${context.serviceDirectory}/../${websiteRelativePath}"
 def docRoot = "/var/www/"
-new AntBuilder().sequential {
-  unzip(src:"${websiteAbsolutePath}", dest:"${docRoot}${config.website.context_path}", overwrite:true)
+builder.sequential {
+  exec(executable:"${context.serviceDirectory}/scripts/deploy_website.sh", osfamily:"unix",failonerror: "true") {
+    env(key:"WEBFILE_ZIP", value:websiteAbsolutePath)
+    env(key:"DOC_ROOT", value:docRoot)
+  }
 }

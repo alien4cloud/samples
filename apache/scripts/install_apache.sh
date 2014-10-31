@@ -1,7 +1,5 @@
 #!/bin/bash
 
-newPort=$1
-needPhp=$2
 origPort=80
 
 # Removing previous apache2 installation if exist
@@ -21,14 +19,14 @@ sudo chmod -R 777 $docRoot
 
 sudo /etc/init.d/apache2 stop
 
-if [[ ("$newPort" == "$origPort") ]]; then
+if [[ ("$PORT" == "$origPort") ]]; then
   echo "Use default port for Apache : $origPort"
 else
-  echo "Replacing port $origPort with $newPort..."
-  sudo sed -i -e "s/$origPort/$newPort/g" /etc/apache2/ports.conf || error_exit $? "Failed on: sudo sed -i -e $origPort/$newPort in ports.conf"
+  echo "Replacing port $origPort with $PORT..."
+  sudo sed -i -e "s/$origPort/$PORT/g" /etc/apache2/ports.conf || error_exit $? "Failed on: sudo sed -i -e $origPort/$PORT in ports.conf"
 fi
 
-if  [ "$needPhp" == "true" ]; then
+if  [ "$NEED_PHP" == "true" ]; then
   echo "install PHP..."
   sudo apt-get --purge -q -y remove php5* php*
   sudo rm -rf  /etc/php* || error_exit $? "Failed on: sudo rm -rf  /etc/php*"

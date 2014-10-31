@@ -8,8 +8,8 @@ def config = new ConfigSlurper().parse(new File("${context.serviceDirectory}/ser
 
 builder.sequential {
   echo(message:"apache_install.groovy: Running Apache install script from FastConnect...")
-  exec(executable:"${context.serviceDirectory}/scripts/installApache.sh") {
-    arg(value:"${config.apache.port}")
-    arg(value:"${config.apache.need_php}")
+  exec(executable:"${context.serviceDirectory}/scripts/install_apache.sh", osfamily:"unix",failonerror: "true") {
+    env(key:"PORT", value:config.apache.port)
+    env(key:"NEED_PHP", value:config.apache.need_php)
   }
 }

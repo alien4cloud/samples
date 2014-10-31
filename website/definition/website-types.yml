@@ -1,0 +1,46 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0
+
+description: >
+   TOSCA simple profile with Apache
+
+# inputs:
+#   port:
+#     type: integer
+#     description: Port for the Apache server
+#     constraints:
+#       - greater_or_equal: 1
+
+node_types:
+  alien.nodes.WebSite:
+    derived_from: tosca.nodes.WebApplication
+    description: A static website packaged in a zip file.
+    properties:
+      context_path:
+        type: string
+        required: true
+        default: "html"
+    artifacts:
+      website_zip:
+        artifact_type: fastconnect.artifacts.File
+
+artifact_types:
+  alien.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)
+
+relationship_types:
+  alien.relationships.WebSiteHostedOn:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship use to describe that the website is deployed on the target Apache server.
+    valid_sources: [ tosca.capabilities.HttpEndpoint ]
+    valid_targets: [ tosca.capabilities.Container ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        operations:
+          post_configure_source:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/post_config_apache.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: "scripts"

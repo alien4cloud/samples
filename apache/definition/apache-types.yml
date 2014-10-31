@@ -1,0 +1,55 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0
+
+description: >
+   TOSCA simple profile with Apache
+
+# inputs:
+#   port:
+#     type: integer
+#     description: Port for the Apache server
+#     constraints:
+#       - greater_or_equal: 1
+
+node_types:
+  alien.nodes.Apache:
+    derived_from: tosca.nodes.WebServer
+    description: >
+      The TOSCA Apache Node Type represents an apache component
+      that can be managed and run by a TOSCA Compute Node Type.
+    tags:
+      icon: /images/apache.png
+    properties:
+      version:
+        type: version
+        default: 2
+        constraints:
+          - equal: 2
+      home:
+        type: string
+        default: "/usr/share/"
+      # port: { get_input: port }
+      port:
+        type: integer
+        description: Port for the Apache server
+        default: 80
+        constraints:
+          - greater_or_equal: 1
+      need_php:
+        type: boolean
+        description: Set true if you need PHP
+        default: false
+    interfaces:
+      lifecycle:
+        operations:
+          create:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apache_install.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: "scripts"
+
+artifact_types:
+  alien.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)

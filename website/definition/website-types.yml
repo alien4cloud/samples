@@ -37,7 +37,7 @@ relationship_types:
           post_configure_source:
             implementation_artifact:
               artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/post_config_apache.groovy"
+              artifact_ref: "scripts/deploy_website.groovy"
     artifacts:
       scripts:
         artifact_type: fastconnect.artifacts.ResourceDirectory

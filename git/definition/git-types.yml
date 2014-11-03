@@ -1,0 +1,33 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0
+description: >
+  Git install on Debian systems.
+
+node_types:
+  alien.nodes.Git:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      Git install through apt-get.
+    tags:
+      icon: /images/git.png
+    properties:
+      git_user:
+        type: string
+        default: Git User
+      git_email:
+        type: string
+        default: user@mydomain.org
+    interfaces:
+      lifecycle:
+        operations:
+          create:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/git_install.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: "scripts"
+
+artifact_types:
+  tosca.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)

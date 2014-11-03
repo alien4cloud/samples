@@ -1,0 +1,13 @@
+# This archive contains normative types.
+name: "git-types"
+version: "0.1-SNAPSHOT"
+license: "Apache v2.0"
+created_by: "FastConnect"
+
+dependencies:
+  - name: tosca-normative-types
+    version: 1.0.0-wd02-SNAPSHOT
+
+# List of definitions file in the archive.
+definitions:
+    - /definition/git-types.yml

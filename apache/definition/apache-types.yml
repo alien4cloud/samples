@@ -34,10 +34,6 @@ node_types:
         default: 80
         constraints:
           - greater_or_equal: 1
-      need_php:
-        type: boolean
-        description: Set true if you need PHP
-        default: false
     interfaces:
       lifecycle:
         operations:

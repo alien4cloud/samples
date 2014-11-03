@@ -1,5 +1,4 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0
-
 description: >
    PHP install on Debian systems.
 
@@ -18,7 +17,11 @@ node_types:
           - equal: 5
       add_apache2_module:
         type: boolean
-        description: Set true if you need PHP
+        description: Set true if you need the Apache2 module
+        default: false
+      add_mysql_module:
+        type: boolean
+        description: Set true if you need the MySQL module
         default: false
     interfaces:
       lifecycle:

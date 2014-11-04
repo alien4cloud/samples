@@ -7,9 +7,8 @@ builder = new AntBuilder()
 def config = new ConfigSlurper().parse(new File("${context.serviceDirectory}/service.properties").toURL())
 
 builder.sequential {
-  echo(message:"apache_install.groovy: Running Apache install script from FastConnect...")
-  exec(executable:"${context.serviceDirectory}/scripts/install_apache.sh", osfamily:"unix",failonerror: "true") {
+  echo(message:"apache_install.groovy: Running Apache 2 install script from FastConnect...")
+  exec(executable:"${context.serviceDirectory}/scripts/install_apache.sh", osfamily:"unix", failonerror:"true") {
     env(key:"PORT", value:config.apache.port)
-    env(key:"NEED_PHP", value:config.apache.need_php)
   }
 }

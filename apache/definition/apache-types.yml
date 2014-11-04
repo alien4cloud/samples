@@ -3,13 +3,6 @@ tosca_definitions_version: tosca_simple_yaml_1_0_0
 description: >
    TOSCA simple profile with Apache
 
-# inputs:
-#   port:
-#     type: integer
-#     description: Port for the Apache server
-#     constraints:
-#       - greater_or_equal: 1
-
 node_types:
   alien.nodes.Apache:
     derived_from: tosca.nodes.WebServer
@@ -21,13 +14,9 @@ node_types:
     properties:
       version:
         type: version
-        default: 2
+        default: 2.4
         constraints:
-          - equal: 2
-      home:
-        type: string
-        default: "/usr/share/"
-      # port: { get_input: port }
+          - equal: 2.4
       port:
         type: integer
         description: Port for the Apache server

@@ -20,13 +20,12 @@ def getArtifactFrom(artifactName, String... artifacts) {
 
 def websiteRelativePath = getArtifactFrom("website_zip", args)
 def websiteAbsolutePath = "${context.serviceDirectory}/../${websiteRelativePath}"
-def docRoot = "/var/www/${config.website.context_path}"
 def zipUrl =  (config.website.zip_url) ? config.website.zip_url : "";
 
 builder.sequential {
   exec(executable:"${context.serviceDirectory}/scripts/deploy_website.sh", osfamily:"unix",failonerror: "true") {
     env(key:"WEBFILE_ZIP", value:websiteAbsolutePath)
-    env(key:"DOC_ROOT", value:docRoot)
+    env(key:"DOC_ROOT", value:config.website.folder_to_unzip)
     env(key:"WEBFILE_URL", value:zipUrl)
   }
 }

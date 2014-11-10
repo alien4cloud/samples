@@ -13,10 +13,10 @@ node_types:
         type: string
         required: false
         default: ""
-      context_path:
+      folder_to_unzip:
         type: string
         required: true
-        default: "html"
+        default: "/var/www/html"
     artifacts:
       website_zip:
         artifact_type: fastconnect.artifacts.File
@@ -30,7 +30,7 @@ relationship_types:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the website is deployed on the target Apache server.
     valid_sources: [ tosca.capabilities.HttpEndpoint ]
-    valid_targets: [ tosca.capabilities.Container ]
+    valid_targets: [ tosca.capabilities.ApacheContainer ]
     interfaces:
       tosca.interfaces.relationship.Configure:
         operations:

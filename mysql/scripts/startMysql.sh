@@ -104,3 +104,7 @@ fi
 # Finally start MySQL with new configuration
 StartMySQL
 InitMySQLDb
+
+echo DB_NAME=\"$DB_NAME\" >> /tmp/mysql.conf
+echo DB_USER=\"$DB_USER\" >> /tmp/mysql.conf
+echo DB_PASSWORD=\"$DB_PASSWORD\" >> /tmp/mysql.conf

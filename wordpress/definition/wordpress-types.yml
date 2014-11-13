@@ -1,0 +1,36 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0
+description: TOSCA simple profile with Wordpress
+
+node_types:
+  alien.nodes.Wordpress:
+    derived_from: tosca.nodes.WebApplication
+    description: The TOSCA Wordpress Node Type represents a Wordpress CMS.
+    tags:
+      icon: /images/wordpress.png
+    properties:
+      zip_url:
+        type: string
+        required: true
+        default: "https://wordpress.org/latest.zip"
+
+artifact_types:
+  alien.artifacts.GroovyScript:
+      description: A groovy script (.groovy file)
+
+relationship_types:
+  alien.relationships.WebSiteHostedOn:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship use to describe that the website is deployed on the target Apache server.
+    valid_sources: [ tosca.capabilities.HttpEndpoint ]
+    valid_targets: [ tosca.capabilities.ApacheContainer ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        operations:
+          post_configure_source:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/config_wordpress.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: "scripts"

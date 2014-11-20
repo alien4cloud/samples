@@ -27,5 +27,7 @@ else
   sudo sed -i -e "s/$defaultPort/$PORT/g" /etc/apache2/ports.conf || error_exit $? "Failed on: sudo sed -i -e $defaultPort/$PORT in ports.conf"
 fi
 
+echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 sudo /etc/init.d/apache2 start
 echo "End of $0"

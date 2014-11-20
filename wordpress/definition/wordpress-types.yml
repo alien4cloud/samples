@@ -12,13 +12,17 @@ node_types:
         type: string
         required: true
         default: "https://wordpress.org/latest.zip"
+      folder_to_install:
+        type: string
+        required: true
+        default: "/var/www"
 
 artifact_types:
   alien.artifacts.GroovyScript:
       description: A groovy script (.groovy file)
 
 relationship_types:
-  alien.relationships.WebSiteHostedOn:
+  alien.relationships.WordpressHostedOn:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the website is deployed on the target Apache server.
     valid_sources: [ tosca.capabilities.HttpEndpoint ]

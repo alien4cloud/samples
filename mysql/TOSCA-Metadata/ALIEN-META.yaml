@@ -1,6 +1,6 @@
 # This archive contains normative types.
 name: "mysql-types"
-version: "0.1-SNAPSHOT"
+version: "0.2-SNAPSHOT"
 license: "Apache v2.0"
 created_by: "FastConnect"
 

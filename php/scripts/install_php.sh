@@ -24,3 +24,9 @@ fi
 
 sudo apt-get update || error_exit $? "Failed on: sudo apt-get update"
 sudo apt-get -y -q install php5 $apache2_module $mysql_module php5-common php5-curl php5-cli php-pear php5-gd php5-mcrypt php5-xmlrpc php5-sqlite php-xml-parser || error_exit $? "Failed on: sudo apt-get install -y -q php5"
+
+# TODO: Remove the next lines
+if type "apache2" > /dev/null; then
+  echo "restart Apache2 to launch libapache2-mod-php5"
+  sudo /etc/init.d/apache2 restart
+fi

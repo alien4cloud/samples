@@ -7,6 +7,9 @@ created_by: "FastConnect"
 dependencies:
   - name: tosca-normative-types
     version: 1.0.0-wd02-SNAPSHOT
+  - name: php-types
+    version: 0.2-SNAPSHOT
+
 
 # List of definitions file in the archive.
 definitions:

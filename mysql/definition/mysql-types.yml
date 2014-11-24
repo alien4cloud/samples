@@ -9,6 +9,10 @@ node_types:
       A node to install MySQL v5.5 database with data
       on a specific attached volume.
     requirements:
+      dependency:
+        type: alien.capabilities.AttachmentToMysql
+        lower_bound: 0
+        upper_bound: unbounded
       host:
         type: tosca.nodes.Compute
         relationship_type: tosca.relationships.HostedOn
@@ -50,36 +54,6 @@ node_types:
       scripts:
         artifact_type: fastconnect.artifacts.ResourceDirectory
         artifact_ref: "scripts"
-
-  # mysql_database:
-  #   type: tosca.nodes.Database
-  #   properties:
-  #     db_name: { get_input: db_name }
-  #     db_user: { get_input: db_user }
-  #     db_password: { get_input: db_pwd }
-  #   capabilities:
-  #     database_endpoint:
-  #       properties:
-  #         port: { get_input: db_port }
-  #   requirements:
-  #     - host: mysql_dbms
-  #   interfaces:
-  #     configure: mysql_database_configure.sh
-  #
-  # mysql_dbms:
-  #   type: tosca.nodes.DBMS
-  #   properties:
-  #     dbms_root_password: { get_input: db_root_pwd }
-  #     dbms_port: { get_input: db_root_pwd }
-  #   requirements:
-  #     - host: server
-  #   interfaces:
-  #     create: mysql_dbms_install.sh
-  #     start: mysql_dbms_start.sh
-  #     configure:
-  #       implementation: mysql_dbms_configure
-  #       input:
-  #         db_root_password: { get_property: [ mysql_dbms, dbms_root_password ] }
 
 artifact_types:
   tosca.artifacts.GroovyScript:

@@ -29,7 +29,7 @@ relationship_types:
   alien.relationships.WebSiteHostedOn:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the website is deployed on the target Apache server.
-    valid_sources: [ tosca.capabilities.HttpEndpoint ]
+    valid_sources: [ tosca.nodes.WebApplication ]
     valid_targets: [ tosca.capabilities.ApacheContainer ]
     interfaces:
       tosca.interfaces.relationship.Configure:

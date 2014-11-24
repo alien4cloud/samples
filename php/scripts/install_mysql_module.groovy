@@ -6,6 +6,6 @@ def config = new ConfigSlurper().parse(new File("${context.serviceDirectory}/ser
 
 def builder = new AntBuilder()
 builder.sequential {
-  echo(message:"php_install.groovy: Running PHP install script from FastConnect...")
-  exec(executable:"${context.serviceDirectory}/scripts/install_php.sh", osfamily:"unix",failonerror: "true")
+  echo(message:"php_install.groovy: install PHP module for Mysql...")
+  exec(executable:"${context.serviceDirectory}/scripts/install_mysql_module.sh", osfamily:"unix",failonerror: "true")
 }

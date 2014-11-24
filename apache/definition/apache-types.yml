@@ -11,11 +11,16 @@ node_types:
       that can be managed and run by a TOSCA Compute Node Type.
     capabilities:
       host:
-        type: tosca.capabilities.ApacheContainer
+        type: alien.capabilities.ApacheContainer
         properties:
           valid_node_types: [ tosca.nodes.WebApplication ]
     tags:
       icon: /images/apache.png
+    requirements:
+      dependency:
+        type: alien.capabilities.AttachmentToApache
+        lower_bound: 0
+        upper_bound: unbounded
     properties:
       version:
         type: version
@@ -40,10 +45,10 @@ node_types:
         artifact_type: fastconnect.artifacts.ResourceDirectory
         artifact_ref: "scripts"
 
+capability_types:
+  alien.capabilities.ApacheContainer:
+      derived_from: tosca.capabilities.Container
+
 artifact_types:
   alien.artifacts.GroovyScript:
     description: A groovy script (.groovy file)
-
-capability_types:
-  tosca.capabilities.ApacheContainer:
-      derived_from: tosca.capabilities.Container

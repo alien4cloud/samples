@@ -16,6 +16,10 @@ node_types:
         constraints:
           - equal: 5
     capabilities:
+      attachWebsite:
+        type: alien.capabilities.PHPModule
+        properties:
+          valid_node_types: [ tosca.nodes.WebApplication ]
       attachApache:
         type: alien.capabilities.AttachmentToApache
         lower_bound: 0
@@ -43,6 +47,8 @@ capability_types:
   alien.capabilities.AttachmentToMysql:
     derived_from: tosca.capabilities.Attachment
     description: Fix component to Mysql
+  alien.capabilities.PHPModule:
+    derived_from: tosca.capabilities.Container
 
 artifact_types:
   tosca.artifacts.GroovyScript:

@@ -8,6 +8,11 @@ node_types:
     description: >
       A node to install MySQL v5.5 database with data
       on a specific attached volume.
+    capabilities:
+      host:
+        type: alien.capabilities.MysqlDatabase
+        properties:
+          valid_node_types: [ tosca.nodes.WebApplication ]
     requirements:
       dependency:
         type: alien.capabilities.AttachmentToMysql
@@ -64,6 +69,10 @@ node_types:
       scripts:
         artifact_type: fastconnect.artifacts.ResourceDirectory
         artifact_ref: "scripts"
+
+capability_types:
+  alien.capabilities.MysqlDatabase:
+      derived_from: tosca.capabilities.Container
 
 artifact_types:
   tosca.artifacts.GroovyScript:

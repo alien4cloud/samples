@@ -20,13 +20,23 @@ node_types:
       host:
         type: alien.capabilities.ApacheContainer
         relationship_type: alien.relationships.WordpressHostedOn
+      database:
+        type: alien.capabilities.MysqlDatabase
+        relationship_type: alien.relationships.WordpressConnectTo
+        lower_bound: 1
+        upper_bound: 1
+      php:
+        type: alien.capabilities.PHPModule
+        relationship_type: alien.relationships.WordpressConnectToPHP
+        lower_bound: 1
+        upper_bound: 1
 
 artifact_types:
   alien.artifacts.GroovyScript:
     description: A groovy script (.groovy file)
 
 relationship_types:
-  alien.relationships.WordpressHostedOn:
+  alien.relationships.WordpressHostedOnApache:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the website is deployed on the target Apache server.
     valid_sources: [ tosca.nodes.WebApplication ]
@@ -38,6 +48,38 @@ relationship_types:
             implementation_artifact:
               artifact_type: tosca.artifacts.GroovyScript
               artifact_ref: "scripts/config_wordpress.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: "scripts"
+  alien.relationships.WordpressConnectToMysql:
+    derived_from: tosca.relationships.ConnectsTo
+    description: Relationship use to connect the Wordpress with a Mysql databse
+    valid_sources: [ tosca.nodes.WebApplication ]
+    valid_targets: [ alien.capabilities.MysqlDatabase ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        operations:
+          post_configure_source:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/config_wordpress_for_mysql.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: "scripts"
+  alien.relationships.WordpressConnectToPHP:
+    derived_from: tosca.relationships.ConnectsTo
+    description: Relationship use to install the Mysql module for PHP
+    valid_sources: [ tosca.nodes.WebApplication ]
+    valid_targets: [ alien.capabilities.PHPModule ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        operations:
+          post_configure_source:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/install_php_module.groovy"
     artifacts:
       scripts:
         artifact_type: fastconnect.artifacts.ResourceDirectory

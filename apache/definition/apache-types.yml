@@ -40,6 +40,16 @@ node_types:
             implementation_artifact:
               artifact_type: tosca.artifacts.GroovyScript
               artifact_ref: "scripts/apache_install.groovy"
+          start:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/start_apache.groovy"
+      fastconnect.cloudify.extensions:
+        operations:
+          start_detection:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apache_start_detection.groovy"
     artifacts:
       scripts:
         artifact_type: fastconnect.artifacts.ResourceDirectory
@@ -48,6 +58,8 @@ node_types:
 capability_types:
   alien.capabilities.ApacheContainer:
       derived_from: tosca.capabilities.Container
+  alien.capabilities.AttachmentToApache:
+      derived_from: tosca.capabilities.Attachment
 
 artifact_types:
   alien.artifacts.GroovyScript:

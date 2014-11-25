@@ -15,5 +15,6 @@ builder.sequential {
     env(key:"DB_NAME", value: config.mysql.db_name)
     env(key:"DB_USER", value: config.mysql.db_user)
     env(key:"DB_PASSWORD", value: config.mysql.db_password)
+    env(key:"BIND_ADRESS", value:config.mysql.bind_address)
   }
 }

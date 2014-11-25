@@ -22,6 +22,10 @@ node_types:
       port:
         type: integer
         default: 3306
+      bind_address:
+        type: boolean
+        description: If true,the server accepts TCP/IP connections on all server host IPv4 interfaces.
+        default: false
       storage_path:
         type: string
         default: /mountedStorage
@@ -50,6 +54,12 @@ node_types:
             implementation_artifact:
               artifact_type: tosca.artifacts.GroovyScript
               artifact_ref: "scripts/mysql_start.groovy"
+      fastconnect.cloudify.extensions:
+        operations:
+          start_detection:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/mysql_start_detection.groovy"
     artifacts:
       scripts:
         artifact_type: fastconnect.artifacts.ResourceDirectory

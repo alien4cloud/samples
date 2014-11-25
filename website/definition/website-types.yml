@@ -1,8 +1,5 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0
-
-description: >
-   TOSCA simple profile with Apache
-
+description: TOSCA simple profile with Apache
 
 node_types:
   alien.nodes.WebSite:
@@ -30,7 +27,7 @@ relationship_types:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the website is deployed on the target Apache server.
     valid_sources: [ tosca.nodes.WebApplication ]
-    valid_targets: [ tosca.capabilities.ApacheContainer ]
+    valid_targets: [ alien.capabilities.ApacheContainer ]
     interfaces:
       tosca.interfaces.relationship.Configure:
         operations:

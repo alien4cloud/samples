@@ -67,6 +67,10 @@ UpdateMySQLConf()
   if [ ! -f /etc/mysql/conf.d/mysqld_charset.cnf ] ; then
     cp $CURRENT_PATH/mysqld_charset.cnf /etc/mysql/conf.d/mysqld_charset.cnf
   fi
+
+  if [ "$BIND_ADRESS" == "true" ]; then
+    sed -i "s/bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
+  fi
 }
 
 InitMySQLDb() {

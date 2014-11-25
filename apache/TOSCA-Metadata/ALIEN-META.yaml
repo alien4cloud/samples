@@ -1,14 +1,14 @@
 # This archive contains normative types.
-name: "apache-types"
-version: "0.2-SNAPSHOT"
+name: "apache-type"
+version: "1.0.0-wd02-3-SNAPSHOT"
 license: "Apache v2.0"
 created_by: "FastConnect"
 
 dependencies:
   - name: tosca-normative-types
     version: 1.0.0-wd02-SNAPSHOT
-  - name: php-types
-    version: 0.2-SNAPSHOT
+  - name: php-type
+    version: 1.0.0-wd02-3-SNAPSHOT
 
 # List of definitions file in the archive.
 definitions:

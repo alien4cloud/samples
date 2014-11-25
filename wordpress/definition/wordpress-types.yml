@@ -18,12 +18,12 @@ node_types:
         default: "/var/www"
     requirements:
       host:
-        type: tosca.capabilities.ApacheContainer
+        type: alien.capabilities.ApacheContainer
         relationship_type: alien.relationships.WordpressHostedOn
 
 artifact_types:
   alien.artifacts.GroovyScript:
-      description: A groovy script (.groovy file)
+    description: A groovy script (.groovy file)
 
 relationship_types:
   alien.relationships.WordpressHostedOn:

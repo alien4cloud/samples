@@ -12,17 +12,17 @@ node_types:
         type: string
         required: true
         default: "https://wordpress.org/latest.zip"
-      folder_to_install:
+      context_path:
         type: string
         required: true
-        default: "/var/www"
+        default: "/"
     requirements:
       host:
         type: alien.capabilities.ApacheContainer
         relationship_type: alien.relationships.WordpressHostedOn
       database:
         type: alien.capabilities.MysqlDatabase
-        relationship_type: alien.relationships.WordpressConnectTo
+        relationship_type: alien.relationships.WordpressConnectToMysql
         lower_bound: 1
         upper_bound: 1
       php:
@@ -30,6 +30,23 @@ node_types:
         relationship_type: alien.relationships.WordpressConnectToPHP
         lower_bound: 1
         upper_bound: 1
+    # interfaces:
+    #   lifecycle:
+    #     operations:
+    #       start:
+    #         implementation_artifact:
+    #           artifact_type: tosca.artifacts.GroovyScript
+    #           artifact_ref: "scripts/start_wordpress.groovy"
+    #   fastconnect.cloudify.extensions:
+    #     operations:
+    #       start_detection:
+    #         implementation_artifact:
+    #           artifact_type: tosca.artifacts.GroovyScript
+    #           artifact_ref: "scripts/wordpress_start_detection.groovy"
+    # artifacts:
+    #   scripts:
+    #     artifact_type: fastconnect.artifacts.ResourceDirectory
+    #     artifact_ref: "scripts"
 
 artifact_types:
   alien.artifacts.GroovyScript:

@@ -16,5 +16,13 @@ else
   unzip -o $WEBFILE_ZIP -d tmp
 fi
 
-eval "mv -f tmp/* $DOC_ROOT"
-eval "chown -R www-data:www-data $DOC_ROOT"
+if [ ! -d $DOC_ROOT/$CONTEXT_PATH ]; then
+  eval "mkdir -p $DOC_ROOT/$CONTEXT_PATH"
+fi
+
+eval "rm -rf $DOC_ROOT/$CONTEXT_PATH/*"
+eval "mv -f tmp/* $DOC_ROOT/$CONTEXT_PATH"
+eval "chown -R www-data:www-data $DOC_ROOT/$CONTEXT_PATH"
+
+echo "End of website install, restart apache2 to update permission on $DOC_ROOT/$CONTEXT_PATH"
+sudo /etc/init.d/apache2 restart

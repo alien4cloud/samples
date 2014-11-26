@@ -25,7 +25,8 @@ def zipUrl =  (config.website.zip_url) ? config.website.zip_url : "";
 builder.sequential {
   exec(executable:"${context.serviceDirectory}/scripts/deploy_website.sh", osfamily:"unix",failonerror: "true") {
     env(key:"WEBFILE_ZIP", value:websiteAbsolutePath)
-    env(key:"DOC_ROOT", value:config.website.folder_to_unzip)
     env(key:"WEBFILE_URL", value:zipUrl)
+    env(key:"CONTEXT_PATH", value:config.website.context_path)
+    env(key:"DOC_ROOT", value:config.apache.document_root)
   }
 }

@@ -20,14 +20,6 @@ node_types:
         type: alien.capabilities.PHPModule
         properties:
           valid_node_types: [ tosca.nodes.WebApplication ]
-      attachApache:
-        type: alien.capabilities.AttachmentToApache
-        lower_bound: 0
-        upper_bound: 1
-      attachMysql:
-        type: alien.capabilities.AttachmentToMysql
-        lower_bound: 0
-        upper_bound: 1
     interfaces:
       lifecycle:
         operations:
@@ -41,49 +33,10 @@ node_types:
         artifact_ref: "scripts"
 
 capability_types:
-  alien.capabilities.AttachmentToApache:
-    derived_from: tosca.capabilities.Attachment
-    description: Fix component to Apache2
-  alien.capabilities.AttachmentToMysql:
-    derived_from: tosca.capabilities.Attachment
-    description: Fix component to Mysql
   alien.capabilities.PHPModule:
     derived_from: tosca.capabilities.Container
+    description: Provide PHP services
 
 artifact_types:
   tosca.artifacts.GroovyScript:
     description: A groovy script (.groovy file)
-
-relationship_types:
-  alien.relationships.PHPAttachmentToApache:
-    derived_from: tosca.relationships.ConnectsTo
-    description: Install the module PHP for Apache2 support.
-    valid_sources: [ alien.capabilities.ApacheAttachment ]
-    valid_targets: [ alien.capabilities.AttachmentToApache ]
-    interfaces:
-      tosca.interfaces.relationship.Configure:
-        operations:
-          post_configure_source:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/install_apache2_module.groovy"
-    artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
-  alien.relationships.PHPAttachmentToMysql:
-    derived_from: tosca.relationships.ConnectsTo
-    description: Install the module PHP for Mysql support.
-    valid_sources: [ alien.capabilities.MysqlAttachment ]
-    valid_targets: [ alien.capabilities.AttachmentToMysql ]
-    interfaces:
-      tosca.interfaces.relationship.Configure:
-        operations:
-          post_configure_source:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/install_mysql_module.groovy"
-    artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"

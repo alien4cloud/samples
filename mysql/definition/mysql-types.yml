@@ -14,10 +14,6 @@ node_types:
         properties:
           valid_node_types: [ tosca.nodes.WebApplication ]
     requirements:
-      dependency:
-        type: alien.capabilities.AttachmentToMysql
-        lower_bound: 0
-        upper_bound: unbounded
       host:
         type: tosca.nodes.Compute
         relationship_type: tosca.relationships.HostedOn
@@ -30,12 +26,10 @@ node_types:
       bind_address:
         type: boolean
         description: If true,the server accepts TCP/IP connections on all server host IPv4 interfaces.
-        default: false
+        default: true
       storage_path:
         type: string
         default: /mountedStorage
-        constraints:
-          - equal: /mountedStorage
       db_name:
         type: string
         required: true

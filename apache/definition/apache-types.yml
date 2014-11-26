@@ -16,11 +16,6 @@ node_types:
           valid_node_types: [ tosca.nodes.WebApplication ]
     tags:
       icon: /images/apache.png
-    requirements:
-      dependency:
-        type: alien.capabilities.AttachmentToApache
-        lower_bound: 0
-        upper_bound: unbounded
     properties:
       version:
         type: version
@@ -33,6 +28,10 @@ node_types:
         default: 80
         constraints:
           - greater_or_equal: 1
+      document_root:
+          type: string
+          required: true
+          default: "/var/www"
     interfaces:
       lifecycle:
         operations:
@@ -58,8 +57,6 @@ node_types:
 capability_types:
   alien.capabilities.ApacheContainer:
       derived_from: tosca.capabilities.Container
-  alien.capabilities.AttachmentToApache:
-      derived_from: tosca.capabilities.Attachment
 
 artifact_types:
   alien.artifacts.GroovyScript:

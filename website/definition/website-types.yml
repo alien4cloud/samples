@@ -5,15 +5,19 @@ node_types:
   alien.nodes.WebSite:
     derived_from: tosca.nodes.WebApplication
     description: A static website packaged in a zip file.
+    requirements:
+      host:
+        type: alien.capabilities.ApacheContainer
+        relationship_type: alien.relationships.WebSiteHostedOn
     properties:
       zip_url:
         type: string
         required: false
         default: ""
-      folder_to_unzip:
+      context_path:
         type: string
-        required: true
-        default: "/var/www/html"
+        required: false
+        default: ""
     artifacts:
       website_zip:
         artifact_type: fastconnect.artifacts.File

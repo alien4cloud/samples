@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: TOSCA simple profile with Apache
 
 node_types:
@@ -6,25 +6,16 @@ node_types:
     derived_from: tosca.nodes.WebApplication
     description: A static website packaged in a zip file.
     requirements:
-      host:
-        type: alien.capabilities.ApacheContainer
-        relationship_type: alien.relationships.WebSiteHostedOn
+      - host: alien.capabilities.ApacheContainer
+        type: alien.relationships.WebSiteHostedOn
     properties:
       zip_url:
         type: string
-        required: false
-        default: ""
       context_path:
         type: string
-        required: false
-        default: ""
     artifacts:
-      website_zip:
-        artifact_type: fastconnect.artifacts.File
-
-artifact_types:
-  alien.artifacts.GroovyScript:
-    description: A groovy script (.groovy file)
+      - website_zip:
+        type: fastconnect.artifacts.File
 
 relationship_types:
   alien.relationships.WebSiteHostedOn:
@@ -33,13 +24,13 @@ relationship_types:
     valid_sources: [ tosca.nodes.WebApplication ]
     valid_targets: [ alien.capabilities.ApacheContainer ]
     interfaces:
-      tosca.interfaces.relationship.Configure:
-        operations:
-          post_configure_source:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/deploy_website.groovy"
+      Configure:
+          post_configure_source: scripts/deploy_website.groovy
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
+      - scripts: scripts
+        type: tosca.artifacts.File
+
+artifact_types:
+  tosca.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)
+    file_ext: [groovy]

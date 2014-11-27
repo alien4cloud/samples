@@ -1,15 +1,12 @@
 # This archive contains normative types.
 name: "mysql-type"
-version: "1.0.0-wd02-3-SNAPSHOT"
+version: "1.0.0.wd03-SNAPSHOT"
 license: "Apache v2.0"
 created_by: "FastConnect"
 
 dependencies:
   - name: tosca-normative-types
-    version: 1.0.0-wd02-SNAPSHOT
-  - name: php-type
-    version: 1.0.0-wd02-3-SNAPSHOT
-
+    version: 1.0.0.wd03-SNAPSHOT
 
 # List of definitions file in the archive.
 definitions:

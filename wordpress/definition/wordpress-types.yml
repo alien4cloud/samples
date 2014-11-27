@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: TOSCA simple profile with Wordpress
 
 node_types:
@@ -17,40 +17,24 @@ node_types:
         required: true
         default: "/"
     requirements:
-      host:
-        type: alien.capabilities.ApacheContainer
-        relationship_type: alien.relationships.WordpressHostedOn
-      database:
-        type: alien.capabilities.MysqlDatabase
-        relationship_type: alien.relationships.WordpressConnectToMysql
+      - host: alien.capabilities.ApacheContainer
+        type: alien.relationships.WordpressHostedOn
+      - database: alien.capabilities.MysqlDatabase
+        type: alien.relationships.WordpressConnectToMysql
         lower_bound: 1
         upper_bound: 1
-      php:
-        type: alien.capabilities.PHPModule
-        relationship_type: alien.relationships.WordpressConnectToPHP
+      - php: alien.capabilities.PHPModule
+        type: alien.relationships.WordpressConnectToPHP
         lower_bound: 1
         upper_bound: 1
-    # interfaces:
-    #   lifecycle:
-    #     operations:
-    #       start:
-    #         implementation_artifact:
-    #           artifact_type: tosca.artifacts.GroovyScript
-    #           artifact_ref: "scripts/start_wordpress.groovy"
-    #   fastconnect.cloudify.extensions:
-    #     operations:
-    #       start_detection:
-    #         implementation_artifact:
-    #           artifact_type: tosca.artifacts.GroovyScript
-    #           artifact_ref: "scripts/wordpress_start_detection.groovy"
-    # artifacts:
-    #   scripts:
-    #     artifact_type: fastconnect.artifacts.ResourceDirectory
-    #     artifact_ref: "scripts"
-
-artifact_types:
-  alien.artifacts.GroovyScript:
-    description: A groovy script (.groovy file)
+    interfaces:
+      Standard:
+        start: scripts/start_wordpress.groovy
+      fastconnect.cloudify.extensions:
+        start_detection: scripts/wordpress_start_detection.groovy
+    artifacts:
+      - scripts: scripts
+        type: tosca.artifacts.File
 
 relationship_types:
   alien.relationships.WordpressHostedOnApache:
@@ -59,45 +43,35 @@ relationship_types:
     valid_sources: [ tosca.nodes.WebApplication ]
     valid_targets: [ alien.capabilities.ApacheContainer ]
     interfaces:
-      tosca.interfaces.relationship.Configure:
-        operations:
-          post_configure_source:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/config_wordpress.groovy"
+      Configure:
+          pre_configure_source: scripts/config_wordpress.groovy
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
+      - scripts: scripts
+        type: tosca.artifacts.File
   alien.relationships.WordpressConnectToMysql:
     derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to connect the Wordpress with a Mysql databse
     valid_sources: [ tosca.nodes.WebApplication ]
     valid_targets: [ alien.capabilities.MysqlDatabase ]
     interfaces:
-      tosca.interfaces.relationship.Configure:
-        operations:
-          post_configure_source:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/config_wordpress_for_mysql.groovy"
+      Configure:
+          pre_configure_source: scripts/config_wordpress_for_mysql.groovy
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
+      - scripts: scripts
+        type: tosca.artifacts.File
   alien.relationships.WordpressConnectToPHP:
     derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to install the Mysql module for PHP
     valid_sources: [ tosca.nodes.WebApplication ]
     valid_targets: [ alien.capabilities.PHPModule ]
     interfaces:
-      tosca.interfaces.relationship.Configure:
-        operations:
-          post_configure_source:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/install_php_module.groovy"
+      Configure:
+          pre_configure_source: scripts/install_php_module.groovy
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
+      - scripts: scripts
+        type: tosca.artifacts.File
+
+artifact_types:
+  tosca.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)
+    file_ext: [groovy]

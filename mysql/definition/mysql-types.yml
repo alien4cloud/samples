@@ -1,6 +1,5 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0
-description: >
-  MySQL RDBMS installation on a specific mounted volume path.
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: MySQL RDBMS installation on a specific mounted volume path.
 
 node_types:
   alien.nodes.Mysql:
@@ -14,9 +13,8 @@ node_types:
         properties:
           valid_node_types: [ tosca.nodes.WebApplication ]
     requirements:
-      host:
-        type: tosca.nodes.Compute
-        relationship_type: tosca.relationships.HostedOn
+      - host: tosca.nodes.Compute
+        type: tosca.relationships.HostedOn
     tags:
       icon: /images/mysql.png
     properties:
@@ -30,6 +28,8 @@ node_types:
       storage_path:
         type: string
         default: /mountedStorage
+        constraints:
+          - valid_values: [ "/mountedStorage", "/var/mysql"]
       db_name:
         type: string
         required: true
@@ -43,26 +43,14 @@ node_types:
         required: true
         default: pass
     interfaces:
-      lifecycle:
-        operations:
-          create:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/mysql_install.groovy"
-          start:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/mysql_start.groovy"
+      Standard:
+        create: scripts/mysql_install.groovy
+        start: scripts/mysql_start.groovy
       fastconnect.cloudify.extensions:
-        operations:
-          start_detection:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/mysql_start_detection.groovy"
+         start_detection: scripts/mysql_start_detection.groovy
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
+      - scripts: scripts
+        type: tosca.artifacts.File
 
 capability_types:
   alien.capabilities.MysqlDatabase:
@@ -71,3 +59,4 @@ capability_types:
 artifact_types:
   tosca.artifacts.GroovyScript:
     description: A groovy script (.groovy file)
+    file_ext: [groovy]

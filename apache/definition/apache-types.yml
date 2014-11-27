@@ -1,7 +1,5 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0
-
-description: >
-   TOSCA simple profile with Apache
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with Apache.
 
 node_types:
   alien.nodes.Apache:
@@ -33,31 +31,20 @@ node_types:
           required: true
           default: "/var/www"
     interfaces:
-      lifecycle:
-        operations:
-          create:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/apache_install.groovy"
-          start:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/start_apache.groovy"
+      Standard:
+        create: scripts/apache_install.groovy
+        start: scripts/start_apache.groovy
       fastconnect.cloudify.extensions:
-        operations:
-          start_detection:
-            implementation_artifact:
-              artifact_type: tosca.artifacts.GroovyScript
-              artifact_ref: "scripts/apache_start_detection.groovy"
+        start_detection: scripts/apache_start_detection.groovy
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
+      - scripts: scripts
+        type: tosca.artifacts.File
 
 capability_types:
   alien.capabilities.ApacheContainer:
       derived_from: tosca.capabilities.Container
 
 artifact_types:
-  alien.artifacts.GroovyScript:
+  tosca.artifacts.GroovyScript:
     description: A groovy script (.groovy file)
+    file_ext: [groovy]

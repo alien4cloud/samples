@@ -1,8 +1,5 @@
-import org.cloudifysource.utilitydomain.context.ServiceContextFactory
+import java.io.File
 
-context = ServiceContextFactory.getServiceContext()
-builder = new AntBuilder()
-builder.sequential {
-  echo(message:"apache_install.groovy: Started Apache 2 install script from FastConnect...")
-  exec(executable:"${context.serviceDirectory}/scripts/start_wordpress.sh", osfamily:"unix", failonerror:"true")
-}
+println "Start of wordpress..."
+boolean success = new File("/tmp/wordpress-started").createNewFile()
+println "Wordpress is started : ${success}"

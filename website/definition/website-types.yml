@@ -15,7 +15,7 @@ node_types:
         type: string
     artifacts:
       - website_zip:
-        type: fastconnect.artifacts.File
+        type: tosca.artifacts.File
 
 relationship_types:
   alien.relationships.WebSiteHostedOn:

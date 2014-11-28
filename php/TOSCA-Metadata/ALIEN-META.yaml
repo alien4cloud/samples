@@ -1,4 +1,3 @@
-# This archive contains normative types.
 name: "php-type"
 version: "1.0.0.wd03-SNAPSHOT"
 license: "Apache v2.0"
@@ -8,6 +7,5 @@ dependencies:
   - name: tosca-normative-types
     version: 1.0.0.wd03-SNAPSHOT
 
-# List of definitions file in the archive.
 definitions:
     - /definition/php-types.yml

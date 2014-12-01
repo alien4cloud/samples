@@ -11,7 +11,7 @@ def nameMysgl = args[2]
 def serviceName = args[3]
 
 println "invokeAddNode.groovy: target $serviceName Post-start ..."
-def mysqlService = context.waitForService(serviceName, 5, TimeUnit.MINUTES)
+def mysqlService = context.waitForService(serviceName, 15, TimeUnit.MINUTES)
 def instances = mysqlService.getInstances()
 def ip_adress = instances[0].getHostAddress()
 println "ip of $instances database: $ip_adress"

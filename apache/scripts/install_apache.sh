@@ -14,13 +14,19 @@ sudo rm -rf /usr/share/apache2 || error_exit $? "Failed on: sudo rm -rf /usr/sha
 
 echo "Using apt-get. Installing apache2 on one of the following : Debian, Ubuntu, Mint"
 sudo apt-get update || error_exit $? "Failed on: sudo apt-get update"
+
+while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+  echo "Waiting for other software managers to finish..."
+  sleep 0.5
+done
+sudo rm -f /var/lib/dpkg/lock
 sudo apt-get install -y -q apache2 || error_exit $? "Failed on: sudo apt-get install -y -q apache2"
 sudo /etc/init.d/apache2 stop
 
 if [ ! -d $DOC_ROOT ]; then
-  eval "mkdir -p $DOC_ROOT"
+  eval "sudo mkdir -p $DOC_ROOT"
 fi
-eval "chown -R www-data:www-data $DOC_ROOT"
+eval "sudo chown -R www-data:www-data $DOC_ROOT"
 
 if [[ ("$PORT" == "$defaultPort") ]]; then
   echo "Use default port for Apache : $defaultPort"

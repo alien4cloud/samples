@@ -18,30 +18,35 @@ node_types:
     tags:
       icon: /images/mysql.png
     properties:
-      port:
+      db_port:
         type: integer
         default: 3306
+        required: true
+        description: The port on which the underlying database service will listen to data.
+      db_name:
+        type: string
+        required: true
+        default: wordpress
+        description: The logical name of the database.
+      db_user:
+        type: string
+        required: true
+        default: pass
+        description: The special user account used for database administration.
+      db_password:
+        type: string
+        required: true
+        default: pass
+        description: The password associated with the user account provided in the ‘db_user’ property.
       bind_address:
         type: boolean
-        description: If true,the server accepts TCP/IP connections on all server host IPv4 interfaces.
         default: true
+        description: If true,the server accepts TCP/IP connections on all server host IPv4 interfaces.
       storage_path:
         type: string
         default: /mountedStorage
         constraints:
           - valid_values: [ "/mountedStorage", "/var/mysql"]
-      db_name:
-        type: string
-        required: true
-        default: wordpress
-      db_user:
-        type: string
-        required: true
-        default: pass
-      db_password:
-        type: string
-        required: true
-        default: pass
     interfaces:
       Standard:
         create: scripts/mysql_install.groovy

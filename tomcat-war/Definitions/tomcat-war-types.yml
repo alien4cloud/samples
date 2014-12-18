@@ -1,0 +1,109 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+description: Tomcat recipe, including war type and relationship.
+
+node_types:
+  alien.nodes.cloudify.Tomcat:
+    derived_from: tosca.nodes.WebServer
+    description: >
+      Installation of Tomcat using Cloudify scripts
+    tags:
+      icon: /images/tomcat.gif
+    properties:
+      version:
+        type: version
+        default: 7.0.23
+        constraints:
+          - equal: 7.0.23
+    capabilities:
+      http_endpoint:
+        type: alien.capabilities.HttpEndpoint
+        upper_bound: unbounded
+      war_host:
+          type: alien.capabilities.WarHosting
+          upper_bound: unbounded
+    requirements:
+      - http_endpoint: alien.capabilities.HttpEndpoint
+        lower_bound: 0
+        upper_bound: unbounded
+      - jdbc_resource: alien.capabilities.JdbcEndpoint
+        lower_bound: 0
+        upper_bound: 1
+    interfaces:
+      Standard:
+        create: scripts/tomcat_installAlien.groovy
+        start: scripts/tomcat_start.groovy
+        stop: scripts/tomcat_stop.groovy
+      fastconnect.cloudify.extensions:
+        start_detection: scripts/tomcat_startDetection.groovy
+        stop_detection: scripts/tomcat_stopDetection.groovy
+        locator: scripts/alien_tomcat_locator.groovy
+      custom:
+        updateWarOnTomcat:
+          inputs:
+            catalinaBase: { get_attribute: [SELF, catalinaBase] }
+            installDir: { get_attribute: [SELF, installDir] }
+            url:
+              type: string
+              required: true
+            contextPath:
+              type: string
+              required: true
+          implementation: scripts/updateWarOnTomcat.groovy
+    artifacts:
+      - scripts: scripts
+        type: tosca.artifacts.File
+
+  alien.nodes.cloudify.War:
+    derived_from: tosca.nodes.WebApplication
+    description: A war element
+    tags:
+      icon: /images/war.jpg
+    properties:
+      contextPath:
+        description: "Context path to access the deployed war ( ex: www.server.com/<contextPath>)"
+        type: string
+        required: true
+    requirements:
+      - host: alien.capabilities.WarHosting
+        lower_bound: 1
+        upper_bound: 1
+    interfaces:
+      custom:
+        updateWarFile:
+          inputs:
+            contextPath: { get_property: [SELF, contextPath] }
+            warUrl:
+              type: string
+              description: url of the war to upload to update the current one
+              required: true
+          implementation: warScripts/updateWarFile.groovy
+    artifacts:
+      - scripts: warScripts
+        type: tosca.artifacts.File
+      - war_file: warFiles/helloWorld.war
+        type: alien.artifacts.WarFile
+
+relationship_types:
+
+  alien.relationships.cloudify.WarHostedOnTomcat:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship that allows to deploy a war on tomcat.
+    valid_sources: [ alien.capabilities.WarHosting ]
+    valid_targets: [ alien.capabilities.WarHosting ]
+    interfaces:
+      configure:
+        post_configure_source: 
+          inputs:
+            contextPath: { get_property: [SOURCE, contextPath] } 
+            tomcatIp: { get_attribute: [TARGET, ip_address] }
+          implementation: relationshipScripts/warHostedOnTomcat_post_configure_source.groovy
+    artifacts:
+      - scripts: relationshipScripts
+        type: tosca.artifacts.File
+        
+capability_types:
+  alien.capabilities.WarHosting:
+    derived_from: tosca.capabilities.Container
+  alien.capabilities.JdbcEndpoint:
+    derived_from: tosca.capabilities.Endpoint

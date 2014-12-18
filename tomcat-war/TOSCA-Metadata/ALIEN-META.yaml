@@ -1,0 +1,12 @@
+name: "tomcat-war-types"
+version: "1.0-SNAPSHOT"
+created_by: "FastConnect"
+
+dependencies:
+  - name: tosca-normative-types
+    version: 1.0.0.wd03-SNAPSHOT
+  - name: alien-base-types
+    version: 1.0
+
+definitions:
+  - Definitions/tomcat-war-types.yml

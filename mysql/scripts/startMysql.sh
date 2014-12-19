@@ -10,8 +10,7 @@ echo "---------------------------- ------------------------"
 
 CURRENT_PATH=`dirname "$0"`
 
-StartMySQL ()
-{
+StartMySQL {
   echo "Starting MYSQL..."
   sudo /etc/init.d/mysql stop
   sudo /usr/bin/mysqld_safe > /dev/null 2>&1 &
@@ -24,20 +23,18 @@ StartMySQL ()
   done
 }
 
-AllowFileSystemToMySQL ()
-{
-
+AllowFileSystemToMySQL {
   MYSQL_DATA_DIR=$VOLUME_HOME/data
   MYSQL_LOG=$VOLUME_HOME/logs
 
   echo "Setting data directory to $MYSQL_DATA_DIR an logs to $MYSQL_LOG ..."
-  if [[ ! -d $MYSQL_DATA_DIR ]] ; then
+  if sudo test ! -d $MYSQL_DATA_DIR; then
     echo "Creating DATA dir > $MYSQL_DATA_DIR ..."
     sudo mkdir -p $MYSQL_DATA_DIR
     # mysql as owner and group owner
     sudo chown -R mysql:mysql $MYSQL_DATA_DIR
   fi
-  if [[ ! -d $MYSQL_LOG ]] ; then
+  if sudo test ! -d $MYSQL_LOG; then
     echo "Creating LOG dir > $MYSQL_LOG ..."
     sudo mkdir -p $MYSQL_LOG
     # mysql as owner and group owner
@@ -55,16 +52,16 @@ AllowFileSystemToMySQL ()
   sudo service apparmor reload
 }
 
-UpdateMySQLConf()
-{
+UpdateMySQLConf {
   echo "Updating MySQL conf files [DATA, LOGS]..."
   sudo sed -i "s:/var/lib/mysql:$MYSQL_DATA_DIR:g" /etc/mysql/my.cnf
   sudo sed -i "s:/var/log/mysql/error.log:$MYSQL_LOG/error.log:g" /etc/mysql/my.cnf
   sudo sed -i "s:3306:$PORT:g" /etc/mysql/my.cnf
-  if [ ! -f /usr/share/mysql/my-default.cnf ] ; then
+
+  if sudo test ! -f /usr/share/mysql/my-default.cnf; then
     sudo cp /etc/mysql/my.cnf /usr/share/mysql/my-default.cnf
   fi
-  if [ ! -f /etc/mysql/conf.d/mysqld_charset.cnf ] ; then
+  if sudo test ! -f /etc/mysql/conf.d/mysqld_charset.cnf; then
     sudo cp $CURRENT_PATH/mysqld_charset.cnf /etc/mysql/conf.d/mysqld_charset.cnf
   fi
 
@@ -73,8 +70,7 @@ UpdateMySQLConf()
   fi
 }
 
-InitMySQLDb() {
-
+InitMySQLDb {
   # create database DB_NAME
   if [ "$DB_NAME" ]; then
     echo "INIT DATABASE $DB_NAME"
@@ -88,11 +84,10 @@ InitMySQLDb() {
     sudo mysql -uroot -e "GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%' WITH GRANT OPTION"
     sudo mysql -uroot -e "FLUSH PRIVILEGES"
   fi
-
 }
 
 # Create a new database path to the attched volume
-if [[ ! -d $VOLUME_HOME/data ]] ; then
+if sudo test ! -d $VOLUME_HOME/data; then
   echo "=> An empty or uninitialized MySQL volume is detected in $VOLUME_HOME/data"
   AllowFileSystemToMySQL
   UpdateMySQLConf

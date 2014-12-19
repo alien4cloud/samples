@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03_1
 description: TOSCA simple profile with Apache.
 
 node_types:
@@ -32,13 +32,17 @@ node_types:
           default: "/var/www"
     interfaces:
       Standard:
-        create: scripts/apache_install.groovy
-        start: scripts/start_apache.groovy
+        create:
+          inputs:
+            PORT: { get_property: [SELF, port] }
+            DOC_ROOT: { get_property: [SELF, document_root] }
+          implementation: scripts/install_apache.sh
+        start: scripts/start_apache.sh
       fastconnect.cloudify.extensions:
-        start_detection: scripts/apache_start_detection.groovy
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
+        start_detection:
+          inputs:
+            PORT: { get_property: [SELF, port] }
+          implementation: scripts/apache_start_detection.groovy
 
 capability_types:
   alien.capabilities.ApacheContainer:

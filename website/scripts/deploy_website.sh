@@ -5,7 +5,7 @@ if ! type "unzip" > /dev/null; then
   sudo apt-get update || error_exit $? "Failed on: sudo apt-get update"
   while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
     echo "Waiting for other software managers to finish..."
-    sleep 0.5
+    sleep $[ ( $RANDOM % 10 )  + 2 ]s
   done
   sudo rm -f /var/lib/dpkg/lock
   sudo apt-get install unzip || error_exit $? "Failed on: sudo apt-get install unzip"
@@ -18,7 +18,7 @@ if [ "$WEBFILE_URL" ]; then
   eval "unzip -o $nameZip -d tmp"
 else
   echo "Deploy from artifact"
-  unzip -o $WEBFILE_ZIP -d tmp
+  unzip -o $website_zip -d tmp
 fi
 
 if [ ! -d $DOC_ROOT/$CONTEXT_PATH ]; then

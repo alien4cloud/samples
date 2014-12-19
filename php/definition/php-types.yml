@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03_1
 description: PHP install on Debian systems.
 
 node_types:
@@ -20,7 +20,7 @@ node_types:
           valid_node_types: [ tosca.nodes.WebApplication ]
     interfaces:
       Standard:
-        create: scripts/php_install.groovy
+        create: scripts/install_php.sh
     artifacts:
       - scripts: scripts
         type: tosca.artifacts.File
@@ -29,8 +29,3 @@ capability_types:
   alien.capabilities.PHPModule:
     derived_from: tosca.capabilities.Container
     description: Provide PHP services
-
-artifact_types:
-  tosca.artifacts.GroovyScript:
-    description: A groovy script (.groovy file)
-    file_ext: [groovy]

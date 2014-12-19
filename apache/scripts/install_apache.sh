@@ -17,7 +17,7 @@ sudo apt-get update || error_exit $? "Failed on: sudo apt-get update"
 
 while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
   echo "Waiting for other software managers to finish..."
-  sleep 0.5
+  sleep $[ ( $RANDOM % 10 )  + 2 ]s
 done
 sudo rm -f /var/lib/dpkg/lock
 sudo apt-get install -y -q apache2 || error_exit $? "Failed on: sudo apt-get install -y -q apache2"
@@ -35,17 +35,18 @@ else
   sudo sed -i -e "s/$defaultPort/$PORT/g" /etc/apache2/ports.conf || error_exit $? "Failed on: sudo sed -i -e $defaultPort/$PORT in ports.conf"
 fi
 
-if [ -f /etc/apache2/sites-available/default ]; then
-  echo "Change the DocumentRoot of Apache2 on Ubuntu < 14.04"
+echo "Change config of apache2"
+if sudo test -f /etc/apache2/sites-available/default; then
+  echo "Change the DocumentRoot of apache2 on Ubuntu < 14.04"
   sudo sed -i -e "s#DocumentRoot /var/www#DocumentRoot $DOC_ROOT#g" /etc/apache2/sites-available/default
 fi
-
-if [ -f /etc/apache2/sites-available/000-default.conf ]; then
+if sudo test -f /etc/apache2/sites-available/000-default.conf; then
   echo "Change the DocumentRoot of Apache2 on Ubuntu >= 14.04"
   sudo sed -i -e "s#DocumentRoot /var/www/html#DocumentRoot $DOC_ROOT#g" /etc/apache2/sites-available/000-default.conf
 fi
 
-echo "ServerName localhost" >> /etc/apache2/apache2.conf
+sudo echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
+echo "Start apache2 whith new conf"
 sudo /etc/init.d/apache2 start
 echo "End of $0"

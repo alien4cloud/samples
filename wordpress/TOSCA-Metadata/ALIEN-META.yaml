@@ -1,5 +1,5 @@
 name: "wordpress-type"
-version: "1.0.0.wd03-SNAPSHOT"
+version: "1.0.0.wd03-1-SNAPSHOT"
 license: "Apache v2.0"
 created_by: "FastConnect"
 
@@ -7,11 +7,11 @@ dependencies:
   - name: tosca-normative-types
     version: 1.0.0.wd03-SNAPSHOT
   - name: php-type
-    version: 1.0.0.wd03-SNAPSHOT
+    version: 1.0.0.wd03-1-SNAPSHOT
   - name: apache-type
-    version: 1.0.0.wd03-SNAPSHOT
+    version: 1.0.0.wd03-1-SNAPSHOT
   - name: mysql-type
-    version: 1.0.0.wd03-SNAPSHOT
+    version: 1.0.0.wd03-1-SNAPSHOT
 
 definitions:
     - /definition/wordpress-types.yml

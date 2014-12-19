@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03_1
 description: TOSCA simple profile with Wordpress
 
 node_types:
@@ -18,7 +18,7 @@ node_types:
         default: "/"
     requirements:
       - host: alien.capabilities.ApacheContainer
-        type: alien.relationships.WordpressHostedOn
+        type: alien.relationships.WordpressHostedOnApache
       - database: alien.capabilities.MysqlDatabase
         type: alien.relationships.WordpressConnectToMysql
         lower_bound: 1
@@ -32,9 +32,6 @@ node_types:
         start: scripts/start_wordpress.groovy
       fastconnect.cloudify.extensions:
         start_detection: scripts/wordpress_start_detection.groovy
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
 
 relationship_types:
   alien.relationships.WordpressHostedOnApache:
@@ -44,10 +41,12 @@ relationship_types:
     valid_targets: [ alien.capabilities.ApacheContainer ]
     interfaces:
       Configure:
-          pre_configure_source: scripts/config_wordpress.groovy
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
+        pre_configure_source:
+          inputs:
+            WEBFILE_URL: { get_property: [SOURCE, zip_url] }
+            CONTEXT_PATH: { get_property: [SOURCE, context_path] }
+            DOC_ROOT: { get_property: [TARGET, document_root] }
+          implementation: scripts/config_wordpress.sh
   alien.relationships.WordpressConnectToMysql:
     derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to connect the Wordpress with a Mysql databse
@@ -55,10 +54,13 @@ relationship_types:
     valid_targets: [ alien.capabilities.MysqlDatabase ]
     interfaces:
       Configure:
-          pre_configure_source: scripts/config_wordpress_for_mysql.groovy
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
+          pre_configure_source:
+            inputs:
+              DB_IP: { get_attribute: [TARGET, ip_address] }
+              DB_NAME: { get_property: [TARGET, db_name] }
+              DB_USER: { get_property: [TARGET, db_user] }
+              DB_PASSWORD: { get_property: [TARGET, db_password] }
+            implementation: scripts/config_wordpress_for_mysql.sh
   alien.relationships.WordpressConnectToPHP:
     derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to install the Mysql module for PHP
@@ -66,10 +68,7 @@ relationship_types:
     valid_targets: [ alien.capabilities.PHPModule ]
     interfaces:
       Configure:
-          pre_configure_source: scripts/install_php_module.groovy
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
+          pre_configure_source: scripts/install_php_module.sh
 
 artifact_types:
   tosca.artifacts.GroovyScript:

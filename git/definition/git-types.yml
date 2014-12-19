@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03_1
 description: Git install on Debian systems.
 
 node_types:
@@ -16,11 +16,12 @@ node_types:
         default: user@mydomain.org
     interfaces:
       Standard:
-        create: scripts/git_install.groovy
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
-
+        create:
+          inputs:
+            GIT_USER: { get_property: [SELF, git_user] }
+            GIT_EMAIL: { get_property: [SELF, git_email] }
+          implementation: scripts/installGit.sh
+          
 artifact_types:
   tosca.artifacts.GroovyScript:
     description: A groovy script (.groovy file)

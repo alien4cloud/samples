@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03_1
 
 description: Tomcat recipe, including war type and relationship.
 
@@ -93,15 +93,15 @@ relationship_types:
     valid_targets: [ alien.capabilities.WarHosting ]
     interfaces:
       configure:
-        post_configure_source: 
+        post_configure_source:
           inputs:
-            contextPath: { get_property: [SOURCE, contextPath] } 
+            contextPath: { get_property: [SOURCE, contextPath] }
             tomcatIp: { get_attribute: [TARGET, ip_address] }
           implementation: relationshipScripts/warHostedOnTomcat_post_configure_source.groovy
     artifacts:
       - scripts: relationshipScripts
         type: tosca.artifacts.File
-        
+
 capability_types:
   alien.capabilities.WarHosting:
     derived_from: tosca.capabilities.Container

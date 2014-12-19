@@ -1,4 +1,4 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03_1
 description: MySQL RDBMS installation on a specific mounted volume path.
 
 node_types:
@@ -46,13 +46,24 @@ node_types:
         type: string
         default: /mountedStorage
         constraints:
-          - valid_values: [ "/mountedStorage", "/var/mysql"]
+          - valid_values: [ "/mountedStorage", "/var/mysql" ]
     interfaces:
       Standard:
-        create: scripts/mysql_install.groovy
-        start: scripts/mysql_start.groovy
+        create: scripts/installMysql.sh
+        start:
+          inputs:
+            VOLUME_HOME: { get_property: [SELF, storage_path] }
+            PORT: { get_property: [SELF, db_port] }
+            DB_NAME: { get_property: [SELF, db_name] }
+            DB_USER: { get_property: [SELF, db_user] }
+            DB_PASSWORD: { get_property: [SELF, db_password] }
+            BIND_ADRESS: { get_property: [SELF, bind_address] }
+          implementation: scripts/startMysql.sh
       fastconnect.cloudify.extensions:
-         start_detection: scripts/mysql_start_detection.groovy
+         start_detection:
+          inputs:
+            PORT: { get_property: [SELF, db_port] }
+          implementation: scripts/mysql_start_detection.groovy
     artifacts:
       - scripts: scripts
         type: tosca.artifacts.File

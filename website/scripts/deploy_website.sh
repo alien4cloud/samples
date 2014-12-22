@@ -2,13 +2,13 @@
 
 if ! type "unzip" > /dev/null; then
   echo "Install unzip..."
-  sudo apt-get update || error_exit $? "Failed on: sudo apt-get update"
-  while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+  sudo apt-get update || exit ${1}
+  while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
     echo "Waiting for other software managers to finish..."
     sleep $[ ( $RANDOM % 10 )  + 2 ]s
   done
   sudo rm -f /var/lib/dpkg/lock
-  sudo apt-get install unzip || error_exit $? "Failed on: sudo apt-get install unzip"
+  sudo apt-get install unzip || exit ${1}
 fi
 
 if [ "$WEBFILE_URL" ]; then

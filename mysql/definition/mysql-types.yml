@@ -49,7 +49,7 @@ node_types:
           - valid_values: [ "/mountedStorage", "/var/mysql" ]
     interfaces:
       Standard:
-        create: scripts/installMysql.sh
+        create: scripts/install_mysql.sh
         start:
           inputs:
             VOLUME_HOME: { get_property: [SELF, storage_path] }
@@ -58,7 +58,7 @@ node_types:
             DB_USER: { get_property: [SELF, db_user] }
             DB_PASSWORD: { get_property: [SELF, db_password] }
             BIND_ADRESS: { get_property: [SELF, bind_address] }
-          implementation: scripts/startMysql.sh
+          implementation: scripts/start_mysql.sh
       fastconnect.cloudify.extensions:
          start_detection:
           inputs:

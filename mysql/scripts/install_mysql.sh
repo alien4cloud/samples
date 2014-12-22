@@ -1,11 +1,11 @@
 #!/bin/bash
 
-echo "install PHP5..."
+echo "Debian based MYSQL install 5..."
 LOCK="/tmp/lockaptget"
 
 while true; do
   if mkdir "${LOCK}" &>/dev/null; then
-    echo "PHP take the lock"
+    echo "MySQL take the lock"
     break;
   fi
   echo "Waiting the end of one of our recipes..."
@@ -18,7 +18,11 @@ while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
 done
 sudo rm -f /var/lib/dpkg/lock
 
-
-sudo apt-get update || exit ${1}
-sudo apt-get -y -q install php5 php5-common php5-curl php5-cli php-pear php5-gd php5-mcrypt php5-xmlrpc php5-sqlite php-xml-parser || exit ${1}
+sudo apt-get update || echo "Failed on: sudo apt-get update"
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-server-5.5 pwgen || exit ${1}
 rm -rf "${LOCK}"
+
+sudo /etc/init.d/mysql stop
+sudo rm -rf /var/lib/apt/lists/*
+sudo rm -rf /var/lib/mysql/*
+echo "MySQL Installation complete."

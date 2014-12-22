@@ -10,7 +10,7 @@ echo "---------------------------- ------------------------"
 
 CURRENT_PATH=`dirname "$0"`
 
-StartMySQL {
+function StartMySQL {
   echo "Starting MYSQL..."
   sudo /etc/init.d/mysql stop
   sudo /usr/bin/mysqld_safe > /dev/null 2>&1 &
@@ -23,7 +23,7 @@ StartMySQL {
   done
 }
 
-AllowFileSystemToMySQL {
+function AllowFileSystemToMySQL {
   MYSQL_DATA_DIR=$VOLUME_HOME/data
   MYSQL_LOG=$VOLUME_HOME/logs
 
@@ -52,7 +52,7 @@ AllowFileSystemToMySQL {
   sudo service apparmor reload
 }
 
-UpdateMySQLConf {
+function UpdateMySQLConf {
   echo "Updating MySQL conf files [DATA, LOGS]..."
   sudo sed -i "s:/var/lib/mysql:$MYSQL_DATA_DIR:g" /etc/mysql/my.cnf
   sudo sed -i "s:/var/log/mysql/error.log:$MYSQL_LOG/error.log:g" /etc/mysql/my.cnf
@@ -70,7 +70,7 @@ UpdateMySQLConf {
   fi
 }
 
-InitMySQLDb {
+function InitMySQLDb {
   # create database DB_NAME
   if [ "$DB_NAME" ]; then
     echo "INIT DATABASE $DB_NAME"

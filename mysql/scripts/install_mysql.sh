@@ -18,7 +18,7 @@ while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
 done
 sudo rm -f /var/lib/dpkg/lock
 
-sudo apt-get update || echo "Failed on: sudo apt-get update"
+sudo apt-get update || (sleep 15; sudo apt-get update || exit ${1})
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y install mysql-server-5.5 pwgen || exit ${1}
 rm -rf "${LOCK}"
 

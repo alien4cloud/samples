@@ -19,6 +19,6 @@ done
 sudo rm -f /var/lib/dpkg/lock
 
 
-sudo apt-get update || exit ${1}
+sudo apt-get update || (sleep 15; sudo apt-get update || exit ${1})
 sudo apt-get -y -q install php5 php5-common php5-curl php5-cli php-pear php5-gd php5-mcrypt php5-xmlrpc php5-sqlite php-xml-parser || exit ${1}
 rm -rf "${LOCK}"

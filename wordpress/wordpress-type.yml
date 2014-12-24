@@ -1,5 +1,14 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: TOSCA simple profile with Wordpress
+template_name: wordpress-type
+template_version: 1.0.0.wd03-1-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
+  - "apache-type:1.0.0.wd03-1-SNAPSHOT"
+  - "mysql-type:1.0.0.wd03-1-SNAPSHOT"
+  - "php-type:1.0.0.wd03-1-SNAPSHOT"
 
 node_types:
   alien.nodes.Wordpress:

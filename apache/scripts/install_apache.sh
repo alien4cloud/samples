@@ -19,7 +19,7 @@ while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
 done
 
 sudo rm -f /var/lib/dpkg/lock
-sudo apt-get update || exit ${1}
+sudo apt-get update || (sleep 15; sudo apt-get update || exit ${1})
 sudo apt-get install -y -q apache2 || exit ${1}
 rm -rf "${LOCK}"
 

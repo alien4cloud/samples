@@ -2,7 +2,7 @@
 
 echo "Git and install..."
 
-sudo apt-get update || exit ${1}
+sudo apt-get update || (sleep 15; sudo apt-get update || exit ${1})
 while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
   echo "Waiting for other software managers to finish..."
   sleep $[ ( $RANDOM % 10 )  + 2 ]s

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 echo "install PHP module for Mysql..."
-sudo apt-get update || (sleep 15; sudo apt-get update || exit ${1})
+sudo apt-get update || exit ${1}
 
 while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
   echo "Waiting for other software managers to finish..."
-  sleep $[ ( $RANDOM % 10 )  + 2 ]s
+  sleep 2s
 done
 sudo apt-get -y -q install php5-mysql || exit ${1}
 echo "restart apache2 to launch php5-mysql"

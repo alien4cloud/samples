@@ -44,17 +44,7 @@ node_types:
             DOC_ROOT: { get_property: [SELF, document_root] }
           implementation: scripts/install_apache.sh
         start: scripts/start_apache.sh
-      fastconnect.cloudify.extensions:
-        start_detection:
-          inputs:
-            PORT: { get_property: [SELF, port] }
-          implementation: scripts/apache_start_detection.groovy
 
 capability_types:
   alien.capabilities.ApacheContainer:
       derived_from: tosca.capabilities.Container
-
-artifact_types:
-  tosca.artifacts.GroovyScript:
-    description: A groovy script (.groovy file)
-    file_ext: [groovy]

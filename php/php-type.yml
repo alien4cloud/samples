@@ -27,9 +27,6 @@ node_types:
     interfaces:
       Standard:
         create: scripts/install_php.sh
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
 
 capability_types:
   alien.capabilities.PHPModule:

@@ -65,20 +65,7 @@ node_types:
             DB_PASSWORD: { get_property: [SELF, db_password] }
             BIND_ADRESS: { get_property: [SELF, bind_address] }
           implementation: scripts/start_mysql.sh
-      fastconnect.cloudify.extensions:
-         start_detection:
-          inputs:
-            PORT: { get_property: [SELF, db_port] }
-          implementation: scripts/mysql_start_detection.groovy
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
 
 capability_types:
   alien.capabilities.MysqlDatabase:
       derived_from: tosca.capabilities.Container
-
-artifact_types:
-  tosca.artifacts.GroovyScript:
-    description: A groovy script (.groovy file)
-    file_ext: [groovy]

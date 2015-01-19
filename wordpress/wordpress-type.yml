@@ -38,9 +38,10 @@ node_types:
         upper_bound: 1
     interfaces:
       Standard:
-        start: scripts/start_wordpress.groovy
-      fastconnect.cloudify.extensions:
-        start_detection: scripts/wordpress_start_detection.groovy
+        create: 
+          inputs:
+            WEBFILE_URL: { get_property: [SELF, zip_url] }
+          implementation: scripts/install_wordpress.sh
 
 relationship_types:
   alien.relationships.WordpressHostedOnApache:
@@ -52,7 +53,6 @@ relationship_types:
       Configure:
         pre_configure_source:
           inputs:
-            WEBFILE_URL: { get_property: [SOURCE, zip_url] }
             CONTEXT_PATH: { get_property: [SOURCE, context_path] }
             DOC_ROOT: { get_property: [TARGET, document_root] }
           implementation: scripts/config_wordpress.sh
@@ -66,7 +66,6 @@ relationship_types:
           pre_configure_source:
             inputs:
               DB_IP: { get_attribute: [TARGET, ip_address] }
-              DB_PORT: { get_property: [TARGET, db_port] }
               DB_NAME: { get_property: [TARGET, db_name] }
               DB_USER: { get_property: [TARGET, db_user] }
               DB_PASSWORD: { get_property: [TARGET, db_password] }
@@ -79,8 +78,3 @@ relationship_types:
     interfaces:
       Configure:
           pre_configure_source: scripts/install_php_module.sh
-
-artifact_types:
-  tosca.artifacts.GroovyScript:
-    description: A groovy script (.groovy file)
-    file_ext: [groovy]

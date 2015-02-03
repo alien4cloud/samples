@@ -1,14 +1,14 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: TOSCA simple profile with Wordpress
 template_name: wordpress-type
-template_version: 1.1.0-SNAPSHOT
+template_version: 1.1.1-SNAPSHOT
 template_author: FastConnect
 
 imports:
   - "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
-  - "apache-type:1.1.0-SNAPSHOT"
-  - "mysql-type:1.1.0-SNAPSHOT"
-  - "php-type:1.1.0-SNAPSHOT"
+  - "apache-type:1.1.1-SNAPSHOT"
+  - "mysql-type:1.1.1-SNAPSHOT"
+  - "php-type:1.1.1-SNAPSHOT"
 
 node_types:
   alien.nodes.Wordpress:
@@ -19,11 +19,9 @@ node_types:
     properties:
       zip_url:
         type: string
-        required: true
         default: "https://wordpress.org/latest.zip"
       context_path:
         type: string
-        required: true
         default: "/"
     requirements:
       - host: alien.capabilities.ApacheContainer

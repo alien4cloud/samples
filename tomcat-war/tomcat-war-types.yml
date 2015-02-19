@@ -1,5 +1,14 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
+template_name: tomcat-war-types
+template_author: Alien4cloud
+template_version: 1.0-SNAPSHOT
+
+#dependencies
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  - alien-base-types:1.0-SNAPSHOT
+
 description: Tomcat recipe, including war type and relationship.
 
 node_types:

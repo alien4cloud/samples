@@ -6,10 +6,10 @@ template_author: FastConnect
 
 imports:
   - "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
-  - "apache-type:1.1.1-SNAPSHOT"
-  - "mysql-type:1.1.1-SNAPSHOT"
-  - "php-type:1.1.1-SNAPSHOT"  
-  - "wordpress-type:1.1.1-SNAPSHOT"
+  - "apache-type:2.0.0-SNAPSHOT"
+  - "mysql-type:2.0.0-SNAPSHOT"
+  - "php-type:2.0.0-SNAPSHOT"  
+  - "wordpress-type:2.0.0-SNAPSHOT"
 
 topology_template:
   description: Wordpress deployment template
@@ -28,21 +28,45 @@ topology_template:
     php:
       type: alien.nodes.PHP
       requirements:
-        - host: compute
-    compute:
+        - host: computeWww
+    computeDb:
       type: tosca.nodes.Compute
       properties:
         os_type: linux
-        os_distribution: ubuntu
+        os_distribution: Ubuntu
+        os_version: 12.04
+        os_arch: x86_64
+        num_cpus: 1
+        mem_size: 1024
+        disk_size: 1
+    computeWww:
+      type: tosca.nodes.Compute
+      properties:
+        os_type: linux
+        os_distribution: Ubuntu
+        os_version: 12.04
+        os_arch: x86_64
+        num_cpus: 1
+        mem_size: 1024
+        disk_size: 1        
+      requirements:
+        - network: 
+            node: network
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.ConnectsTo            
+    network:
+      type: tosca.nodes.Network
+      properties:
+        ip_version: 4
     apache:
       type: alien.nodes.Apache
       properties:
         port: 80
         document_root: "/var/www"
       requirements:
-        - host: compute
+        - host: computeWww
     mysql:
       type: alien.nodes.Mysql
       requirements:
-        - host: compute      
+        - host: computeDb      
       

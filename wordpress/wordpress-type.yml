@@ -64,6 +64,7 @@ relationship_types:
           pre_configure_source:
             inputs:
               DB_IP: { get_attribute: [TARGET, ip_address] }
+              DB_PORT: { get_property: [TARGET, db_port] }
               DB_NAME: { get_property: [TARGET, db_name] }
               DB_USER: { get_property: [TARGET, db_user] }
               DB_PASSWORD: { get_property: [TARGET, db_password] }

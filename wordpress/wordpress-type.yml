@@ -23,6 +23,12 @@ node_types:
       context_path:
         type: string
         default: "/"
+    attributes:
+      instance_count:
+        type: integer
+        description: Number of instances
+      url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, port], "/", get_property: [SELF, context_path]  ] }
+      wordpress_url: { concat: ["http://", get_attribute: [HOST, ip_address]] }
     requirements:
       - host: alien.capabilities.ApacheContainer
         type: alien.relationships.WordpressHostedOnApache

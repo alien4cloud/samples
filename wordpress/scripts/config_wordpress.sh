@@ -8,7 +8,7 @@ if [ ! -d $DOC_ROOT/$CONTEXT_PATH ]; then
 fi
 
 sudo rm -rf $DOC_ROOT/$CONTEXT_PATH/*
-sudo mv -f /opt/wordpress/* $DOC_ROOT/$CONTEXT_PATH
+sudo mv -f /opt/wordpress/wordpress/* $DOC_ROOT/$CONTEXT_PATH
 sudo chown -R www-data:www-data $DOC_ROOT/$CONTEXT_PATH
 sudo chmod 777 -R $DOC_ROOT/$CONTEXT_PATH
 

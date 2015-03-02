@@ -24,11 +24,11 @@ node_types:
         type: string
         default: "/"
     attributes:
-      instance_count:
+      max_user_number:
         type: integer
-        description: Number of instances
-      url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, port], "/", get_property: [SELF, context_path]  ] }
-      wordpress_url: { concat: ["http://", get_attribute: [HOST, ip_address]] }
+        default: 10
+        description: Max user number
+      wordpress_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], get_property: [SELF, context_path] ] }
     requirements:
       - host: alien.capabilities.ApacheContainer
         type: alien.relationships.WordpressHostedOnApache

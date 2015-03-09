@@ -51,20 +51,20 @@ topology_template:
     computeDb:
       type: tosca.nodes.Compute
       properties:
-        os_type: { get_input: [ os_type ] }
-        os_distribution: { get_input: [ os_distribution ] }
-        os_version: { get_input: [ os_version ] }
-        os_arch: { get_input: [ os_arch ] }
+        os_type: { get_input: os_type }
+        os_distribution: { get_input: os_distribution }
+        os_version: { get_input: os_version }
+        os_arch: { get_input: os_arch }
         num_cpus: 1
         mem_size: 1024
         disk_size: 1
     computeWww:
       type: tosca.nodes.Compute
       properties:
-        os_type: { get_input: [ os_type ] }
-        os_distribution: { get_input: [ os_distribution ] }
-        os_version: { get_input: [ os_version ] }
-        os_arch: { get_input: [ os_arch ] }
+        os_type: { get_input: os_type }
+        os_distribution: { get_input: os_distribution }
+        os_version: { get_input: os_version }
+        os_arch: { get_input: os_arch }
         num_cpus: 1
         mem_size: 1024
         disk_size: 1        

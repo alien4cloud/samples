@@ -21,6 +21,7 @@ node_types:
     properties:
       version:
         type: version
+        required: false
         default: 7.0.23
         constraints:
           - equal: 7.0.23
@@ -72,7 +73,6 @@ node_types:
       contextPath:
         description: "Context path to access the deployed war ( ex: www.server.com/<contextPath>)"
         type: string
-        required: true
     requirements:
       - host: alien.capabilities.WarHosting
         lower_bound: 1

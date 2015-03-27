@@ -68,15 +68,6 @@ topology_template:
         num_cpus: 1
         mem_size: 1024
         disk_size: 1        
-      requirements:
-        - network: 
-            node: network
-            capability: tosca.capabilities.Connectivity
-            relationship: tosca.relationships.Network            
-    network:
-      type: tosca.nodes.Network
-      properties:
-        ip_version: 4
     apache:
       type: alien.nodes.Apache
       properties:

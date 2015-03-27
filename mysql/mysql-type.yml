@@ -17,6 +17,7 @@ node_types:
       host:
         type: alien.capabilities.MysqlDatabase
         properties:
+          required: false
           valid_node_types: [ tosca.nodes.WebApplication ]
     requirements:
       - host: tosca.nodes.Compute
@@ -63,6 +64,9 @@ node_types:
             DB_PASSWORD: { get_property: [SELF, db_password] }
             BIND_ADRESS: { get_property: [SELF, bind_address] }
           implementation: scripts/start_mysql.sh
+    artifacts:
+      - scripts: scripts
+        type: tosca.artifacts.File
 
 capability_types:
   alien.capabilities.MysqlDatabase:

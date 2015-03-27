@@ -23,6 +23,7 @@ node_types:
       attachWebsite:
         type: alien.capabilities.PHPModule
         properties:
+          required: false
           valid_node_types: [ tosca.nodes.WebApplication ]
     interfaces:
       Standard:

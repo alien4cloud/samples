@@ -62,7 +62,7 @@ function UpdateMySQLConf {
     sudo cp /etc/mysql/my.cnf /usr/share/mysql/my-default.cnf
   fi
   if sudo test ! -f /etc/mysql/conf.d/mysqld_charset.cnf; then
-    sudo cp $scripts/mysqld_charset.cnf /etc/mysql/conf.d/mysqld_charset.cnf
+    sudo cp $configs/mysqld_charset.cnf /etc/mysql/conf.d/mysqld_charset.cnf
   fi
 
   if [ "$BIND_ADRESS" == "true" ]; then

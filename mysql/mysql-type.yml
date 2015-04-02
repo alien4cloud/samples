@@ -65,7 +65,7 @@ node_types:
             BIND_ADRESS: { get_property: [SELF, bind_address] }
           implementation: scripts/start_mysql.sh
     artifacts:
-      - scripts: scripts
+      - configs: configs
         type: tosca.artifacts.File
 
 capability_types:

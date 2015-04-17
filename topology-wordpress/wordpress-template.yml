@@ -56,8 +56,8 @@ topology_template:
         os_version: { get_input: os_version }
         os_arch: { get_input: os_arch }
         num_cpus: 1
-        mem_size: 1024
-        disk_size: 1
+        mem_size: 1024 MB
+        disk_size: 1 GB
     computeWww:
       type: tosca.nodes.Compute
       properties:
@@ -66,8 +66,8 @@ topology_template:
         os_version: { get_input: os_version }
         os_arch: { get_input: os_arch }
         num_cpus: 1
-        mem_size: 1024
-        disk_size: 1        
+        mem_size: 1024 MB
+        disk_size: 1 GB
     apache:
       type: alien.nodes.Apache
       properties:

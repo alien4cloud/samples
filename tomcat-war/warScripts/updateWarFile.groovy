@@ -2,7 +2,7 @@ import org.cloudifysource.dsl.utils.ServiceUtils
 import java.util.concurrent.TimeUnit
 
 assert warUrl && !warUrl.trim().isEmpty(), "requires warUrl parameter"
-def command = "${HOST}_updateWarOnTomcat"
+def command = "${HOST}_custom_updateWarOnTomcat"
 println "updateWarFile.groovy: warUrl is ${warUrl} and contextPath is ${contextPath}..."
 println "updateWarFile.groovy: invoking ${command} custom command ..."
 def service = context.waitForService(SERVICE_NAME, 60, TimeUnit.SECONDS)

@@ -2,9 +2,8 @@ tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
 template_name: tomcat-war-types
 template_author: Alien4cloud
-template_version: 1.0-SNAPSHOT
+template_version: 2.0.0-SNAPSHOT
 
-#dependencies
 imports:
   - tosca-normative-types:1.0.0.wd03-SNAPSHOT
   - alien-base-types:1.0-SNAPSHOT
@@ -12,107 +11,134 @@ imports:
 description: Tomcat recipe, including war type and relationship.
 
 node_types:
-  alien.nodes.cloudify.Tomcat:
+
+  alien.nodes.Java:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      Installation of Java
+    tags:
+      icon: /images/java.png
+    properties:
+      java_url:
+        type: string
+        required: true
+        default: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+      java_home:
+        type: string
+        required: true
+        default: "/opt/java"
+    capabilities:
+      java:
+        type: alien.capabilities.Java
+        upper_bound: unbounded
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            JAVA_URL: { get_property: [SELF, java_url] }
+            JAVA_HOME: { get_property: [SELF, java_home] }
+          implementation: scripts/java_install.sh
+
+  alien.nodes.Tomcat:
     derived_from: tosca.nodes.WebServer
     description: >
-      Installation of Tomcat using Cloudify scripts
+      Installation of Tomcat
     tags:
       icon: /images/tomcat.gif
     properties:
-      version:
-        type: version
-        required: false
-        default: 7.0.23
-        constraints:
-          - equal: 7.0.23
+      tomcat_home:
+        type: string
+        required: true
+        default: "/opt/tomcat"
+      tomcat_port:
+        type: integer
+        required: true
+        default: 80
+      tomcat_url:
+        type: string
+        required: true
+        default: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.20/bin/apache-tomcat-8.0.20.tar.gz"
+    attributes:
+      server_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, tomcat_port]] }
+    requirements:
+      - java: alien.capabilities.Java
     capabilities:
-      http_endpoint:
-        type: alien.capabilities.HttpEndpoint
-        upper_bound: unbounded
-      war_host:
+        war_host:
           type: alien.capabilities.WarHosting
           upper_bound: unbounded
-    requirements:
-      - http_endpoint: alien.capabilities.HttpEndpoint
-        lower_bound: 0
-        upper_bound: unbounded
-      - jdbc_resource: alien.capabilities.JdbcEndpoint
-        lower_bound: 0
-        upper_bound: 1
     interfaces:
       Standard:
-        create: scripts/tomcat_installAlien.groovy
-        start: scripts/tomcat_start.groovy
-        stop: scripts/tomcat_stop.groovy
-      fastconnect.cloudify.extensions:
-        start_detection: scripts/tomcat_startDetection.groovy
-        stop_detection: scripts/tomcat_stopDetection.groovy
-        locator: scripts/alien_tomcat_locator.groovy
-      custom:
-        updateWarOnTomcat:
+        create:
           inputs:
-            catalinaBase: { get_attribute: [SELF, catalinaBase] }
-            installDir: { get_attribute: [SELF, installDir] }
-            url:
-              type: string
-              required: true
-            contextPath:
-              type: string
-              required: true
-          implementation: scripts/updateWarOnTomcat.groovy
-    artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
+            TOMCAT_HOME: { get_property: [SELF, tomcat_home] }
+            TOMCAT_PORT: { get_property: [SELF, tomcat_port] }
+            TOMCAT_URL: { get_property: [SELF, tomcat_url] }
+          implementation: scripts/tomcat_install.sh
+        start:
+          inputs:
+            TOMCAT_HOME: { get_property: [SELF, tomcat_home] }
+            TOMCAT_PORT: { get_property: [SELF, tomcat_port] }
+          implementation: scripts/tomcat_start.sh
+        stop:
+          inputs:
+            TOMCAT_HOME: { get_property: [SELF, tomcat_home] }
+          implementation: scripts/tomcat_stop.sh
 
-  alien.nodes.cloudify.War:
+  alien.nodes.War:
     derived_from: tosca.nodes.WebApplication
     description: A war element
     tags:
       icon: /images/war.jpg
     properties:
-      contextPath:
-        description: "Context path to access the deployed war ( ex: www.server.com/<contextPath>)"
+      context_path:
+        description: "Context path to access the deployed war ( ex: www.server.com/<context_path>)"
         type: string
+    attributes:
+      application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_path] ] }
     requirements:
       - host: alien.capabilities.WarHosting
         lower_bound: 1
         upper_bound: 1
+    artifacts:
+      - war_file: warFiles/helloWorld.war
+        type: alien.artifacts.WarFile
     interfaces:
       custom:
-        updateWarFile:
+        update_war_file:
           inputs:
-            contextPath: { get_property: [SELF, contextPath] }
-            warUrl:
+            CONTEXT_PATH: { get_property: [SELF, context_path] }
+            TOMCAT_HOME: { get_property: [HOST, tomcat_home] }
+            TOMCAT_PORT: { get_property: [HOST, tomcat_port] }
+            WAR_URL:
               type: string
               description: url of the war to upload to update the current one
               required: true
-          implementation: warScripts/updateWarFile.groovy
-    artifacts:
-      - scripts: warScripts
-        type: tosca.artifacts.File
-      - war_file: warFiles/helloWorld.war
-        type: alien.artifacts.WarFile
+          implementation: scripts/tomcat_install_war.sh
 
 relationship_types:
 
-  alien.relationships.cloudify.WarHostedOnTomcat:
+  alien.relationships.WarHostedOnTomcat:
     derived_from: tosca.relationships.HostedOn
     description: Relationship that allows to deploy a war on tomcat.
     valid_sources: [ alien.capabilities.WarHosting ]
     valid_targets: [ alien.capabilities.WarHosting ]
     interfaces:
       configure:
-        post_configure_source:
+        add_source:
           inputs:
-            contextPath: { get_property: [SOURCE, contextPath] }
-            tomcatIp: { get_attribute: [TARGET, ip_address] }
-          implementation: relationshipScripts/warHostedOnTomcat_post_configure_source.groovy
-    artifacts:
-      - scripts: relationshipScripts
-        type: tosca.artifacts.File
+            CONTEXT_PATH: { get_property: [SOURCE, context_path] }
+            TOMCAT_HOME: { get_property: [TARGET, tomcat_home] }
+            TOMCAT_PORT: { get_property: [TARGET, tomcat_port] }
+          implementation: scripts/tomcat_install_war.sh
+  alien.relationships.RunOnJVM:
+    derived_from: tosca.relationships.DependsOn
+    description: Relationship between a Java SoftwareComponent and its RunOnJVM
+    valid_sources: [ alien.capabilities.Java ]
+    valid_targets: [ alien.capabilities.Java ]
 
 capability_types:
+
   alien.capabilities.WarHosting:
     derived_from: tosca.capabilities.Container
-  alien.capabilities.JdbcEndpoint:
-    derived_from: tosca.capabilities.Endpoint
+  alien.capabilities.Java:
+    derived_from: tosca.capabilities.Root

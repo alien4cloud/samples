@@ -124,7 +124,7 @@ relationship_types:
     valid_targets: [ alien.capabilities.WarHosting ]
     interfaces:
       configure:
-        add_source:
+        add_target:
           inputs:
             CONTEXT_PATH: { get_property: [SOURCE, context_path] }
             TOMCAT_HOME: { get_property: [TARGET, tomcat_home] }

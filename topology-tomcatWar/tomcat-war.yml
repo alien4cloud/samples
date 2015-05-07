@@ -1,0 +1,84 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Alien4Cloud generated service template
+template_name: tomcat-war
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - tomcat-war-types:2.0.0-SNAPSHOT
+  - alien-base-types:1.0-SNAPSHOT
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+
+topology_template:
+  inputs:
+    os_arch:
+      type: string
+      required: true
+      constraints: 
+        - valid_values: [x86_32, x86_64]
+      description: The host Operating System (OS) architecture.
+    os_type:
+      type: string
+      required: true
+      constraints: 
+        - valid_values: [linux, aix, mac os, windows]
+      description: The host Operating System (OS) type.
+  node_templates:
+    War:
+      type: alien.nodes.War
+      properties:
+        context_path: war
+      requirements:
+        - host:
+            node: Tomcat
+            capability: alien.capabilities.WarHosting
+            relationship: alien.relationships.WarHostedOnTomcat
+      artifacts:
+        war_file:
+          implementation: warFiles/helloWorld.war
+          type: alien.artifacts.WarFile
+          description: warFiles/helloWorld.war
+    Tomcat:
+      type: alien.nodes.Tomcat
+      properties:
+        tomcat_home: /opt/tomcat
+        tomcat_port: 80
+        tomcat_url: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.22/bin/apache-tomcat-8.0.22.tar.gz"
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - java:
+            node: Java
+            capability: alien.capabilities.Java
+            relationship: alien.relationships.RunOnJVM
+      capabilities:
+        app_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+        secure_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+    Compute:
+      type: tosca.nodes.Compute
+      properties:
+        os_arch: { get_input: os_arch }
+        os_type: { get_input: os_type }
+    Java:
+      type: alien.nodes.Java
+      properties:
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_home: /opt/java
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+  outputs:
+    War_application_url:
+      value: { get_attribute: [ War, application_url ] }
+    Tomcat_server_url:
+      value: { get_attribute: [ Tomcat, server_url ] }

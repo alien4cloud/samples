@@ -1,0 +1,4 @@
+# Explicitly declare files to always takes the linux line endings on checkout.
+*.sh   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf

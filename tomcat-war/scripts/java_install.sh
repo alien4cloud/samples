@@ -54,7 +54,7 @@ echo "${currHostName}:${currFilename} Downloading ${JAVA_URL} to ${destJavaArchi
 download "JDK" $JAVA_URL $JAVA_HOME/java_archive.tar.gz
 
 # Install java
-sudo tar xzvf $JAVA_HOME/java_archive.tar.gz --strip 1 -C $JAVA_HOME
+sudo tar xzf $JAVA_HOME/java_archive.tar.gz --strip 1 -C $JAVA_HOME
 sudo rm $JAVA_HOME/java_archive.tar.gz
 
 echo "${currHostName}:${currFilename} Java installed at ${JAVA_HOME}"

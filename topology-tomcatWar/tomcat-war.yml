@@ -33,11 +33,6 @@ topology_template:
             node: Tomcat
             capability: alien.capabilities.WarHosting
             relationship: alien.relationships.WarHostedOnTomcat
-      artifacts:
-        war_file:
-          implementation: warFiles/helloWorld.war
-          type: alien.artifacts.WarFile
-          description: warFiles/helloWorld.war
     Tomcat:
       type: alien.nodes.Tomcat
       properties:

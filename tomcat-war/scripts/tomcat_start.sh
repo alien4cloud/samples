@@ -72,7 +72,7 @@ export PATH=$PATH:/usr/sbin:/sbin || error_exit $? "Failed on: export PATH=$PATH
 
 export CLASSPATH=
 
-export JAVA_OPTS=-Xms1024m -Xmx1024m
+export JAVA_OPTS="-Xms1024m -Xmx1024m"
 COMMAND="$TOMCAT_HOME/bin/catalina.sh run"
 sudo nohup ${COMMAND} > /dev/null 2>&1 &
 PID=$!

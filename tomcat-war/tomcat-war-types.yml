@@ -85,7 +85,7 @@ node_types:
           implementation: scripts/tomcat_stop.sh
 
   alien.nodes.War:
-    derived_from: tosca.nodes.WebApplication
+    derived_from: alien.nodes.LoadBalancedWebApplication
     description: A war element
     tags:
       icon: /images/war.jpg

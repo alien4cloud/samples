@@ -1,0 +1,40 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with Apache Load Balancer.
+template_name: apache-load-balancer-type
+template_version: 2.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  - alien-base-types:1.0-SNAPSHOT
+node_types:
+
+  alien.nodes.ApacheLoadBalancer:
+    derived_from: alien.nodes.LoadBalancer
+    description: >
+      The TOSCA Apache Node Type represents an apache load balancer that can be run on a debian based os.
+    tags:
+      icon: /images/apache.png
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            PORT: { get_property: [SELF, port] }
+          implementation: scripts/install_apache_load_balancer.sh
+        start: scripts/start_apache_load_balancer.sh
+        stop: scripts/stop_apache_load_balancer.sh
+
+relationship_types:
+  alien.relationships.WebApplicationConnectsToApacheLoadBalancer:
+    derived_from: alien.relationships.WebApplicationConnectsToLoadBalancer
+    description: Relationship use to connect the WebServer to the Apache LoadBalancer
+    interfaces:
+      Configure:
+          add_source:
+            inputs:
+              WEB_APPLICATION_URL: { get_attribute: [SOURCE, application_url] }
+            implementation: scripts/add_web_app_to_load_balancer.sh
+          remove_source:
+            inputs:
+              WEB_APPLICATION_URL: { get_attribute: [SOURCE, application_url] }
+            implementation: scripts/remove_web_app_from_load_balancer.sh

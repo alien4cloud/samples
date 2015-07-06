@@ -5,15 +5,14 @@ template_version: 2.0.0-SNAPSHOT
 template_author: FastConnect
 
 imports:
-  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
-  - apache-type:2.0.0-SNAPSHOT
-  - mysql-type:2.0.0-SNAPSHOT
-  - php-type:2.0.0-SNAPSHOT
-  - alien-base-types:1.0-SNAPSHOT
+  - "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
+  - "apache-type:2.0.0-SNAPSHOT"
+  - "mysql-type:2.0.0-SNAPSHOT"
+  - "php-type:2.0.0-SNAPSHOT"
 
 node_types:
   alien.nodes.Wordpress:
-    derived_from: alien.nodes.LoadBalancedWebApplication
+    derived_from: tosca.nodes.WebApplication
     description: The TOSCA Wordpress Node Type represents a Wordpress CMS.
     tags:
       icon: /images/wordpress.png
@@ -29,7 +28,7 @@ node_types:
         type: integer
         default: 10
         description: Max user number
-      application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], get_property: [SELF, context_path] ] }
+      wordpress_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], get_property: [SELF, context_path] ] }
     requirements:
       - host: alien.capabilities.ApacheContainer
         type: alien.relationships.WordpressHostedOnApache

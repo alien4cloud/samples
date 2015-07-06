@@ -95,6 +95,7 @@ node_types:
         type: string
     attributes:
       application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_path] ] }
+      local_application_url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_path] ] }
     requirements:
       - host: alien.capabilities.WarHosting
         lower_bound: 1

@@ -27,7 +27,7 @@ node_types:
         type: string
         required: true
         default: "/opt/java"
-    attributs:
+    attributes:
       java_home: { get_operation_output: [ SELF, Standard, create, JAVA_HOME ] }
     capabilities:
       java:

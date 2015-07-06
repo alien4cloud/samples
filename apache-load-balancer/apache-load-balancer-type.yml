@@ -32,7 +32,7 @@ relationship_types:
       Configure:
           add_source:
             inputs:
-              WEB_APPLICATION_URL: { get_attribute: [SOURCE, application_url] }
+              WEB_APPLICATION_URL: { concat: ["http://", get_attribute: [SOURCE, ip_address], ":", get_property: [SOURCE, tomcat_port], "/", get_property: [SOURCE, context_path] ] }
             implementation: scripts/add_web_app_to_load_balancer.sh
           remove_source:
             inputs:

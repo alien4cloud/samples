@@ -14,10 +14,7 @@ node_types:
       The TOSCA Apache Node Type represents an apache component
       that can be managed and run by a TOSCA Compute Node Type.
     capabilities:
-      host:
-        type: alien.capabilities.ApacheContainer
-        properties:
-          valid_node_types: [ tosca.nodes.WebApplication ]
+      host: alien.capabilities.ApacheContainer
     tags:
       icon: /images/apache.png
     properties:

@@ -22,14 +22,11 @@ node_types:
     capabilities:
       attachWebsite:
         type: alien.capabilities.PHPModule
-        properties:
-          required: false
-          valid_node_types: [ tosca.nodes.WebApplication ]
     interfaces:
       Standard:
         create: scripts/install_php.sh
 
 capability_types:
   alien.capabilities.PHPModule:
-    derived_from: tosca.capabilities.Container
+    derived_from: tosca.capabilities.Root
     description: Provide PHP services

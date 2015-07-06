@@ -33,8 +33,6 @@ node_types:
     capabilities:
       host:
         type: alien.capabilities.ApacheContainer
-        properties:
-          valid_node_types: [ tosca.nodes.WebApplication ]
     tags:
       icon: /images/apache.png
     properties:

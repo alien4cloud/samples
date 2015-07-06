@@ -8,17 +8,12 @@ imports:
   - "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
 
 node_types:
+  # note that this type is just used for simple samples. From a perfect TOSCA modeling perspective we should actually separate the MySQL DBMS and Database types.
   alien.nodes.Mysql:
     derived_from: tosca.nodes.Database
     description: >
       A node to install MySQL v5.5 database with data
       on a specific attached volume.
-    capabilities:
-      host:
-        type: alien.capabilities.MysqlDatabase
-        properties:
-          required: false
-          valid_node_types: [ tosca.nodes.WebApplication ]
     requirements:
       - host: tosca.nodes.Compute
         type: tosca.relationships.HostedOn
@@ -70,4 +65,4 @@ node_types:
 
 capability_types:
   alien.capabilities.MysqlDatabase:
-      derived_from: tosca.capabilities.Container
+      derived_from: tosca.capabilities.Endpoint

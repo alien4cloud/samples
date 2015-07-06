@@ -1,6 +1,6 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
-description: Apache Load Balancer topology
-template_name: Apache Load Balancer
+description: Apache Load Balancer Topology
+template_name: apache-load-balancer
 template_version: 1.0.0-SNAPSHOT
 template_author: admin
 
@@ -24,25 +24,20 @@ topology_template:
       constraints: 
         - valid_values: [linux, aix, mac os, windows]
       description: The host Operating System (OS) type.
-    context_path:
-      type: string
-      required: true
-      description: Context path to access the deployed war ( ex: www.server.com/<context_path>)
   node_templates:
     War:
       type: alien.nodes.War
       properties:
-        context_path: { get_input: context_path }
+        context_path: war
       requirements:
         - host:
             node: Tomcat
             capability: alien.capabilities.WarHosting
             relationship: alien.relationships.WarHostedOnTomcat
-      artifacts:
-        war_file:
-          implementation: warFiles/helloWorld.war
-          type: alien.artifacts.WarFile
-          description: warFiles/helloWorld.war
+        - load_balancer:
+            node: ApacheLoadBalancer
+            capability: alien.capabilities.LoadBalancer
+            relationship: alien.relationships.WebApplicationConnectsToApacheLoadBalancer
     Tomcat:
       type: alien.nodes.Tomcat
       properties:
@@ -50,6 +45,10 @@ topology_template:
         tomcat_port: 80
         tomcat_url: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.22/bin/apache-tomcat-8.0.22.tar.gz"
       requirements:
+        - java:
+            node: Java
+            capability: alien.capabilities.Java
+            relationship: alien.relationships.RunOnJVM
         - host:
             node: WebServer
             capability: tosca.capabilities.Container
@@ -71,17 +70,29 @@ topology_template:
       capabilities:
         scalable:
           properties:
-            max_instances: 1
+            max_instances: 3
             min_instances: 1
             default_instances: 1
     LoadBalancerServer:
       type: tosca.nodes.Compute
+      properties:
+        os_arch: { get_input: os_arch }
+        os_type: { get_input: os_type }
+      requirements:
+        - network:
+            node: Internet
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
       capabilities:
         scalable:
           properties:
             max_instances: 1
             min_instances: 1
             default_instances: 1
+    Internet:
+      type: tosca.nodes.Network
+      properties:
+        ip_version: 4
     Java:
       type: alien.nodes.Java
       properties:
@@ -101,3 +112,6 @@ topology_template:
             node: LoadBalancerServer
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
+  outputs:
+    load_balancer_url:
+      value: { get_attribute: [ ApacheLoadBalancer, load_balancer_url ] }

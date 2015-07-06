@@ -15,6 +15,8 @@ node_types:
       The TOSCA Apache Node Type represents an apache load balancer that can be run on a debian based os.
     tags:
       icon: /images/apache.png
+    attributes:
+      load_balancer_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
     interfaces:
       Standard:
         create:

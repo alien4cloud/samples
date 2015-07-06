@@ -18,6 +18,6 @@ sudo a2enmod proxy
 sudo a2enmod proxy_balancer
 sudo a2enmod proxy_http
 
-sudo echo -e "<Proxy balancer://mycluster>\n</Proxy>\nProxyPass / balancer://mycluster" | sudo tee /etc/apache2/conf.d/proxy-balancer
+sudo echo -e "<Proxy balancer://mycluster>\n</Proxy>\nProxyPass / balancer://mycluster/" | sudo tee /etc/apache2/conf.d/proxy-balancer
 
 sudo sed -i 's/Deny from all/Allow from all/g' /etc/apache2/mods-enabled/proxy.conf

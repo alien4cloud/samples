@@ -1,5 +1,5 @@
 #!/bin/bash
 
-sed -i '/BalancerMember $WEB_APPLICATION_URL/d' /etc/apache2/conf.d/proxy-balancer
+sudo sed -i "/BalancerMember $WEB_APPLICATION_URL/d" /etc/apache2/conf.d/proxy-balancer
 
-/etc/init.d/apache2 restart
+sudo /etc/init.d/apache2 restart

@@ -66,6 +66,7 @@ if [ ! -e /usr/bin/java ]; then
 fi
 
 export JAVA_VERSION=$(/usr/bin/java -version 2>&1)
+export JAVA_HELP=$(/usr/bin/java -h 2>&1)
 
 # TODO A hack to have java available
 # TODO The right solution is to have output attribute for Java published by Java component

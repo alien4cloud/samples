@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 DEFAULT_PORT=80
 
@@ -18,6 +18,14 @@ sudo a2enmod proxy
 sudo a2enmod proxy_balancer
 sudo a2enmod proxy_http
 
-sudo echo -e "<Proxy balancer://mycluster>\n</Proxy>\nProxyPass / balancer://mycluster/" | sudo tee /etc/apache2/conf.d/proxy-balancer
+# /etc/apache2/conf.d do not exist in recent apache version
+PROXY_BALANCER_CONF_FILE=/etc/apache2/conf.d/proxy-balancer
+if [ ! -d "/etc/apache2/conf.d" ]; then
+  sudo a2enmod lbmethod_byrequests
+  sudo a2enmod slotmem_shm
+  PROXY_BALANCER_CONF_FILE=/etc/apache2/conf-enabled/proxy-balancer.conf
+fi
+
+sudo echo -e "<Proxy balancer://mycluster>\n</Proxy>\nProxyPass / balancer://mycluster/" | sudo tee $PROXY_BALANCER_CONF_FILE
 
 sudo sed -i 's/Deny from all/Allow from all/g' /etc/apache2/mods-enabled/proxy.conf

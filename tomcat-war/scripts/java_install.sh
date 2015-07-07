@@ -65,5 +65,7 @@ if [ ! -e /usr/bin/java ]; then
     sudo ln -s $JAVA_HOME/bin/java /usr/bin/java
 fi
 
+export JAVA_VERSION=$(/usr/bin/java -version 2>&1)
+
 # TODO A hack to have java available
 # TODO The right solution is to have output attribute for Java published by Java component

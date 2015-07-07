@@ -29,7 +29,7 @@ node_types:
         default: "/opt/java"
     attributes:
       java_version: { get_operation_output: [ SELF, Standard, create, JAVA_VERSION ] }
-      java_message: { concat: ["Java installed: ", get_operation_output: [ SELF, Standard, create, JAVA_VERSION ], ", help :", get_operation_output: [ SELF, Standard, create, JAVA_HELP ]] }
+      java_message: { concat: ["Java help: ", get_operation_output: [ SELF, Standard, create, JAVA_HELP ]] }
     capabilities:
       java:
         type: alien.capabilities.Java

@@ -38,7 +38,7 @@ topology_template:
       properties:
         tomcat_home: /opt/tomcat
         tomcat_port: 80
-        tomcat_url: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.22/bin/apache-tomcat-8.0.22.tar.gz"
+        tomcat_url: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.24/bin/apache-tomcat-8.0.24.tar.gz"
       requirements:
         - host:
             node: Compute

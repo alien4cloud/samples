@@ -8,7 +8,7 @@ imports:
   - "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
   - "apache-type:2.0.0-SNAPSHOT"
   - "mysql-type:2.0.0-SNAPSHOT"
-  - "php-type:2.0.0-SNAPSHOT"  
+  - "php-type:2.0.0-SNAPSHOT"
   - "wordpress-type:2.0.0-SNAPSHOT"
 
 topology_template:
@@ -22,26 +22,18 @@ topology_template:
     os_type:
       type: string
       constraints:
-        - valid_values: ["linux", "aix", "mac os", "windows"]
+        - valid_values: ["linux"]
       description: The host Operating System (OS) type.
-    os_distribution:
-      type: string
-      required: false
-      description: The host Operating System (OS) distribution.
-    os_version:
-      type: string
-      required: false
-      description: The host Operating System version.    
   node_templates:
     wordpress:
       type: alien.nodes.Wordpress
       properties:
       requirements:
         - host: apache
-        - database: 
+        - database:
             node: mysql
             capability: tosca.capabilities.DatabaseEndpoint
-        - php: 
+        - php:
             node: php
             capability: alien.capabilities.PHPModule
     php:
@@ -52,8 +44,8 @@ topology_template:
       type: tosca.nodes.Compute
       properties:
         os_type: { get_input: os_type }
-        os_distribution: { get_input: os_distribution }
-        os_version: { get_input: os_version }
+        os_distribution: ""
+        os_version: ""
         os_arch: { get_input: os_arch }
         num_cpus: 1
         mem_size: 1024 MB
@@ -62,8 +54,8 @@ topology_template:
       type: tosca.nodes.Compute
       properties:
         os_type: { get_input: os_type }
-        os_distribution: { get_input: os_distribution }
-        os_version: { get_input: os_version }
+        os_distribution: ""
+        os_version: ""
         os_arch: { get_input: os_arch }
         num_cpus: 1
         mem_size: 1024 MB
@@ -78,7 +70,7 @@ topology_template:
     mysql:
       type: alien.nodes.Mysql
       requirements:
-        - host: computeDb      
+        - host: computeDb
   outputs:
     wordpress_url:
       description: The URL to access the wordpress

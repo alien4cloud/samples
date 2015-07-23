@@ -32,7 +32,7 @@ topology_template:
         - host: apache
         - database:
             node: mysql
-            capability: tosca.capabilities.DatabaseEndpoint
+            capability: alien.capabilities.MysqlDatabaseEndpoint
         - php:
             node: php
             capability: alien.capabilities.PHPModule

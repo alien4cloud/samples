@@ -17,6 +17,8 @@ node_types:
     requirements:
       - host: tosca.nodes.Compute
         type: tosca.relationships.HostedOn
+    capabilities:
+      database_endpoint: alien.capabilities.MysqlDatabaseEndpoint
     tags:
       icon: /images/mysql.png
     properties:
@@ -64,5 +66,5 @@ node_types:
         type: tosca.artifacts.File
 
 capability_types:
-  alien.capabilities.MysqlDatabase:
-      derived_from: tosca.capabilities.Endpoint
+  alien.capabilities.MysqlDatabaseEndpoint:
+      derived_from: tosca.capabilities.DatabaseEndpoint

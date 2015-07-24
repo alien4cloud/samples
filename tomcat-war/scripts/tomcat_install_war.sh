@@ -48,8 +48,6 @@ fi
 # It can also be specified by an URL, in this case the war at the url overrides
 echo "${currHostName}:${currFilename} War file path is at ${war_file}"
 
-export $WAR_PATH=${war_file}
-
 tomcatConfFolder=$TOMCAT_HOME/conf
 tomcatContextPathFolder=$tomcatConfFolder/Catalina/localhost
 tomcatContextFile=$tomcatContextPathFolder/$CONTEXT_PATH.xml

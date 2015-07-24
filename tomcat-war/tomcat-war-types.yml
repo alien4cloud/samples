@@ -126,8 +126,6 @@ relationship_types:
     description: Relationship that allows to deploy a war on tomcat.
     valid_sources: [ alien.capabilities.WarHosting ]
     valid_targets: [ alien.capabilities.WarHosting ]
-    attributes:
-      war_path: { get_operation_output: [ SELF, configure, post_configure_source, WAR_PATH ] }
     interfaces:
       configure:
         post_configure_source:

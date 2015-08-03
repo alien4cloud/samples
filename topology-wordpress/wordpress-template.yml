@@ -19,11 +19,6 @@ topology_template:
       constraints:
         - valid_values: ["x86_32", "x86_64"]
       description: The host Operating System (OS) architecture.
-    os_type:
-      type: string
-      constraints:
-        - valid_values: ["linux"]
-      description: The host Operating System (OS) type.
   node_templates:
     wordpress:
       type: alien.nodes.Wordpress
@@ -43,7 +38,7 @@ topology_template:
     computeDb:
       type: tosca.nodes.Compute
       properties:
-        os_type: { get_input: os_type }
+        os_type: "linux"
         os_distribution: ""
         os_version: ""
         os_arch: { get_input: os_arch }
@@ -53,7 +48,7 @@ topology_template:
     computeWww:
       type: tosca.nodes.Compute
       properties:
-        os_type: { get_input: os_type }
+        os_type: "linux"
         os_distribution: ""
         os_version: ""
         os_arch: { get_input: os_arch }

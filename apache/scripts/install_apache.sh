@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 echo "Using apt-get. Installing apache2 on one of the following : Debian, Ubuntu, Mint"
 DEFAULT_PORT=80

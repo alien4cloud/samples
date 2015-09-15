@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 if [ "$CONTEXT_PATH" == "/" ]; then
   CONTEXT_PATH=""
 fi

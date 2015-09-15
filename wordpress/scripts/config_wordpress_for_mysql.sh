@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 echo "Write the wp-config.php file"
 
 file=$(sudo find / -name 'wp-config-sample.php')

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 currHostName=`hostname`
 SCRIPT=$(readlink -f "$0")

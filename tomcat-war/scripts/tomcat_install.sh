@@ -59,6 +59,17 @@ download "Tomcat" $TOMCAT_URL $TOMCAT_HOME/tomcat_archive.tar.gz
 sudo tar xzvf $TOMCAT_HOME/tomcat_archive.tar.gz --strip 1 -C $TOMCAT_HOME
 sudo rm $TOMCAT_HOME/tomcat_archive.tar.gz
 
+# removing default apps to speed up startup
+#sudo rm -rf $TOMCAT_HOME/webapps/docs
+#sudo rm -rf $TOMCAT_HOME/webapps/examples
+#sudo rm -rf $TOMCAT_HOME/webapps/host-manager
+#sudo rm -rf $TOMCAT_HOME/webapps/manager
+
+# add the setenv.sh in bin
+sudo touch $TOMCAT_HOME/bin/setenv.sh
+sudo chmod 777 $TOMCAT_HOME/bin/setenv.sh
+sudo echo "export CATALINA_OPTS=\"-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xms1024m -Xmx1024m -XX:MaxPermSize=512m -XX:+UseConcMarkSweepGC\"" >> $TOMCAT_HOME/bin/setenv.sh
+
 tomcatConfFolder=$TOMCAT_HOME/conf
 serverXml=$tomcatConfFolder/server.xml
 

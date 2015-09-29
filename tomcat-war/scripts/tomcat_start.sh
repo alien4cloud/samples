@@ -71,7 +71,6 @@ wait_for_server() {
 export PATH=$PATH:/usr/sbin:/sbin || error_exit $? "Failed on: export PATH=$PATH:/usr/sbin:/sbin"
 
 export CLASSPATH=
-export JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Xms1024m -Xmx1024m -XX:MaxPermSize=512m -XX:+UseConcMarkSweepGC"
 COMMAND="$TOMCAT_HOME/bin/catalina.sh run"
 sudo nohup ${COMMAND} > /dev/null 2>&1 &
 PID=$!

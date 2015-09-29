@@ -22,7 +22,8 @@ if ! type "unzip" > /dev/null; then
 
   sudo rm -f /var/lib/dpkg/lock
   sudo apt-get update || (sleep 15; sudo apt-get update || exit ${1})
-  sudo apt-get install unzip || exit ${1}
+  sudo apt-get -y install unzip || exit ${1}
+  sudo apt-get -y -q install php5-mysql || exit ${1}
 
   rm -rf "${LOCK}"
   echo "$NAME released apt lock"

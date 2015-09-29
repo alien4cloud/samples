@@ -60,8 +60,8 @@ sudo tar xzvf $TOMCAT_HOME/tomcat_archive.tar.gz --strip 1 -C $TOMCAT_HOME
 sudo rm $TOMCAT_HOME/tomcat_archive.tar.gz
 
 # removing default apps to speed up startup
-#sudo rm -rf $TOMCAT_HOME/webapps/docs
-#sudo rm -rf $TOMCAT_HOME/webapps/examples
+sudo rm -rf $TOMCAT_HOME/webapps/docs
+sudo rm -rf $TOMCAT_HOME/webapps/examples
 #sudo rm -rf $TOMCAT_HOME/webapps/host-manager
 #sudo rm -rf $TOMCAT_HOME/webapps/manager
 

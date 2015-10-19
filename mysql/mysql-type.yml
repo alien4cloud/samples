@@ -67,4 +67,4 @@ node_types:
 
 capability_types:
   alien.capabilities.MysqlDatabaseEndpoint:
-      derived_from: tosca.capabilities.DatabaseEndpoint
+      derived_from: tosca.capabilities.Endpoint.Database

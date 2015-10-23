@@ -37,7 +37,7 @@ if [ -z "${WAR_URL}" ];then
     echo "Use deployment artifact from ${war_file}"
 else
     echo "Override deployment artifact ${war_file} with war from ${WAR_URL}"
-    war_file_folder = $currDirName/../downloads
+    war_file_folder=$currDirName/../downloads
     war_file=$war_file_folder/war_file.war
     sudo mkdir -p $war_file_folder
     download "War" $WAR_URL $war_file

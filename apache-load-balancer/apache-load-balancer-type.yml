@@ -5,7 +5,7 @@ template_version: 2.0.0-SNAPSHOT
 template_author: FastConnect
 
 imports:
-  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  - tosca-normative-types:1.0.0.wd06-SNAPSHOT
   - alien-base-types:1.0-SNAPSHOT
 node_types:
 

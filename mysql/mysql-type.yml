@@ -5,7 +5,7 @@ template_version: 2.0.0-SNAPSHOT
 template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0.wd03-SNAPSHOT"
+  - "tosca-normative-types:1.0.0.wd06-SNAPSHOT"
 
 node_types:
   # note that this type is just used for simple samples. From a perfect TOSCA modeling perspective we should actually separate the MySQL DBMS and Database types.
@@ -67,4 +67,4 @@ node_types:
 
 capability_types:
   alien.capabilities.MysqlDatabaseEndpoint:
-      derived_from: tosca.capabilities.DatabaseEndpoint
+      derived_from: tosca.capabilities.Endpoint.Database

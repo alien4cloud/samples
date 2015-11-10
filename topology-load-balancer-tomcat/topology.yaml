@@ -15,13 +15,13 @@ topology_template:
     os_arch:
       type: string
       required: true
-      constraints: 
+      constraints:
         - valid_values: [x86_32, x86_64]
       description: The host Operating System (OS) architecture.
     os_type:
       type: string
       required: true
-      constraints: 
+      constraints:
         - valid_values: [linux, aix, mac os, windows]
       description: The host Operating System (OS) type.
   node_templates:
@@ -43,7 +43,7 @@ topology_template:
       properties:
         tomcat_home: /opt/tomcat
         tomcat_port: 80
-        tomcat_url: "http://apache.crihan.fr/dist/tomcat/tomcat-8/v8.0.26/bin/apache-tomcat-8.0.26.tar.gz"
+        tomcat_url: "http://mirrors.ircam.fr/pub/apache/tomcat/tomcat-8/v8.0.28/bin/apache-tomcat-8.0.28.tar.gz"
       requirements:
         - java:
             node: Java

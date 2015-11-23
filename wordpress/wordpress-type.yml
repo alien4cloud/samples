@@ -20,7 +20,7 @@ node_types:
       zip_url:
         type: string
         default: "https://wordpress.org/latest.zip"
-      context_path:
+      context_root:
         type: string
         default: "/"
     attributes:
@@ -28,7 +28,7 @@ node_types:
         type: integer
         default: 10
         description: Max user number
-      wordpress_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], get_property: [SELF, context_path] ] }
+      wordpress_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], get_property: [SELF, context_root] ] }
     requirements:
       - host: alien.capabilities.ApacheContainer
         type: alien.relationships.WordpressHostedOnApache
@@ -57,7 +57,7 @@ relationship_types:
       Configure:
         pre_configure_source:
           inputs:
-            CONTEXT_PATH: { get_property: [SOURCE, context_path] }
+            CONTEXT_ROOT: { get_property: [SOURCE, context_root] }
             DOC_ROOT: { get_property: [TARGET, document_root] }
           implementation: scripts/config_wordpress.sh
   alien.relationships.WordpressConnectToMysql:
@@ -70,8 +70,8 @@ relationship_types:
           pre_configure_source:
             inputs:
               DB_IP: { get_attribute: [TARGET, ip_address] }
-              DB_PORT: { get_property: [TARGET, db_port] }
-              DB_NAME: { get_property: [TARGET, db_name] }
+              DB_PORT: { get_property: [TARGET, port] }
+              DB_NAME: { get_property: [TARGET, name] }
               DB_USER: { get_property: [TARGET, db_user] }
               DB_PASSWORD: { get_property: [TARGET, db_password] }
             implementation: scripts/config_wordpress_for_mysql.sh

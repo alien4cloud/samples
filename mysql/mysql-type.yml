@@ -59,7 +59,7 @@ node_types:
             DB_NAME: { get_property: [SELF, db_name] }
             DB_USER: { get_property: [SELF, db_user] }
             DB_PASSWORD: { get_property: [SELF, db_password] }
-            BIND_ADRESS: { get_property: [SELF, bind_address] }
+            BIND_ADDRESS: { get_property: [SELF, bind_address] }
           implementation: scripts/start_mysql.sh
     artifacts:
       - configs: configs

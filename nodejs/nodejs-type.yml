@@ -1,0 +1,22 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with Nodejs.
+template_name: nodejs-type
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0.wd06-SNAPSHOT"
+
+node_types:
+  alien.nodes.Nodejs:
+    derived_from: tosca.nodes.WebServer
+    description: >
+      The TOSCA Nodejs Node Type represents an Nodejs component
+      that can be managed and run by a TOSCA Compute Node Type.
+    capabilities:
+      host: tosca.capabilities.Container
+    tags:
+      icon: /images/nodejs.jpg
+    interfaces:
+      Standard:
+        create: scripts/install-nodejs.sh

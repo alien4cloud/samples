@@ -53,15 +53,6 @@ topology_template:
             node: WebServer
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-      capabilities:
-        app_endpoint:
-          properties:
-            protocol: tcp
-            secure: false
-        secure_endpoint:
-          properties:
-            protocol: tcp
-            secure: false
     WebServer:
       type: tosca.nodes.Compute
       properties:

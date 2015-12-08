@@ -48,15 +48,6 @@ topology_template:
             node: Java
             capability: alien.capabilities.Java
             relationship: alien.relationships.RunOnJVM
-      capabilities:
-        app_endpoint:
-          properties:
-            protocol: tcp
-            secure: false
-        secure_endpoint:
-          properties:
-            protocol: tcp
-            secure: false
     Compute:
       type: tosca.nodes.Compute
       properties:

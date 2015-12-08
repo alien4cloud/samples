@@ -65,7 +65,7 @@ function UpdateMySQLConf {
     sudo cp $configs/mysqld_charset.cnf /etc/mysql/conf.d/mysqld_charset.cnf
   fi
 
-  if [ "$BIND_ADRESS" == "true" ]; then
+  if [ "$BIND_ADDRESS" == "true" ]; then
     sudo sed -i "s/bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
   fi
 }

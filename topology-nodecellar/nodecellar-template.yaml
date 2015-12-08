@@ -1,0 +1,111 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Alien4Cloud generated service template
+template_name: Nodecellar
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - nodecellar-type:1.1.0-SNAPSHOT
+  - tosca-normative-types:1.0.0.wd06-SNAPSHOT
+  - nodejs-type:1.0.0-SNAPSHOT
+  - mongod-type:1.0.0-SNAPSHOT
+
+topology_template:
+  description: A Javascript Sample Application with Node.js and MongoDB
+  node_templates:
+    MongoHost:
+      type: tosca.nodes.Compute
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            secure: true
+            network_name: PRIVATE
+        scalable:
+          properties:
+            max_instances: 1
+            min_instances: 1
+            default_instances: 1
+    Nodecellar:
+      type: alien.nodes.Nodecellar
+      properties:
+        port: 8088
+      requirements:
+        - host:
+            node: Nodejs
+            capability: tosca.capabilities.Container
+            relationship: alien.relationships.NodecellarHostedOnNodejs
+        - database:
+            node: Mongod
+            capability: tosca.capabilities.Endpoint.Database
+            relationship: alien.relationships.NodejsConnectToMongo
+      capabilities:
+        app_endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            secure: false
+            network_name: PRIVATE
+    Network:
+      type: tosca.nodes.Network
+      properties:
+        ip_version: 4
+    Mongod:
+      type: alien.nodes.Mongod
+      properties:
+        db_port: 27017
+      requirements:
+        - host:
+            node: MongoHost
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            secure: false
+            network_name: PRIVATE
+    NodejsHost:
+      type: tosca.nodes.Compute
+      requirements:
+        - network:
+            node: Network
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            secure: true
+            network_name: PRIVATE
+        scalable:
+          properties:
+            max_instances: 1
+            min_instances: 1
+            default_instances: 1
+    Nodejs:
+      type: alien.nodes.Nodejs
+      requirements:
+        - host:
+            node: NodejsHost
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            secure: false
+            network_name: PRIVATE
+        admin_endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            secure: true
+            network_name: PRIVATE
+  outputs:
+    Nodecellar_nodecellar_url:
+      value: { get_attribute: [ Nodecellar, nodecellar_url ] }

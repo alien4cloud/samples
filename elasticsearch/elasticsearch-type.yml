@@ -1,0 +1,39 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with ElasticSearch.
+template_name: elasticsearch-type
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - tosca-normative-types:1.0.0.wd06-SNAPSHOT
+  - jdk-type:1.0.0-SNAPSHOT
+
+node_types:
+  alien.nodes.ElasticSearch:
+    derived_from: alien.nodes.JavaSoftware
+    description: >
+      Installation of ElasticSearch
+    tags:
+      icon: images/elasticsearch.png
+    properties:
+      elasticsearch_url:
+        type: string
+        required: true
+        default: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
+    capabilities:
+      elasticsearch:
+        type: alien.capabilities.ElasticSearch
+        upper_bound: unbounded
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            APPLICATION_URL: { get_property: [SELF, elasticsearch_url] }
+          implementation: scripts/install_elasticsearch.sh
+    artifacts:
+      - configs: configs
+        type: tosca.artifacts.File
+
+capability_types:
+  alien.capabilities.ElasticSearch:
+    derived_from: tosca.capabilities.Attachment

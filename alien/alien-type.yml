@@ -1,0 +1,54 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with Alien.
+template_name: alien-type
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - tosca-normative-types:1.0.0.wd06-SNAPSHOT
+  - jdk-type:1.0.0-SNAPSHOT
+  - elasticsearch-type:1.0.0-SNAPSHOT
+
+node_types:
+  alien.nodes.Alien:
+    derived_from: alien.nodes.JavaSoftware
+    description: >
+      The TOSCA Alien Node Type represents an alien component.
+    tags:
+      icon: /images/alien4cloud-logo.png
+    properties:
+      alien_url:
+        type: string
+        required: true
+        default: "https://fastconnect.org/maven/service/local/repositories/opensource/content/alien4cloud/alien4cloud-ui/1.1.0-SM8/alien4cloud-ui-1.1.0-SM8-standalone.war"
+      context_root:
+        type: string
+        default: "/"
+    requirements:
+      - elasticsearch: alien.capabilities.ElasticSearch
+        type: alien.relationships.AlienConnectToElasticSearch
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            APPLICATION_URL: { get_property: [SELF, alien_url] }
+          implementation: scripts/install_alien.sh
+        start: scripts/start_alien.sh
+    artifacts:
+      - configs: configs
+        type: tosca.artifacts.File
+      - bin: bin
+        type: tosca.artifacts.File
+
+relationship_types:
+  alien.relationships.AlienConnectToElasticSearch:
+    derived_from: tosca.relationships.DependsOn
+    description: Relationship use to describe that the Alien is connect on the target Elasticsearch.
+    valid_sources: [ tosca.nodes.Alien ]
+    valid_targets: [ alien.capabilities.ElasticSearch ]
+    interfaces:
+      Configure:
+          pre_configure_source:
+            inputs:
+              ES_IP: { get_attribute: [TARGET, ip_address] }
+            implementation: scripts/config_alien.sh

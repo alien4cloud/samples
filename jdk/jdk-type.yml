@@ -1,0 +1,59 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with JDK.
+template_name: jdk-type
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - tosca-normative-types:1.0.0.wd06-SNAPSHOT
+
+node_types:
+  alien.nodes.JDK:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      Installation of JDK
+    tags:
+      icon: images/jdk.png
+    properties:
+      java_url:
+        type: string
+        required: true
+        default: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+      java_home:
+        type: string
+        required: true
+        default: "/opt/java"
+    attributes:
+      java_version: { get_operation_output: [ SELF, Standard, create, JAVA_VERSION ] }
+      java_message: { concat: ["Java help: ", get_operation_output: [ SELF, Standard, create, JAVA_HELP ]] }
+    capabilities:
+      jdk:
+        type: alien.capabilities.JDK
+        upper_bound: unbounded
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            JAVA_URL: { get_property: [SELF, java_url] }
+            JAVA_HOME: { get_property: [SELF, java_home] }
+          implementation: scripts/install_jdk.sh
+  alien.nodes.JavaSoftware:
+    abstract: true
+    derived_from: tosca.nodes.Root
+    description: The Alien JavaSoftware node represents a generic software component that can be launch by Java.
+    tags:
+      icon: images/jdk.png
+    requirements:
+      - java: alien.capabilities.JDK
+        relationship: alien.relationships.JavaSoftwareHostedOnJDK
+
+capability_types:
+  alien.capabilities.JDK:
+    derived_from: tosca.capabilities.Container
+
+relationship_types:
+  alien.relationships.JavaSoftwareHostedOnJDK:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship use to describe that the SoftwareComponent is hosted on the JDK.
+    valid_sources: [ tosca.nodes.JavaSoftware ]
+    valid_targets: [ alien.capabilities.JDK ]

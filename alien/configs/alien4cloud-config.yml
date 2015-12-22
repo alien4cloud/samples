@@ -1,0 +1,99 @@
+server:
+  port: 8088
+
+# Configuration of alien4cloud's CSAR repository, temporary folder and upload settings.
+directories:
+  # alien4cloud main directory (other directories are relative path to this one)
+  alien: /opt/alien4cloud/data
+  # directory in which alien4cloud stores Cloud Service Archives
+  csar_repository: csar
+  # directory in which alien4cloud stores uploaded artifacts (war etc.).
+  artifact_repository: artifacts
+  # temporary directory for alien4cloud
+  upload_temp: upload
+  # directory in which alien4cloud unzip loaded plugins.
+  plugins: plugins
+
+paas_monitor:
+  # PaaS monitoring is done by a polling mechanism. This property allow to specify the interval between pollings (in milliseconds).
+  monitor_interval_ms: 1000
+  # Number of threads to use to monitor Platform as a Service systems.
+  threadpool_size: 5
+  # Duration to keep monitoring events stored in Alien4Cloud.
+  # Event lifetime unit : d (days), m (minutes), h (hours), ms (milliseconds) or w (weeks), milliseconds is used as default unit
+  events_lifetime: "7d"
+
+# Initial default components upload : from folder /alien4cloud-core/src/main/default-normative-types
+archive:
+  upload_all: false
+
+# configure the boost factors for tosca elements in the search, elements with the highest boost factor appears first in search results
+# the total boost factor for a component is the sum of the following boost factors.
+components.search.boost:
+  # boost components that are used in topologies by (number of active topologies that uses the component * usage)
+  usage: 1
+  # components that exist in latest version get a boost factor regarding other components. Note that this factor should be very high as every component
+  # with latest version will be boosted.
+  version: 1000
+  # components that are configured as default for at least 1 capability get the following a boost factor.
+  default: 10
+  # define in hours at what frequency the components boost should be recalculated.
+  frequency: 24
+
+# Configuration of the elastic search cluster.
+elasticSearch:
+  clusterName: alien4cloud
+  local: false
+  client: true
+  resetData: false
+  prefix_max_expansions: 10
+  transportClient: true
+  # a comma separated list of host:port couples
+  hosts: ELASTTICSEARCH-IP:9300
+
+# Configuration of default admin ensurer, if true it creates a default admin user if no admin can be found in the system.
+alien_security:
+  admin:
+    # alien4cloud checks that an admin user is defined at the application launch.
+    ensure: true
+    username: admin
+    password: admin
+    email: admin@mycompany.com
+
+### Ldap Configuration
+ldap:
+  enabled: false
+  anonymousReadOnly: true
+  url: ldap://ldap.company.fr:389
+  userDn: uid=admin,ou=system
+  password: secret
+  base: ou=People,dc=company,dc=fr
+  filter: (&(objectClass=person)(objectClass=hordePerson)(!(objectClass=CalendarResource))(accountStatus=active))
+  # user field import mapping
+  mapping:
+    id: uid
+    firstname: givenName
+    lastname: sn
+    email: mail
+    # optional mapping key and value to dertermine if the user is active
+    active:
+      key: accountStatus
+      value: active
+    roles:
+      defaults: COMPONENTS_BROWSER
+      # optional configuration for role mapping (when you want to manage roles in ldap and not in alien for ldap users).
+      #key: description
+      #mapping: ROLE_CLOUDADMINS=ADMIN
+### End Ldap Configuration
+
+# configuration for the upload module.
+upload:
+  max_archive_size: 52428800
+
+documentation:
+  services:
+    version: 1.0
+    basePath: rest
+
+audit:
+  ttl: 1d

@@ -22,7 +22,6 @@ topology_template:
   node_templates:
     wordpress:
       type: alien.nodes.Wordpress
-      properties:
       requirements:
         - host: apache
         - database:

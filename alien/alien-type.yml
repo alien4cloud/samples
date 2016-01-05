@@ -24,6 +24,14 @@ node_types:
       context_root:
         type: string
         default: "/"
+      app_args:
+        type: string
+        required: false
+        default: ""
+    capabilities:
+      alien:
+        type: alien.capabilities.Alien
+        upper_bound: unbounded
     requirements:
       - elasticsearch: alien.capabilities.ElasticSearch
         type: alien.relationships.AlienConnectToElasticSearch
@@ -32,8 +40,53 @@ node_types:
         create:
           inputs:
             APPLICATION_URL: { get_property: [SELF, alien_url] }
-          implementation: scripts/install_alien.sh
-        start: scripts/start_alien.sh
+            APP_ARGS: { get_property: [SELF, app_args] }
+          implementation: scripts/alien/install_alien.sh
+        start: scripts/alien/start_alien.sh
+    artifacts:
+      - configs: configs
+        type: tosca.artifacts.File
+      - bin: bin
+        type: tosca.artifacts.File
+
+  alien.nodes.AlienIT:
+    derived_from: alien.nodes.JavaSoftware
+    description: >
+      The TOSCA Alien Node Type represents an alien component.
+    tags:
+      icon: /images/alien4cloud-logo.png
+    properties:
+      branch:
+        type: string
+        required: true
+        default: "develop"
+      manager_name:
+        type: string
+        required: true
+        default: ""
+      plugin_version:
+        type: string
+        default: ""
+      it_test:
+        type: string
+        default: ""
+    requirements:
+      - elasticsearch: alien.capabilities.ElasticSearch
+        type: alien.relationships.AlienITConnectToElasticSearch
+      - alien: alien.capabilities.Alien
+        type: alien.relationships.AlienITDependsOnAlien
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            BRANCH: { get_property: [SELF, branch] }
+            MANAGER_NAME: { get_property: [SELF, manager_name] }
+            PLUGIN_VERSION: { get_property: [SELF, plugin_version] }
+          implementation: scripts/it/install_it.sh
+        start:
+          inputs:
+            IT_TEST: { get_property: [SELF, it_test] }
+          implementation: scripts/it/start_it.sh
     artifacts:
       - configs: configs
         type: tosca.artifacts.File
@@ -51,4 +104,24 @@ relationship_types:
           pre_configure_source:
             inputs:
               ES_IP: { get_attribute: [TARGET, ip_address] }
-            implementation: scripts/config_alien.sh
+            implementation: scripts/alien/config_alien.sh
+  alien.relationships.AlienITConnectToElasticSearch:
+    derived_from: tosca.relationships.DependsOn
+    description: Relationship use to describe that the Alien is connect on the target Elasticsearch.
+    valid_sources: [ tosca.nodes.AlienIT ]
+    valid_targets: [ alien.capabilities.ElasticSearch ]
+    interfaces:
+      Configure:
+          pre_configure_source:
+            inputs:
+              ES_IP: { get_attribute: [TARGET, ip_address] }
+            implementation: scripts/it/config_it.sh
+  alien.relationships.AlienITDependsOnAlien:
+    derived_from: tosca.relationships.DependsOn
+    description: Relationship use to describe that AlienIT needs Alien.
+    valid_sources: [ tosca.nodes.AlienIT ]
+    valid_targets: [ alien.capabilities.Alien ]
+
+capability_types:
+  alien.capabilities.Alien:
+    derived_from: tosca.capabilities.Attachment

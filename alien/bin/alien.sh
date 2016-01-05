@@ -4,7 +4,7 @@ PIDFILE=/var/run/${APP_NAME}.pid
 ALIEN_PATH="/opt/alien4cloud/alien.war"
 ALIEN_CONF="/etc/alien4cloud/"
 
-JAVA_OPTIONS="-server -showversion -XX:+AggressiveOpts -Xmx2g -Xms2g -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError"
+JAVA_OPTIONS="-server -showversion -XX:+AggressiveOpts -Xmx1400m -Xms1400m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError"
 
 case "$1" in
 start)

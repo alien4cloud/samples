@@ -34,7 +34,9 @@ sudo git clone -b ${BRANCH} https://github.com/alien4cloud/alien4cloud-provider-
 # change suffs in alien4cloud-config.yml
 cd /opt/alien4cloud/src/alien4cloud-provider-int-test
 sudo sed -i -e 's/\(alien: \).*/alien: \/opt\/alien4cloud\/data/' src/test/resources/alien4cloud-config.yml
-sudo sed -i -e "s/\(manager_name: \).*/manager_name: ${MANAGER_NAME}/" src/test/resources/alien4cloud-config.yml
+if [ -n "$MANAGER_NAME" ]; then
+  sudo sed -i -e "s/\(manager_name: \).*/manager_name: ${MANAGER_NAME}/" src/test/resources/alien4cloud-config.yml
+fi
 
 # use this log4j config
 sudo cp -f $configs/log4j.properties src/test/resources/

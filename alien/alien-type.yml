@@ -60,15 +60,20 @@ node_types:
         type: string
         required: true
         default: "develop"
-      manager_name:
+      openstack_manager_name:
         type: string
-        required: true
+        required: false
         default: ""
+      amazon_manager_ip:
+        type: string
+        default: ""
+        required: false
       plugin_version:
         type: string
         default: ""
       it_test:
         type: string
+        required: true
         default: ""
     requirements:
       - elasticsearch: alien.capabilities.ElasticSearch
@@ -80,12 +85,13 @@ node_types:
         create:
           inputs:
             BRANCH: { get_property: [SELF, branch] }
-            MANAGER_NAME: { get_property: [SELF, manager_name] }
+            MANAGER_NAME: { get_property: [SELF, openstack_manager_name] }
             PLUGIN_VERSION: { get_property: [SELF, plugin_version] }
           implementation: scripts/it/install_it.sh
         start:
           inputs:
             IT_TEST: { get_property: [SELF, it_test] }
+            AWS_CLOUDIFY3_MANAGER_URL: { get_property: [SELF, amazon_manager_ip] }
           implementation: scripts/it/start_it.sh
     artifacts:
       - configs: configs

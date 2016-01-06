@@ -9,8 +9,7 @@ JAVA_OPTIONS="-server -showversion -XX:+AggressiveOpts -Xmx1400m -Xms1400m -XX:M
 case "$1" in
 start)
   printf "%-50s" "Starting $APP_NAME ..."
-  sudo bash -c "java $JAVA_OPTIONS -cp $ALIEN_CONF:$ALIEN_PATH org.springframework.boot.loader.WarLauncher ${APP_ARGS} > /var/log/alien4cloud/alien4cloud.out 2>&1 & echo \$! > ${PIDFILE}" 2>&1 &
-  $0 status
+  sudo bash -c "java $JAVA_OPTIONS -cp $ALIEN_CONF:$ALIEN_PATH org.springframework.boot.loader.WarLauncher ${APP_ARGS} > /var/log/alien4cloud/alien4cloud.out 2>&1 & echo \$! > ${PIDFILE}"
 ;;
 status)
   printf "%-50s" "Checking $NAME..."

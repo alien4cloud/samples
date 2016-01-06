@@ -23,7 +23,7 @@ cd /opt/alien4cloud/src
 sudo git clone -b ${BRANCH} https://github.com/alien4cloud/alien4cloud.git
 # build alien
 cd /opt/alien4cloud/src/alien4cloud
-sudo mvn clean install
+sudo mvn -fn clean install
 cd /opt/alien4cloud/src/
 
 # clone provider tests

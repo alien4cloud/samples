@@ -1,11 +1,8 @@
-#!/bin/bash
+#!/bin/bash -e
 sudo bash -c "echo '127.0.0.1 `hostname`' >> /etc/hosts"
 
 sudo apt-get update
-sudo apt-get -y install git
-sudo apt-get -y install maven
-sudo apt-get -y install npm
-sudo apt-get -y install ruby
+sudo apt-get -y install git maven npm ruby
 sudo npm install -g bower
 sudo npm -g install grunt-cli
 sudo npm install grunt-contrib-compass --save-dev

@@ -34,13 +34,16 @@ sudo sed -i -e 's/\(alien: \).*/alien: \/opt\/alien4cloud\/data/' src/test/resou
 if [ -n "$MANAGER_NAME" ]; then
   sudo sed -i -e "s/\(manager_name: \).*/manager_name: ${MANAGER_NAME}/" src/test/resources/alien4cloud-config.yml
 fi
+# remove the Ignore tag
+for file in `ls src/test/java/alien4cloud/longrun/*.java`; do
+  sudo sed -i -e "s/@Ignore//" $file
+done
 
 # use this log4j config
 sudo cp -f $configs/log4j.properties src/test/resources/
 sudo sed -i -e 's/alien4cloud\.log/alien4cloud-it.log/' src/test/resources/log4j.properties
 
 sudo bash -c "echo 'version: ${PLUGIN_VERSION}' >> src/test/resources/version.yml"
-
 # create log folder
 if [ ! -d /var/log/alien4cloud ]; then
   sudo mkdir /var/log/alien4cloud

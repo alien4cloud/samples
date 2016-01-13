@@ -35,7 +35,7 @@ if [ -n "$MANAGER_NAME" ]; then
   sudo sed -i -e "s/\(manager_name: \).*/manager_name: ${MANAGER_NAME}/" src/test/resources/alien4cloud-config.yml
 fi
 # remove the Ignore tag
-for file in `ls src/test/java/alien4cloud/longrun/*.java`; do
+for file in `ls src/test/java/alien4cloud/it/*LongRun*.java`; do
   sudo sed -i -e "s/@Ignore//" $file
 done
 

@@ -33,7 +33,7 @@ appender:
 
   file:
     type: dailyRollingFile
-    file: ${path.logs}/${cluster.name}.log
+    file: ${path.logs}/ELS-${cluster.name}.log
     datePattern: "'.'yyyy-MM-dd"
     layout:
       type: pattern
@@ -41,7 +41,7 @@ appender:
 
   index_search_slow_log_file:
     type: dailyRollingFile
-    file: ${path.logs}/${cluster.name}_index_search_slowlog.log
+    file: ${path.logs}/ELS-${cluster.name}_index_search_slowlog.log
     datePattern: "'.'yyyy-MM-dd"
     layout:
       type: pattern
@@ -49,7 +49,7 @@ appender:
 
   index_indexing_slow_log_file:
     type: dailyRollingFile
-    file: ${path.logs}/${cluster.name}_index_indexing_slowlog.log
+    file: ${path.logs}/ELS-${cluster.name}_index_indexing_slowlog.log
     datePattern: "'.'yyyy-MM-dd"
     layout:
       type: pattern

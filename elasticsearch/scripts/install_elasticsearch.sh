@@ -22,6 +22,7 @@ sudo bash -c "cat $configs/logging.yml > /etc/elasticsearch/logging.yml"
 # change defaults
 sudo bash -c "echo 'ES_USE_GC_LOGGING=y' >> /etc/default/elasticsearch"
 sudo bash -c "echo 'export ES_USE_GC_LOGGING' >> /etc/default/elasticsearch"
+sudo bash -c "echo 'ES_JAVA_OPTS=-XX:+PrintGCDateStamps' >> /etc/default/elasticsearch"
 sudo bash -c "echo 'ES_HEAP_SIZE=1g' >> /etc/default/elasticsearch"
 
 # Configure init script and start elasticsearch

@@ -27,4 +27,3 @@ sudo bash -c "echo 'ES_HEAP_SIZE=1g' >> /etc/default/elasticsearch"
 
 # Configure init script and start elasticsearch
 sudo update-rc.d elasticsearch defaults 95 10
-sudo /etc/init.d/elasticsearch start

@@ -50,7 +50,7 @@ elasticSearch:
   prefix_max_expansions: 10
   transportClient: true
   # a comma separated list of host:port couples
-  hosts: ELASTTICSEARCH-IP:9300
+  hosts: ELASTTICSEARCH-IP
 
 # Configuration of default admin ensurer, if true it creates a default admin user if no admin can be found in the system.
 alien_security:

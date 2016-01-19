@@ -35,6 +35,8 @@ node_types:
     requirements:
       - elasticsearch: alien.capabilities.ElasticSearch
         type: alien.relationships.AlienConnectToElasticSearch
+        lower_bound: 1
+        upper_bound: UNBOUNDED        
     interfaces:
       Standard:
         create:

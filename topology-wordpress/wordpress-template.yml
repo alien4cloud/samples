@@ -41,8 +41,6 @@ topology_template:
           properties:
             architecture: { get_input: os_arch }
             type: "linux"
-            version: ""
-            distribution: ""
         host:
           properties:
             num_cpus: 1
@@ -56,8 +54,6 @@ topology_template:
           properties:
             architecture: { get_input: os_arch }
             type: "linux"
-            version: ""
-            distribution: ""
         host:
           properties:
             num_cpus: 1

@@ -55,10 +55,11 @@ topology_template:
             relationship: tosca.relationships.HostedOn
     WebServer:
       type: tosca.nodes.Compute
-      properties:
-        os_arch: { get_input: os_arch }
-        os_type: { get_input: os_type }
       capabilities:
+        os:
+          properties:
+            architecture: { get_input: os_arch }
+            type: { get_input: os_type }
         scalable:
           properties:
             max_instances: 3
@@ -66,15 +67,16 @@ topology_template:
             default_instances: 1
     LoadBalancerServer:
       type: tosca.nodes.Compute
-      properties:
-        os_arch: { get_input: os_arch }
-        os_type: { get_input: os_type }
       requirements:
         - network:
             node: Internet
             capability: tosca.capabilities.Connectivity
             relationship: tosca.relationships.Network
       capabilities:
+        os:
+          properties:
+            architecture: { get_input: os_arch }
+            type: { get_input: os_type }
         scalable:
           properties:
             max_instances: 1

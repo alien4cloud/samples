@@ -36,24 +36,34 @@ topology_template:
         - host: computeWww
     computeDb:
       type: tosca.nodes.Compute
-      properties:
-        os_type: "linux"
-        os_distribution: ""
-        os_version: ""
-        os_arch: { get_input: os_arch }
-        num_cpus: 1
-        mem_size: 1024 MB
-        disk_size: 1 GB
+      capabilities:
+        os:
+          properties:
+            architecture: { get_input: os_arch }
+            type: "linux"
+            version: ""
+            distribution: ""
+        host:
+          properties:
+            num_cpus: 1
+            disk_size: 1 GB
+            mem_size: 1024 MB
+            cpu_frequency: 1 GHz
     computeWww:
       type: tosca.nodes.Compute
-      properties:
-        os_type: "linux"
-        os_distribution: ""
-        os_version: ""
-        os_arch: { get_input: os_arch }
-        num_cpus: 1
-        mem_size: 1024 MB
-        disk_size: 1 GB
+      capabilities:
+        os:
+          properties:
+            architecture: { get_input: os_arch }
+            type: "linux"
+            version: ""
+            distribution: ""
+        host:
+          properties:
+            num_cpus: 1
+            disk_size: 1 GB
+            mem_size: 1024 MB
+            cpu_frequency: 1 GHz
     apache:
       type: alien.nodes.Apache
       properties:

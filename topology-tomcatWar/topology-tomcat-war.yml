@@ -50,9 +50,11 @@ topology_template:
             relationship: alien.relationships.RunOnJVM
     Compute:
       type: tosca.nodes.Compute
-      properties:
-        os_arch: { get_input: os_arch }
-        os_type: { get_input: os_type }
+      capabilities:
+        os:
+          properties:
+            architecture: { get_input: os_arch }
+            type: { get_input: os_type }
     Java:
       type: alien.nodes.Java
       properties:

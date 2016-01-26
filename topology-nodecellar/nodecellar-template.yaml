@@ -30,6 +30,7 @@ topology_template:
     Nodecellar:
       type: alien.nodes.Nodecellar
       properties:
+        context_root: "/"
         port: 8088
       requirements:
         - host:

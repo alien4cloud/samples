@@ -20,6 +20,11 @@ node_types:
         type: string
         required: true
         default: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
+    requirements:
+      - elasticsearch: alien.capabilities.ElasticSearch
+        type: alien.relationships.ConnectElasticSearchNodes
+        lower_bound: 0
+        upper_bound: UNBOUNDED
     capabilities:
       elasticsearch:
         type: alien.capabilities.ElasticSearch
@@ -30,6 +35,8 @@ node_types:
           inputs:
             APPLICATION_URL: { get_property: [SELF, elasticsearch_url] }
           implementation: scripts/install_elasticsearch.sh
+        start:
+          implementation: scripts/start_elasticsearch.sh
     artifacts:
       - configs: configs
         type: tosca.artifacts.File
@@ -37,3 +44,20 @@ node_types:
 capability_types:
   alien.capabilities.ElasticSearch:
     derived_from: tosca.capabilities.Attachment
+
+relationship_types:
+  alien.relationships.ConnectElasticSearchNodes:
+    derived_from: tosca.relationships.DependsOn
+    description: Relationship that models 2 ES nodes connection.
+    valid_sources: [ alien.nodes.ElasticSearch ]
+    valid_targets: [ alien.capabilities.ElasticSearch ]
+    interfaces:
+      Configure:
+          pre_configure_source:
+            inputs:
+              ES_IP: { get_attribute: [TARGET, ip_address] }
+            implementation: scripts/pre_configure_source.sh
+          pre_configure_target:
+            inputs:
+              ES_IP: { get_attribute: [SOURCE, ip_address] }
+            implementation: scripts/pre_configure_target.sh

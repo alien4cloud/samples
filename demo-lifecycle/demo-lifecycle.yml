@@ -13,6 +13,9 @@ description: Generic type that echoes operations in a file for tests.
 
 node_types:
   alien.nodes.Registry:
+    description: |
+      Few PHP scripts that act as a registry for node and relationship operations.
+      Logs are stored in files and restituted by index.php.
     derived_from: tosca.nodes.SoftwareComponent
     attributes:
       host: { get_attribute: [HOST, ip_address] }
@@ -26,18 +29,21 @@ node_types:
     interfaces:
       Standard:
         create:
-          inputs:
-            OUTPUT_FOLDER: { get_property: [SELF, output_folder] }
           implementation: scripts/Registry/create.sh
     artifacts:
       - php_scripts: php
         type: tosca.artifacts.File
   alien.nodes.RegistryConfigurer:
+    description: |
+      Put this node on each compute you want to log operations. This component
+      will just add an entry in /etc/hosts in order to connect to the registry.
     derived_from: tosca.nodes.SoftwareComponent
     requirements:
       - registry: alien.nodes.Registry
         type: alien.relationships.RegistryConfigurerDependsOnRegistry
   alien.nodes.GenericHost:
+    description: |
+      A software component that hosts Generic.
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       host:
@@ -57,6 +63,8 @@ node_types:
         delete:
           implementation: scripts/Generic/delete.sh
   alien.nodes.Generic:
+    description: |
+      A software component hosted on GenericHost and that can connect to many other Generic.       
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       generic_capability:
@@ -159,7 +167,7 @@ topology_template:
     2 other computes host a registry configurer ; a node that depends on the registry
     and write an entry in the /etc/hosts file.
     On both computes, a couple of GenericHost + Generic with relationships between Generics.
-    All node and relationship operations are logged using the registry webapp. 
+    All node and relationship operations are logged using the registry webapp.
   node_templates:
     ComputeRegistry:
       type: tosca.nodes.Compute

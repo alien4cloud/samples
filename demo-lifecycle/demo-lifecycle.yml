@@ -11,6 +11,8 @@ imports:
 
 description: Generic type that echoes operations in a file for tests.
 
+# TODO: apache port sttribute should be used by RegistryConfigurer, and Generic & GenericHost
+
 node_types:
   alien.nodes.Registry:
     description: |
@@ -64,7 +66,7 @@ node_types:
           implementation: scripts/Generic/delete.sh
   alien.nodes.Generic:
     description: |
-      A software component hosted on GenericHost and that can connect to many other Generic.       
+      A software component hosted on GenericHost and that can connect to many other Generic.
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       generic_capability:

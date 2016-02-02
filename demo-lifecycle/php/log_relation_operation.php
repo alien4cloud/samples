@@ -21,6 +21,6 @@ $operationIdx = getOperationIdx($opLogPath);
 file_put_contents("$opLogPath/$operationIdx.env", "$envLog");
 
 $instanceLogFile = "$nodeLogPath/$instanceIdx";
-file_put_contents($instanceLogFile, "$operation/$tierNodeName/$tierInstanceIdx\n", FILE_APPEND | LOCK_EX);
+file_put_contents($instanceLogFile, "#$operationIdx/$operation/$tierNodeName/$tierInstanceIdx/$tierInstanceId\n", FILE_APPEND | LOCK_EX);
 file_put_contents("$allLogFile", "$operationIdx;" . date("Y-m-d H:i:s").";$nodeName;$instanceIdx;$instanceId;$operation;$tierNodeName;$tierInstanceIdx;$tierInstanceId\n", FILE_APPEND | LOCK_EX);
 ?>

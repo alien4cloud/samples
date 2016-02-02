@@ -62,5 +62,5 @@ node_types:
     artifacts:
       - scripts: scripts
         type: tosca.artifacts.File
-      - pool_config:
+      - pool_config: config.tar.gz
         type: tosca.artifacts.File

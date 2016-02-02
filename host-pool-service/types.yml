@@ -1,0 +1,66 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: A host pool service type, based on cloudify one.
+template_name: host-pool-service-types
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0.wd06-SNAPSHOT"
+
+node_types:
+
+  alien.nodes.HostPoolService:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The service is a python web service based on flask-restful that exposes a REST API to be consumed by clients
+      who are interested in using hosts from a pool of pre-existing hosts. Based on Cloudfify implementation
+    properties:
+      pool_file_name:
+        type: string
+        default: pool.yml
+        description: Name of the pool configuration file within the configuration directory (artifact "pool_config")
+      working_directory:
+        type: string
+        default: /tmp/host-pool-service
+        description: Directory to run the service from
+      port:
+        type: integer
+        description: Port to bind to
+        default: 8080
+      source:
+        type: string
+        description: URL to the source code of the service
+        default: https://github.com/cloudify-cosmo/cloudify-host-pool-service/archive/master.zip
+    attributes:
+      endpoint: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
+      pid_file: { concat: [get_property: [SELF, working_directory], "/gunicorn.pid"] }
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            SOURCE_CODE: { get_property: [SELF, source] }
+            WORK_DIR: { get_property: [SELF, working_directory] }
+          implementation: scripts/create.sh
+        configure:
+          inputs:
+            POOL_FILE_NAME: { get_property: [SELF, pool_file_name] }
+            WORK_DIR: { get_property: [SELF, working_directory] }
+          implementation: scripts/configure.sh
+        start:
+          inputs:
+            PORT: { get_property: [SELF, port] }
+            WORK_DIR: { get_property: [SELF, working_directory] }
+          implementation: scripts/start.sh
+        stop:
+          inputs:
+            WORK_DIR: { get_property: [SELF, working_directory] }
+          implementation: scripts/stop.sh
+        delete:
+          inputs:
+            WORK_DIR: { get_property: [SELF, working_directory] }
+          implementation: scripts/delete.sh
+    artifacts:
+      - scripts: scripts
+        type: tosca.artifacts.File
+      - pool_config:
+        type: tosca.artifacts.File

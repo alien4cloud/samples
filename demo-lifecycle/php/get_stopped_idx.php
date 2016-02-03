@@ -13,6 +13,9 @@ $stoppedLogFile = "$nodeLogPath/stopped";
 
 $stoppedLogContent = file($stoppedLogFile);
 $lineCount = count($stoppedLogContent);
-$lineToFetch = $lineCount - $position - 1;
-echo $stoppedLogContent[$lineToFetch];
+$lineToFetchIdx = $lineCount - $position - 1;
+$line = $stoppedLogContent[$lineToFetchIdx];
+$line = str_replace("\n","",$line);
+echo $line;
+
 ?>

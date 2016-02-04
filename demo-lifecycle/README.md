@@ -6,16 +6,16 @@ Nodes and relationship operation are logged in a central registry and are viewab
 
 The topology contains:
 
-- A ComputeRegistry that host a Apache + PHP + few PHP scripts that acts as a registry for others nodes.
+- A ComputeRegistry that host a Apache + PHP + few PHP scripts that acts as a **Registry** for others nodes.
 - 2 other computes (ComputeA and ComputeB) host:
-   - a RegistryConfigurer that is link to the Registry (actually just peek it's IP and put it in /etc/hosts)
-   - A couple of GenericHost + Generic
+   - a **RegistryConfigurer** that is linked to the Registry (actually just peek it's IP and put it in /etc/hosts)
+   - A couple of **GenericHost** + **Generic**
 
 About components:
 
-- Generic is hosted on GenericHost
-- GenericHost as input on *configure*
-- The 2 Generics are connected together (with inputs on *add_source* and *add_target*)
+- **Generic** is hosted on **GenericHost**
+- **GenericHost** as input on *configure* operation
+- The 2 **Generic**s are connected together (with inputs on *add_source* and *add_target* operations)
 
 Once deployed, just follow the link given by the topology output property Registry.url  
 

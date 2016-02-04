@@ -11,9 +11,13 @@ The topology contains:
    - a RegistryConfigurer that is link to the Registry (actually just peek it's IP and put it in /etc/hosts)
    - A couple of GenericHost + Generic
 
-The 2 Generics are connected together.
+About components:
 
-Once deployed, you follow the lin given by the topology output property Registry.url  
+- Generic is hosted on GenericHost
+- GenericHost as input on *configure*
+- The 2 Generics are connected together (with inputs on *add_source* and *add_target*)
+
+Once deployed, just follow the link given by the topology output property Registry.url  
 
 ## Requirements
 
@@ -22,6 +26,6 @@ Once deployed, you follow the lin given by the topology output property Registry
 
 ## TODOs
 
-[ ] apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
-[ ] simple python scripts could be lighter tha apache + php
-[ ] apache doc root should be used by Registry
+- [ ] apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
+- [ ] simple python scripts could be lighter than apache + php (but for the moment I am not able to get the request body when using HTTPServer and CGIHTTPRequestHandler)
+- [ ] apache doc root should be used by Registry

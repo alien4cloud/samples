@@ -19,3 +19,9 @@ Once deployed, you follow the lin given by the topology output property Registry
 
 - apt-get
 - wget
+
+## TODOs
+
+[ ] apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
+[ ] simple python scripts could be lighter tha apache + php
+[ ] apache doc root should be used by Registry

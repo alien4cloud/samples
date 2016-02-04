@@ -151,8 +151,12 @@ relationship_types:
         post_configure_target:
           implementation: scripts/GenericConnectToGeneric/post_configure_target.sh
         add_target:
+          inputs:
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
           implementation: scripts/GenericConnectToGeneric/add_target.sh
         add_source:
+          inputs:
+            SOURCE_ADDR: { get_attribute: [SOURCE, ip_address] }            
           implementation: scripts/GenericConnectToGeneric/add_source.sh
         remove_target:
           implementation: scripts/GenericConnectToGeneric/remove_target.sh

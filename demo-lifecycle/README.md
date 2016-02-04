@@ -2,7 +2,7 @@ A topology to illustrate the behavior of nodes and their operations during workf
 
 Nodes and relationship operation are logged in a central registry and are viewable using a web browser. You can also explore the environment variables for each operation.
 
-![Alien4Cloud](https://raw.githubusercontent.com/alien4cloud/samples/master/demo-lifecycle/img/lifecycle.png)
+![Topology](https://raw.githubusercontent.com/alien4cloud/samples/master/demo-lifecycle/img/lifecycle.png)
 
 The topology contains:
 
@@ -18,6 +18,13 @@ About components:
 - The 2 **Generic**s are connected together (with inputs on *add_source* and *add_target* operations)
 
 Once deployed, just follow the link given by the topology output property Registry.url  
+
+![Topology](https://raw.githubusercontent.com/alien4cloud/samples/master/demo-lifecycle/img/lifecycle-webpage.png)
+
+Then :
+
+- Click on **Logs** to vizualise the operations for this instance.
+- Click on **env logs** to vizualise the environment variables for a given operation.
 
 ## Requirements
 

@@ -5,7 +5,7 @@ template_version: 0.1.0-SNAPSHOT
 template_author: Fastconnect
 
 imports:
-  - tosca-normative-types:1.0.0.wd06-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN11
   - host-pool-service-types:1.0.0-SNAPSHOT
 
 topology_template:

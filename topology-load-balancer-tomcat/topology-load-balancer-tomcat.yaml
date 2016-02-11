@@ -43,7 +43,7 @@ topology_template:
       properties:
         tomcat_home: /opt/tomcat
         tomcat_port: 80
-        tomcat_url: "http://mirrors.ircam.fr/pub/apache/tomcat/tomcat-8/v8.0.30/bin/apache-tomcat-8.0.30.tar.gz"
+        tomcat_url: "http://mirrors.ircam.fr/pub/apache/tomcat/tomcat-8/v8.0.32/bin/apache-tomcat-8.0.32.tar.gz"
       requirements:
         - java:
             node: Java

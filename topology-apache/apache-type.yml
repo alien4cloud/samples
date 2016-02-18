@@ -5,7 +5,7 @@ template_version: 1.2.0-SNAPSHOT
 template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN11"
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
 
 topology_template:
   description: A simple topology template created directly from a CSAR archive

@@ -6,7 +6,7 @@ template_author: admin
 
 imports:
   - nodecellar-type:1.1.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN11
+  - tosca-normative-types:1.0.0-SNAPSHOT
   - nodejs-type:1.0.0-SNAPSHOT
   - mongod-type:1.0.0-SNAPSHOT
 

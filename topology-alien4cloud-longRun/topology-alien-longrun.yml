@@ -1,0 +1,166 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: A4C with remote replicated ElasticSearch + IT tests checkout, built and launched
+template_name: Alien4Cloud-longrun
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - elasticsearch-type:1.0.0-SNAPSHOT
+  - alien-type:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-SNAPSHOT
+  - jdk-type:1.0.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    JDK:
+      type: alien.nodes.JDK
+      properties:
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_home: /opt/java
+      requirements:
+        - host:
+            node: AlienFront
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Alien:
+      type: alien.nodes.Alien
+      properties:
+        alien_url: "https://fastconnect.org/maven/content/repositories/opensource-snapshot/alien4cloud/alien4cloud-ui/1.2.0-SM1-SNAPSHOT/alien4cloud-ui-1.2.0-SM1-20160208.113029-2-standalone.war"
+        context_root: /
+        app_args: "--spring.profiles.active=security-demo,noApiDoc"
+      requirements:
+        - java:
+            node: JDK
+            capability: alien.capabilities.JDK
+            relationship: alien.relationships.JavaSoftwareHostedOnJDK
+        - elasticsearch:
+            node: ElasticSearch1
+            capability: alien.capabilities.ElasticSearch
+            relationship: alien.relationships.AlienConnectToElasticSearch
+        - elasticsearch:
+            node: ElasticSearch0
+            capability: alien.capabilities.ElasticSearch
+            relationship: alien.relationships.AlienConnectToElasticSearch
+    ElasticSearch0:
+      type: alien.nodes.ElasticSearch
+      properties:
+        elasticsearch_url: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
+      requirements:
+        - java:
+            node: JDK-P0
+            capability: alien.capabilities.JDK
+            relationship: alien.relationships.JavaSoftwareHostedOnJDK
+        - elasticsearch:
+            node: ElasticSearch1
+            capability: alien.capabilities.ElasticSearch
+            relationship: alien.relationships.ConnectElasticSearchNodes
+    AlienIT:
+      type: alien.nodes.AlienIT
+      properties:
+        branch: develop
+        amazon_manager_ip: "http://52.50.53.198"
+        plugin_version: "1.2.0-SM1-SNAPSHOT"
+        it_test: RunCloudify3AmazonLongRunIT
+      requirements:
+        - java:
+            node: JDK
+            capability: alien.capabilities.JDK
+            relationship: alien.relationships.JavaSoftwareHostedOnJDK
+        - elasticsearch:
+            node: ElasticSearch0
+            capability: alien.capabilities.ElasticSearch
+            relationship: alien.relationships.AlienITConnectToElasticSearch
+        - alien:
+            node: Alien
+            capability: alien.capabilities.Alien
+            relationship: alien.relationships.AlienITDependsOnAlien
+    ElasticSearch1:
+      type: alien.nodes.ElasticSearch
+      properties:
+        elasticsearch_url: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
+      requirements:
+        - java:
+            node: JDK-P1
+            capability: alien.capabilities.JDK
+            relationship: alien.relationships.JavaSoftwareHostedOnJDK
+    Network:
+      type: tosca.nodes.Network
+      properties:
+        ip_version: 4
+    AlienFront:
+      type: tosca.nodes.Compute
+      requirements:
+        - network:
+            node: Network
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            network_name: PRIVATE
+            secure: true
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    JDK-P1:
+      type: alien.nodes.JDK
+      properties:
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_home: /opt/java
+      requirements:
+        - host:
+            node: Persistence1
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    JDK-P0:
+      type: alien.nodes.JDK
+      properties:
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_home: /opt/java
+      requirements:
+        - host:
+            node: Persistence0
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Persistence0:
+      type: tosca.nodes.Compute
+      requirements:
+        - network:
+            node: Network
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            network_name: PRIVATE
+            secure: true
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    Persistence1:
+      type: tosca.nodes.Compute
+      requirements:
+        - network:
+            node: Network
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            initiator: source
+            network_name: PRIVATE
+            secure: true
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1

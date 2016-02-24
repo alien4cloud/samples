@@ -26,6 +26,13 @@ cd /opt/alien4cloud/src/alien4cloud
 sudo mvn -fn clean install
 cd /opt/alien4cloud/src/
 
+# clone cloudify provider
+sudo git clone -b ${BRANCH} https://github.com/alien4cloud/alien4cloud-cloudify3-provider.git
+# build cloudify provider
+cd /opt/alien4cloud/src/alien4cloud-cloudify3-provider
+sudo mvn clean install -DskipTests
+cd /opt/alien4cloud/src/
+
 # clone provider tests
 sudo git clone -b ${BRANCH} https://github.com/alien4cloud/alien4cloud-provider-int-test.git
 # change suffs in alien4cloud-config.yml

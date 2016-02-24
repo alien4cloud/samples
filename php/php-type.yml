@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: PHP install on Debian systems.
 template_name: php-type
-template_version: 2.0.0-SNAPSHOT
+template_version: 2.0.0
 template_author: FastConnect
 
 imports:

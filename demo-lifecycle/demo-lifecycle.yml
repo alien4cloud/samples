@@ -6,8 +6,8 @@ template_version: 1.0.0-SNAPSHOT
 
 imports:
   - tosca-normative-types:1.0.0-SNAPSHOT
-  - apache-type:2.0.0
-  - php-type:2.0.0
+  - apache-type:2.0.0-SNAPSHOT
+  - php-type:2.0.0-SNAPSHOT
 
 description: Generic type that echoes operations in a file for tests.
 

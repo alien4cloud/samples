@@ -6,7 +6,7 @@ template_author: FastConnect
 
 imports:
   - "tosca-normative-types:1.0.0-SNAPSHOT"
-  - "apache-type:2.0.0-SNAPSHOT"
+  - "apache-type:2.0.0"
 
 node_types:
   alien.nodes.WebSite:

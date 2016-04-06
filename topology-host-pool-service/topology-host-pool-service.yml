@@ -1,12 +1,12 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: Host pool service template
 template_name: host-pool-service-template
-template_version: 0.1.0-SNAPSHOT
+template_version: 0.1.1-SNAPSHOT
 template_author: Fastconnect
 
 imports:
   - tosca-normative-types:1.0.0-SNAPSHOT
-  - host-pool-service-types:1.0.0-SNAPSHOT
+  - host-pool-service-types:1.1.0-SNAPSHOT
 
 topology_template:
   node_templates:

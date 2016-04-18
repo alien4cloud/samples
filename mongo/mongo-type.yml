@@ -24,7 +24,7 @@ node_types:
         type: integer
         default: 27017
         constraints:
-          - in_range: [8000,9999]
+          - in_range: [8000,65535]
     interfaces:
       Standard:
         create: scripts/install-mongo.sh

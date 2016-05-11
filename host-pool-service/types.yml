@@ -1,7 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 description: A host pool service type, based on cloudify one.
 template_name: host-pool-service-types
-template_version: 1.0.0-SNAPSHOT
+template_version: 1.1.0-SNAPSHOT
 template_author: FastConnect
 
 imports:
@@ -30,7 +30,7 @@ node_types:
       source:
         type: string
         description: URL to the source code of the service
-        default: https://github.com/cloudify-cosmo/cloudify-host-pool-service/archive/master.zip
+        default: https://github.com/cloudify-cosmo/cloudify-host-pool-service/archive/1.1.zip
     attributes:
       endpoint: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
       pid_file: { concat: [get_property: [SELF, working_directory], "/gunicorn.pid"] }
@@ -62,5 +62,5 @@ node_types:
     artifacts:
       - scripts: scripts
         type: tosca.artifacts.File
-      - pool_config: config.example.tar.gz
+      - pool_config: ./config.example/pool.example.yml
         type: tosca.artifacts.File

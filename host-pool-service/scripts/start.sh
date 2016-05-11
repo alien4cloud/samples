@@ -54,12 +54,14 @@ function wait_for_server() {
 }
 
 
-config_path=${WORK_DIR}/config.json
 
 cd ${WORK_DIR}
-export HOST_POOL_SERVICE_CONFIG_PATH=${config_path}
 command="gunicorn --workers=5 --pid=${WORK_DIR}/gunicorn.pid --log-level=INFO --log-file=${WORK_DIR}/gunicorn.log --bind 0.0.0.0:${PORT} --daemon cloudify_hostpool.rest.service:app"
 echo "Starting cloudify-host-pool-service with command: ${command}"
 ${command}
 
 wait_for_server ${PORT} 'Host-Pool-Service'
+
+config_path=${WORK_DIR}/config.json
+echo "Initialize host pool service"
+curl -v -X POST -H "Content-Type: application/json" -d @$config_path http://localhost:8080/hosts

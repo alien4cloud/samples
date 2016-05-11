@@ -1,3 +1,5 @@
+#!/bin/bash -e
+
 service="apache2"
 # Restart apache for php paths copied from create.sh taken into account
 if (( $(ps -ef | grep -v grep | grep $service | wc -l) > 0 ))

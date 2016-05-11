@@ -43,7 +43,7 @@ node_types:
 
 capability_types:
   alien.capabilities.ElasticSearch:
-    derived_from: tosca.capabilities.Attachment
+    derived_from: tosca.capabilities.Root
 
 relationship_types:
   alien.relationships.ConnectElasticSearchNodes:

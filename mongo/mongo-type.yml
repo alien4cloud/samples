@@ -23,6 +23,8 @@ node_types:
       db_port:
         type: integer
         default: 27017
+        constraints:
+          - in_range: [8000,65535]
     interfaces:
       Standard:
         create: scripts/install-mongo.sh
@@ -33,4 +35,3 @@ node_types:
           implementation: scripts/configure-mongo.sh
         start: scripts/start-mongo.sh
         stop: scripts/stop-mongo.sh
-

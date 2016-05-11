@@ -1,9 +1,0 @@
-default:
-  port: 22
-  auth:
-    keyfile: keys/alien.pem
-    username: ubuntu
-
-hosts:
-  - host: 10.67.79.2
-    public_address: 129.185.67.118

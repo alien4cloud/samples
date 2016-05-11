@@ -15,6 +15,8 @@ node_types:
       that can be managed and run by a TOSCA Compute Node Type.
     capabilities:
       host: alien.capabilities.ApacheContainer
+    attributes:
+      apache_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
     tags:
       icon: /images/apache.png
     properties:

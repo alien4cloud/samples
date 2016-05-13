@@ -1,0 +1,46 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: A simple Nginx for Windows
+template_name: nginx-type
+template_version: 2.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+  - "alien-base-types:1.1.0-SNAPSHOT"
+
+node_types:
+  alien.nodes.Nginx:
+    derived_from: tosca.nodes.WebServer
+    description: >
+      The TOSCA Apache Node Type represents an apache component
+      that can be managed and run by a TOSCA Compute Node Type.
+    capabilities:
+      host: alien.capabilities.NginxContainer
+    attributes:
+      nginx_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
+    tags:
+      icon: /images/nginx.png
+    properties:
+      version:
+        type: version
+        default: 1.10.0
+        constraints:
+          - equal: 1.10.0
+      port:
+        type: integer
+        description: Port for the Apache server
+        default: 80
+        constraints:
+          - equal: 80
+    interfaces:
+      Standard:
+        create: scripts/install_nginx.bat
+        start: scripts/start_nginx.bat
+    artifacts:
+      - install_nginx: scripts/install_nginx.ps1
+        type: tosca.artifacts.File
+      - start_nginx: scripts/start_nginx.ps1
+        type: tosca.artifacts.File
+capability_types:
+  alien.capabilities.NginxContainer:
+      derived_from: tosca.capabilities.Container

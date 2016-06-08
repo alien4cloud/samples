@@ -22,7 +22,7 @@ node_types:
       java_url:
         type: string
         required: true
-        default: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        default: "http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz"
       java_home:
         type: string
         required: true

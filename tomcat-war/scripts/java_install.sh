@@ -57,8 +57,6 @@ download "JDK" $JAVA_URL $JAVA_HOME/java_archive.tar.gz
 sudo tar xzf $JAVA_HOME/java_archive.tar.gz --strip 1 -C $JAVA_HOME
 sudo rm $JAVA_HOME/java_archive.tar.gz
 
-echo "${currHostName}:${currFilename} Java installed at ${JAVA_HOME}"
-
 # if the /usr/bin/java exisi, means java is already installed.
 #TODO check this before installing a new java?? or always override the old install?
 if [ ! -e /usr/bin/java ]; then
@@ -67,6 +65,8 @@ fi
 
 export JAVA_VERSION=$(/usr/bin/java -version 2>&1)
 export JAVA_HELP=$(/usr/bin/java -h 2>&1)
+
+echo "${currHostName}:${currFilename} Java installed at ${JAVA_HOME}, version ${JAVA_VERSION}"
 
 # TODO A hack to have java available
 # TODO The right solution is to have output attribute for Java published by Java component

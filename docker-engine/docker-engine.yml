@@ -1,0 +1,42 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: docker-engine as a TOSCA archive
+template_name: docker-engine
+template_version: 0.0.1-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0-SNAPSHOT"
+
+node_types:
+  alien.nodes.DockerEngine:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The Docker Engine.
+    tags:
+      icon: /images/icon.png
+    capabilities:
+      docker_host: alien.capabilities.DockerHost
+    requirements:
+      - host: tosca.nodes.Compute
+        type: tosca.relationships.HostedOn
+        lower_bound: 1
+        upper_bound: 1
+        node_filter:
+          capabilities:
+            - tosca.capabilities.OperatingSystem:
+                properties:
+                  - type: { equal: linux }
+                  - architecture: { equal: x86_64 }
+                  - distribution: { valid_values: [ ubuntu, centos ] } # TODO: implement installation on Debian & RHEL
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            OS: { get_property: [HOST, os, distribution] }
+          implementation: scripts/install_docker_engine.sh
+        start: scripts/start_docker_engine.sh
+        stop: scripts/stop_docker_engine.sh
+
+capability_types:
+  alien.capabilities.DockerHost:
+    derived_from: tosca.capabilities.Node

@@ -21,7 +21,7 @@ node_types:
     tags:
       icon: /images/nginx.png
     properties:
-      version:
+      component_version:
         type: version
         default: 1.10.0
         constraints:

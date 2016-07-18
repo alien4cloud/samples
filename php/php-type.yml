@@ -14,7 +14,7 @@ node_types:
     tags:
       icon: /images/php.png
     properties:
-      version:
+      component_version:
         type: version
         default: 5
         constraints:

@@ -20,7 +20,7 @@ node_types:
     tags:
       icon: /images/apache.png
     properties:
-      version:
+      component_version:
         type: version
         default: 2.4
         constraints:

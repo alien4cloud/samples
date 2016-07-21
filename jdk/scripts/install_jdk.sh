@@ -73,3 +73,5 @@ sudo update-alternatives --install "/usr/bin/javac" "javac" "$JAVA_HOME/bin/java
 sudo update-alternatives --set "javac" "$JAVA_HOME/bin/javac"
 sudo update-alternatives --install "/usr/bin/jar" "jar" "$JAVA_HOME/bin/jar" 1
 sudo update-alternatives --set "jar" "$JAVA_HOME/bin/jar"
+sudo update-alternatives --install "/usr/bin/keytool" "keytool" "$JAVA_HOME/bin/keytool" 1
+sudo update-alternatives --set "keytool" "$JAVA_HOME/bin/keytool"

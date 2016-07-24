@@ -25,7 +25,7 @@ topology_template:
     Alien:
       type: alien.nodes.Alien
       properties:
-        alien_url: "https://fastconnect.org/maven/service/local/repositories/opensource/content/alien4cloud/alien4cloud-ui/1.1.0-SM8/alien4cloud-ui-1.1.0-SM8-standalone.war"
+        alien_url: "https://fastconnect.org/maven/service/local/repositories/opensource/content/alien4cloud/alien4cloud-ui/1.1.0/alien4cloud-ui-1.1.0-standalone.war"
         context_root: /
       requirements:
         - java:

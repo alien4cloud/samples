@@ -60,7 +60,7 @@ node_types:
       tomcat_url:
         type: string
         required: true
-        default: "http://mirrors.ircam.fr/pub/apache/tomcat/tomcat-8/v8.0.35/bin/apache-tomcat-8.0.35.tar.gz"
+        default: "http://mirrors.ircam.fr/pub/apache/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz"
     attributes:
       server_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, tomcat_port]] }
     requirements:

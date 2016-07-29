@@ -7,7 +7,7 @@ template_author: admin
 imports:
   - elasticsearch-type:1.0.0-SNAPSHOT
   - alien-type:1.0.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN12
   - jdk-type:1.0.0-SNAPSHOT
 
 topology_template:

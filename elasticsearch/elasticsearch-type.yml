@@ -5,7 +5,7 @@ template_version: 1.0.0-SNAPSHOT
 template_author: FastConnect
 
 imports:
-  - tosca-normative-types:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN12
   - jdk-type:1.0.0-SNAPSHOT
 
 node_types:

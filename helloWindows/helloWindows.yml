@@ -5,8 +5,8 @@ template_version: 1.0.0-SNAPSHOT
 template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0-SNAPSHOT"
-  - "alien-base-types:1.2.0-SNAPSHOT"
+  - "tosca-normative-types:1.0.0-ALIEN12"
+  - "alien-base-types:1.1.0"
 
 node_types:
   alien.nodes.HelloWindows:

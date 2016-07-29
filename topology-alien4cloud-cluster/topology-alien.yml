@@ -8,7 +8,7 @@ imports:
   - elasticsearch-type:1.0.0-SNAPSHOT
   - alien-type:1.0.0-SNAPSHOT
   - jdk-type:1.0.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN12
 
 topology_template:
   node_templates:

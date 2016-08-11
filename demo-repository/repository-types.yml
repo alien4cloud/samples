@@ -1,0 +1,36 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: repository-demo-types
+template_author: Alien4cloud
+template_version: 2.0.0-SNAPSHOT
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+repositories:
+
+  fastconnect:
+    url: https://fastconnect.org/maven/content/repositories/fastconnect
+
+node_types:
+
+  alien.nodes.ArtifactDemo:
+    derived_from: tosca.nodes.SoftwareComponent
+    artifacts:
+      - remote_artifact:
+          file: alien4cloud/alien4cloud-premium-logs/1.2.0/alien4cloud-premium-logs-1.2.0.zip
+          repository: fastconnect
+          type: http
+    interfaces:
+      Standard:
+        create: https://github.com/alien4cloud/samples/raw/master/demo-repository/scripts/implementation/create.sh
+
+topology_template:
+
+  ArtifactDemo:
+    type: alien.nodes.ArtifactDemo
+    requirements:
+      - host: Compute
+
+  Compute:
+    type: tosca.nodes.Compute

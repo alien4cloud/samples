@@ -11,26 +11,35 @@ repositories:
 
   fastconnect:
     url: https://fastconnect.org/maven/content/repositories/fastconnect
+    type: http
+  aliengithub:
+    url: https://github.com/alien4cloud/samples.git
+    type: git
 
 node_types:
 
   alien.nodes.ArtifactDemo:
     derived_from: tosca.nodes.SoftwareComponent
     artifacts:
-      - remote_artifact:
+      - http_artifact:
           file: alien4cloud/alien4cloud-premium-logs/1.2.0/alien4cloud-premium-logs-1.2.0.zip
           repository: fastconnect
-          type: http
+      - git_artifact:
+          file: demo-repository/artifacts/setting.properties
+          repository: aliengithub
     interfaces:
       Standard:
-        create: https://github.com/alien4cloud/samples/raw/master/demo-repository/scripts/implementation/create.sh
+        create: https://github.com/alien4cloud/samples/raw/master/demo-repository/scripts/implementation/assert.sh
+        start:
+          file: demo-repository/scripts/implementation/assert.sh
+          repository: aliengithub
 
 topology_template:
+  node_templates:
+    ArtifactDemo:
+      type: alien.nodes.ArtifactDemo
+      requirements:
+        - host: Compute
 
-  ArtifactDemo:
-    type: alien.nodes.ArtifactDemo
-    requirements:
-      - host: Compute
-
-  Compute:
-    type: tosca.nodes.Compute
+    Compute:
+      type: tosca.nodes.Compute

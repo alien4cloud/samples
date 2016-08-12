@@ -24,15 +24,18 @@ node_types:
       - http_artifact:
           file: alien4cloud/alien4cloud-premium-logs/1.2.0/alien4cloud-premium-logs-1.2.0.zip
           repository: fastconnect
+          type: tosca.artifacts.File
       - git_artifact:
-          file: demo-repository/artifacts/setting.properties
+          file: demo-repository/artifacts/settings.properties
           repository: aliengithub
+          type: tosca.artifacts.File
     interfaces:
       Standard:
         create: https://github.com/alien4cloud/samples/raw/master/demo-repository/scripts/implementation/assert.sh
         start:
-          file: demo-repository/scripts/implementation/assert.sh
-          repository: aliengithub
+          implementation:
+            file: demo-repository/scripts/implementation/assert.sh
+            repository: aliengithub
 
 topology_template:
   node_templates:

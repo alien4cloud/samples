@@ -7,7 +7,7 @@ if [ -z "$http_artifact" ]; then
     exit 1
 else
     echo "I have access to the artifact http_artifact at ${http_artifact}"
-    sudo touch /var/www/artifact
+    sudo touch /var/www/http
 fi
 
 if [ -z "$git_artifact" ]; then

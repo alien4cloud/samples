@@ -15,6 +15,9 @@ repositories:
   aliengithub:
     url: https://github.com/alien4cloud/samples.git
     type: git
+  fastconnect_nexus:
+    url: https://fastconnect.org/maven/content/repositories/opensource
+    type: maven
 
 node_types:
   alien.nodes.ArtifactDemo:
@@ -27,6 +30,10 @@ node_types:
       - git_artifact:
           file: demo-repository/artifacts/settings.properties
           repository: aliengithub
+          type: tosca.artifacts.File
+      - maven_artifact:
+          file: alien4cloud:alien4cloud-cloudify3-provider:1.2.0@zip
+          repository: fastconnect_nexus
           type: tosca.artifacts.File
     interfaces:
       Standard:

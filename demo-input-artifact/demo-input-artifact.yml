@@ -25,7 +25,7 @@ node_types:
 
 repositories:
   http_github_repo:
-    url: https://github.com/alien4cloud/samples/raw/master/
+    url: https://raw.githubusercontent.com/alien4cloud/samples/master
     type: http
 
 topology_template:

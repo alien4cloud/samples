@@ -64,7 +64,7 @@ topology_template:
         scalable:
           properties:
             min_instances: 1
-            max_instances: 1
+            max_instances: 4
             default_instances: 1
         endpoint:
           properties:

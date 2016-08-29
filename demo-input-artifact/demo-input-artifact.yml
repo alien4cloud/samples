@@ -1,0 +1,54 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+template_name: demo-input-artifact
+template_author: Alien4cloud
+template_version: 1.0.0-SNAPSHOT
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+description: Input artifacts test.
+
+artifact_types:
+
+  tosca.artifacts.Deployment.War:
+    description: A web application archive
+    file_ext: [ war ]
+
+node_types:
+
+  alien.nodes.InputArtifactDemo:
+    derived_from: tosca.nodes.SoftwareComponent
+    interfaces:
+      Standard:
+        create: scripts/assert.sh
+
+repositories:
+  http_github_repo:
+    url: https://github.com/alien4cloud/samples/raw/master/
+    type: http
+
+topology_template:
+
+  input_artifacts:
+    local_war: binary/myWar.war
+    uploaded_war:
+      type: tosca.artifacts.Deployment.War
+    remote_war:
+      file: demo-input-artifact/binary/myWar.war
+      type: tosca.artifacts.Deployment.War
+      repository: http_github_repo
+
+  node_templates:
+    ArtifactDemo:
+      type: alien.nodes.InputArtifactDemo
+      artifacts:
+        uploaded_war:
+          type: tosca.artifacts.Deployment.War
+          file: { get_input_artifact: uploaded_war }
+        local_war:
+          type: tosca.artifacts.Deployment.War
+          file: { get_input_artifact: local_war }
+        remote_war:
+          type: tosca.artifacts.Deployment.War
+          file: { get_input_artifact: remote_war }

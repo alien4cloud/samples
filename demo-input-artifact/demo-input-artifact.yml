@@ -40,9 +40,16 @@ topology_template:
       repository: http_github_repo
 
   node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+
     ArtifactDemo:
       type: alien.nodes.InputArtifactDemo
+      requirements:
+        - host: Compute
       artifacts:
+        nested_uploaded_war:
+          type: tosca.artifacts.Deployment.War
         uploaded_war:
           type: tosca.artifacts.Deployment.War
           file: { get_input_artifact: uploaded_war }

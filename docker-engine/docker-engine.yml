@@ -16,6 +16,7 @@ node_types:
       icon: /images/icon.png
     capabilities:
       docker_host: alien.capabilities.DockerHost
+      docker_cli: alien.capabilities.DockerCLI
     requirements:
       - host: tosca.nodes.Compute
         type: tosca.relationships.HostedOn
@@ -38,5 +39,7 @@ node_types:
         stop: scripts/stop_docker_engine.sh
 
 capability_types:
-  alien.capabilities.DockerHost:
+  alien.capabilities.DockerCLI:
     derived_from: tosca.capabilities.Node
+  alien.capabilities.DockerHost:
+    derived_from: tosca.capabilities.Container

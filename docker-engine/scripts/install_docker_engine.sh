@@ -32,16 +32,23 @@ case $OS in
         echo "$NAME released apt lock"
         ;;
     "centos")
-        sudo tee /etc/yum.repos.d/docker.repo <<-EOF
-        [dockerrepo]
-        name=Docker Repository
-        baseurl=https://yum.dockerproject.org/repo/main/centos/$releasever/
-        enabled=1
-        gpgcheck=1
-        gpgkey=https://yum.dockerproject.org/gpg
+        sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
+[dockerrepo]
+name=Docker Repository
+baseurl=https://yum.dockerproject.org/repo/main/centos/7/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum.dockerproject.org/gpg
 EOF
+
         # Install
+        sudo yum -y update
+        sudo yum clean all
         sudo yum -y install docker-engine
+        sudo systemctl enable docker.service
+        # Centos 7 does not need socker activation - NOTE: This is merely a fix
+        sudo sed -i "s;-H fd://;;" /etc/systemd/system/docker.service.d/execstart.conf
+        sudo systemctl daemon-reload
         ;;
       *)
         echo "${OS} is not supported ATM. Exiting..."

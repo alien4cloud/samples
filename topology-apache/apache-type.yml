@@ -63,8 +63,3 @@ node_types:
 capability_types:
   alien.capabilities.ApacheContainer:
       derived_from: tosca.capabilities.Container
-
-artifact_types:
-  tosca.artifacts.GroovyScript:
-    description: A groovy script (.groovy file)
-    file_ext: [groovy]

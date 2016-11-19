@@ -5,8 +5,8 @@ template_author: Alien4cloud
 template_version: 2.0.0-SNAPSHOT
 
 imports:
-  - tosca-normative-types:1.0.0-SNAPSHOT
-  - alien-base-types:1.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN12
+  - alien-base-types:1.1.0
 
 description: Tomcat recipe, including war type and relationship.
 

@@ -18,7 +18,7 @@ node_types:
       java_url:
         type: string
         required: true
-        default: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-i586.tar.gz"
+        default: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
       java_home:
         type: string
         required: true

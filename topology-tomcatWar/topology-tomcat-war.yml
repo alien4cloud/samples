@@ -58,7 +58,7 @@ topology_template:
     Java:
       type: alien.nodes.Java
       properties:
-        java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-i586.tar.gz"
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
         java_home: /opt/java
       requirements:
         - host:

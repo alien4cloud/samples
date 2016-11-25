@@ -15,7 +15,7 @@ topology_template:
     JDK:
       type: alien.nodes.JDK
       properties:
-        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-i586.tar.gz"
         java_home: /opt/java
       requirements:
         - host:
@@ -107,7 +107,7 @@ topology_template:
     JDK-P1:
       type: alien.nodes.JDK
       properties:
-        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-i586.tar.gz"
         java_home: /opt/java
       requirements:
         - host:
@@ -117,7 +117,7 @@ topology_template:
     JDK-P0:
       type: alien.nodes.JDK
       properties:
-        java_url: "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-x64.tar.gz"
+        java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-i586.tar.gz"
         java_home: /opt/java
       requirements:
         - host:

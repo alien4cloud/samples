@@ -6,7 +6,7 @@ template_author: FastConnect
 
 imports:
   - "tosca-normative-types:1.0.0-ALIEN12"
-  - "alien-base-types:1.1.0"
+  - "alien-base-types:1.3.0"
 
 node_types:
   alien.nodes.Nginx:

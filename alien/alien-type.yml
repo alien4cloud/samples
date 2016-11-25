@@ -20,7 +20,7 @@ node_types:
       alien_url:
         type: string
         required: true
-        default: "https://fastconnect.org/maven/service/local/repositories/opensource/content/alien4cloud/alien4cloud-ui/1.1.0-SM8/alien4cloud-ui-1.1.0-SM8-standalone.war"
+        default: "https://fastconnect.org/maven/content/repositories/opensource/alien4cloud/alien4cloud-ui/1.3.0-RC5/alien4cloud-ui-1.3.0-RC5.war"
       context_root:
         type: string
         default: "/"

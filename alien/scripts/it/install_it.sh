@@ -7,9 +7,9 @@ sudo npm install -g bower
 sudo npm -g install grunt-cli
 sudo npm install grunt-contrib-compass --save-dev
 
-sudo wget http://fastconnect.org/ssl/cacert.crt
+sudo wget http://fastconnect.org/ssl/ServerCertificate.crt
 export mvn_java=`mvn --version | grep "Java home" | cut -d':' -f2 | xargs`
-sudo keytool -keystore ${mvn_java}/lib/security/cacerts -import -alias fastconnect -file cacert.crt -storepass changeit -noprompt
+sudo keytool -keystore ${mvn_java}/lib/security/cacerts -import -alias fastconnect -file ServerCertificate.crt -storepass changeit -noprompt
 
 if [ ! -d /opt/alien4cloud ]; then
   sudo mkdir /opt/alien4cloud

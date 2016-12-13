@@ -20,7 +20,7 @@ node_types:
     tags:
       icon: /images/mongodb.jpg
     properties:
-      db_port:
+      port:
         type: integer
         default: 27017
         constraints:
@@ -31,7 +31,7 @@ node_types:
         configure:
           inputs:
             DB_IP: { get_attribute: [HOST, ip_address] }
-            DB_PORT: { get_property: [SELF, db_port] }
+            DB_PORT: { get_property: [SELF, port] }
           implementation: scripts/configure-mongo.sh
         start: scripts/start-mongo.sh
         stop: scripts/stop-mongo.sh

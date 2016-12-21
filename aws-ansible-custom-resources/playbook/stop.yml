@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  name: Stop EC2 instance
+  become: true
+ 
+  roles:
+    - stop

@@ -31,11 +31,11 @@ error_exit () {
 download () {
   echo "${currHostName}:${currFilename} Downloading $1 from $2 ..."
   if [ "$DOWNLOADER" = "wget" ];then
-    Q_FLAG="--no-check-certificate"
+    Q_FLAG="--no-check-certificate -q"
     O_FLAG="-O"
     LINK_FLAG=""
   elif [ "$DOWNLOADER" = "curl" ];then
-    Q_FLAG=""
+    Q_FLAG="-ks"
     O_FLAG="-o"
     LINK_FLAG="-O"
   fi

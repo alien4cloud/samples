@@ -1,0 +1,48 @@
+# tasks file for alien4cloud.ec2.compute.create
+- name: Provision an instance
+  ec2:
+     aws_access_key: "{{ aws_access_key }}"
+     aws_secret_key: "{{ aws_secret_key }}"
+     key_name: "{{ key_name }}"
+     region: "{{ region }}"
+     group_id: "{{ group }}"
+     instance_type: "{{ instance_type }}"
+     image: "{{ image }}"
+     # TODO set false when created role will be written, or not !!!
+     wait: true
+     exact_count: "1"
+     count_tag:
+        Name: "{{ INSTANCE }}"
+     instance_tags:
+        Name: "{{ INSTANCE }}"     
+  register: ec2
+
+- name: set tmp_ip_address
+  set_fact: tmp_ip_address={{ item.private_ip }}
+  with_items: "{{ ec2.instances }}"
+
+- name: set ip_address
+  set_fact: ip_address={{ tmp_ip_address }}
+
+- debug: msg="fact ip_address = {{ ip_address }}"  
+
+- name: set tmp_instance_id
+  set_fact: tmp_instance_id={{ item.id }}
+  with_items: "{{ ec2.instances }}"  
+
+- name: set instance_id
+  set_fact: instance_id={{ tmp_instance_id }}
+
+- debug: msg="fact instance_id = {{ instance_id }}"  
+
+- name: accept new ssh fingerprints                                         
+  shell: "ssh-keyscan -H {{ item.private_ip }} >> ~/.ssh/known_hosts"
+  with_items: ec2.instances
+
+- name: Wait for instances to listen on port 22
+  wait_for:
+    state=started
+    timeout=30000
+    host={{ item.private_ip }}
+    port=22
+  with_items: ec2.instances

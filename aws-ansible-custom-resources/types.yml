@@ -1,0 +1,93 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: aws-ansible-custom-resources
+template_author: Alien4cloud
+template_version: 1.3.0-SNAPSHOT
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+  - alien-base-types:1.2.0-SNAPSHOT
+
+data_types:
+  alien.datatypes.ansible.AgentConfig:
+    derived_from: tosca.datatypes.Root
+    properties:
+      install_method:
+        type: string
+        required: true
+      user:
+        type: string
+        required: false
+      key:
+        type: string
+        required: false
+
+node_types:
+  alien.ansible.EC2Instance:
+    description: |
+      Launch an EC2 instance using Ansible.
+    derived_from: tosca.nodes.Compute
+    properties:
+      agent_config:
+        type: alien.datatypes.ansible.AgentConfig
+        required: false  
+      key_name:
+        type: string
+        required: true            
+      aws_access_key_id:
+        type: string
+        required: true
+      aws_secret_access_key:
+        type: string
+        required: true
+      aws_default_region:
+        type: string
+        required: true
+      image_id:
+        type: string
+        required: true
+      instance_type:
+        type: string
+        required: true
+      security_group_ids:
+        type: string
+        required: true
+    attributes:
+      ip_address: { get_operation_output: [ SELF, Standard, start, ip_address ] }
+      instance_id: { get_operation_output: [ SELF, Standard, start, instance_id ] }
+      #aws_resource_id: { get_operation_output: [ SELF, Standard, start, INSTANCE_ID ] }
+      #placement: { get_operation_output: [ SELF, Standard, start, AVAILIBILITY_ZONE ] }
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: start.yml
+            key_name: { get_property: [ SELF, key_name ] }
+            region: { get_property: [ SELF, aws_default_region ] }
+            group: { get_property: [ SELF, security_group_ids ] }
+            instance_type: { get_property: [ SELF, instance_type ] }
+            image: { get_property: [ SELF, image_id ] }
+            aws_access_key: { get_property: [ SELF, aws_access_key_id ] } 
+            aws_secret_key: { get_property: [ SELF, aws_secret_access_key ] }   
+          implementation: playbook/playbook.ansible
+        stop:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: stop.yml
+            key_name: { get_property: [ SELF, key_name ] }
+            region: { get_property: [ SELF, aws_default_region ] }
+            instance_id: { get_attribute: [ SELF, instance_id ] }
+            aws_access_key: { get_property: [ SELF, aws_access_key_id ] } 
+            aws_secret_key: { get_property: [ SELF, aws_secret_access_key ] }   
+          implementation: playbook/playbook.ansible
+        delete:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: delete.yml
+            key_name: { get_property: [ SELF, key_name ] }
+            region: { get_property: [ SELF, aws_default_region ] }
+            instance_id: { get_attribute: [ SELF, instance_id ] }
+            aws_access_key: { get_property: [ SELF, aws_access_key_id ] } 
+            aws_secret_key: { get_property: [ SELF, aws_secret_access_key ] }   
+          implementation: playbook/playbook.ansible

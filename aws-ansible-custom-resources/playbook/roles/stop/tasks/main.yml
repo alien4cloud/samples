@@ -1,0 +1,10 @@
+
+- name: Delete the compute node instance {{ NODE }} instance {{ INSTANCE }}
+  ec2:
+    key_name: "{{ key_name }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"    
+    region: "{{ region }}"       
+    instance_ids: ['{{ instance_id }}']
+    state: stopped
+    wait: True

@@ -40,9 +40,21 @@ node_types:
       Put this node on each compute you want to log operations. This component
       will just add an entry in /etc/hosts in order to connect to the registry.
     derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      registry_host:
+          type: string
+          required: false  
+    interfaces:
+      Standard:
+        start: 
+          inputs:
+            REGISTRY_HOST: { get_property: [SELF, registry_host] }  
+          implementation: scripts/RegistryConfigurer/start.sh          
     requirements:
       - registry: alien.nodes.Registry
         type: alien.relationships.RegistryConfigurerDependsOnRegistry
+        lower_bound: 0
+        upper_bound: 1            
   alien.nodes.GenericHost:
     description: |
       A software component that hosts Generic.

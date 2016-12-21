@@ -17,23 +17,23 @@
         Name: "{{ INSTANCE }}"     
   register: ec2
 
+# this to bypass the fact that tmp_ip_address is potencially a list (since we iterate over items) 
+# so it's not parsed correctly by the tree plugin for attribute parsing
 - name: set tmp_ip_address
   set_fact: tmp_ip_address={{ item.private_ip }}
   with_items: "{{ ec2.instances }}"
-
 - name: set ip_address
   set_fact: ip_address={{ tmp_ip_address }}
 
 - debug: msg="fact ip_address = {{ ip_address }}"  
 
+# this to bypass the fact that tmp_instance_id is potencially a list (since we iterate over items) 
+# so it's not parsed correctly by the tree plugin for attribute parsing
 - name: set tmp_instance_id
   set_fact: tmp_instance_id={{ item.id }}
   with_items: "{{ ec2.instances }}"  
-
 - name: set instance_id
   set_fact: instance_id={{ tmp_instance_id }}
-
-- debug: msg="fact instance_id = {{ instance_id }}"  
 
 - name: accept new ssh fingerprints                                         
   shell: "ssh-keyscan -H {{ item.private_ip }} >> ~/.ssh/known_hosts"

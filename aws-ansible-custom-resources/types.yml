@@ -14,13 +14,15 @@ data_types:
     properties:
       install_method:
         type: string
-        required: true
+        required: false
+        default: remote
       user:
         type: string
         required: false
       key:
         type: string
         required: false
+        default: "/root/.ssh/agent_key.pem"
 
 node_types:
   alien.ansible.EC2Instance:

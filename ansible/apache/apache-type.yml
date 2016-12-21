@@ -1,0 +1,56 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with Apache.
+template_name: ansible-apache-type
+template_version: 1.2.1-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+  - alien-base-types:1.2.0-SNAPSHOT
+
+node_types:
+  alien.nodes.AnsibleApache:
+    derived_from: tosca.nodes.WebServer
+    description: >
+      The TOSCA Apache Node Type represents an apache component
+      that can be managed and run by a TOSCA Compute Node Type.
+      This version is installed by using Ansible.
+    tags:
+      icon: /images/apache.png
+    properties:
+      port:
+        type: integer
+        default: 80
+        description: >
+          The default where Apache will listen.
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: create.yml
+          implementation: playbook/apache.ansible
+        configure:
+          inputs:
+            port: { get_property: [SELF, port] }
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: configure.yml
+          implementation: playbook/apache.ansible
+        start:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: start.yml
+          implementation: playbook/apache.ansible
+        stop:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: stop.yml
+          implementation: playbook/apache.ansible
+        delete:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: delete.yml
+          implementation: playbook/apache.ansible
+capability_types:
+    alien.capabilities.ApacheContainer:
+      derived_from: tosca.capabilities.Container

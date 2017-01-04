@@ -1,0 +1,10 @@
+- name: Instance Register
+  local_action:
+    module: ec2_elb
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"      
+    instance_id: "{{ instance_id }}"
+    ec2_elbs: "{{ lb_name }}"
+    state: present
+    wait: no

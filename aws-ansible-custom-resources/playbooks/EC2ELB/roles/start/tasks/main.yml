@@ -1,0 +1,30 @@
+
+- local_action:
+    module: ec2_elb_lb
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"
+    name: "{{ name }}"
+    state: present
+    zones:
+      - "{{ zone }}"    
+    listeners:
+      - protocol: http # options are http, https, ssl, tcp
+        load_balancer_port: "{{ load_balancer_port }}"
+        instance_port: "{{ instance_port }}"
+        proxy_protocol: True
+
+- action:
+    module: ec2_elb_facts
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"    
+    names:
+    - "{{ name }}"
+  register: elb_facts
+
+- name: set tmp_dns_name
+  set_fact: tmp_dns_name={{ item.dns_name }}
+  with_items: "{{ elb_facts.elbs }}"
+- name: set dns_name
+  set_fact: dns_name={{ tmp_dns_name }}

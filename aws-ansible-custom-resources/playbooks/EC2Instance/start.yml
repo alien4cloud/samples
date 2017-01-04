@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  name: Start EC2 instance
+  become: true
+ 
+  roles:
+    - start

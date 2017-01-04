@@ -1,0 +1,8 @@
+- local_action:
+    module: ec2_elb_lb
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    name: "{{ name }}"
+    region: "{{ region }}"
+    state: absent
+

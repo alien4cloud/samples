@@ -59,6 +59,9 @@ node_types:
       instance_id: { get_operation_output: [ SELF, Standard, start, instance_id ] }
       #aws_resource_id: { get_operation_output: [ SELF, Standard, start, INSTANCE_ID ] }
       #placement: { get_operation_output: [ SELF, Standard, start, AVAILIBILITY_ZONE ] }
+    capabilities:
+      ec2instance:
+        type: alien.ansible.capabilities.EC2Instance
     interfaces:
       Standard:
         start:
@@ -72,7 +75,7 @@ node_types:
             image: { get_property: [ SELF, image_id ] }
             aws_access_key: { get_property: [ SELF, aws_access_key_id ] } 
             aws_secret_key: { get_property: [ SELF, aws_secret_access_key ] }   
-          implementation: playbook/playbook.ansible
+          implementation: playbooks/EC2Instance/playbook.ansible
         stop:
           inputs:
             ANSIBLE_VERBOSE: true
@@ -82,7 +85,7 @@ node_types:
             instance_id: { get_attribute: [ SELF, instance_id ] }
             aws_access_key: { get_property: [ SELF, aws_access_key_id ] } 
             aws_secret_key: { get_property: [ SELF, aws_secret_access_key ] }   
-          implementation: playbook/playbook.ansible
+          implementation: playbooks/EC2Instance/playbook.ansible
         delete:
           inputs:
             ANSIBLE_VERBOSE: true
@@ -92,4 +95,96 @@ node_types:
             instance_id: { get_attribute: [ SELF, instance_id ] }
             aws_access_key: { get_property: [ SELF, aws_access_key_id ] } 
             aws_secret_key: { get_property: [ SELF, aws_secret_access_key ] }   
-          implementation: playbook/playbook.ansible
+          implementation: playbooks/EC2Instance/playbook.ansible
+
+  alien.ansible.EC2ELB:
+    description: |
+      Launch an EC2 Elastic Load Balancer.
+    tags:
+      icon: /images/aws-elb.png      
+    derived_from: tosca.nodes.Root
+    properties:
+      name:
+        type: string
+        required: true      
+      aws_access_key_id:
+        type: string
+        required: true
+      aws_secret_access_key:
+        type: string
+        required: true
+      region:
+        type: string
+        required: true
+      load_balancer_port:
+        type: integer
+        required: true
+        default: 80      
+      instance_port:
+        type: integer
+        required: true
+        default: 80  
+      zone:
+        type: string
+        required: true       
+    attributes:
+      dns_name: { get_operation_output: [ SELF, Standard, start, dns_name ] }
+    requirements:
+      - proxy: alien.ansible.capabilities.EC2Instance
+        type: alien.ansible.relationships.ELBProxyEC2Instance
+        lower_bound: 0
+        upper_bound: unbounded
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: start.yml
+            name: { get_property: [ SELF, name ] }
+            load_balancer_port: { get_property: [ SELF, load_balancer_port ] }
+            instance_port: { get_property: [ SELF, instance_port ] }
+            region: { get_property: [ SELF, region ] }
+            aws_access_key: { get_property: [ SELF, aws_access_key_id ] } 
+            aws_secret_key: { get_property: [ SELF, aws_secret_access_key ] }  
+            zone: { get_property: [ SELF, zone ] }
+          implementation: playbooks/EC2ELB/playbook.ansible
+        delete:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: delete.yml
+            name: { get_property: [ SELF, name ] }
+            region: { get_property: [ SELF, region ] }
+            aws_access_key: { get_property: [ SELF, aws_access_key_id ] } 
+            aws_secret_key: { get_property: [ SELF, aws_secret_access_key ] }   
+          implementation: playbooks/EC2ELB/playbook.ansible
+          
+capability_types:
+  alien.ansible.capabilities.EC2Instance:
+    derived_from: tosca.capabilities.Root
+
+relationship_types:
+  alien.ansible.relationships.ELBProxyEC2Instance:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ alien.ansible.capabilities.EC2Instance ]
+    interfaces:
+      configure:
+        add_target:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: add_target.yml
+            lb_name: { get_property: [ SOURCE, name ] }
+            instance_id: { get_attribute: [ TARGET, instance_id ] }
+            region: { get_property: [ SOURCE, region ] }
+            aws_access_key: { get_property: [ SOURCE, aws_access_key_id ] } 
+            aws_secret_key: { get_property: [ SOURCE, aws_secret_access_key ] }  
+          implementation: playbooks/ELBProxyEC2Instance/playbook.ansible
+        remove_target:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: remove_target.yml
+            lb_name: { get_property: [ SOURCE, name ] }
+            instance_id: { get_attribute: [ TARGET, instance_id ] }
+            region: { get_property: [ SOURCE, region ] }
+            aws_access_key: { get_property: [ SOURCE, aws_access_key_id ] } 
+            aws_secret_key: { get_property: [ SOURCE, aws_secret_access_key ] }  
+          implementation: playbooks/ELBProxyEC2Instance/playbook.ansible

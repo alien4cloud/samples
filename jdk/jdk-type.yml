@@ -45,7 +45,7 @@ node_types:
       icon: images/jdk.png
     requirements:
       - java: alien.capabilities.JDK
-        relationship: alien.relationships.JavaSoftwareHostedOnJDK
+        relationship_type: alien.relationships.JavaSoftwareHostedOnJDK
 
 capability_types:
   alien.capabilities.JDK:

@@ -54,8 +54,6 @@ topology_template:
         ip_version: 4
     Mongod:
       type: alien.nodes.Mongod
-      properties:
-        db_port: 27017
       requirements:
         - host:
             node: MongoHost

@@ -1,7 +1,7 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 description: MongoDB installation.
 template_name: mongod-type
-template_version: 1.0.0-SNAPSHOT
+template_version: 1.1.0-SNAPSHOT
 template_author: FastConnect
 
 imports:
@@ -13,10 +13,14 @@ node_types:
     description: >
       A node to install Mongodb nosql database.
     requirements:
-      - host: tosca.nodes.Compute
-        type: tosca.relationships.HostedOn
+      - host: 
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
     capabilities:
-      endpoint: tosca.capabilities.Endpoint.Database
+      endpoint: 
+        type: alien.capabilities.endpoint.Mongo
     tags:
       icon: /images/mongodb.jpg
     properties:
@@ -35,3 +39,15 @@ node_types:
           implementation: scripts/configure-mongo.sh
         start: scripts/start-mongo.sh
         stop: scripts/stop-mongo.sh
+
+capability_types:
+  alien.capabilities.endpoint.Mongo:
+    derived_from: tosca.capabilities.Endpoint.Database
+    description: >
+      Capability to connect to a Mongo database through bridge networking.
+    properties:
+      port:
+        type: integer
+        default: 27017
+        constraints:
+          - in_range: [8000,65535]

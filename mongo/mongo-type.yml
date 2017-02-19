@@ -8,18 +8,12 @@ imports:
   - "tosca-normative-types:1.0.0-ALIEN12"
 
 node_types:
-  alien.nodes.Mongod:
+
+  alien.nodes.AbstractMongod:
     derived_from: tosca.nodes.DBMS
-    description: >
-      A node to install Mongodb nosql database.
-    requirements:
-      - host: 
-          capability: tosca.capabilities.Container
-          node: tosca.nodes.Compute
-          relationship: tosca.relationships.HostedOn
-          occurrences: [1, 1]
+    abstract: true
     capabilities:
-      endpoint: 
+      endpoint:
         type: alien.capabilities.endpoint.Mongo
     tags:
       icon: /images/mongodb.jpg
@@ -29,6 +23,19 @@ node_types:
         default: 27017
         constraints:
           - in_range: [8000,65535]
+
+  alien.nodes.Mongod:
+    derived_from: alien.nodes.AbstractMongod
+    description: >
+      A node to install Mongodb nosql database.
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+    tags:
+      icon: /images/mongodb.jpg
     interfaces:
       Standard:
         create: scripts/install-mongo.sh
@@ -51,3 +58,52 @@ capability_types:
         default: 27017
         constraints:
           - in_range: [8000,65535]
+
+topology_template:
+  inputs:
+    port:
+      type: integer
+      required: true
+      default: 27017
+      constraints:
+        - in_range: [8000, 65535]
+  substitution_mappings:
+    node_type: alien.nodes.AbstractMongod
+    capabilities:
+      endpoint: [ Mongod, endpoint ]
+  node_templates:
+    Mongod:
+      type: alien.nodes.Mongod
+      properties:
+        port: { get_input: port }
+      requirements:
+        - host:
+            node: MongoDbHost
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    MongoDbHost:
+      type: tosca.nodes.Compute
+      capabilities:
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+  outputs:
+    port:
+      value: { get_property: [ Mongod, port ] }
+    ip_address:
+      value: { get_attribute: [ MongoDbHost, ip_address ] }

@@ -1,0 +1,93 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Alien4Cloud generated service template
+template_name: Nodecellar-ClientService
+template_version: 1.0.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - mongod-type:1.1.0-SNAPSHOT
+  - nodecellar-type:1.2.0-SNAPSHOT
+  - nodejs-type:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN12
+
+topology_template:
+  description: A Javascript Sample Application with Node.js connecting to a MongoDB as a service
+  inputs:
+    nocecellar_port:
+      type: integer
+      required: true
+      default: 8088
+  node_templates:
+    Network:
+      type: tosca.nodes.Network
+      properties:
+        ip_version: 4
+    NodejsHost:
+      type: tosca.nodes.Compute
+      requirements:
+        - network:
+            node: Network
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    Nodejs:
+      type: alien.nodes.Nodejs
+      requirements:
+        - host:
+            node: NodejsHost
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        admin_endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    Nodecellar:
+      type: alien.nodes.Nodecellar
+      properties:
+        port: { get_input: nocecellar_port }
+        context_root: "/"
+      requirements:
+        - host:
+            node: Nodejs
+            capability: tosca.capabilities.Container
+            relationship: alien.relationships.NodecellarHostedOnNodejs
+        - database:
+            node: Mongod
+            capability: alien.capabilities.endpoint.Mongo
+            relationship: alien.relationships.NodejsConnectToMongo
+      capabilities:
+        app_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Mongod:
+      type: alien.nodes.AbstractMongod
+  outputs:
+    Nodecellar_nodecellar_url:
+      value: { get_attribute: [ Nodecellar, nodecellar_url ] }

@@ -1,0 +1,196 @@
+tosca_definitions_version: alien_dsl_1_3_0
+description: >
+  Deploys a Kubernetes Cluster
+metadata:
+    template_name: kubernetes-cluster
+    template_version: 0.1.0-SNAPSHOT
+    template_author: admin
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+  - docker-engine:1.1.0-SNAPSHOT
+  - kubernetes-cluster-types:1.0.0-SNAPSHOT
+
+
+topology_template:
+  node_templates:
+    Kubectl:
+      type: alien.nodes.kubernetes.Kubectl
+      properties:
+        component_version: "1.5.3"
+      requirements:
+        - host:
+            node: MasterCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - docker_cli:
+            node: DockerEngine
+            capability: alien.capabilities.DockerCLI
+            relationship: tosca.relationships.DependsOn
+    NodeCompute:
+      type: tosca.nodes.Compute
+      capabilities:
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: ubuntu
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 5
+            default_instances: 1
+    DockerEngine_2:
+      type: alien.nodes.kubernetes.DockerEngine
+      requirements:
+        - host:
+            node: NodeCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Flannel:
+      type: alien.nodes.kubernetes.Flannel
+      properties:
+        component_version: "0.5.5"
+        ip_mask: true
+      requirements:
+        - host:
+            node: DockerEngine
+            capability: alien.capabilities.DockerHost
+            relationship: tosca.relationships.HostedOn
+        - etcd:
+            node: Etcd
+            capability: alien.capabilities.kubernetes.ETCD
+            relationship: alien.relationships.kubernetes.RetrieveEtcdIpAddress
+      capabilities:
+        flannel:
+          properties:
+            interface: eth0
+    Dashboard:
+      type: alien.nodes.kubernetes.Dashboard
+      requirements:
+        - host:
+            node: KubeMaster
+            capability: alien.capabilities.kubernetes.MasterHost
+            relationship: alien.relationships.kubernetes.HostedOnMaster
+        - namespace:
+            node: Namespace
+            capability: alien.capabilities.kubernetes.Namespace
+            relationship: alien.relationships.kubernetes.DependsOnNamespace
+    KubeMaster:
+      type: alien.nodes.kubernetes.KubeMaster
+      properties:
+        component_version: "1.2.1"
+      requirements:
+        - host:
+            node: DockerEngine
+            capability: alien.capabilities.DockerHost
+            relationship: tosca.relationships.HostedOn
+        - flannel:
+            node: Flannel
+            capability: alien.capabilities.flannel.Connectivity
+            relationship: alien.relationships.Flannel
+      capabilities:
+        configuration:
+          properties:
+            dns_domain: "cluster.local"
+    Namespace:
+      type: alien.nodes.kubernetes.Namespace
+      requirements:
+        - host:
+            node: KubeMaster
+            capability: alien.capabilities.kubernetes.MasterHost
+            relationship: alien.relationships.kubernetes.HostedOnMaster
+      capabilities:
+        namespace:
+          properties:
+            namespace: "kube-system"
+    KubeNode:
+      type: alien.nodes.kubernetes.KubeNode
+      properties:
+        component_version: "1.2.1"
+      requirements:
+        - flannel:
+            node: Flannel_2
+            capability: alien.capabilities.flannel.Connectivity
+            relationship: alien.relationships.Flannel
+        - join_master:
+            node: KubeMaster
+            capability: alien.capabilities.kubernetes.MasterConfiguration
+            relationship: alien.relationships.kubernetes.RetrieveMasterConfigurations
+        - host:
+            node: DockerEngine_2
+            capability: alien.capabilities.DockerHost
+            relationship: tosca.relationships.HostedOn
+    Etcd:
+      type: alien.nodes.kubernetes.Etcd
+      properties:
+        component_version: "2.2.1"
+      requirements:
+        - host:
+            node: DockerEngine
+            capability: alien.capabilities.DockerHost
+            relationship: tosca.relationships.HostedOn
+    Flannel_2:
+      type: alien.nodes.kubernetes.Flannel
+      properties:
+        component_version: "0.5.5"
+        ip_mask: true
+      requirements:
+        - etcd:
+            node: Etcd
+            capability: alien.capabilities.kubernetes.ETCD
+            relationship: alien.relationships.kubernetes.RetrieveEtcdIpAddress
+        - host:
+            node: DockerEngine_2
+            capability: alien.capabilities.DockerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        flannel:
+          properties:
+            interface: eth0
+    DockerEngine:
+      type: alien.nodes.kubernetes.DockerEngine
+      requirements:
+        - host:
+            node: MasterCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Network:
+      type: tosca.nodes.Network
+      properties:
+        ip_version: 4
+    MasterCompute:
+      type: tosca.nodes.Compute
+      requirements:
+        - network:
+            node: Network
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: ubuntu
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+  outputs:
+    Dashboard_kubernetes_ui:
+      value: { get_attribute: [ Dashboard, kubernetes_ui ] }
+    KubeMaster_api_endpoint:
+      value: { get_attribute: [ KubeMaster, api_endpoint ] }

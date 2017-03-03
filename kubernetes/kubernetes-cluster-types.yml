@@ -1,0 +1,345 @@
+tosca_definitions_version: alien_dsl_1_3_0
+description: Deploy a Kubernetes Cluster.
+template_name: kubernetes-cluster-types
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-normative-types:1.0.0-ALIEN12"
+  - "docker-engine:1.1.0-SNAPSHOT"
+
+node_types:
+
+  # #################################################
+  #
+  # Kubernetes master nodes node_types
+  #
+  #
+  alien.nodes.kubernetes.DockerEngine:
+    derived_from: alien.nodes.DockerEngine
+    interfaces:
+      Standard:
+        start: scripts/docker/start_docker.sh
+        stop: scripts/docker/stop_docker.sh
+
+  alien.nodes.kubernetes.Etcd:
+    description: >
+      Installs ETCD on k8s master.
+    derived_from: tosca.nodes.SoftwareComponent
+    tags:
+      icon: images/etcd.png
+    properties:
+      component_version:
+        type: version
+        default: 2.2.1
+    capabilities:
+      - etcd: alien.capabilities.kubernetes.ETCD
+    requirements:
+      - host:
+          capability: alien.capabilities.DockerHost
+          node: alien.nodes.kubernetes.DockerEngine
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          implementation: scripts/etcd/create_etcd.sh
+          inputs:
+            LOCAL_IP: { get_attribute: [HOST, ip_address] }
+            ETCD_VERSION: { get_property: [SELF, component_version] }
+
+  alien.nodes.kubernetes.Flannel:
+    description: >
+      Installs Flannel & configure docker.
+    derived_from: tosca.nodes.SoftwareComponent
+    tags:
+      icon: images/flannel.png
+    properties:
+      component_version:
+        type: version
+        default: 0.5.5
+      ip_mask:
+        type: boolean
+        default: true
+    capabilities:
+      - flannel: 
+          type: alien.capabilities.flannel.Connectivity
+    requirements:
+      - host:
+          capability: alien.capabilities.DockerHost
+          node: alien.nodes.kubernetes.DockerEngine
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+      - etcd: 
+          capability: alien.capabilities.kubernetes.ETCD
+          node: alien.nodes.kubernetes.Etcd
+          relationship: alien.relationships.kubernetes.RetrieveEtcdIpAddress
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        start:
+          implementation: scripts/flannel/start_flannel.sh
+          inputs:
+            # ETCD_IP: { get_attribute: [SELF, etcd, target_ip_address] }
+            FLANNEL_VERSION: { get_property: [SELF, component_version] }
+            FLANNEL_IFACE: { get_property: [SELF, flannel, interface] }
+            FLANNEL_IPMASQ: { get_property: [SELF, ip_mask] }
+
+
+  alien.nodes.kubernetes.Hyperkube:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    tags:
+      icon: images/hyperkube.png
+    properties:
+      component_version:
+        type: version
+        default: 1.2.1
+    requirements:
+      - host:
+          capability: alien.capabilities.DockerHost
+          node: alien.nodes.kubernetes.DockerEngine
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+      - flannel:
+          capability: alien.capabilities.flannel.Connectivity
+          occurrences: [1, 1]
+
+
+  alien.nodes.kubernetes.KubeMaster:
+    description: >
+      Installs kubernetes master components.
+    derived_from: alien.nodes.kubernetes.Hyperkube
+    tags:
+      icon: images/kube_master.png
+    attributes:
+      api_endpoint: { concat:  ["http://", get_attribute: [HOST, public_ip_address], ":8080"] }
+    capabilities:
+      - kube_master:
+          type: alien.capabilities.kubernetes.MasterHost
+      - configuration:
+          type: alien.capabilities.kubernetes.MasterConfiguration
+    interfaces:
+      Standard:
+        start:
+          implementation: scripts/kubernetes/master/start_master.sh
+          inputs:
+            MASTER_IP: { get_attribute: [HOST, ip_address] }
+            K8S_VERSION: { get_property: [SELF, component_version] }
+            DNS_DOMAIN: { get_property: [SELF, dns_domain] }
+            FLANNEL_IFACE: { get_property: [SELF, flannel, interface] }
+
+  alien.nodes.kubernetes.Namespace:
+    description: >
+      Creates a namespace in Kubernetes.
+    derived_from: tosca.nodes.Container.Application
+    tags:
+      icon: images/kube.png
+    capabilities:
+      - namespace: 
+          type: alien.capabilities.kubernetes.Namespace
+    requirements:
+      - host:
+          capability: alien.capabilities.kubernetes.MasterHost
+          occurrences: [1, 1]
+    artifacts:
+      - namespace_pod_file:
+          type: tosca.artifacts.File
+          file: scripts/kubernetes/namespace/namespace.yaml
+    interfaces:
+      Standard:
+        create:
+          implementation: scripts/kubernetes/namespace/namespace.sh
+          inputs:
+            MASTER_IP: { get_attribute: [HOST, ip_address] }
+            NAMESPACE: { get_property: [SELF, namespace, namespace] }
+
+  # alien.nodes.kubernetes.DNS:
+  #   description: >
+  #     Creates Kubernetes DNS.
+  #   derived_from: tosca.nodes.Container.Application
+  #   tags:
+  #     icon: images/kube.png
+  #   properties:
+  #     replicas:
+  #       type: integer
+  #       default: 1
+  #   requirements:
+  #     - host:
+  #         capability: alien.capabilities.kubernetes.MasterHost
+  #         occurrences: [1, 1]
+  #     - namespace: 
+  #         capability: alien.capabilities.kubernetes.Namespace
+  #         occurrences: [0, 1]
+  #     # - master_config:
+  #     #     capability: alien.capabilities.kubernetes.MasterConfiguration
+  #     #     occurrences: [1, 1]
+  #   artifacts:
+  #     - rc_template_file: 
+  #         file: scripts/kubernetes/dns/rc-template.yaml
+  #         type: tosca.artifacts.File
+  #     - svc_template_file: 
+  #         file: scripts/kubernetes/dns/svc-template.yaml
+  #         type: tosca.artifacts.File
+  #   interfaces:
+  #     Standard:
+  #       create:
+  #         implementation: scripts/kubernetes/dns/create_dns.sh
+  #         inputs:
+  #           NAMESPACE: { get_property: [SELF, namespace, namespace] }
+  #           MASTER_IP: { get_attribute: [HOST, ip_address] }
+  #           # DNS_DOMAIN: { get_property: [SELF, master_config, dns_domain] }
+  #           DNS_DOMAIN: cluster.local
+  #           DNS_REPLICAS: { get_property: [SELF, replicas] }
+
+  alien.nodes.kubernetes.Dashboard:
+    description: >
+      Install the kubernetes dashboard (on k8s master)
+    derived_from: tosca.nodes.Container.Application
+    tags:
+      icon: images/kube.png
+    attributes:
+      kubernetes_ui: { concat:  ["http://", get_attribute: [HOST, public_ip_address], ":8080/ui"] }
+    requirements:
+      - host:
+          capability: alien.capabilities.kubernetes.MasterHost
+          occurrences: [1, 1]
+      - namespace: 
+          capability: alien.capabilities.kubernetes.Namespace
+          occurrences: [0, 1]
+    artifacts:
+      - dashboard_rc_file: 
+          file: scripts/kubernetes/dashboard/dashboard-rc.yaml
+          type: tosca.artifacts.File
+      - dashboard_svc_file: 
+          file: scripts/kubernetes/dashboard/dashboard-svc.yaml
+          type: tosca.artifacts.File
+    interfaces:
+      Standard:
+        start:
+          implementation: scripts/kubernetes/dashboard/dashboard.sh
+          inputs:
+            NAMESPACE: { get_property: [SELF, namespace, namespace] }
+            MASTER_IP: { get_attribute: [HOST, ip_address] }
+
+  alien.nodes.kubernetes.Kubectl:
+    description: >
+      Install the kubectl
+    derived_from: tosca.nodes.SoftwareComponent
+    tags:
+      icon: images/kube.png
+    requirements:
+      - docker_cli: 
+          capability: alien.capabilities.DockerCLI
+          relationship: tosca.relationships.DependsOn
+          occurrences: [1, 1]
+    properties:
+      component_version:
+        type: version
+        default: 1.5.3
+    interfaces:
+      Standard:
+        create:
+          implementation: scripts/kubernetes/kubectl/kubectl.sh
+          inputs:
+            KUBECTL_VERSION: { get_property: [SELF, component_version] }
+
+
+  # #################################################
+  #
+  # Kubernetes cluster nodes node_types
+  #
+  #
+
+  alien.nodes.kubernetes.KubeNode:
+    description: >
+      Installs the Hyperkube process and a proxy on the node host.
+    derived_from: alien.nodes.kubernetes.Hyperkube
+    tags:
+      icon: images/kube.png
+    requirements:
+      - join_master:
+          capability: alien.capabilities.kubernetes.MasterConfiguration
+          relationship: alien.relationships.kubernetes.RetrieveMasterConfigurations
+          node: alien.nodes.kubernetes.KubeMaster
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        start:
+          implementation: scripts/kubernetes/node/start_node.sh
+          inputs:
+            # MASTER_IP: { get_attribute: [SELF, join_master, target_ip_address] }
+            K8S_VERSION: { get_property: [SELF, component_version] }
+            DNS_DOMAIN: { get_property: [SELF, join_master, dns_domain] }
+            FLANNEL_IFACE: { get_property: [SELF, flannel, interface] }
+        stop:
+          implementation: scripts/kubernetes/node/stop_node.sh
+          inputs:
+            # MASTER_IP: { get_attribute: [SELF, join_master, target_ip_address] }
+            FLANNEL_IFACE: { get_property: [SELF, flannel, interface] }
+
+
+capability_types:
+
+  alien.capabilities.kubernetes.ETCD:
+    derived_from: tosca.capabilities.Node
+
+  alien.capabilities.flannel.Connectivity:
+    derived_from: tosca.capabilities.Connectivity
+    properties:
+      interface:
+        type: string
+        default: eth0
+
+  alien.capabilities.kubernetes.MasterConfiguration:
+    derived_from: tosca.capabilities.Node
+    properties:
+      dns_domain:
+        type: string
+        default: cluster.local
+
+  alien.capabilities.kubernetes.MasterHost:
+    derived_from: tosca.capabilities.Container
+
+  alien.capabilities.kubernetes.Namespace:
+    derived_from: tosca.capabilities.Node
+    properties:
+      namespace:
+        type: string
+        default: kube-system
+
+relationship_types:
+
+  alien.relationships.Flannel:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [ alien.capabilities.flannel.Connectivity ]
+
+  alien.relationships.kubernetes.HostedOnMaster:
+    derived_from: tosca.relationships.HostedOn
+    valid_target_types: [ alien.capabilities.kubernetes.MasterHost ]
+    attributes:
+      kubernetes_master_ip: { get_attribute: [TARGET, ip_address] }
+
+  alien.relationships.kubernetes.DependsOnNamespace:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [ alien.capabilities.kubernetes.Namespace ]
+
+  alien.relationships.kubernetes.RetrieveTargetIpAddress:
+    abstract: true
+    derived_from: tosca.relationships.ConnectsTo
+    attributes:
+      target_ip_address: { get_operation_output: [SELF, configure, postConfigureSource, EXPORTED_TARGET_IP] }
+    interfaces:
+      configure:
+        post_configure_source: 
+          implementation: scripts/exposeTargetIpAddress.sh
+          inputs:
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+
+  alien.relationships.kubernetes.RetrieveMasterConfigurations:
+    derived_from: alien.relationships.kubernetes.RetrieveTargetIpAddress
+    valid_target_types: [ alien.capabilities.kubernetes.MasterConfiguration ]
+
+  alien.relationships.kubernetes.RetrieveEtcdIpAddress:
+    derived_from: alien.relationships.kubernetes.RetrieveTargetIpAddress
+    valid_target_types: [ alien.capabilities.kubernetes.ETCD ]

@@ -1,16 +1,19 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: elasticsearch-type
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: TOSCA simple profile with ElasticSearch.
-template_name: elasticsearch-type
-template_version: 1.0.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
   - jdk-type:1.0.0-SNAPSHOT
 
 node_types:
-  alien.nodes.ElasticSearch:
-    derived_from: alien.nodes.JavaSoftware
+  org.alien4cloud.nodes.ElasticSearch:
+    derived_from: org.alien4cloud.nodes.JavaSoftware
     description: >
       Installation of ElasticSearch
     tags:
@@ -21,14 +24,14 @@ node_types:
         required: true
         default: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
     requirements:
-      - elasticsearch: alien.capabilities.ElasticSearch
-        type: alien.relationships.ConnectElasticSearchNodes
-        lower_bound: 0
-        upper_bound: UNBOUNDED
+      - elasticsearch:
+          capability: org.alien4cloud.capabilities.ElasticSearch
+          relationship: org.alien4cloud.relationships.ConnectElasticSearchNodes
+          occurrences: [0, UNBOUNDED]
     capabilities:
       elasticsearch:
-        type: alien.capabilities.ElasticSearch
-        upper_bound: unbounded
+        type: org.alien4cloud.capabilities.ElasticSearch
+        occurrences: [0, UNBOUNDED]
     interfaces:
       Standard:
         create:
@@ -38,19 +41,19 @@ node_types:
         start:
           implementation: scripts/start_elasticsearch.sh
     artifacts:
-      - configs: configs
-        type: tosca.artifacts.File
+      - configs:
+          file: configs
+          type: tosca.artifacts.File
 
 capability_types:
-  alien.capabilities.ElasticSearch:
+  org.alien4cloud.capabilities.ElasticSearch:
     derived_from: tosca.capabilities.Root
 
 relationship_types:
-  alien.relationships.ConnectElasticSearchNodes:
-    derived_from: tosca.relationships.DependsOn
+  org.alien4cloud.relationships.ConnectElasticSearchNodes:
+    derived_from: tosca.relationships.ConnectsTo
     description: Relationship that models 2 ES nodes connection.
-    valid_sources: [ alien.nodes.ElasticSearch ]
-    valid_targets: [ alien.capabilities.ElasticSearch ]
+    valid_target_types: [ alien.capabilities.ElasticSearch ]
     interfaces:
       Configure:
           pre_configure_source:

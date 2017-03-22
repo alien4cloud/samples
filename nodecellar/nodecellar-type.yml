@@ -1,14 +1,17 @@
 tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: nodecellar-type
+  template_version: 1.2.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: Nodecellar application
-template_name: nodecellar-type
-template_version: 1.2.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
+  - tosca-normative-types:1.0.0-ALIEN12
 
 node_types:
-  alien.nodes.Nodecellar:
+  org.alien4cloud.nodes.Nodecellar:
     derived_from: tosca.nodes.WebApplication
     description: The TOSCA Nodecellar Node Type represents a Nodecellar Application.
     tags:
@@ -20,12 +23,12 @@ node_types:
     attributes:
       nodecellar_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port] ] }
     requirements:
-      - host: 
+      - host:
           capability: tosca.capabilities.Container
-          relationship: alien.relationships.NodecellarHostedOnNodejs
-      - database: 
+          relationship: org.alien4cloud.relationships.NodecellarHostedOnNodejs
+      - database:
           capability: tosca.capabilities.Endpoint.Database
-          relationship: alien.relationships.NodejsConnectToMongo
+          relationship: org.alien4cloud.relationships.NodejsConnectToMongo
           occurrences: [1, 1]
     interfaces:
       Standard:
@@ -34,12 +37,12 @@ node_types:
         stop: scripts/stop-nodecellar-app.sh
 
 relationship_types:
-  alien.relationships.NodecellarHostedOnNodejs:
+  org.alien4cloud.relationships.NodecellarHostedOnNodejs:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the website is deployed on the target nodejs server.
     valid_target_types: [ tosca.capabilities.Container ]
 
-  alien.relationships.NodejsConnectToMongo:
+  org.alien4cloud.relationships.NodejsConnectToMongo:
     derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to connect nodejs with a mongodb databse
     valid_target_types: [ tosca.capabilities.Endpoint.Database ]

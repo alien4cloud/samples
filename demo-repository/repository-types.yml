@@ -1,8 +1,9 @@
 tosca_definitions_version: alien_dsl_1_3_0
 
-template_name: repository-demo-types
-template_author: Alien4cloud
-template_version: 2.0.0-SNAPSHOT
+metadata:
+  template_name: repository-demo-types
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
@@ -20,7 +21,7 @@ repositories:
     type: maven
 
 node_types:
-  alien.nodes.ArtifactDemo:
+  org.alien4cloud.nodes.ArtifactDemo:
     derived_from: tosca.nodes.SoftwareComponent
     artifacts:
       - http_artifact:
@@ -47,11 +48,11 @@ node_types:
 topology_template:
   node_templates:
     ArtifactDemo:
-      type: alien.nodes.ArtifactDemo
+      type: org.alien4cloud.nodes.ArtifactDemo
       requirements:
         - host:
             node: Apache
-            capability: alien.capabilities.ApacheContainer
+            capability: org.alien4cloud.capabilities.ApacheContainer
             relationship: tosca.relationships.HostedOn
     Compute:
       type: tosca.nodes.Compute
@@ -77,15 +78,15 @@ topology_template:
       properties:
         ip_version: 4
     Apache:
-      type: alien.nodes.Apache
+      type: org.alien4cloud.nodes.Apache
       properties:
         port: 80
         document_root: /var/www
         component_version: 2.4
       requirements:
         - host:
-            node: Compute
             capability: tosca.capabilities.Container
+            node: Compute
             relationship: tosca.relationships.HostedOn
       capabilities:
         data_endpoint:

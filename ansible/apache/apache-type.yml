@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
-description: TOSCA simple profile with Apache.
-template_name: ansible-apache-type
-template_version: 1.2.1-SNAPSHOT
-template_author: FastConnect
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: ansible-apache-type
+  template_version: 1.2.1-SNAPSHOT
+  template_author: alien4cloud
+
+description: This archive contains an Apache webserver node installed through ansible scripts.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12

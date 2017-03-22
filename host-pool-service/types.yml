@@ -1,15 +1,17 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
-description: A host pool service type, based on cloudify one.
-template_name: host-pool-service-types
-template_version: 1.1.0-SNAPSHOT
-template_author: FastConnect
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: host-pool-service-types
+  template_version: 1.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: TOSCA node to install cloudify host tool service.
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
+  - tosca-normative-types:1.0.0-ALIEN12
 
 node_types:
-
-  alien.nodes.HostPoolService:
+  org.alien4cloud.nodes.HostPoolService:
     derived_from: tosca.nodes.SoftwareComponent
     description: >
       The service is a python web service based on flask-restful that exposes a REST API to be consumed by clients
@@ -60,7 +62,9 @@ node_types:
             WORK_DIR: { get_property: [SELF, working_directory] }
           implementation: scripts/delete.sh
     artifacts:
-      - scripts: scripts
-        type: tosca.artifacts.File
-      - pool_config: ./config.example/pool.example.yml
-        type: tosca.artifacts.File
+      - scripts:
+          file: scripts
+          type: tosca.artifacts.File
+      - pool_config:
+          file: config.example/pool.example.yml
+          type: tosca.artifacts.File

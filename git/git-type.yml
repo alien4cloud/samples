@@ -1,14 +1,17 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: git-type
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: Git install on Debian systems.
-template_name: git-type
-template_version: 2.0.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
   - "tosca-normative-types:1.0.0-ALIEN12"
 
 node_types:
-  alien.nodes.Git:
+  org.alien4cloud.nodes.Git:
     derived_from: tosca.nodes.SoftwareComponent
     description: Git install through apt-get.
     tags:

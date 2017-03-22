@@ -1,11 +1,15 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
-description: TOSCA simple profile with Apache.
-template_name: apache-type
-template_version: 1.2.0-SNAPSHOT
-template_author: FastConnect
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: apache-sample-topology
+  template_version: 1.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Sample topology with an apache webserver.
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
+  - tosca-normative-types:1.0.0-ALIEN12
+  - apache-type:2.0.0-SNAPSHOT
 
 topology_template:
   description: A simple topology template created directly from a CSAR archive
@@ -16,50 +20,10 @@ topology_template:
         os_type: linux
         os_distribution: ubuntu
         os_version: ubuntu
-    apache3:
-      type: alien.nodes.Apache
+    apache:
+      type: org.alien4cloud.nodes.Apache
       properties:
         port: 8080
         document_root: "/var/www"
       requirements:
         - host: compute
-
-node_types:
-  alien.nodes.Apache:
-    derived_from: tosca.nodes.WebServer
-    description: >
-      The TOSCA Apache Node Type represents an apache component
-      that can be managed and run by a TOSCA Compute Node Type.
-    capabilities:
-      host:
-        type: alien.capabilities.ApacheContainer
-    tags:
-      icon: /images/apache.png
-    properties:
-      component_version:
-        type: version
-        default: 2.4
-        constraints:
-          - equal: 2.4
-      port:
-        type: integer
-        description: Port for the Apache server
-        default: 80
-        constraints:
-          - greater_or_equal: 1
-      document_root:
-          type: string
-          required: true
-          default: "/var/www"
-    interfaces:
-      Standard:
-        create:
-          inputs:
-            PORT: { get_property: [SELF, port] }
-            DOC_ROOT: { get_property: [SELF, document_root] }
-          implementation: scripts/install_apache.sh
-        start: scripts/start_apache.sh
-
-capability_types:
-  alien.capabilities.ApacheContainer:
-      derived_from: tosca.capabilities.Container

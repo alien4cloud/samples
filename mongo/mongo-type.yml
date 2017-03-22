@@ -1,20 +1,22 @@
 tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: mongod-type
+  template_version: 1.1.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: MongoDB installation.
-template_name: mongod-type
-template_version: 1.1.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
+  - tosca-normative-types:1.0.0-ALIEN12
 
 node_types:
-
-  alien.nodes.AbstractMongod:
+  org.alien4cloud.nodes.AbstractMongod:
     derived_from: tosca.nodes.DBMS
     abstract: true
     capabilities:
       endpoint:
-        type: alien.capabilities.endpoint.Mongo
+        type: org.alien4cloud.capabilities.endpoint.Mongo
     tags:
       icon: /images/mongodb.jpg
     properties:
@@ -24,16 +26,23 @@ node_types:
         constraints:
           - in_range: [8000,65535]
 
-  alien.nodes.Mongod:
-    derived_from: alien.nodes.AbstractMongod
+  org.alien4cloud.nodes.Mongod:
+    derived_from: org.alien4cloud.nodes.AbstractMongod
     description: >
       A node to install Mongodb nosql database.
     requirements:
-      - host:
+      - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
           capability: tosca.capabilities.Container
           node: tosca.nodes.Compute
           relationship: tosca.relationships.HostedOn
           occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ debian, ubuntu, knoppix ] }
     tags:
       icon: /images/mongodb.jpg
     interfaces:
@@ -48,7 +57,7 @@ node_types:
         stop: scripts/stop-mongo.sh
 
 capability_types:
-  alien.capabilities.endpoint.Mongo:
+  org.alien4cloud.capabilities.endpoint.Mongo:
     derived_from: tosca.capabilities.Endpoint.Database
     description: >
       Capability to connect to a Mongo database through bridge networking.
@@ -68,12 +77,12 @@ topology_template:
       constraints:
         - in_range: [8000, 65535]
   substitution_mappings:
-    node_type: alien.nodes.AbstractMongod
+    node_type: org.alien4cloud.nodes.AbstractMongod
     capabilities:
       endpoint: [ Mongod, endpoint ]
   node_templates:
     Mongod:
-      type: alien.nodes.Mongod
+      type: org.alien4cloud.nodes.Mongod
       properties:
         port: { get_input: port }
       requirements:
@@ -91,17 +100,11 @@ topology_template:
     MongoDbHost:
       type: tosca.nodes.Compute
       capabilities:
-        endpoint:
+        os:
           properties:
-            secure: true
-            protocol: tcp
-            network_name: PRIVATE
-            initiator: source
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu
   outputs:
     port:
       value: { get_property: [ Mongod, port ] }

@@ -1,23 +1,22 @@
 tosca_definitions_version: alien_dsl_1_3_0
 
-template_name: demo-input-artifact
-template_author: Alien4cloud
-template_version: 1.0.0-SNAPSHOT
+metadata:
+  template_name: demo-input-artifact
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
 
-description: Input artifacts test.
+description: Integration test archive to test input artifacts.
 
 artifact_types:
-
-  tosca.artifacts.Deployment.War:
+  org.alien4cloud.artifacts.deployment.War:
     description: A web application archive
     file_ext: [ war ]
 
 node_types:
-
-  alien.nodes.InputArtifactDemo:
+  org.alien4cloud.nodes.InputArtifactDemo:
     derived_from: tosca.nodes.SoftwareComponent
     interfaces:
       Standard:
@@ -29,14 +28,13 @@ repositories:
     type: http
 
 topology_template:
-
   input_artifacts:
     local_war: binary/myWar.war
     uploaded_war:
-      type: tosca.artifacts.Deployment.War
+      type: org.alien4cloud.artifacts.deployment.War
     remote_war:
       file: demo-input-artifact/binary/myWar.war
-      type: tosca.artifacts.Deployment.War
+      type: org.alien4cloud.artifacts.deployment.War
       repository: http_github_repo
 
   node_templates:
@@ -44,18 +42,18 @@ topology_template:
       type: tosca.nodes.Compute
 
     ArtifactDemo:
-      type: alien.nodes.InputArtifactDemo
+      type: org.alien4cloud.nodes.InputArtifactDemo
       requirements:
         - host: Compute
       artifacts:
         nested_uploaded_war:
-          type: tosca.artifacts.Deployment.War
+          type: org.alien4cloud.artifacts.deployment.War
         uploaded_war:
-          type: tosca.artifacts.Deployment.War
+          type: org.alien4cloud.artifacts.deployment.War
           file: { get_input_artifact: uploaded_war }
         local_war:
-          type: tosca.artifacts.Deployment.War
+          type: org.alien4cloud.artifacts.deployment.War
           file: { get_input_artifact: local_war }
         remote_war:
-          type: tosca.artifacts.Deployment.War
+          type: org.alien4cloud.artifacts.deployment.War
           file: { get_input_artifact: remote_war }

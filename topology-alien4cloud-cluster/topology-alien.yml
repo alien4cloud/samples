@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: alien4cloud-cluster-topology
+  template_version: 0.1.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: Alien4Cloud topology with 2 remote ES node (1 duplica)
-template_name: Alien4Cloud with ELS cluster
-template_version: 0.1.0-SNAPSHOT
-template_author: admin
 
 imports:
   - elasticsearch-type:1.0.0-SNAPSHOT
@@ -13,7 +16,7 @@ imports:
 topology_template:
   node_templates:
     JDK:
-      type: alien.nodes.JDK
+      type: org.alien4cloud.nodes.JDK
       properties:
         java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
         java_home: /opt/java
@@ -23,45 +26,45 @@ topology_template:
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     Alien:
-      type: alien.nodes.Alien
+      type: org.alien4cloud.nodes.Alien
       properties:
         alien_url: "https://fastconnect.org/maven/service/local/repositories/opensource/content/alien4cloud/alien4cloud-ui/1.1.0/alien4cloud-ui-1.1.0-standalone.war"
         context_root: /
       requirements:
         - java:
             node: JDK
-            capability: alien.capabilities.JDK
-            relationship: alien.relationships.JavaSoftwareHostedOnJDK
+            capability: org.alien4cloud.capabilities.JDK
+            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
         - elasticsearch:
             node: ElasticSearch1
-            capability: alien.capabilities.ElasticSearch
-            relationship: alien.relationships.AlienConnectToElasticSearch
+            capability: org.alien4cloud.capabilities.ElasticSearch
+            relationship: org.alien4cloud.relationships.AlienConnectToElasticSearch
         - elasticsearch:
             node: ElasticSearch0
-            capability: alien.capabilities.ElasticSearch
-            relationship: alien.relationships.AlienConnectToElasticSearch
+            capability: org.alien4cloud.capabilities.ElasticSearch
+            relationship: org.alien4cloud.relationships.AlienConnectToElasticSearch
     ElasticSearch0:
-      type: alien.nodes.ElasticSearch
+      type: org.alien4cloud.nodes.ElasticSearch
       properties:
         elasticsearch_url: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
       requirements:
         - java:
-            node: JDK-P0
-            capability: alien.capabilities.JDK
-            relationship: alien.relationships.JavaSoftwareHostedOnJDK
+            node: JDK_P0
+            capability: org.alien4cloud.capabilities.JDK
+            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
         - elasticsearch:
             node: ElasticSearch1
-            capability: alien.capabilities.ElasticSearch
-            relationship: alien.relationships.ConnectElasticSearchNodes
+            capability: org.alien4cloud.capabilities.ElasticSearch
+            relationship: org.alien4cloud.relationships.ConnectElasticSearchNodes
     ElasticSearch1:
-      type: alien.nodes.ElasticSearch
+      type: org.alien4cloud.nodes.ElasticSearch
       properties:
         elasticsearch_url: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
       requirements:
         - java:
-            node: JDK-P1
-            capability: alien.capabilities.JDK
-            relationship: alien.relationships.JavaSoftwareHostedOnJDK
+            node: JDK_P1
+            capability: org.alien4cloud.capabilities.JDK
+            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
     Network:
       type: tosca.nodes.Network
       properties:
@@ -73,8 +76,8 @@ topology_template:
             node: Network
             capability: tosca.capabilities.Connectivity
             relationship: tosca.relationships.Network
-    JDK-P1:
-      type: alien.nodes.JDK
+    JDK_P1:
+      type: org.alien4cloud.nodes.JDK
       properties:
         java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
         java_home: /opt/java
@@ -83,8 +86,8 @@ topology_template:
             node: Persistence1
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-    JDK-P0:
-      type: alien.nodes.JDK
+    JDK_P0:
+      type: org.alien4cloud.nodes.JDK
       properties:
         java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
         java_home: /opt/java

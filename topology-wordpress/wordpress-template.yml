@@ -1,37 +1,40 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
-description: TOSCA simple profile with a topology template for wordpress
-template_name: wordpress-template
-template_version: 2.0.0-SNAPSHOT
-template_author: FastConnect
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: wordpress-topology
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Topology to deploy a Wordpress CMS on an apache webserver and a MySQL database.
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
-  - "apache-type:2.0.0-SNAPSHOT"
-  - "mysql-type:2.0.0-SNAPSHOT"
-  - "php-type:2.0.0-SNAPSHOT"
-  - "wordpress-type:2.0.0-SNAPSHOT"
+  - tosca-normative-types:1.0.0-ALIEN12
+  - apache-type:2.0.0-SNAPSHOT
+  - mysql-type:2.0.0-SNAPSHOT
+  - php-type:2.0.0-SNAPSHOT
+  - wordpress-type:2.0.0-SNAPSHOT
 
 topology_template:
   description: Wordpress deployment template
   inputs:
-    os_arch:
+    os_distribution:
       type: string
       constraints:
-        - valid_values: ["x86_32", "x86_64"]
+        - valid_values: [ debian, ubuntu, knoppix ]
       description: The host Operating System (OS) architecture.
   node_templates:
     wordpress:
-      type: alien.nodes.Wordpress
+      type: org.alien4cloud.nodes.Wordpress
       requirements:
         - host: apache
         - database:
             node: mysql
-            capability: alien.capabilities.MysqlDatabaseEndpoint
+            capability: org.alien4cloud.capabilities.MysqlDatabaseEndpoint
         - php:
             node: php
-            capability: alien.capabilities.PHPModule
+            capability: org.alien4cloud.capabilities.PHPModule
     php:
-      type: alien.nodes.PHP
+      type: org.alien4cloud.nodes.PHP
       requirements:
         - host: computeWww
     computeDb:
@@ -39,8 +42,9 @@ topology_template:
       capabilities:
         os:
           properties:
-            architecture: { get_input: os_arch }
-            type: "linux"
+            type: linux
+            architecture: x86_64
+            distribution: { get_input: os_distribution }
         host:
           properties:
             num_cpus: 1
@@ -52,8 +56,9 @@ topology_template:
       capabilities:
         os:
           properties:
-            architecture: { get_input: os_arch }
-            type: "linux"
+            type: linux
+            architecture: x86_64
+            distribution: { get_input: os_distribution }
         host:
           properties:
             num_cpus: 1
@@ -61,14 +66,14 @@ topology_template:
             mem_size: 1024 MB
             cpu_frequency: 1 GHz
     apache:
-      type: alien.nodes.Apache
+      type: org.alien4cloud.nodes.Apache
       properties:
         port: 80
         document_root: "/var/www"
       requirements:
         - host: computeWww
     mysql:
-      type: alien.nodes.Mysql
+      type: org.alien4cloud.nodes.Mysql
       requirements:
         - host: computeDb
   outputs:

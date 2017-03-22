@@ -1,20 +1,22 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 
-template_name: demo-lifecycle
-template_author: Alien4cloud
-template_version: 1.0.0-SNAPSHOT
+metadata:
+  template_name: demo-lifecycle
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
   - apache-type:2.0.0-SNAPSHOT
   - php-type:2.0.0-SNAPSHOT
 
-description: Generic type that echoes operations in a file for tests.
+description: >
+  Integration test archive that used to check the workflow generated lifecycle.
+  Contains generic types that echoes operations in a file.
 
-# TODO: apache port sttribute should be used by RegistryConfigurer, and Generic & GenericHost
-
+# TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
 node_types:
-  alien.nodes.Registry:
+  org.alien4cloud.nodes.Registry:
     description: |
       Few PHP scripts that act as a registry for node and relationship operations.
       Logs are stored in files and restituted by index.php.
@@ -24,18 +26,21 @@ node_types:
       port: { get_property: [HOST, port] }
       url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port] ] }
     requirements:
-      - host: alien.capabilities.ApacheContainer
-        type: alien.relationships.RegistryHostedOnApache
-      - php: alien.capabilities.PHPModule
-        type: alien.relationships.RegistryConnectToPHP
+      - host:
+          capability: org.alien4cloud.capabilities.ApacheContainer
+          relationship: org.alien4cloud.relationships.RegistryHostedOnApache
+      - php:
+          capability: org.alien4cloud.capabilities.PHPModule
+          relationship: org.alien4cloud.relationships.RegistryConnectToPHP
     interfaces:
       Standard:
         create: scripts/Registry/create.sh
         start: scripts/Registry/start.sh
     artifacts:
-      - php_scripts: php
-        type: tosca.artifacts.File
-  alien.nodes.RegistryConfigurer:
+      - php_scripts:
+          file: php
+          type: tosca.artifacts.File
+  org.alien4cloud.nodes.RegistryConfigurer:
     description: |
       Put this node on each compute you want to log operations. This component
       will just add an entry in /etc/hosts in order to connect to the registry.
@@ -43,19 +48,20 @@ node_types:
     properties:
       registry_host:
           type: string
-          required: false  
+          required: false
     interfaces:
       Standard:
-        start: 
+        start:
           inputs:
-            REGISTRY_HOST: { get_property: [SELF, registry_host] }  
-          implementation: scripts/RegistryConfigurer/start.sh          
+            REGISTRY_HOST: { get_property: [SELF, registry_host] }
+          implementation: scripts/RegistryConfigurer/start.sh
     requirements:
-      - registry: alien.nodes.Registry
-        type: alien.relationships.RegistryConfigurerDependsOnRegistry
-        lower_bound: 0
-        upper_bound: 1            
-  alien.nodes.GenericHost:
+      - registry:
+          capability: tosca.capabilities.Node
+          node: org.alien4cloud.nodes.Registry
+          relationship: org.alien4cloud.relationships.RegistryConfigurerDependsOnRegistry
+          occurrences: [0,1]
+  org.alien4cloud.nodes.GenericHost:
     description: |
       A software component that hosts Generic.
     derived_from: tosca.nodes.SoftwareComponent
@@ -76,23 +82,23 @@ node_types:
           implementation: scripts/Generic/stop.sh
         delete:
           implementation: scripts/Generic/delete.sh
-  alien.nodes.Generic:
+  org.alien4cloud.nodes.Generic:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       generic_capability:
-        type: alien.capabilities.GenericCapability
-        upper_bound: unbounded
+        type: org.alien4cloud.capabilities.GenericCapability
+        occurrences: [0, unbounded]
     requirements:
-      - host: tosca.capabilities.Container
-        type: alien.relationships.GenericHostedOnGenericHost
-        lower_bound: 1
-        upper_bound: 1
-      - generic_requirement: alien.capabilities.GenericCapability
-        type: alien.relationships.GenericConnectToGeneric
-        lower_bound: 0
-        upper_bound: unbounded
+      - host:
+          capability: tosca.capabilities.Container
+          relationship: org.alien4cloud.relationships.GenericHostedOnGenericHost
+          occurrences: [1,1]
+      - generic_requirement:
+          capability: org.alien4cloud.capabilities.GenericCapability
+          relationship: org.alien4cloud.relationships.GenericConnectToGeneric
+          occurrences: [0, unbounded]
     interfaces:
       Standard:
         create:
@@ -107,18 +113,15 @@ node_types:
           implementation: scripts/Generic/delete.sh
 
 relationship_types:
-  alien.relationships.RegistryHostedOnApache:
+  org.alien4cloud.relationships.RegistryHostedOnApache:
     derived_from: tosca.relationships.HostedOn
-    valid_sources: [ alien.nodes.Registry ]
-    valid_targets: [ alien.capabilities.ApacheContainer ]
-  alien.relationships.RegistryConnectToPHP:
+    valid_target_types: [ org.alien4cloud.capabilities.ApacheContainer ]
+  org.alien4cloud.relationships.RegistryConnectToPHP:
     derived_from: tosca.relationships.ConnectsTo
-    valid_sources: [ alien.nodes.Registry ]
-    valid_targets: [ alien.capabilities.PHPModule ]
-  alien.relationships.RegistryConfigurerDependsOnRegistry:
+    valid_target_types: [ org.alien4cloud.capabilities.PHPModule ]
+  org.alien4cloud.relationships.RegistryConfigurerDependsOnRegistry:
     derived_from: tosca.relationships.DependsOn
-    valid_sources: [ alien.nodes.RegistryConfigurer ]
-    valid_targets: [ tosca.capabilities.Node ]
+    valid_target_types: [ tosca.capabilities.Node ]
     interfaces:
       configure:
         add_target:
@@ -126,10 +129,9 @@ relationship_types:
             REGISTRY_HOST: { get_attribute: [TARGET, host] }
             REGISTRY_PORT: { get_attribute: [TARGET, port] }
           implementation: scripts/RegistryConfigurerDependsOnRegistry/add_target.sh
-  alien.relationships.GenericHostedOnGenericHost:
+  org.alien4cloud.relationships.GenericHostedOnGenericHost:
     derived_from: tosca.relationships.HostedOn
-    valid_sources: [ alien.nodes.Generic ]
-    valid_targets: [ alien.nodes.GenericHost ]
+    valid_target_types: [ org.alien4cloud.nodes.GenericHost ]
     interfaces:
       configure:
         pre_configure_source:
@@ -148,10 +150,9 @@ relationship_types:
           implementation: scripts/GenericConnectToGeneric/remove_target.sh
         remove_source:
           implementation: scripts/GenericConnectToGeneric/remove_source.sh
-  alien.relationships.GenericConnectToGeneric:
+  org.alien4cloud.relationships.GenericConnectToGeneric:
     derived_from: tosca.relationships.ConnectsTo
-    valid_sources: [ alien.capabilities.GenericCapability ]
-    valid_targets: [ alien.capabilities.GenericCapability ]
+    valid_target_types: [ org.alien4cloud.capabilities.GenericCapability ]
     interfaces:
       configure:
         pre_configure_source:
@@ -176,7 +177,7 @@ relationship_types:
           implementation: scripts/GenericConnectToGeneric/remove_source.sh
 
 capability_types:
-  alien.capabilities.GenericCapability:
+  org.alien4cloud.capabilities.GenericCapability:
     derived_from: tosca.capabilities.Root
 
 topology_template:
@@ -195,11 +196,11 @@ topology_template:
             capability: tosca.capabilities.Connectivity
             relationship: tosca.relationships.Network
       capabilities:
-        scalable:
+        os:
           properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu
     ComputeB:
       type: tosca.nodes.Compute
       capabilities:
@@ -209,16 +210,16 @@ topology_template:
             max_instances: 3
             default_instances: 1
     GenericA:
-      type: alien.nodes.Generic
+      type: org.alien4cloud.nodes.Generic
       requirements:
         - host:
             node: GenericHostA
             capability: tosca.capabilities.Container
-            relationship: alien.relationships.GenericHostedOnGenericHost
+            relationship: org.alien4cloud.relationships.GenericHostedOnGenericHost
         - generic_requirement:
             node: GenericB
-            capability: alien.capabilities.GenericCapability
-            relationship: alien.relationships.GenericConnectToGeneric
+            capability: org.alien4cloud.capabilities.GenericCapability
+            relationship: org.alien4cloud.relationships.GenericConnectToGeneric
     ComputeA:
       type: tosca.nodes.Compute
       capabilities:
@@ -228,25 +229,25 @@ topology_template:
             max_instances: 3
             default_instances: 1
     GenericB:
-      type: alien.nodes.Generic
+      type: org.alien4cloud.nodes.Generic
       requirements:
         - host:
             node: GenericHostB
             capability: tosca.capabilities.Container
-            relationship: alien.relationships.GenericHostedOnGenericHost
+            relationship: org.alien4cloud.relationships.GenericHostedOnGenericHost
     Registry:
-      type: alien.nodes.Registry
+      type: org.alien4cloud.nodes.Registry
       requirements:
         - host:
             node: Apache
-            capability: alien.capabilities.ApacheContainer
-            relationship: alien.relationships.RegistryHostedOnApache
+            capability: org.alien4cloud.capabilities.ApacheContainer
+            relationship: org.alien4cloud.relationships.RegistryHostedOnApache
         - php:
             node: PHP
-            capability: alien.capabilities.PHPModule
-            relationship: alien.relationships.RegistryConnectToPHP
+            capability: org.alien4cloud.capabilities.PHPModule
+            relationship: org.alien4cloud.relationships.RegistryConnectToPHP
     Apache:
-      type: alien.nodes.Apache
+      type: org.alien4cloud.nodes.Apache
       properties:
         component_version: 2.4
         port: 80
@@ -257,7 +258,7 @@ topology_template:
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     RegistryConfigurerB:
-      type: alien.nodes.RegistryConfigurer
+      type: org.alien4cloud.nodes.RegistryConfigurer
       requirements:
         - host:
             node: ComputeB
@@ -266,9 +267,9 @@ topology_template:
         - registry:
             node: Registry
             capability: tosca.capabilities.Node
-            relationship: alien.relationships.RegistryConfigurerDependsOnRegistry
+            relationship: org.alien4cloud.relationships.RegistryConfigurerDependsOnRegistry
     RegistryConfigurerA:
-      type: alien.nodes.RegistryConfigurer
+      type: org.alien4cloud.nodes.RegistryConfigurer
       requirements:
         - host:
             node: ComputeA
@@ -277,13 +278,13 @@ topology_template:
         - registry:
             node: Registry
             capability: tosca.capabilities.Node
-            relationship: alien.relationships.RegistryConfigurerDependsOnRegistry
+            relationship: org.alien4cloud.relationships.RegistryConfigurerDependsOnRegistry
     Network:
       type: tosca.nodes.Network
       properties:
         ip_version: 4
     PHP:
-      type: alien.nodes.PHP
+      type: org.alien4cloud.nodes.PHP
       properties:
         component_version: 5
       requirements:
@@ -292,14 +293,14 @@ topology_template:
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     GenericHostA:
-      type: alien.nodes.GenericHost
+      type: org.alien4cloud.nodes.GenericHost
       requirements:
         - host:
             node: ComputeA
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     GenericHostB:
-      type: alien.nodes.GenericHost
+      type: org.alien4cloud.nodes.GenericHost
       requirements:
         - host:
             node: ComputeB

@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
-description: Alien4Cloud generated service template
-template_name: tomcat-war
-template_version: 0.1.0-SNAPSHOT
-template_author: admin
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: tomcat-war-topology
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: A simple topology of a war application hosted on a tomcat server.
 
 imports:
   - tomcat-war-types:2.0.0-SNAPSHOT
@@ -25,29 +28,25 @@ topology_template:
       description: The host Operating System (OS) type.
   node_templates:
     War:
-      type: alien.nodes.War
+      type: org.alien4cloud.nodes.War
       properties:
-        context_path: war
+        context_root: war
       requirements:
         - host:
             node: Tomcat
-            capability: alien.capabilities.WarHosting
-            relationship: alien.relationships.WarHostedOnTomcat
+            capability: org.alien4cloud.capabilities.WarContainer
+            relationship: org.alien4cloud.relationships.WarHostedOnTomcat
     Tomcat:
-      type: alien.nodes.Tomcat
+      type: org.alien4cloud.nodes.Tomcat
       properties:
         tomcat_home: /opt/tomcat
-        tomcat_port: 80
-        tomcat_url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.39/bin/apache-tomcat-8.0.39.tar.gz"
+        port: 80
+        download_url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.39/bin/apache-tomcat-8.0.39.tar.gz"
       requirements:
         - host:
-            node: Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
-        - java:
             node: Java
-            capability: alien.capabilities.Java
-            relationship: alien.relationships.RunOnJVM
+            capability: org.alien4cloud.capabilities.JDK
+            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
     Compute:
       type: tosca.nodes.Compute
       capabilities:
@@ -56,7 +55,7 @@ topology_template:
             architecture: { get_input: os_arch }
             type: { get_input: os_type }
     Java:
-      type: alien.nodes.Java
+      type: org.alien4cloud.nodes.JDK
       properties:
         java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
         java_home: /opt/java

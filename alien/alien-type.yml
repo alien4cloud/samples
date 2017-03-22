@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: alien-type
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: TOSCA simple profile with Alien.
-template_name: alien-type
-template_version: 1.0.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
@@ -10,11 +13,10 @@ imports:
   - elasticsearch-type:1.0.0-SNAPSHOT
 
 node_types:
-  alien.nodes.Alien:
-    derived_from: alien.nodes.JavaSoftware
-    description: >
-      The TOSCA Alien Node Type represents an alien component.
-    tags:
+  org.alien4cloud.nodes.Alien:
+    derived_from: org.alien4cloud.nodes.JavaSoftware
+    description: The TOSCA Alien Node Type represents an alien component.
+    metadata:
       icon: /images/alien4cloud-logo.png
     properties:
       alien_url:
@@ -30,13 +32,13 @@ node_types:
         default: ""
     capabilities:
       alien:
-        type: alien.capabilities.Alien
-        upper_bound: unbounded
+        type: org.alien4cloud.capabilities.Alien
+        occurrences: [ 0, UNBOUNDED ]
     requirements:
-      - elasticsearch: alien.capabilities.ElasticSearch
-        type: alien.relationships.AlienConnectToElasticSearch
-        lower_bound: 1
-        upper_bound: UNBOUNDED
+      - elasticsearch:
+          capability: org.alien4cloud.capabilities.ElasticSearch
+          relationship: org.alien4cloud.relationships.AlienConnectToElasticSearch
+          occurrences: [ 1, UNBOUNDED ]
     interfaces:
       Standard:
         create:
@@ -46,15 +48,17 @@ node_types:
           implementation: scripts/alien/install_alien.sh
         start: scripts/alien/start_alien.sh
     artifacts:
-      - configs: configs
-        type: tosca.artifacts.File
-      - bin: bin
-        type: tosca.artifacts.File
+      - configs:
+          file: configs
+          type: tosca.artifacts.File
+      - bin:
+          file: bin
+          type: tosca.artifacts.File
 
-  alien.nodes.AlienIT:
-    derived_from: alien.nodes.JavaSoftware
-    description: >
-      The TOSCA Alien Node Type represents an alien component.
+  # We should be able to provide transitive host requirements (to limit the os through node filter).
+  org.alien4cloud.nodes.AlienIT:
+    derived_from: org.alien4cloud.nodes.JavaSoftware
+    description: Alien 4 cloud java client application that performs Integration tests against alien4cloud.
     tags:
       icon: /images/alien4cloud-logo.png
     properties:
@@ -78,10 +82,12 @@ node_types:
         required: true
         default: ""
     requirements:
-      - elasticsearch: alien.capabilities.ElasticSearch
-        type: alien.relationships.AlienITConnectToElasticSearch
-      - alien: alien.capabilities.Alien
-        type: alien.relationships.AlienITDependsOnAlien
+      - elasticsearch:
+          capability: org.alien4cloud.capabilities.ElasticSearch
+          relationship: org.alien4cloud.relationships.AlienITConnectToElasticSearch
+      - alien:
+          capability: org.alien4cloud.capabilities.Alien
+          relationship: org.alien4cloud.relationships.AlienITDependsOnAlien
     interfaces:
       Standard:
         create:
@@ -96,40 +102,39 @@ node_types:
             AWS_CLOUDIFY3_MANAGER_URL: { get_property: [SELF, amazon_manager_ip] }
           implementation: scripts/it/start_it.sh
     artifacts:
-      - configs: configs
-        type: tosca.artifacts.File
-      - bin: bin
-        type: tosca.artifacts.File
+      - configs:
+          file: configs
+          type: tosca.artifacts.File
+      - bin:
+          file: bin
+          type: tosca.artifacts.File
 
 relationship_types:
-  alien.relationships.AlienConnectToElasticSearch:
-    derived_from: tosca.relationships.DependsOn
+  org.alien4cloud.relationships.AlienConnectToElasticSearch:
+    derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to describe that the Alien is connect on the target Elasticsearch.
-    valid_sources: [ tosca.nodes.Alien ]
-    valid_targets: [ alien.capabilities.ElasticSearch ]
+    valid_target_types: [ org.alien4cloud.capabilities.ElasticSearch ]
     interfaces:
       Configure:
           pre_configure_source:
             inputs:
               ES_IP: { get_attribute: [TARGET, ip_address] }
             implementation: scripts/alien/config_alien.sh
-  alien.relationships.AlienITConnectToElasticSearch:
-    derived_from: tosca.relationships.DependsOn
+  org.alien4cloud.relationships.AlienITConnectToElasticSearch:
+    derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to describe that the Alien is connect on the target Elasticsearch.
-    valid_sources: [ tosca.nodes.AlienIT ]
-    valid_targets: [ alien.capabilities.ElasticSearch ]
+    valid_target_types: [ alien.capabilities.ElasticSearch ]
     interfaces:
       Configure:
           pre_configure_source:
             inputs:
               ES_IP: { get_attribute: [TARGET, ip_address] }
             implementation: scripts/it/config_it.sh
-  alien.relationships.AlienITDependsOnAlien:
+  org.alien4cloud.relationships.AlienITDependsOnAlien:
     derived_from: tosca.relationships.DependsOn
     description: Relationship use to describe that AlienIT needs Alien.
-    valid_sources: [ tosca.nodes.AlienIT ]
-    valid_targets: [ alien.capabilities.Alien ]
+    valid_target_types: [ alien.capabilities.Alien ]
 
 capability_types:
-  alien.capabilities.Alien:
+  org.alien4cloud.capabilities.Alien:
     derived_from: tosca.capabilities.Attachment

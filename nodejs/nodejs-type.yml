@@ -1,14 +1,17 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: nodejs-type
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: TOSCA simple profile with Nodejs.
-template_name: nodejs-type
-template_version: 1.0.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
+  - tosca-normative-types:1.0.0-ALIEN12
 
 node_types:
-  alien.nodes.Nodejs:
+  org.alien4cloud.nodes.Nodejs:
     derived_from: tosca.nodes.WebServer
     description: >
       The TOSCA Nodejs Node Type represents an Nodejs component

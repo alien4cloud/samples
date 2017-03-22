@@ -1,21 +1,20 @@
 tosca_definitions_version: alien_dsl_1_3_0
-description: >
-  Deploys a Kubernetes Cluster
+
 metadata:
-    template_name: kubernetes-cluster
-    template_version: 0.1.0-SNAPSHOT
-    template_author: admin
+  template_name: kubernetes-cluster
+  template_version: 0.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Topology to deploy a kubernetes cluster.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
-  - docker-engine:1.1.0-SNAPSHOT
   - kubernetes-cluster-types:1.0.0-SNAPSHOT
-
 
 topology_template:
   node_templates:
     Kubectl:
-      type: alien.nodes.kubernetes.Kubectl
+      type: org.alien4cloud.nodes.kubernetes.Kubectl
       properties:
         component_version: "1.5.3"
       requirements:
@@ -25,7 +24,7 @@ topology_template:
             relationship: tosca.relationships.HostedOn
         - docker_cli:
             node: DockerEngine
-            capability: alien.capabilities.DockerCLI
+            capability: org.alien4cloud.capabilities.DockerCLI
             relationship: tosca.relationships.DependsOn
     NodeCompute:
       type: tosca.nodes.Compute
@@ -47,115 +46,115 @@ topology_template:
             max_instances: 5
             default_instances: 1
     DockerEngine_2:
-      type: alien.nodes.kubernetes.DockerEngine
+      type: org.alien4cloud.nodes.kubernetes.DockerEngine
       requirements:
         - host:
             node: NodeCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     Flannel:
-      type: alien.nodes.kubernetes.Flannel
+      type: org.alien4cloud.nodes.kubernetes.Flannel
       properties:
         component_version: "0.5.5"
         ip_mask: true
       requirements:
         - host:
             node: DockerEngine
-            capability: alien.capabilities.DockerHost
+            capability: org.alien4cloud.capabilities.DockerHost
             relationship: tosca.relationships.HostedOn
         - etcd:
             node: Etcd
-            capability: alien.capabilities.kubernetes.ETCD
-            relationship: alien.relationships.kubernetes.RetrieveEtcdIpAddress
+            capability: org.alien4cloud.capabilities.kubernetes.ETCD
+            relationship: org.alien4cloud.relationships.kubernetes.RetrieveEtcdIpAddress
       capabilities:
         flannel:
           properties:
             interface: eth0
     Dashboard:
-      type: alien.nodes.kubernetes.Dashboard
+      type: org.alien4cloud.nodes.kubernetes.Dashboard
       requirements:
         - host:
             node: KubeMaster
-            capability: alien.capabilities.kubernetes.MasterHost
-            relationship: alien.relationships.kubernetes.HostedOnMaster
+            capability: org.alien4cloud.capabilities.kubernetes.MasterHost
+            relationship: org.alien4cloud.relationships.kubernetes.HostedOnMaster
         - namespace:
             node: Namespace
-            capability: alien.capabilities.kubernetes.Namespace
-            relationship: alien.relationships.kubernetes.DependsOnNamespace
+            capability: org.alien4cloud.capabilities.kubernetes.Namespace
+            relationship: org.alien4cloud.relationships.kubernetes.DependsOnNamespace
     KubeMaster:
-      type: alien.nodes.kubernetes.KubeMaster
+      type: org.alien4cloud.nodes.kubernetes.KubeMaster
       properties:
         component_version: "1.2.1"
       requirements:
         - host:
             node: DockerEngine
-            capability: alien.capabilities.DockerHost
+            capability: org.alien4cloud.capabilities.DockerHost
             relationship: tosca.relationships.HostedOn
         - flannel:
             node: Flannel
-            capability: alien.capabilities.flannel.Connectivity
-            relationship: alien.relationships.Flannel
+            capability: org.alien4cloud.capabilities.flannel.Connectivity
+            relationship: org.alien4cloud.relationships.Flannel
       capabilities:
         configuration:
           properties:
             dns_domain: "cluster.local"
     Namespace:
-      type: alien.nodes.kubernetes.Namespace
+      type: org.alien4cloud.nodes.kubernetes.Namespace
       requirements:
         - host:
             node: KubeMaster
-            capability: alien.capabilities.kubernetes.MasterHost
-            relationship: alien.relationships.kubernetes.HostedOnMaster
+            capability: org.alien4cloud.capabilities.kubernetes.MasterHost
+            relationship: org.alien4cloud.relationships.kubernetes.HostedOnMaster
       capabilities:
         namespace:
           properties:
             namespace: "kube-system"
     KubeNode:
-      type: alien.nodes.kubernetes.KubeNode
+      type: org.alien4cloud.nodes.kubernetes.KubeNode
       properties:
         component_version: "1.2.1"
       requirements:
         - flannel:
             node: Flannel_2
-            capability: alien.capabilities.flannel.Connectivity
-            relationship: alien.relationships.Flannel
+            capability: org.alien4cloud.capabilities.flannel.Connectivity
+            relationship: org.alien4cloud.relationships.Flannel
         - join_master:
             node: KubeMaster
-            capability: alien.capabilities.kubernetes.MasterConfiguration
-            relationship: alien.relationships.kubernetes.RetrieveMasterConfigurations
+            capability: org.alien4cloud.capabilities.kubernetes.MasterConfiguration
+            relationship: org.alien4cloud.relationships.kubernetes.RetrieveMasterConfigurations
         - host:
             node: DockerEngine_2
-            capability: alien.capabilities.DockerHost
+            capability: org.alien4cloud.capabilities.DockerHost
             relationship: tosca.relationships.HostedOn
     Etcd:
-      type: alien.nodes.kubernetes.Etcd
+      type: org.alien4cloud.nodes.kubernetes.Etcd
       properties:
         component_version: "2.2.1"
       requirements:
         - host:
             node: DockerEngine
-            capability: alien.capabilities.DockerHost
+            capability: org.alien4cloud.capabilities.DockerHost
             relationship: tosca.relationships.HostedOn
     Flannel_2:
-      type: alien.nodes.kubernetes.Flannel
+      type: org.alien4cloud.nodes.kubernetes.Flannel
       properties:
         component_version: "0.5.5"
         ip_mask: true
       requirements:
         - etcd:
             node: Etcd
-            capability: alien.capabilities.kubernetes.ETCD
-            relationship: alien.relationships.kubernetes.RetrieveEtcdIpAddress
+            capability: org.alien4cloud.capabilities.kubernetes.ETCD
+            relationship: org.alien4cloud.relationships.kubernetes.RetrieveEtcdIpAddress
         - host:
             node: DockerEngine_2
-            capability: alien.capabilities.DockerHost
+            capability: org.alien4cloud.capabilities.DockerHost
             relationship: tosca.relationships.HostedOn
       capabilities:
         flannel:
           properties:
             interface: eth0
     DockerEngine:
-      type: alien.nodes.kubernetes.DockerEngine
+      type: org.alien4cloud.nodes.kubernetes.DockerEngine
       requirements:
         - host:
             node: MasterCompute

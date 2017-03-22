@@ -1,20 +1,24 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
-description: TOSCA simple profile with Apache
-template_name: website-type
-template_version: 2.0.0-SNAPSHOT
-template_author: FastConnect
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: website-type
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: A static website packaged in a zip file type to be hosted on a webserver (apache)
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
-  - "apache-type:2.0.0-SNAPSHOT"
+  - tosca-normative-types:1.0.0-ALIEN12
+  - apache-type:2.0.0-SNAPSHOT
 
 node_types:
-  alien.nodes.WebSite:
+  org.alien4cloud.nodes.WebSite:
     derived_from: tosca.nodes.WebApplication
     description: A static website packaged in a zip file.
     requirements:
-      - host: alien.capabilities.ApacheContainer
-        type: alien.relationships.WebSiteHostedOn
+      - host:
+          capability: org.alien4cloud.capabilities.ApacheContainer
+          relationship: org.alien4cloud.relationships.WebSiteHostedOn
     properties:
       zip_url:
         type: string
@@ -24,14 +28,13 @@ node_types:
         required: false
     artifacts:
       - website_zip:
-        type: tosca.artifacts.File
+          type: tosca.artifacts.File
 
 relationship_types:
-  alien.relationships.WebSiteHostedOn:
+  org.alien4cloud.relationships.WebSiteHostedOn:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the website is deployed on the target Apache server.
-    valid_sources: [ tosca.nodes.WebApplication ]
-    valid_targets: [ alien.capabilities.ApacheContainer ]
+    valid_target_types: [ org.alien4cloud.capabilities.ApacheContainer ]
     interfaces:
       Configure:
           post_configure_source:

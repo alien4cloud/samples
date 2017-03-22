@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: war-apache-load-balanced-topology
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: Apache Load Balancer Topology
-template_name: apache-load-balancer
-template_version: 1.0.0-SNAPSHOT
-template_author: admin
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
@@ -26,33 +29,25 @@ topology_template:
       description: The host Operating System (OS) type.
   node_templates:
     War:
-      type: alien.nodes.War
+      type: org.alien4cloud.nodes.War
       properties:
-        context_path: war
+        context_root: war
       requirements:
         - host:
             node: Tomcat
-            capability: alien.capabilities.WarHosting
-            relationship: alien.relationships.WarHostedOnTomcat
-        - load_balancer:
-            node: ApacheLoadBalancer
-            capability: alien.capabilities.LoadBalancer
-            relationship: alien.relationships.WebApplicationConnectsToApacheLoadBalancer
+            capability: org.alien4cloud.capabilities.WarContainer
+            relationship: org.alien4cloud.relationships.WarHostedOnTomcat
     Tomcat:
-      type: alien.nodes.Tomcat
+      type: org.alien4cloud.nodes.Tomcat
       properties:
         tomcat_home: /opt/tomcat
-        tomcat_port: 80
-        tomcat_url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.39/bin/apache-tomcat-8.0.39.tar.gz"
+        port: 80
+        download_url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.39/bin/apache-tomcat-8.0.39.tar.gz"
       requirements:
-        - java:
-            node: Java
-            capability: alien.capabilities.Java
-            relationship: alien.relationships.RunOnJVM
         - host:
-            node: WebServer
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
+            node: Java
+            capability: org.alien4cloud.capabilities.JDK
+            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
     WebServer:
       type: tosca.nodes.Compute
       capabilities:
@@ -75,19 +70,15 @@ topology_template:
       capabilities:
         os:
           properties:
-            architecture: { get_input: os_arch }
-            type: { get_input: os_type }
-        scalable:
-          properties:
-            max_instances: 1
-            min_instances: 1
-            default_instances: 1
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu
     Internet:
       type: tosca.nodes.Network
       properties:
         ip_version: 4
     Java:
-      type: alien.nodes.Java
+      type: org.alien4cloud.nodes.JDK
       properties:
         java_url: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
         java_home: /opt/java
@@ -97,14 +88,16 @@ topology_template:
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     ApacheLoadBalancer:
-      type: alien.nodes.ApacheLoadBalancer
-      properties:
-        port: 80
+      type: org.alien4cloud.nodes.ApacheLoadBalancer
       requirements:
         - host:
             node: LoadBalancerServer
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
+        - application:
+            node: War
+            capability: tosca.capabilities.Endpoint
+            relationship: org.alien4cloud.relationships.RoutesToApacheLoadBalancer
   outputs:
     load_balancer_url:
       value: { get_attribute: [ ApacheLoadBalancer, load_balancer_url ] }

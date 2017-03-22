@@ -1,17 +1,20 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
-description: TOSCA simple profile with Wordpress
-template_name: wordpress-type
-template_version: 2.0.0-SNAPSHOT
-template_author: FastConnect
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: wordpress-type
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Wordpress TOSCA node type to be hosted on an apache webserver.
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
-  - "apache-type:2.0.0-SNAPSHOT"
-  - "mysql-type:2.0.0-SNAPSHOT"
-  - "php-type:2.0.0-SNAPSHOT"
+  - tosca-normative-types:1.0.0-ALIEN12
+  - apache-type:2.0.0-SNAPSHOT
+  - mysql-type:2.0.0-SNAPSHOT
+  - php-type:2.0.0-SNAPSHOT
 
 node_types:
-  alien.nodes.Wordpress:
+  org.alien4cloud.nodes.Wordpress:
     derived_from: tosca.nodes.WebApplication
     description: The TOSCA Wordpress Node Type represents a Wordpress CMS.
     tags:
@@ -30,16 +33,17 @@ node_types:
         description: Max user number
       wordpress_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], get_property: [SELF, context_root] ] }
     requirements:
-      - host: alien.capabilities.ApacheContainer
-        type: alien.relationships.WordpressHostedOnApache
-      - database: alien.capabilities.MysqlDatabaseEndpoint
-        type: alien.relationships.WordpressConnectToMysql
-        lower_bound: 1
-        upper_bound: 1
-      - php: alien.capabilities.PHPModule
-        type: alien.relationships.WordpressConnectToPHP
-        lower_bound: 1
-        upper_bound: 1
+      - host:
+          capability: org.alien4cloud.capabilities.ApacheContainer
+          relationship: org.alien4cloud.relationships.WordpressHostedOnApache
+      - database:
+          capability: org.alien4cloud.capabilities.MysqlDatabaseEndpoint
+          relationship: org.alien4cloud.relationships.WordpressConnectToMysql
+          occurrences: [1, 1]
+      - php:
+          capability: org.alien4cloud.capabilities.PHPModule
+          relationship: org.alien4cloud.relationships.WordpressConnectToPHP
+          occurrences: [1, 1]
     interfaces:
       Standard:
         create:
@@ -48,11 +52,10 @@ node_types:
           implementation: scripts/install_wordpress.sh
 
 relationship_types:
-  alien.relationships.WordpressHostedOnApache:
+  org.alien4cloud.relationships.WordpressHostedOnApache:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the website is deployed on the target Apache server.
-    valid_sources: [ tosca.nodes.WebApplication ]
-    valid_targets: [ alien.capabilities.ApacheContainer ]
+    valid_target_types: [ org.alien4cloud.capabilities.ApacheContainer ]
     interfaces:
       Configure:
         pre_configure_source:
@@ -60,11 +63,10 @@ relationship_types:
             CONTEXT_ROOT: { get_property: [SOURCE, context_root] }
             DOC_ROOT: { get_property: [TARGET, document_root] }
           implementation: scripts/config_wordpress.sh
-  alien.relationships.WordpressConnectToMysql:
+  org.alien4cloud.relationships.WordpressConnectToMysql:
     derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to connect the Wordpress with a Mysql databse
-    valid_sources: [ tosca.nodes.WebApplication ]
-    valid_targets: [ alien.capabilities.MysqlDatabaseEndpoint ]
+    valid_target_types: [ org.alien4cloud.capabilities.MysqlDatabaseEndpoint ]
     interfaces:
       Configure:
           pre_configure_source:
@@ -75,11 +77,10 @@ relationship_types:
               DB_USER: { get_property: [TARGET, db_user] }
               DB_PASSWORD: { get_property: [TARGET, db_password] }
             implementation: scripts/config_wordpress_for_mysql.sh
-  alien.relationships.WordpressConnectToPHP:
+  org.alien4cloud.relationships.WordpressConnectToPHP:
     derived_from: tosca.relationships.ConnectsTo
     description: Relationship use to install the Mysql module for PHP
-    valid_sources: [ tosca.nodes.WebApplication ]
-    valid_targets: [ alien.capabilities.PHPModule ]
+    valid_target_types: [ org.alien4cloud.capabilities.PHPModule ]
     interfaces:
       Configure:
           pre_configure_source: scripts/install_php_module.sh

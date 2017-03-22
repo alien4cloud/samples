@@ -1,42 +1,84 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: apache-load-balancer-type
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: TOSCA simple profile with Apache Load Balancer.
-template_name: apache-load-balancer-type
-template_version: 2.0.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
-  - alien-base-types:1.4.0-SNAPSHOT
-node_types:
 
-  alien.nodes.ApacheLoadBalancer:
-    derived_from: alien.nodes.LoadBalancer
+node_types:
+  org.alien4cloud.nodes.ApacheLoadBalancer:
+    derived_from: tosca.nodes.LoadBalancer
     description: >
       The TOSCA Apache Node Type represents an apache load balancer that can be run on a debian based os.
-    tags:
-      icon: /images/apache.png
+    metadata:
+      icon: /images/Apache_PoweredBy.png
+    properties:
+      component_version:
+        type: version
+        description: Using apt-get we don't really know which is the installed version as it depends from the repo settings.
+        default: 2
+        constraints:
+          - equal: 2
     attributes:
       load_balancer_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
+    # Overrides the actual client endpoint
+    capabilities:
+      client:
+        type: tosca.capabilities.Endpoint
+        occurrences: [0, UNBOUNDED]
+        description: the Floating (IP) client’s on the public network can connect to
+        properties:
+          port: 80 # set a default value for the port
+    # overrides the tosca Load Balancer endpoint to specify the relationship to use.
+    requirements:
+      - application:
+          capability: tosca.capabilities.Endpoint
+          relationship: org.alien4cloud.relationships.RoutesToApacheLoadBalancer
+          occurrences: [ 0, UNBOUNDED ]
+          description: Connection to one or more load balanced applications
+      - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ debian, ubuntu, knoppix ] }
     interfaces:
       Standard:
         create:
           inputs:
-            PORT: { get_property: [SELF, port] }
+            PORT: { get_property: [SELF, client, port] }
           implementation: scripts/install_apache_load_balancer.sh
         start: scripts/start_apache_load_balancer.sh
         stop: scripts/stop_apache_load_balancer.sh
 
 relationship_types:
-  alien.relationships.WebApplicationConnectsToApacheLoadBalancer:
-    derived_from: alien.relationships.WebApplicationConnectsToLoadBalancer
-    description: Relationship use to connect the WebServer to the Apache LoadBalancer
+  org.alien4cloud.relationships.RoutesToApacheLoadBalancer:
+    derived_from: tosca.relationships.RoutesTo
+    description: Relationship that configures the Apache Load Balancer so it
     interfaces:
       Configure:
-          add_source:
+          add_target:
             inputs:
-              WEB_APPLICATION_URL: { get_attribute: [SOURCE, local_application_url] }
+              PROTOCOL: { get_attribute: [TARGET, protocol] }
+              IP: { get_attribute: [TARGET, ip_address] }
+              PORT: { get_attribute: [TARGET, port] }
+              URL_PATH: { get_attribute: [TARGET, url_path] }
             implementation: scripts/add_web_app_to_load_balancer.sh
-          remove_source:
+          remove_target:
             inputs:
-              WEB_APPLICATION_URL: { get_attribute: [SOURCE, local_application_url] }
+              PROTOCOL: { get_attribute: [TARGET, protocol] }
+              IP: { get_attribute: [TARGET, ip_address] }
+              PORT: { get_attribute: [TARGET, port] }
+              URL_PATH: { get_attribute: [TARGET, url_path] }
             implementation: scripts/remove_web_app_from_load_balancer.sh

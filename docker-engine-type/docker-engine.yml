@@ -1,0 +1,46 @@
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: docker-engine-type
+  template_version: 1.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: The Docker engine as a TOSCA archive
+
+imports:
+  - "tosca-normative-types:1.0.0-ALIEN12"
+
+node_types:
+  org.alien4cloud.nodes.DockerEngine:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      The Docker Engine.
+    tags:
+      icon: /images/icon.png
+    capabilities:
+      docker_host: org.alien4cloud.capabilities.DockerHost
+      docker_cli: org.alien4cloud.capabilities.DockerCLI
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1,1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ ubuntu, centos ] } # TODO: implement installation on Debian & RHEL
+    interfaces:
+      Standard:
+        create: scripts/install_docker_engine.sh
+        start: scripts/start_docker_engine.sh
+        stop: scripts/stop_docker_engine.sh
+
+capability_types:
+  org.alien4cloud.capabilities.DockerCLI:
+    derived_from: tosca.capabilities.Node
+  org.alien4cloud.capabilities.DockerHost:
+    derived_from: tosca.capabilities.Container

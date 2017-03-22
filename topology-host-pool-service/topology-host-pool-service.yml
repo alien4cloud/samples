@@ -1,8 +1,11 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: host-pool-service-topology
+  template_version: 0.1.1-SNAPSHOT
+  template_author: alien4cloud
+
 description: Host pool service template
-template_name: host-pool-service-template
-template_version: 0.1.1-SNAPSHOT
-template_author: Fastconnect
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
@@ -23,7 +26,7 @@ topology_template:
             relationship: tosca.relationships.Network
 
     HostPoolService:
-      type: alien.nodes.HostPoolService
+      type: org.alien4cloud.nodes.HostPoolService
       requirements:
         - host:
             node: Compute

@@ -1,21 +1,24 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
+
+metadata:
+  template_name: nginx-type
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
 description: A simple Nginx for Windows
-template_name: nginx-type
-template_version: 2.0.0-SNAPSHOT
-template_author: FastConnect
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN12"
-  - "alien-base-types:1.4.0-SNAPSHOT"
+  - tosca-normative-types:1.0.0-ALIEN12
+  - alien-base-types:1.4.0-SNAPSHOT
 
 node_types:
-  alien.nodes.Nginx:
+  org.alien4cloud.nodes.Nginx:
     derived_from: tosca.nodes.WebServer
     description: >
       The TOSCA Apache Node Type represents an apache component
       that can be managed and run by a TOSCA Compute Node Type.
     capabilities:
-      host: alien.capabilities.NginxContainer
+      host: org.alien4cloud.capabilities.NginxContainer
     attributes:
       nginx_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
     tags:
@@ -32,15 +35,28 @@ node_types:
         default: 80
         constraints:
           - equal: 80
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: windows }
     interfaces:
       Standard:
         create: scripts/install_nginx.bat
         start: scripts/start_nginx.bat
     artifacts:
-      - install_nginx: scripts/install_nginx.ps1
-        type: tosca.artifacts.File
-      - start_nginx: scripts/start_nginx.ps1
-        type: tosca.artifacts.File
+      - install_nginx:
+          file: scripts/install_nginx.ps1
+          type: tosca.artifacts.File
+      - start_nginx:
+          file: scripts/start_nginx.ps1
+          type: tosca.artifacts.File
 capability_types:
-  alien.capabilities.NginxContainer:
+  org.alien4cloud.capabilities.NginxContainer:
       derived_from: tosca.capabilities.Container

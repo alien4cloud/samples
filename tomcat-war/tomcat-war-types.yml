@@ -1,116 +1,100 @@
-tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+tosca_definitions_version: alien_dsl_1_3_0
 
-template_name: tomcat-war-types
-template_author: Alien4cloud
-template_version: 2.0.0-SNAPSHOT
+metadata:
+  template_name: tomcat-war-types
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
-  - alien-base-types:1.4.0-SNAPSHOT
+  - jdk-type:1.0.0-SNAPSHOT
 
 description: Tomcat recipe, including war type and relationship.
 
 node_types:
-
-  alien.nodes.Java:
-    derived_from: tosca.nodes.SoftwareComponent
-    description: >
-      Installation of Java
-    tags:
-      icon: /images/java.png
-    properties:
-      java_url:
-        type: string
-        required: true
-        default: "http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz"
-      java_home:
-        type: string
-        required: true
-        default: "/opt/java"
-    attributes:
-      java_version: { get_operation_output: [ SELF, Standard, create, JAVA_VERSION ] }
-      java_message: { concat: ["Java help: ", get_operation_output: [ SELF, Standard, create, JAVA_HELP ]] }
-    capabilities:
-      java:
-        type: alien.capabilities.Java
-        upper_bound: unbounded
-    interfaces:
-      Standard:
-        create:
-          inputs:
-            JAVA_URL: { get_property: [SELF, java_url] }
-            JAVA_HOME: { get_property: [SELF, java_home] }
-          implementation: scripts/java_install.sh
-
-  alien.nodes.Tomcat:
+  org.alien4cloud.nodes.Tomcat:
     derived_from: tosca.nodes.WebServer
     description: >
-      Installation of Tomcat
-    tags:
-      icon: /images/tomcat.gif
+      TOSCA node to install and run Apache Tomcat java web server.
+      The Apache Tomcat® software is an open source implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies.
+    metadata:
+      icon: /images/tomcat.png
     properties:
+      port:
+        type: integer
+        required: true
+        description: Tomcat application port.
+        default: 80
       tomcat_home:
         type: string
         required: true
+        description: Directory in which to install tomcat on the host.
         default: "/opt/tomcat"
-      tomcat_port:
-        type: integer
-        required: true
-        default: 80
-      tomcat_url:
+      download_url:
         type: string
         required: true
+        description: Url from which to download the tomcat tar.gz package
         default: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.39/bin/apache-tomcat-8.0.39.tar.gz"
+      component_version:
+        type: version
+        description: Version of tomcat to install (this should match the provided download url).
+        default: 8.0.39
     attributes:
-      server_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, tomcat_port]] }
+      server_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port]] }
     requirements:
-      - java: alien.capabilities.Java
+      - host:
+          capability: org.alien4cloud.capabilities.JDK
+          relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
+          occurrences: [1, 1]
     capabilities:
-        war_host:
-          type: alien.capabilities.WarHosting
-          upper_bound: unbounded
+      host: # Overrides the parent container capability
+        type: org.alien4cloud.capabilities.WarContainer
+        occurrences: [ 0, UNBOUNDED ]
+      data_endpoint: # This is the application endpoint of tomcat server.
+        type: tosca.capabilities.Endpoint
+        occurrences: [ 0, 0 ]
+      admin_endpoint: # There is a tomcat admin endpoint actually but we don't provide it here.
+        type: tosca.capabilities.Endpoint.Admin
+        occurrences: [ 0, 0 ]
     interfaces:
       Standard:
         create:
           inputs:
             TOMCAT_HOME: { get_property: [SELF, tomcat_home] }
-            TOMCAT_PORT: { get_property: [SELF, tomcat_port] }
-            TOMCAT_URL: { get_property: [SELF, tomcat_url] }
+            TOMCAT_PORT: { get_property: [SELF, port] }
+            TOMCAT_URL: { get_property: [SELF, download_url] }
           implementation: scripts/tomcat_install.sh
         start:
           inputs:
             TOMCAT_HOME: { get_property: [SELF, tomcat_home] }
-            TOMCAT_PORT: { get_property: [SELF, tomcat_port] }
+            TOMCAT_PORT: { get_property: [SELF, port] }
           implementation: scripts/tomcat_start.sh
         stop:
           inputs:
             TOMCAT_HOME: { get_property: [SELF, tomcat_home] }
           implementation: scripts/tomcat_stop.sh
 
-  alien.nodes.War:
-    derived_from: alien.nodes.LoadBalancedWebApplication
+  org.alien4cloud.nodes.War:
+    derived_from: tosca.nodes.WebApplication
     description: A war element
-    tags:
+    metadata:
       icon: /images/war.jpg
-    properties:
-      context_path:
-        description: "Context path to access the deployed war ( ex: www.server.com/<context_path>)"
-        type: string
     attributes:
-      application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_path] ] }
-      local_application_url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_path] ] }
+      application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_root] ] }
+      local_application_url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_root] ] }
     requirements:
-      - host: alien.capabilities.WarHosting
-        lower_bound: 1
-        upper_bound: 1
+      - host:
+          capability: org.alien4cloud.capabilities.WarContainer
+          occurrences: [1, 1]
     artifacts:
-      - war_file: warFiles/helloWorld.war
-        type: alien.artifacts.WarFile
+      - war_file:
+          file: warFiles/helloWorld.war
+          type: org.alien4cloud.artifacts.WarFile
     interfaces:
       custom:
         update_war_file:
           inputs:
-            CONTEXT_PATH: { get_property: [SELF, context_path] }
+            CONTEXT_PATH: { get_property: [SELF, context_root] }
             TOMCAT_HOME: { get_property: [HOST, tomcat_home] }
             TOMCAT_PORT: { get_property: [HOST, tomcat_port] }
             WAR_URL:
@@ -120,12 +104,10 @@ node_types:
           implementation: scripts/tomcat_install_war.sh
 
 relationship_types:
-
-  alien.relationships.WarHostedOnTomcat:
+  org.alien4cloud.relationships.WarHostedOnTomcat:
     derived_from: tosca.relationships.HostedOn
     description: Relationship that allows to deploy a war on tomcat.
-    valid_sources: [ alien.capabilities.WarHosting ]
-    valid_targets: [ alien.capabilities.WarHosting ]
+    valid_target_types: [ org.alien4cloud.capabilities.WarContainer ]
     interfaces:
       configure:
         post_configure_source:
@@ -134,15 +116,7 @@ relationship_types:
             TOMCAT_HOME: { get_property: [TARGET, tomcat_home] }
             TOMCAT_PORT: { get_property: [TARGET, tomcat_port] }
           implementation: scripts/tomcat_install_war.sh
-  alien.relationships.RunOnJVM:
-    derived_from: tosca.relationships.DependsOn
-    description: Relationship between a Java SoftwareComponent and its RunOnJVM
-    valid_sources: [ alien.capabilities.Java ]
-    valid_targets: [ alien.capabilities.Java ]
 
 capability_types:
-
-  alien.capabilities.WarHosting:
+  org.alien4cloud.capabilities.WarContainer:
     derived_from: tosca.capabilities.Container
-  alien.capabilities.Java:
-    derived_from: tosca.capabilities.Root

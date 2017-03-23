@@ -20,7 +20,7 @@ node_types:
       host: org.alien4cloud.capabilities.ApacheContainer
     attributes:
       apache_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
-    tags:
+    metadata:
       icon: /images/Apache_PoweredBy.png
     properties:
       component_version:

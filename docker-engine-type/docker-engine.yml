@@ -15,7 +15,7 @@ node_types:
     derived_from: tosca.nodes.SoftwareComponent
     description: >
       The Docker Engine.
-    tags:
+    metadata:
       icon: /images/icon.png
     capabilities:
       docker_host: org.alien4cloud.capabilities.DockerHost

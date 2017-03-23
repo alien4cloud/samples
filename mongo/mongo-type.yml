@@ -17,7 +17,7 @@ node_types:
     capabilities:
       endpoint:
         type: org.alien4cloud.capabilities.endpoint.Mongo
-    tags:
+    metadata:
       icon: /images/mongodb.jpg
     properties:
       port:
@@ -43,7 +43,7 @@ node_types:
                     - type: { equal: linux }
                     - architecture: { equal: x86_64 }
                     - distribution: { valid_values: [ debian, ubuntu, knoppix ] }
-    tags:
+    metadata:
       icon: /images/mongodb.jpg
     interfaces:
       Standard:

@@ -85,7 +85,7 @@ node_types:
     derived_from: tosca.nodes.DBMS
     abstract: true
     description: create mariaDB instance via aws rds. Needs aws cli to be installed on the host (usually a 'manager' since this is a compute resource).
-    tags:
+    metadata:
       icon: images/mariaDB-aws.png
     capabilities:
       database_endpoint:

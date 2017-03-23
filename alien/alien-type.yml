@@ -59,7 +59,7 @@ node_types:
   org.alien4cloud.nodes.AlienIT:
     derived_from: org.alien4cloud.nodes.JavaSoftware
     description: Alien 4 cloud java client application that performs Integration tests against alien4cloud.
-    tags:
+    metadata:
       icon: /images/alien4cloud-logo.png
     properties:
       branch:

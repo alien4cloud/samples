@@ -101,7 +101,7 @@ node_types:
   org.alien4cloud.ansible.EC2ELB:
     description: |
       Launch an EC2 Elastic Load Balancer.
-    tags:
+    metadata:
       icon: /images/aws-elb.png
     derived_from: tosca.nodes.Root
     properties:

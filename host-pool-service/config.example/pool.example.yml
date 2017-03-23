@@ -40,7 +40,7 @@ hosts:
       username: centos
     endpoint:
       ip: 10.67.79.4
-    tags:
+    metadata:
       - centos
       - 2048
 

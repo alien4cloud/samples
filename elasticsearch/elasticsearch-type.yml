@@ -16,7 +16,7 @@ node_types:
     derived_from: org.alien4cloud.nodes.JavaSoftware
     description: >
       Installation of ElasticSearch
-    tags:
+    metadata:
       icon: images/elasticsearch.png
     properties:
       elasticsearch_url:

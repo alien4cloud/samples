@@ -21,7 +21,7 @@ node_types:
       host: org.alien4cloud.capabilities.NginxContainer
     attributes:
       nginx_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
-    tags:
+    metadata:
       icon: /images/nginx.png
     properties:
       component_version:

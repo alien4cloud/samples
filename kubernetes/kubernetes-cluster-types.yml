@@ -29,7 +29,7 @@ node_types:
     description: >
       Installs ETCD on k8s master.
     derived_from: tosca.nodes.SoftwareComponent
-    tags:
+    metadata:
       icon: images/etcd.png
     properties:
       component_version:
@@ -55,7 +55,7 @@ node_types:
     description: >
       Installs Flannel & configure docker.
     derived_from: tosca.nodes.SoftwareComponent
-    tags:
+    metadata:
       icon: images/flannel.png
     properties:
       component_version:
@@ -92,7 +92,7 @@ node_types:
   org.alien4cloud.nodes.kubernetes.Hyperkube:
     abstract: true
     derived_from: tosca.nodes.SoftwareComponent
-    tags:
+    metadata:
       icon: images/hyperkube.png
     properties:
       component_version:
@@ -113,7 +113,7 @@ node_types:
     description: >
       Installs kubernetes master components.
     derived_from: org.alien4cloud.nodes.kubernetes.Hyperkube
-    tags:
+    metadata:
       icon: images/kube_master.png
     attributes:
       api_endpoint: { concat:  ["http://", get_attribute: [HOST, public_ip_address], ":8080"] }
@@ -136,7 +136,7 @@ node_types:
     description: >
       Creates a namespace in Kubernetes.
     derived_from: tosca.nodes.Container.Application
-    tags:
+    metadata:
       icon: images/kube.png
     capabilities:
       - namespace:
@@ -161,7 +161,7 @@ node_types:
   #   description: >
   #     Creates Kubernetes DNS.
   #   derived_from: tosca.nodes.Container.Application
-  #   tags:
+  #   metadata:
   #     icon: images/kube.png
   #   properties:
   #     replicas:
@@ -199,7 +199,7 @@ node_types:
     description: >
       Install the kubernetes dashboard (on k8s master)
     derived_from: tosca.nodes.Container.Application
-    tags:
+    metadata:
       icon: images/kube.png
     attributes:
       kubernetes_ui: { concat:  ["http://", get_attribute: [HOST, public_ip_address], ":8080/ui"] }
@@ -229,7 +229,7 @@ node_types:
     description: >
       Install the kubectl
     derived_from: tosca.nodes.SoftwareComponent
-    tags:
+    metadata:
       icon: images/kube.png
     requirements:
       - docker_cli:
@@ -258,7 +258,7 @@ node_types:
     description: >
       Installs the Hyperkube process and a proxy on the node host.
     derived_from: org.alien4cloud.nodes.kubernetes.Hyperkube
-    tags:
+    metadata:
       icon: images/kube.png
     requirements:
       - join_master:

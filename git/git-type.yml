@@ -14,7 +14,7 @@ node_types:
   org.alien4cloud.nodes.Git:
     derived_from: tosca.nodes.SoftwareComponent
     description: Git install through apt-get.
-    tags:
+    metadata:
       icon: /images/git.png
     properties:
       git_user:

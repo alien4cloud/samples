@@ -32,7 +32,7 @@ node_types:
                     - distribution: { valid_values: [ debian, ubuntu, knoppix ] }
     capabilities:
       database_endpoint: org.alien4cloud.capabilities.MysqlDatabaseEndpoint
-    tags:
+    metadata:
       icon: /images/mysql.png
     properties:
       port:

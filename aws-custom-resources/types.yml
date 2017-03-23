@@ -7,6 +7,7 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
+  - mysql-type:2.0.0-SNAPSHOT
 
 data_types:
   org.alien4cloud.datatypes.AgentConfig:
@@ -80,11 +81,19 @@ node_types:
             INSTANCE_ID: { get_attribute: [ SELF, instance_id ] }
           implementation: scripts/EC2Instance/delete.sh
 
-  org.alien4cloud.aws.MariaDB:
-    derived_from: tosca.nodes.Root
+  org.alien4cloud.aws.AbstractMariaDB:
+    derived_from: tosca.nodes.DBMS
+    abstract: true
     description: create mariaDB instance via aws rds. Needs aws cli to be installed on the host (usually a 'manager' since this is a compute resource).
     tags:
       icon: images/mariaDB-aws.png
+    capabilities:
+      database_endpoint:
+        type: org.alien4cloud.capabilities.MysqlDatabaseEndpoint
+
+  org.alien4cloud.aws.MariaDB:
+    derived_from: org.alien4cloud.aws.AbstractMariaDB
+    description: create mariaDB instance via aws rds. Needs aws cli to be installed on the host (usually a 'manager' since this is a compute resource).
     attributes:
       endpoint_address: { concat: [{ get_operation_output: [SELF, Standard, start, ENDPOINT_ADDRESS]}, ":", get_property: [SELF, port]] }
       bdinstance_arn: { get_operation_output: [SELF, Standard, start, DBINSTANCE_ARN]}
@@ -155,9 +164,6 @@ node_types:
       security_group_ids:
         type: string
         required: true
-    capabilities:
-      database_endpoint:
-        type: tosca.capabilities.Endpoint.Database
     interfaces:
       Standard:
         start:
@@ -184,3 +190,12 @@ node_types:
             AWS_DEFAULT_REGION: { get_property: [ SELF, aws_default_region ] }
             INSTANCE_ID: { get_property: [SELF, identifier] }
           implementation: scripts/MariaDB/delete.sh
+
+
+  org.alien4cloud.aws.MariaDBService:
+    derived_from: org.alien4cloud.aws.MariaDB
+    description: Re-use an up and running MariaDB instance
+    attributes:
+      ip_address: 
+        type: string
+        description: ip or domain name of the MariaDB instance

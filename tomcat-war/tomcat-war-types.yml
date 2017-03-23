@@ -80,8 +80,8 @@ node_types:
     metadata:
       icon: /images/war.jpg
     attributes:
-      application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_root] ] }
-      local_application_url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, tomcat_port], "/", get_property: [SELF, context_root] ] }
+      application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], "/", get_property: [SELF, context_root] ] }
+      local_application_url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, port], "/", get_property: [SELF, context_root] ] }
     requirements:
       - host:
           capability: org.alien4cloud.capabilities.WarContainer
@@ -96,7 +96,7 @@ node_types:
           inputs:
             CONTEXT_PATH: { get_property: [SELF, context_root] }
             TOMCAT_HOME: { get_property: [HOST, tomcat_home] }
-            TOMCAT_PORT: { get_property: [HOST, tomcat_port] }
+            TOMCAT_PORT: { get_property: [HOST, port] }
             WAR_URL:
               type: string
               description: url of the war to upload to update the current one
@@ -112,9 +112,9 @@ relationship_types:
       configure:
         post_configure_source:
           inputs:
-            CONTEXT_PATH: { get_property: [SOURCE, context_path] }
+            CONTEXT_PATH: { get_property: [SOURCE, context_root] }
             TOMCAT_HOME: { get_property: [TARGET, tomcat_home] }
-            TOMCAT_PORT: { get_property: [TARGET, tomcat_port] }
+            TOMCAT_PORT: { get_property: [TARGET, port] }
           implementation: scripts/tomcat_install_war.sh
 
 capability_types:

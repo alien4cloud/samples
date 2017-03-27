@@ -86,6 +86,11 @@ node_types:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.
     derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      generic_property:
+        type: string
+        required: false
+        default: "default_value"    
     capabilities:
       generic_capability:
         type: org.alien4cloud.capabilities.GenericCapability
@@ -166,10 +171,12 @@ relationship_types:
         add_target:
           inputs:
             TARGET_IP: { get_attribute: [TARGET, ip_address] }
+            TARGET_PROPERTY: { get_property: [TARGET, generic_property] }
           implementation: scripts/GenericConnectToGeneric/add_target.sh
         add_source:
           inputs:
             SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+            SOURCE_PROPERTY: { get_property: [SOURCE, generic_property] }
           implementation: scripts/GenericConnectToGeneric/add_source.sh
         remove_target:
           implementation: scripts/GenericConnectToGeneric/remove_target.sh

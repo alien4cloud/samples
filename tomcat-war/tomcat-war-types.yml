@@ -20,11 +20,6 @@ node_types:
     metadata:
       icon: /images/tomcat.png
     properties:
-      port:
-        type: integer
-        required: true
-        description: Tomcat application port.
-        default: 80
       tomcat_home:
         type: string
         required: true
@@ -40,34 +35,37 @@ node_types:
         description: Version of tomcat to install (this should match the provided download url).
         default: 8.0.39
     attributes:
-      server_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port]] }
+      server_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, data_endpoint, port]] }
     requirements:
       - host:
           capability: org.alien4cloud.capabilities.JDK
           relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
           occurrences: [1, 1]
     capabilities:
-      host: # Overrides the parent container capability
-        type: org.alien4cloud.capabilities.WarContainer
-        occurrences: [ 0, UNBOUNDED ]
       data_endpoint: # This is the application endpoint of tomcat server.
         type: tosca.capabilities.Endpoint
         occurrences: [ 0, 0 ]
+        properties:
+          protocol: http
+          port: 80 # set a default value for the port
       admin_endpoint: # There is a tomcat admin endpoint actually but we don't provide it here.
         type: tosca.capabilities.Endpoint.Admin
         occurrences: [ 0, 0 ]
+      host: # Overrides the parent container capability
+        type: org.alien4cloud.capabilities.WarContainer
+        occurrences: [ 0, UNBOUNDED ]
     interfaces:
       Standard:
         create:
           inputs:
             TOMCAT_HOME: { get_property: [SELF, tomcat_home] }
-            TOMCAT_PORT: { get_property: [SELF, port] }
+            TOMCAT_PORT: { get_property: [SELF, data_endpoint, port] }
             TOMCAT_URL: { get_property: [SELF, download_url] }
           implementation: scripts/tomcat_install.sh
         start:
           inputs:
             TOMCAT_HOME: { get_property: [SELF, tomcat_home] }
-            TOMCAT_PORT: { get_property: [SELF, port] }
+            TOMCAT_PORT: { get_property: [SELF, data_endpoint, port] }
           implementation: scripts/tomcat_start.sh
         stop:
           inputs:
@@ -80,8 +78,16 @@ node_types:
     metadata:
       icon: /images/war.jpg
     attributes:
-      application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], "/", get_property: [SELF, context_root] ] }
-      local_application_url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, port], "/", get_property: [SELF, context_root] ] }
+      application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, data_endpoint, port], "/", get_property: [SELF, app_endpoint, url_path] ] }
+      local_application_url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, data_endpoint, port], "/", get_property: [SELF, app_endpoint, url_path] ] }
+    capabilities:
+      app_endpoint:
+        type: tosca.capabilities.Endpoint
+        occurrences: [ 0, UNBOUNDED ]
+        properties:
+          protocol: { get_property: [HOST, data_endpoint, protocol] }
+          port: { get_property: [HOST, data_endpoint, port] }
+          url_path: hello
     requirements:
       - host:
           capability: org.alien4cloud.capabilities.WarContainer
@@ -94,9 +100,9 @@ node_types:
       custom:
         update_war_file:
           inputs:
-            CONTEXT_PATH: { get_property: [SELF, context_root] }
+            CONTEXT_PATH: { get_property: [SELF, app_endpoint, url_path] }
             TOMCAT_HOME: { get_property: [HOST, tomcat_home] }
-            TOMCAT_PORT: { get_property: [HOST, port] }
+            TOMCAT_PORT: { get_property: [HOST, data_endpoint, port] }
             WAR_URL:
               type: string
               description: url of the war to upload to update the current one
@@ -112,7 +118,7 @@ relationship_types:
       configure:
         post_configure_source:
           inputs:
-            CONTEXT_PATH: { get_property: [SOURCE, context_root] }
+            CONTEXT_PATH: { get_property: [SOURCE, app_endpoint, url_path] }
             TOMCAT_HOME: { get_property: [TARGET, tomcat_home] }
             TOMCAT_PORT: { get_property: [TARGET, port] }
           implementation: scripts/tomcat_install_war.sh

@@ -50,7 +50,7 @@ wait_for_server() {
 
     echo "Running ${server_name} liveness detection on port ${port}"
 
-    for i in $(seq 1 360)
+    for i in $(seq 1 60)
     do
         response_code=$(get_response_code ${port})
         echo "[GET] http://localhost:${port} ${response_code}"

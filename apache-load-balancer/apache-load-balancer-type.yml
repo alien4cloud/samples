@@ -20,12 +20,12 @@ node_types:
     properties:
       component_version:
         type: version
-        description: Using apt-get we don't really know which is the installed version as it depends from the repo settings.
+        description: Using apt-get we don't really know which is the exact installed version as it depends from the repo settings.
         default: 2
         constraints:
           - equal: 2
     attributes:
-      load_balancer_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
+      load_balancer_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, client, port], "/"] }
     # Overrides the actual client endpoint
     capabilities:
       client:
@@ -33,6 +33,7 @@ node_types:
         occurrences: [0, UNBOUNDED]
         description: the Floating (IP) client’s on the public network can connect to
         properties:
+          protocol: http
           port: 80 # set a default value for the port
     # overrides the tosca Load Balancer endpoint to specify the relationship to use.
     requirements:
@@ -82,3 +83,39 @@ relationship_types:
               PORT: { get_attribute: [TARGET, port] }
               URL_PATH: { get_attribute: [TARGET, url_path] }
             implementation: scripts/remove_web_app_from_load_balancer.sh
+
+  org.alien4cloud.relationships.RoutesToApacheLoadBalancerService:
+    derived_from: tosca.relationships.RoutesTo
+    description: >
+      Specific relationship to route an application using an apache load balancer started a a service.
+      This relationship is expected to be processed on a sandboxed manager node and to connect to the Apache Load Balancer machine through ssh.
+      The path to the ssh key to use for the apache machine connexion can be specified through a property.
+    properties:
+      user:
+        type: string
+        default: ubuntu
+    artifacts:
+      - script_directory:
+          file: scripts
+          type: tosca.artifacts.File
+      - ssh_key:
+          file: ssh/luc.pem
+          type: tosca.artifacts.File
+    interfaces:
+      Configure:
+          add_target:
+            inputs:
+              USER: { get_property: [SELF, user] }
+              PROTOCOL: { get_attribute: [TARGET, protocol] }
+              IP: { get_attribute: [TARGET, ip_address] }
+              PORT: { get_attribute: [TARGET, port] }
+              URL_PATH: { get_attribute: [TARGET, url_path] }
+            implementation: scripts/service_add_web_app_to_load_balancer.sh
+          remove_target:
+            inputs:
+              USER: { get_property: [SELF, user] }
+              PROTOCOL: { get_attribute: [TARGET, protocol] }
+              IP: { get_attribute: [TARGET, ip_address] }
+              PORT: { get_attribute: [TARGET, port] }
+              URL_PATH: { get_attribute: [TARGET, url_path] }
+            implementation: scripts/service_remove_web_app_from_load_balancer.sh

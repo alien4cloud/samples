@@ -1,4 +1,4 @@
-tosca_definitions_version: alien_dsl_1_3_0
+tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: apache-load-balancer-type
@@ -74,14 +74,14 @@ relationship_types:
               PROTOCOL: { get_attribute: [TARGET, protocol] }
               IP: { get_attribute: [TARGET, ip_address] }
               PORT: { get_attribute: [TARGET, port] }
-              URL_PATH: { get_attribute: [TARGET, context_root] }
+              URL_PATH: { get_attribute: [TARGET, url_path] }
             implementation: scripts/add_web_app_to_load_balancer.sh
           remove_target:
             inputs:
               PROTOCOL: { get_attribute: [TARGET, protocol] }
               IP: { get_attribute: [TARGET, ip_address] }
               PORT: { get_attribute: [TARGET, port] }
-              URL_PATH: { get_attribute: [TARGET, context_root] }
+              URL_PATH: { get_attribute: [TARGET, url_path] }
             implementation: scripts/remove_web_app_from_load_balancer.sh
 
   org.alien4cloud.relationships.RoutesToApacheLoadBalancerService:

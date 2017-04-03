@@ -77,6 +77,12 @@ node_types:
     description: A war element
     metadata:
       icon: /images/war.jpg
+    properties:
+      protocol:
+        type: string
+        default: http
+        constraints:
+          - valid_values: [ http, https ]
     attributes:
       application_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, data_endpoint, port], "/", get_property: [SELF, app_endpoint, url_path] ] }
       local_application_url: { concat: ["http://", get_attribute: [HOST, ip_address], ":", get_property: [HOST, data_endpoint, port], "/", get_property: [SELF, app_endpoint, url_path] ] }

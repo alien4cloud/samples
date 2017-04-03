@@ -74,14 +74,14 @@ relationship_types:
               PROTOCOL: { get_attribute: [TARGET, protocol] }
               IP: { get_attribute: [TARGET, ip_address] }
               PORT: { get_attribute: [TARGET, port] }
-              URL_PATH: { get_attribute: [TARGET, url_path] }
+              URL_PATH: { get_attribute: [TARGET, context_root] }
             implementation: scripts/add_web_app_to_load_balancer.sh
           remove_target:
             inputs:
               PROTOCOL: { get_attribute: [TARGET, protocol] }
               IP: { get_attribute: [TARGET, ip_address] }
               PORT: { get_attribute: [TARGET, port] }
-              URL_PATH: { get_attribute: [TARGET, url_path] }
+              URL_PATH: { get_attribute: [TARGET, context_root] }
             implementation: scripts/remove_web_app_from_load_balancer.sh
 
   org.alien4cloud.relationships.RoutesToApacheLoadBalancerService:

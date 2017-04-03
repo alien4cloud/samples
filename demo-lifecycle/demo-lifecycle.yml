@@ -14,6 +14,21 @@ description: >
   Integration test archive that used to check the workflow generated lifecycle.
   Contains generic types that echoes operations in a file.
 
+data_types:
+  alien.nodes.test.ComplexDataType:
+    derived_from: tosca.datatypes.Root
+    properties:
+      nested:
+        type: string
+      nested_array:
+        type: list
+        entry_schema:
+          type: string
+      nested_map:
+        type: map
+        entry_schema:
+          type: string
+
 # TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
 node_types:
   org.alien4cloud.nodes.Registry:
@@ -86,6 +101,14 @@ node_types:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.
     derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      generic_property:
+        type: string
+        required: false
+        default: "default_value"
+      complex_prop:
+        type: alien.nodes.test.ComplexDataType
+        required: false
     capabilities:
       generic_capability:
         type: org.alien4cloud.capabilities.GenericCapability
@@ -153,6 +176,14 @@ relationship_types:
   org.alien4cloud.relationships.GenericConnectToGeneric:
     derived_from: tosca.relationships.ConnectsTo
     valid_target_types: [ org.alien4cloud.capabilities.GenericCapability ]
+    properties:
+      generic_property:
+        type: string
+        required: false
+        default: "default_value"
+      complex_prop:
+        type: alien.nodes.test.ComplexDataType
+        required: false
     interfaces:
       configure:
         pre_configure_source:
@@ -166,10 +197,12 @@ relationship_types:
         add_target:
           inputs:
             TARGET_IP: { get_attribute: [TARGET, ip_address] }
+            TARGET_PROPERTY: { get_property: [TARGET, generic_property] }
           implementation: scripts/GenericConnectToGeneric/add_target.sh
         add_source:
           inputs:
             SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+            SOURCE_PROPERTY: { get_property: [SOURCE, generic_property] }
           implementation: scripts/GenericConnectToGeneric/add_source.sh
         remove_target:
           implementation: scripts/GenericConnectToGeneric/remove_target.sh
@@ -220,6 +253,14 @@ topology_template:
             node: GenericB
             capability: org.alien4cloud.capabilities.GenericCapability
             relationship: org.alien4cloud.relationships.GenericConnectToGeneric
+            properties:
+              generic_property: "reletionship property"
+              complex_prop:
+                nested: relationship toto
+                nested_array: [ titi, tuctuc ]
+                nested_map:
+                  toctoc: tactac
+                  tutu: tata
     ComputeA:
       type: tosca.nodes.Compute
       capabilities:
@@ -230,6 +271,14 @@ topology_template:
             default_instances: 1
     GenericB:
       type: org.alien4cloud.nodes.Generic
+      properties:
+        generic_property: "node property"
+        complex_prop:
+          nested: node toto
+          nested_array: [ titi, tuctuc ]
+          nested_map:
+            toctoc: tactac
+            tutu: tata
       requirements:
         - host:
             node: GenericHostB

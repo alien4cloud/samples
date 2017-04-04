@@ -22,6 +22,7 @@ topology_template:
       constraints:
         - valid_values: [ debian, ubuntu, knoppix ]
       description: The host Operating System (OS) architecture.
+      default: ubuntu
   node_templates:
     wordpress:
       type: org.alien4cloud.nodes.Wordpress

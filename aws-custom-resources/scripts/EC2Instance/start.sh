@@ -4,7 +4,7 @@ export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"
 export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
 export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION}"
 
-instance_id=$(aws ec2 run-instances --image-id ${IMAGE_ID} --security-group-ids ${SECURITY_GROUP_IDS} --count 1 --instance-type ${INSTANCE_TYPE} --key-name xde-aws --query 'Instances[0].InstanceId' --output text)
+instance_id=$(aws ec2 run-instances --image-id ${IMAGE_ID} --security-group-ids ${SECURITY_GROUP_IDS} --count 1 --instance-type ${INSTANCE_TYPE} --key-name ${KEY_NAME} --query 'Instances[0].InstanceId' --output text)
 if [ ! $? -eq 0 ]; then
 	exit 1
 fi

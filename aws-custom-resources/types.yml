@@ -50,6 +50,8 @@ node_types:
       security_group_ids:
         type: string
         required: true
+      key_name:
+        type: string
     attributes:
       ip_address: { get_operation_output: [ SELF, Standard, start, IP_ADDRESS ] }
       instance_id: { get_operation_output: [ SELF, Standard, start, INSTANCE_ID ] }
@@ -65,6 +67,7 @@ node_types:
             IMAGE_ID: { get_property: [ SELF, image_id ] }
             INSTANCE_TYPE: { get_property: [ SELF, instance_type ] }
             SECURITY_GROUP_IDS: { get_property: [ SELF, security_group_ids ] }
+            KEY_NAME: { get_property: [ SELF, key_name ] }
           implementation: scripts/EC2Instance/start.sh
         stop:
           inputs:
@@ -196,6 +199,6 @@ node_types:
     derived_from: org.alien4cloud.aws.MariaDB
     description: Re-use an up and running MariaDB instance
     attributes:
-      ip_address: 
+      ip_address:
         type: string
         description: ip or domain name of the MariaDB instance

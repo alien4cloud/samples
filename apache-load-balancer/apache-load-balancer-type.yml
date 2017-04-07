@@ -99,7 +99,9 @@ relationship_types:
           file: scripts
           type: tosca.artifacts.File
       - ssh_key:
-          file: ssh/luc.pem
+          # The service key, configured here in the type, is a workaround as artifact on relationship is not yet configurable
+          # The file is empty, you should configure it yourself
+          file: ssh/service_key.pem
           type: tosca.artifacts.File
     interfaces:
       Configure:

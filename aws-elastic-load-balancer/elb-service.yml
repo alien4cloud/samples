@@ -1,0 +1,62 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: aws-elastic-load-balancer‎
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: TOSCA simple amazon ELB as a service
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+  org.alien4cloud.nodes.ELBService:
+    derived_from: tosca.nodes.LoadBalancer
+    properties:
+      lb_name:
+        type: string
+        required: true
+      aws_access_key_id:
+        type: string
+        required: true
+      aws_secret_access_key:
+        type: string
+        required: true
+      region:
+        type: string
+        required: true
+      load_balancer_port:
+        type: integer
+        required: true
+        default: 80
+      instance_port:
+        type: integer
+        required: true
+        default: 80
+    attributes:
+      load_balancer_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, client, port], "/"] }
+
+    
+relationship_types:
+  org.alien4cloud.aws.relationships.ELBServiceSide:
+    derived_from: tosca.relationships.RoutesTo
+    interfaces:
+      configure:
+        add_target:
+          inputs:
+            lb_name: { get_property: [ SOURCE, lb_name ] }
+            instance_id: { get_attribute: [ TARGET, aws_resource_id ] }
+            region: { get_property: [ SOURCE, region ] }
+            aws_access_key: { get_property: [ SOURCE, aws_access_key_id ] }
+            aws_secret_key: { get_property: [ SOURCE, aws_secret_access_key ] }
+          implementation: scripts/add_target.sh
+        remove_target:
+          inputs:
+            lb_name: { get_property: [ SOURCE, lb_name ] }
+            instance_id: { get_attribute: [ TARGET, aws_resource_id ] }
+            region: { get_property: [ SOURCE, region ] }
+            aws_access_key: { get_property: [ SOURCE, aws_access_key_id ] }
+            aws_secret_key: { get_property: [ SOURCE, aws_secret_access_key ] }
+          implementation: scripts/remove_target.sh
+

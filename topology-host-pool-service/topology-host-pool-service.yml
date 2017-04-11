@@ -1,15 +1,15 @@
-tosca_definitions_version: alien_dsl_1_3_0
+tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: host-pool-service-topology
-  template_version: 0.1.1-SNAPSHOT
+  template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 description: Host pool service template
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN12
-  - host-pool-service-types:1.1.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - host-pool-service-types:1.4.0-SNAPSHOT
 
 topology_template:
   node_templates:

@@ -1,17 +1,18 @@
-tosca_definitions_version: alien_dsl_1_3_0
+tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: demo-input-artifact
-  template_version: 1.0.0-SNAPSHOT
+  template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN12
+  - tosca-normative-types:1.0.0-ALIEN14
 
 description: Integration test archive to test input artifacts.
 
 artifact_types:
   org.alien4cloud.artifacts.deployment.War:
+    derived_from: tosca.artifacts.Root
     description: A web application archive
     file_ext: [ war ]
 

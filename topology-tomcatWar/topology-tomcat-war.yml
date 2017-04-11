@@ -1,16 +1,16 @@
-tosca_definitions_version: alien_dsl_1_3_0
+tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: tomcat-war-topology
-  template_version: 1.0.0-SNAPSHOT
+  template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 description: A simple topology of a war application hosted on a tomcat server.
 
 imports:
-  - tomcat-war-types:2.0.0-SNAPSHOT
+  - tomcat-war-types:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN12
+  - tosca-normative-types:1.0.0-ALIEN14
 
 topology_template:
   inputs:
@@ -40,7 +40,6 @@ topology_template:
       type: org.alien4cloud.nodes.Tomcat
       properties:
         tomcat_home: /opt/tomcat
-        port: 80
         download_url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.39/bin/apache-tomcat-8.0.39.tar.gz"
       requirements:
         - host:

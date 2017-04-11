@@ -1,17 +1,17 @@
-tosca_definitions_version: alien_dsl_1_3_0
+tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: nodecellar-mongo-service-topology
-  template_version: 1.0.0-SNAPSHOT
+  template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 description: A nodecellar application topology template with nodecellar and a requirement on a mongodb that should be matched against a mongodb service.
 
 imports:
-  - mongod-type:1.1.0-SNAPSHOT
-  - nodecellar-type:1.2.0-SNAPSHOT
-  - nodejs-type:1.0.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN12
+  - mongod-type:1.4.0-SNAPSHOT
+  - nodecellar-type:1.4.0-SNAPSHOT
+  - nodejs-type:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
 
 topology_template:
   description: A Javascript Sample Application with Node.js connecting to a MongoDB as a service
@@ -48,7 +48,6 @@ topology_template:
       type: org.alien4cloud.nodes.Nodecellar
       properties:
         port: { get_input: nocecellar_port }
-        context_root: "/"
       requirements:
         - host:
             node: Nodejs

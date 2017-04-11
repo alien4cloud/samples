@@ -1,15 +1,15 @@
-tosca_definitions_version: alien_dsl_1_3_0
+tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: apache-sample-topology
-  template_version: 1.2.0-SNAPSHOT
+  template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 description: Sample topology with an apache webserver.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN12
-  - apache-type:2.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - apache-type:1.4.0-SNAPSHOT
 
 topology_template:
   description: A simple topology template created directly from a CSAR archive

@@ -33,7 +33,7 @@ node_types:
           repository: aliengithub
           type: tosca.artifacts.File
       - maven_artifact:
-          file: alien4cloud:alien4cloud-cloudify3-provider:1.2.0@zip
+          file: alien4cloud:alien4cloud-dist:1.4.0-RC1:dist@tar.gz
           repository: fastconnect_nexus
           type: tosca.artifacts.File
     interfaces:

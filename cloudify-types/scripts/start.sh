@@ -4,6 +4,7 @@
 
 echo "Bootstraping manager node"
 
-cfy bootstrap simple-manager-blueprint.yaml -i inputs.yaml
+cd /opt/cfy/cloudify-manager-blueprints
+cfy bootstrap simple-manager-blueprint.yaml -i /opt/cfy/cloudify-manager-blueprints/inputs.yml
 
 echo "Manager node has been bootstraped"

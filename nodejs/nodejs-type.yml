@@ -17,9 +17,13 @@ node_types:
       The TOSCA Nodejs Node Type represents an Nodejs component
       that can be managed and run by a TOSCA Compute Node Type.
     capabilities:
-      host: tosca.capabilities.Container
+      host: org.alien4cloud.capabilities.NodeJSAppContainer
     metadata:
       icon: /images/nodejs.jpg
     interfaces:
       Standard:
         create: scripts/install-nodejs.sh
+
+capability_types:
+  org.alien4cloud.capabilities.NodeJSAppContainer:
+    derived_from: tosca.capabilities.Container

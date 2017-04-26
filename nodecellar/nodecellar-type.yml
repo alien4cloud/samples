@@ -9,6 +9,7 @@ description: Nodecellar application
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
+  - nodejs-type:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.nodes.Nodecellar:
@@ -24,7 +25,7 @@ node_types:
       nodecellar_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port] ] }
     requirements:
       - host:
-          capability: tosca.capabilities.Container
+          capability: org.alien4cloud.capabilities.NodeJSAppContainer
           relationship: org.alien4cloud.relationships.NodecellarHostedOnNodejs
       - database:
           capability: tosca.capabilities.Endpoint.Database

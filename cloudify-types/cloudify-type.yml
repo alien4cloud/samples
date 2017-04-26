@@ -1,0 +1,105 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.cloudify-types
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: TOSCA template that contains a basic node type to install a cloudify manager.
+
+imports:
+  - tosca-normative-types:1.0.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.nodes.CloudifyManager:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: Cloudify CLI and Manager in place installation.
+    metadata:
+      icon: images/cloudify.png
+    properties:
+      ssh_user:
+        type: string
+        required: true
+      ssh_key_filename:
+        type: string
+        required: true
+      agents_user:
+        type: string
+        required: true
+      admin_username:
+        type: string
+        required: true
+      admin_password:
+        type: string
+        required: true
+      component_version:
+        type: version
+        default: 4.0.0-ga
+        constraints:
+          valid_values: [ "4.0.0-ga" ]
+    capabilities:
+      cloudify_api_v1:
+        type: org.alien4cloud.capabilities.CloudifyAPIv1
+        occurrences: [ 0, UNBOUNDED ]
+        properties:
+          protocol: http
+          port: 80 # set a default value for the port
+      cloudify_sec_api_v1:
+        type: org.alien4cloud.capabilities.CloudifyAPIv1
+        occurrences: [ 0, UNBOUNDED ]
+        properties:
+          protocol: https
+          port: 443 # set a default value for the port
+    requirements:
+      - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }
+              - tosca.capabilities.Container:
+                  properties:
+                    - num_cpus: { greater_or_equal: 2 }
+                    - mem_size: { greater_or_equal: "4 Gib" }
+    interfaces:
+      Standard:
+        create: scripts/install.sh
+        configure:
+          inputs:
+            SSH_USER: { get_property: [SELF, ssh_user] }
+            SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
+            AGENTS_USER: { get_property: [SELF, agents_user] }
+            ADMIN_USERNAME: { get_property: [SELF, admin_username] }
+            ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            VERSION: { get_property: [SELF, version] }
+            PUBLIC_IP: { get_property: [SELF, ip_address] }
+            PRIVATE_IP: { get_property: [SELF, public_ip_address] }
+          implementation: scripts/configure.sh
+        start: scripts/start.sh
+        # stop: scripts/cli/stop.sh
+  org.alien4cloud.nodes.CloudifySSHKey:
+    derived_from: tosca.nodes.Root
+    description: An SSH key to install on the cloudify manager.
+    requirements:
+      cfy_manager:
+        capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+        relationship: org.alien4cloud.cloudify.relationships.InstallKey
+        occurrences: [1, 1]
+    artifacts:
+      - key_file:
+          file: key.pem
+          type: tosca.artifacts.File
+
+capability_types:
+  org.alien4cloud.capabilities.CloudifyManagerContainer:
+    derived_from: tosca.capabilities.Container
+  org.alien4cloud.capabilities.CloudifyAPIv1:
+    derived_from: tosca.capabilities.Endpoint
+  org.alien4cloud.capabilities.CloudifyClusterv4:
+    derived_from: tosca.capabilities.Endpoint

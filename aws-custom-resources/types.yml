@@ -85,14 +85,11 @@ node_types:
           implementation: scripts/EC2Instance/delete.sh
 
   org.alien4cloud.aws.AbstractMariaDB:
-    derived_from: tosca.nodes.DBMS
+    derived_from: org.alien4cloud.nodes.AbstractMysql
     abstract: true
     description: create mariaDB instance via aws rds. Needs aws cli to be installed on the host (usually a 'manager' since this is a compute resource).
     metadata:
       icon: images/mariaDB-aws.png
-    capabilities:
-      database_endpoint:
-        type: org.alien4cloud.capabilities.MysqlDatabaseEndpoint
 
   org.alien4cloud.aws.MariaDB:
     derived_from: org.alien4cloud.aws.AbstractMariaDB
@@ -193,7 +190,6 @@ node_types:
             AWS_DEFAULT_REGION: { get_property: [ SELF, aws_default_region ] }
             INSTANCE_ID: { get_property: [SELF, identifier] }
           implementation: scripts/MariaDB/delete.sh
-
 
   org.alien4cloud.aws.MariaDBService:
     derived_from: org.alien4cloud.aws.MariaDB

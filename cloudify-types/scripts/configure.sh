@@ -3,7 +3,7 @@
 # let's generate the input file from the parameters
 echo "Generate configuration input file."
 
-HOME_DIR=`pwd`
+HOME_DIR=~
 
 echo "ssh_user: $SSH_USER" >> inputs.yml
 echo "ssh_key_filename: $HOME_DIR/cfy_keys/$SSH_KEY_FILENAME" >> inputs.yml

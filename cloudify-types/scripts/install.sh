@@ -13,6 +13,7 @@ echo "Installing cloudify CLI"
 
 sudo rpm -i ~/cfy.rpm
 
-mkdir "~/cfy_keys"
+HOME_DIR=~
+mkdir "$HOME_DIR/cfy_keys"
 
 echo "CLI installation completed"

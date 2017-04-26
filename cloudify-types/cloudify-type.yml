@@ -8,7 +8,7 @@ metadata:
 description: TOSCA template that contains a basic node type to install a cloudify manager.
 
 imports:
-  - tosca-normative-types:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
   org.alien4cloud.nodes.CloudifyManager:
@@ -36,20 +36,17 @@ node_types:
         type: version
         default: 4.0.0-ga
         constraints:
-          valid_values: [ "4.0.0-ga" ]
+          - valid_values: [ "4.0.0-ga" ]
     capabilities:
+      cloudify_host_keys:
+        type: org.alien4cloud.capabilities.CloudifyManagerContainer
+        occurrences: [ 0, UNBOUNDED ]
       cloudify_api_v1:
-        type: org.alien4cloud.capabilities.CloudifyAPIv1
+        type: org.alien4cloud.capabilities.CloudifyAPIv3
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http
           port: 80 # set a default value for the port
-      cloudify_sec_api_v1:
-        type: org.alien4cloud.capabilities.CloudifyAPIv1
-        occurrences: [ 0, UNBOUNDED ]
-        properties:
-          protocol: https
-          port: 443 # set a default value for the port
     requirements:
       - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
           capability: tosca.capabilities.Container
@@ -86,20 +83,38 @@ node_types:
   org.alien4cloud.nodes.CloudifySSHKey:
     derived_from: tosca.nodes.Root
     description: An SSH key to install on the cloudify manager.
+    properties:
+      key_file_name:
+        type: string
+        required: true
+        description: Name of the key file name to be saved on the cloudify manager (for example user_name.pem).
     requirements:
       cfy_manager:
         capability: org.alien4cloud.capabilities.CloudifyManagerContainer
         relationship: org.alien4cloud.cloudify.relationships.InstallKey
         occurrences: [1, 1]
+    attributes:
+      key_file_path: { get_operation_output: [ SELF, Standard, create, KEY_FILE_PATH ] }
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            SSH_KEY_FILENAME: { get_property: [SELF, key_file_name] }
+          implementation: scripts/get_key_path.sh
     artifacts:
       - key_file:
           file: key.pem
           type: tosca.artifacts.File
 
+relationship_types:
+  org.alien4cloud.cloudify.relationships.InstallKey:
+    derived_from: tosca.relationships.HostedOn
+    interfaces:
+      Configure:
+        pre_configure_target: scripts/install_key.sh
+
 capability_types:
   org.alien4cloud.capabilities.CloudifyManagerContainer:
     derived_from: tosca.capabilities.Container
-  org.alien4cloud.capabilities.CloudifyAPIv1:
-    derived_from: tosca.capabilities.Endpoint
-  org.alien4cloud.capabilities.CloudifyClusterv4:
+  org.alien4cloud.capabilities.CloudifyAPIv3:
     derived_from: tosca.capabilities.Endpoint

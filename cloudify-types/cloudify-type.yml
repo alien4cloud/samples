@@ -23,6 +23,10 @@ node_types:
       ssh_key_filename:
         type: string
         required: true
+      keypair_name:
+        type: string
+        required: false
+        description: Optional name of the key as known by the iaas (in case of iaas key).
       agents_user:
         type: string
         required: true
@@ -37,8 +41,10 @@ node_types:
         default: 4.0.0-ga
         constraints:
           - valid_values: [ "4.0.0-ga" ]
+    attributes:
+      manager_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v1, port]] }
     capabilities:
-      cloudify_host_keys:
+      cloudify_modules:
         type: org.alien4cloud.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
       cloudify_api_v1:
@@ -66,7 +72,10 @@ node_types:
                     - mem_size: { greater_or_equal: "4 Gib" }
     interfaces:
       Standard:
-        create: scripts/install.sh
+        create:
+            inputs:
+              SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
+            implementation: scripts/install.sh
         configure:
           inputs:
             SSH_USER: { get_property: [SELF, ssh_user] }
@@ -75,11 +84,16 @@ node_types:
             ADMIN_USERNAME: { get_property: [SELF, admin_username] }
             ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
             VERSION: { get_property: [SELF, version] }
-            PUBLIC_IP: { get_property: [SELF, ip_address] }
-            PRIVATE_IP: { get_property: [SELF, public_ip_address] }
+            PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
+            PRIVATE_IP: { get_attribute: [HOST, ip_address] }
           implementation: scripts/configure.sh
         start: scripts/start.sh
         # stop: scripts/cli/stop.sh
+    artifacts:
+      - key_file:
+          file: key.pem
+          type: tosca.artifacts.File
+
   org.alien4cloud.nodes.CloudifySSHKey:
     derived_from: tosca.nodes.Root
     description: An SSH key to install on the cloudify manager.
@@ -88,11 +102,19 @@ node_types:
         type: string
         required: true
         description: Name of the key file name to be saved on the cloudify manager (for example user_name.pem).
+      keypair_name:
+        type: string
+        required: false
+        description: Optional name of the key as known by the iaas.
+    capabilities:
+      installed_key:
+        type: org.alien4cloud.capabilities.CloudifySSHKey
+        occurrences: [ 0, UNBOUNDED ]
     requirements:
-      cfy_manager:
-        capability: org.alien4cloud.capabilities.CloudifyManagerContainer
-        relationship: org.alien4cloud.cloudify.relationships.InstallKey
-        occurrences: [1, 1]
+      - cfy_manager:
+          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
     attributes:
       key_file_path: { get_operation_output: [ SELF, Standard, create, KEY_FILE_PATH ] }
     interfaces:
@@ -100,21 +122,77 @@ node_types:
         create:
           inputs:
             SSH_KEY_FILENAME: { get_property: [SELF, key_file_name] }
-          implementation: scripts/get_key_path.sh
+          implementation: scripts/install_key.sh
     artifacts:
       - key_file:
           file: key.pem
           type: tosca.artifacts.File
 
+  org.alien4cloud.nodes.CloudifyAwsConfiguration:
+    derived_from: tosca.nodes.Root
+    description: Configure the cloudify manager for aws.
+    properties:
+      aws_access_key:
+        type: string
+        required: true
+      aws_secret_key:
+        type: string
+        required: true
+      aws_region:
+        type: string
+        required: true
+        default: eu-west-1
+      agent_security_groups:
+        type: string
+        required: true
+        default: sg-cffd98b6
+        description: Comma separated list of security groups to use for agents.
+    requirements:
+      - cfy_manager:
+          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+      - agent_key:
+          capability: org.alien4cloud.capabilities.CloudifySSHKey
+          relationship: org.alien4cloud.cloudify.relationships.ConfigureAWSKey
+          occurrences: [0, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            AWS_ACCESS_KEY: { get_property: [SELF, aws_access_key] }
+            AWS_SECRET_KEY: { get_property: [SELF, aws_secret_key] }
+            AWS_REGION: { get_property: [SELF, aws_region] }
+            AGENT_SECURITY_GROUP: { get_property: [SELF, agent_security_groups] }
+            AGENT_SH_USER: { get_property: [HOST, agents_user] }
+          implementation: scripts/aws_init_conf_file.sh
+        start:
+          inputs:
+            SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
+            KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
+            ADMIN_USERNAME: { get_property: [SELF, admin_username] }
+            ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+          implementation: scripts/aws_do_configure.sh
+    artifacts:
+      - python_script:
+          file: scripts/aws/cfy_config_aws.py
+          type: tosca.artifacts.File
+
 relationship_types:
-  org.alien4cloud.cloudify.relationships.InstallKey:
-    derived_from: tosca.relationships.HostedOn
+  org.alien4cloud.cloudify.relationships.ConfigureAWSKey:
+    derived_from: tosca.relationships.Root
     interfaces:
       Configure:
-        pre_configure_target: scripts/install_key.sh
+        pre_configure_source:
+          inputs:
+            SSH_KEY_FILENAME: { get_property: [TARGET, key_file_name] }
+            KEYPAIR_NAME: { get_property: [TARGET, keypair_name] }
+          implementation:  scripts/aws_configure_key.sh
 
 capability_types:
   org.alien4cloud.capabilities.CloudifyManagerContainer:
     derived_from: tosca.capabilities.Container
   org.alien4cloud.capabilities.CloudifyAPIv3:
     derived_from: tosca.capabilities.Endpoint
+  org.alien4cloud.capabilities.CloudifySSHKey:
+    derived_from: tosca.capabilities.Root

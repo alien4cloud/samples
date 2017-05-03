@@ -12,7 +12,7 @@ if ! grep -q agent_private_key_path "$HOME_DIR/cfy_config_aws.yml"; then
 fi
 
 if [ ! -d /etc/cloudify/aws_plugin ]; then
-  mkdir /etc/cloudify/aws_plugin;
+  sudo mkdir /etc/cloudify/aws_plugin
 fi
 
 if [ $MANAGER_PORT == 80 ]; then

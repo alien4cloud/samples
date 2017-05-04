@@ -9,7 +9,7 @@ sudo service mongod start
 echo "END service mongo stop"
 
 
- sudo echo "line use to check if mongo is restarting, do not delete it" | sudo tee /var/log/mongodb/mongod.log
+sudo echo "line use to check if mongo is restarting, do not delete it" | sudo tee /var/log/mongodb/mongod.log
 
 COUNTER=0
 mongostart=''
@@ -27,4 +27,3 @@ done
 
 echo "ERROR: timeout fail to start mongo"
 exit 1
-

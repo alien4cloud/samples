@@ -5,20 +5,15 @@ metadata:
   template_version: 1.4.0-SNAPSHOT
   template_author: admin
 
-description: A sample topology of a Petclinic application hosted on a Tomcat server and connected to a Postgresql database.
+description: "A sample topology of a Petclinic application hosted on a Tomcat server and connected to a Postgresql database."
 
 imports:
-  - tomcat-war-types:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - jdk-type:1.4.0-SNAPSHOT
   - petclinic-war-type:1.4.0-SNAPSHOT
-  - postgresql-type:1.4.0-SNAPSHOT
+  - jdk-type:1.4.0-SNAPSHOT
   - mysql-type:1.4.0-SNAPSHOT
-
-repositories:
-  fastconnect_nexus:
-    url: https://fastconnect.org/maven/content/repositories/opensource-snapshot
-    type: maven
+  - tomcat-war-types:1.4.0-SNAPSHOT
+  - postgresql-type:1.4.0-SNAPSHOT
 
 topology_template:
   node_templates:

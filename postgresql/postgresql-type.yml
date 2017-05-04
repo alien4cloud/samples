@@ -1,0 +1,72 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+template_name: postgresql-type
+template_version: 1.4.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+description: PostgreSQL RDBMS installation on a specific mounted volume path. TODO use dependencies to volume to make it more TOSCA
+
+node_types:
+
+  alien.nodes.Postgresql:
+    # note that this type is just used for simple samples. 
+    #From a perfect TOSCA modeling perspective we should actually separate the postgreSQL DBMS and Database types.
+    # 1 DBMS can manage n databases in theory. Right now we don't care
+    derived_from: tosca.nodes.Database
+    description: >
+      A node to install postgreSQL v9.2 database with data
+      on a specific attached volume.
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ rhel, centos ] }
+    capabilities:
+      database_endpoint: 
+        type: org.alien4cloud.capabilities.PostgresqlDatabaseEndpoint
+    tags:
+      icon: /images/index.jpg
+    properties:
+      port:
+        type: integer
+        default: 5432
+        description: The port on which the underlying database service will listen to data.
+      name:
+        type: string
+        required: true
+        description: The logical name of the database.
+      postgresql_repository:
+        type: string
+        default: http://yum.postgresql.org/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-2.noarch.rpm
+        required: true
+    interfaces:
+      Standard:
+        create: 
+          inputs:
+            REPOSITORY: { get_property: [SELF, postgresql_repository] }
+          implementation: scripts/install_postgresql.sh
+        configure: 
+          inputs:
+            DB_NAME: { get_property: [SELF, name] }
+            DB_USER: { get_property: [SELF, user] }
+            DB_PASSWORD: { get_property: [SELF, password] }
+          implementation: scripts/configure_postgresql.sh          
+        start:
+          inputs:
+          implementation: scripts/start_postgresql.sh
+
+
+capability_types:
+  org.alien4cloud.capabilities.PostgresqlDatabaseEndpoint:
+      derived_from: tosca.capabilities.Endpoint.Database

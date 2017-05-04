@@ -116,7 +116,7 @@ relationship_types:
     valid_target_types: [ org.alien4cloud.capabilities.WarContainer ]
     interfaces:
       configure:
-        post_configure_source:
+        pre_configure_source:
           inputs:
             CONTEXT_PATH: { get_property: [SOURCE, app_endpoint, url_path] }
             TOMCAT_HOME: { get_property: [TARGET, tomcat_home] }

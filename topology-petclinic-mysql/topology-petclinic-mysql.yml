@@ -11,8 +11,7 @@ imports:
   - tomcat-war-types:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
   - jdk-type:1.4.0-SNAPSHOT
-  - alien-base-types:1.4.0-SNAPSHOT
-  - petclinic:1.4.0-SNAPSHOT
+  - petclinic-war-type:1.4.0-SNAPSHOT
   - postgresql-type:1.4.0-SNAPSHOT
   - mysql-type:1.4.0-SNAPSHOT
 

@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -xe
 
 echo "Configure AWS"
 
@@ -15,10 +15,13 @@ if [ ! -d /etc/cloudify/aws_plugin ]; then
   sudo mkdir /etc/cloudify/aws_plugin
 fi
 
-if [ $MANAGER_PORT == 80 ]; then
-  sudo /opt/manager/env/bin/python ${python_script} -c "$HOME_DIR/cfy_config_aws.yml" -u $ADMIN_USERNAME -p $ADMIN_PASSWORD
-else
-  sudo /opt/manager/env/bin/python ${python_script} -c "$HOME_DIR/cfy_config_aws.yml" -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl
-fi
+  sudo /opt/manager/env/bin/python ${python_script} -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl config -c "$HOME_DIR/cfy_config_aws.yml" -i $IAAS
 
 echo "AWS configured"
+
+# modify a file so we can access the manager via the webui
+
+sudo sed -i -e '$a\NODE_TLS_REJECT_UNAUTHORIZED=0' /etc/sysconfig/cloudify-stage
+sudo systemctl restart cloudify-stage
+
+

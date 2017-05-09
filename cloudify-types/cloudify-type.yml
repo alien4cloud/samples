@@ -36,23 +36,33 @@ node_types:
       admin_password:
         type: string
         required: true
+      iaas:
+        type: string
+        required: true
+        constraints:
+          - valid_values: ["aws","azure"]
       component_version:
         type: version
         default: 4.0.0-ga
         constraints:
           - valid_values: [ "4.0.0-ga" ]
+      ssl_enabled:
+        type: boolean
+        default: true
+        constraints:
+          - valid_values: ["true","false"]
     attributes:
-      manager_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v1, port]] }
+      manager_url: { concat: ["https://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v3, port]] }
     capabilities:
       cloudify_modules:
         type: org.alien4cloud.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
-      cloudify_api_v1:
+      cloudify_api_v3:
         type: org.alien4cloud.capabilities.CloudifyAPIv3
         occurrences: [ 0, UNBOUNDED ]
         properties:
-          protocol: http
-          port: 80 # set a default value for the port
+          protocol: https
+          port: 443 # set a default value for the port
     requirements:
       - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
           capability: tosca.capabilities.Container
@@ -81,6 +91,7 @@ node_types:
             SSH_USER: { get_property: [SELF, ssh_user] }
             SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
             AGENTS_USER: { get_property: [SELF, agents_user] }
+            SSL_ENABLED: { get_property: [SELF, ssl_enabled] }
             ADMIN_USERNAME: { get_property: [SELF, admin_username] }
             ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
             VERSION: { get_property: [SELF, version] }
@@ -89,40 +100,6 @@ node_types:
           implementation: scripts/configure.sh
         start: scripts/start.sh
         # stop: scripts/cli/stop.sh
-    artifacts:
-      - key_file:
-          file: key.pem
-          type: tosca.artifacts.File
-
-  org.alien4cloud.nodes.CloudifySSHKey:
-    derived_from: tosca.nodes.Root
-    description: An SSH key to install on the cloudify manager.
-    properties:
-      key_file_name:
-        type: string
-        required: true
-        description: Name of the key file name to be saved on the cloudify manager (for example user_name.pem).
-      keypair_name:
-        type: string
-        required: false
-        description: Optional name of the key as known by the iaas.
-    capabilities:
-      installed_key:
-        type: org.alien4cloud.capabilities.CloudifySSHKey
-        occurrences: [ 0, UNBOUNDED ]
-    requirements:
-      - cfy_manager:
-          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
-          relationship: tosca.relationships.HostedOn
-          occurrences: [1, 1]
-    attributes:
-      key_file_path: { get_operation_output: [ SELF, Standard, create, KEY_FILE_PATH ] }
-    interfaces:
-      Standard:
-        create:
-          inputs:
-            SSH_KEY_FILENAME: { get_property: [SELF, key_file_name] }
-          implementation: scripts/install_key.sh
     artifacts:
       - key_file:
           file: key.pem
@@ -152,10 +129,6 @@ node_types:
           capability: org.alien4cloud.capabilities.CloudifyManagerContainer
           relationship: tosca.relationships.HostedOn
           occurrences: [1, 1]
-      - agent_key:
-          capability: org.alien4cloud.capabilities.CloudifySSHKey
-          relationship: org.alien4cloud.cloudify.relationships.ConfigureAWSKey
-          occurrences: [0, 1]
     interfaces:
       Standard:
         create:
@@ -170,29 +143,68 @@ node_types:
           inputs:
             SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
             KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
-            ADMIN_USERNAME: { get_property: [SELF, admin_username] }
-            ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            ADMIN_USERNAME: { get_property: [HOST, admin_username] }
+            ADMIN_PASSWORD: { get_property: [HOST, admin_password] }
+            IAAS: { get_property: [HOST, iaas] }
           implementation: scripts/aws_do_configure.sh
     artifacts:
       - python_script:
-          file: scripts/aws/cfy_config_aws.py
+          file: scripts/iaas/cfy_config_iaas.py
           type: tosca.artifacts.File
 
-relationship_types:
-  org.alien4cloud.cloudify.relationships.ConfigureAWSKey:
-    derived_from: tosca.relationships.Root
+  org.alien4cloud.nodes.CloudifyAzureConfiguration:
+    derived_from: tosca.nodes.Root
+    description: Configure the cloudify manager for azure.
+    properties:
+      subscription_id:
+        type: string
+        required: true
+      tenant_id:
+        type: string
+        required: true
+      client_id:
+        type: string
+        required: true
+      client_secret:
+        type: string
+        required: true
+      location:
+        type: string
+        required: true
+        default: westeurope
+    requirements:
+      - cfy_manager:
+          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
     interfaces:
-      Configure:
-        pre_configure_source:
+      Standard:
+        create:
           inputs:
-            SSH_KEY_FILENAME: { get_property: [TARGET, key_file_name] }
-            KEYPAIR_NAME: { get_property: [TARGET, keypair_name] }
-          implementation:  scripts/aws_configure_key.sh
+            SUBSCRIPTION_ID: { get_property: [SELF, subscription_id] }
+            TENANT_ID: { get_property: [SELF, tenant_id] }
+            CLIENT_ID: { get_property: [SELF, client_id] }
+            CLIENT_SECRET: { get_property: [SELF, client_secret] }
+            AGENT_SH_USER: { get_property: [HOST, agents_user] }
+            LOCATION: { get_property: [SELF, location] }
+          implementation: scripts/azure_init_conf_file.sh
+        start:
+          inputs:
+            SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
+            KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
+            ADMIN_USERNAME: { get_property: [HOST, admin_username] }
+            ADMIN_PASSWORD: { get_property: [HOST, admin_password] }
+            IAAS: { get_property: [HOST, iaas] }
+          implementation: scripts/azure_do_configure.sh
+    artifacts:
+      - python_script:
+          file: scripts/iaas/cfy_config_iaas.py
+          type: tosca.artifacts.File
+
 
 capability_types:
   org.alien4cloud.capabilities.CloudifyManagerContainer:
     derived_from: tosca.capabilities.Container
   org.alien4cloud.capabilities.CloudifyAPIv3:
     derived_from: tosca.capabilities.Endpoint
-  org.alien4cloud.capabilities.CloudifySSHKey:
-    derived_from: tosca.capabilities.Root
+

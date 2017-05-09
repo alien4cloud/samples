@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -xe
 
 echo "installing ssh key on the manager"
 

@@ -11,18 +11,35 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
-  org.alien4cloud.nodes.CloudifyManager:
+  org.alien4cloud.nodes.AbstractCloudifyManager:
     derived_from: tosca.nodes.SoftwareComponent
-    description: Cloudify CLI and Manager in place installation.
+    abstract: true
     metadata:
       icon: images/cloudify.png
+    capabilities:
+      cloudify_api_v3:
+        type: org.alien4cloud.capabilities.CloudifyAPIv3
+        occurrences: [ 0, UNBOUNDED ]
+        properties:
+          protocol: https
+          port: 443 # set a default value for the port
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          occurrences: [0, 0]
+
+  org.alien4cloud.nodes.CloudifyManager:
+    derived_from: org.alien4cloud.nodes.AbstractCloudifyManager
+    description: Cloudify CLI and Manager in place installation.
     properties:
       ssh_user:
         type: string
         required: true
+        description: User of the manager machine to be used by the cloudify manager.
       ssh_key_filename:
         type: string
         required: true
+        description: Name of the file in which we will store the manager ssh key (see required artifact).
       keypair_name:
         type: string
         required: false
@@ -30,39 +47,52 @@ node_types:
       agents_user:
         type: string
         required: true
+        description: Default ssh user for agents.
       admin_username:
         type: string
         required: true
+        description: Administration account username.
       admin_password:
         type: string
         required: true
+<<<<<<< HEAD
       iaas:
         type: string
         required: true
         constraints:
           - valid_values: ["aws","azure"]
+=======
+        description: Administration account password.
+>>>>>>> a253c09e142f1908fbe8e0b6bc886a547d7b526f
       component_version:
         type: version
-        default: 4.0.0-ga
+        default: 4.0.1-ga
         constraints:
+<<<<<<< HEAD
           - valid_values: [ "4.0.0-ga" ]
       ssl_enabled:
         type: boolean
         default: true
         constraints:
           - valid_values: ["true","false"]
+=======
+          - valid_values: [ "4.0.1-ga" ]
+>>>>>>> a253c09e142f1908fbe8e0b6bc886a547d7b526f
     attributes:
       manager_url: { concat: ["https://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v3, port]] }
     capabilities:
       cloudify_modules:
         type: org.alien4cloud.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
+<<<<<<< HEAD
       cloudify_api_v3:
         type: org.alien4cloud.capabilities.CloudifyAPIv3
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: https
           port: 443 # set a default value for the port
+=======
+>>>>>>> a253c09e142f1908fbe8e0b6bc886a547d7b526f
     requirements:
       - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
           capability: tosca.capabilities.Container
@@ -98,12 +128,22 @@ node_types:
             PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
             PRIVATE_IP: { get_attribute: [HOST, ip_address] }
           implementation: scripts/configure.sh
-        start: scripts/start.sh
-        # stop: scripts/cli/stop.sh
+        start:
+          inputs:
+            PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
+            ADMIN_USERNAME: { get_property: [SELF, admin_username] }
+            ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            MAX_INSTANCES: { get_property: [HOST, scalable, max_instances] }
+          implementation: scripts/start.sh
     artifacts:
       - key_file:
           file: key.pem
           type: tosca.artifacts.File
+          description: This artifact contains the manager ssh key. Note that by default it will also be used
+      - cluster_python_script:
+          file: scripts/cluster.py
+          type: tosca.artifacts.File
+          description: This artifact is the python script that configure the cluster. It should not be overriden.
 
   org.alien4cloud.nodes.CloudifyAwsConfiguration:
     derived_from: tosca.nodes.Root
@@ -112,13 +152,16 @@ node_types:
       aws_access_key:
         type: string
         required: true
+        description: The aws access key of the account to use to start aws instances.
       aws_secret_key:
         type: string
         required: true
+        description: The aws secret key of the account to use to start aws instances.
       aws_region:
         type: string
         required: true
         default: eu-west-1
+        description: The aws region to use to start aws instances.
       agent_security_groups:
         type: string
         required: true
@@ -145,11 +188,64 @@ node_types:
             KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
             ADMIN_USERNAME: { get_property: [HOST, admin_username] }
             ADMIN_PASSWORD: { get_property: [HOST, admin_password] }
+<<<<<<< HEAD
             IAAS: { get_property: [HOST, iaas] }
+=======
+>>>>>>> a253c09e142f1908fbe8e0b6bc886a547d7b526f
           implementation: scripts/aws_do_configure.sh
     artifacts:
       - python_script:
           file: scripts/iaas/cfy_config_iaas.py
+<<<<<<< HEAD
+=======
+          type: tosca.artifacts.File
+  org.alien4cloud.nodes.CloudifyAzureConfiguration:
+    derived_from: tosca.nodes.Root
+    description: Configure the cloudify manager for azure.
+    properties:
+      subscription_id:
+        type: string
+        required: true
+      tenant_id:
+        type: string
+        required: true
+      client_id:
+        type: string
+        required: true
+      client_secret:
+        type: string
+        required: true
+      location:
+        type: string
+        required: true
+        default: westeurope
+    requirements:
+      - cfy_manager:
+          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            SUBSCRIPTION_ID: { get_property: [SELF, subscription_id] }
+            TENANT_ID: { get_property: [SELF, tenant_id] }
+            CLIENT_ID: { get_property: [SELF, client_id] }
+            CLIENT_SECRET: { get_property: [SELF, client_secret] }
+            LOCATION: { get_property: [SELF, location] }
+            AGENT_SH_USER: { get_property: [HOST, agents_user] }
+          implementation: scripts/azure_init_conf_file.sh
+        start:
+          inputs:
+            SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
+            KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
+            ADMIN_USERNAME: { get_property: [HOST, admin_username] }
+            ADMIN_PASSWORD: { get_property: [HOST, admin_password] }
+          implementation: scripts/azure_do_configure.sh
+    artifacts:
+      - python_script:
+          file: scripts/iaas/cfy_config_iaas.py
+>>>>>>> a253c09e142f1908fbe8e0b6bc886a547d7b526f
           type: tosca.artifacts.File
 
   org.alien4cloud.nodes.CloudifyAzureConfiguration:

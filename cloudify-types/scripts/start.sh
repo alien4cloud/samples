@@ -8,3 +8,12 @@ cd /opt/cfy/cloudify-manager-blueprints
 sudo cfy bootstrap simple-manager-blueprint.yaml -i inputs.yml
 
 echo "Manager node has been bootstraped"
+
+# Eventually configure cluster
+if [ $MAX_INSTANCES -gt 1 ]; then
+  echo "Cluster mode enabled, configure cluster mode"
+  sudo /opt/manager/env/bin/python ${cluster_python_script}
+  echo "Cluster mode enabled, configure cluster mode"
+fi
+
+echo "Done"

@@ -15,10 +15,22 @@ if [ ! -d /etc/cloudify/aws_plugin ]; then
   sudo mkdir /etc/cloudify/aws_plugin
 fi
 
+<<<<<<< HEAD
+  sudo /opt/manager/env/bin/python ${python_script} -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl config -c "$HOME_DIR/cfy_config_aws.yml" -i $IAAS
+=======
 sudo /opt/manager/env/bin/python ${python_script} -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl config -c "$HOME_DIR/cfy_config_aws.yml" -i "aws"
+>>>>>>> a253c09e142f1908fbe8e0b6bc886a547d7b526f
 
 echo "AWS configured"
 
 # modify a file so we can access the manager via the webui
+<<<<<<< HEAD
+
 sudo sed -i -e '$a\NODE_TLS_REJECT_UNAUTHORIZED=0' /etc/sysconfig/cloudify-stage
 sudo systemctl restart cloudify-stage
+
+
+=======
+sudo sed -i -e '$a\NODE_TLS_REJECT_UNAUTHORIZED=0' /etc/sysconfig/cloudify-stage
+sudo systemctl restart cloudify-stage
+>>>>>>> a253c09e142f1908fbe8e0b6bc886a547d7b526f

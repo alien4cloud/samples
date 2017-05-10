@@ -11,11 +11,26 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
-  org.alien4cloud.nodes.CloudifyManager:
+  org.alien4cloud.nodes.AbstractCloudifyManager:
     derived_from: tosca.nodes.SoftwareComponent
-    description: Cloudify CLI and Manager in place installation.
+    abstract: true
     metadata:
       icon: images/cloudify.png
+    capabilities:
+      cloudify_api_v3:
+        type: org.alien4cloud.capabilities.CloudifyAPIv3
+        occurrences: [ 0, UNBOUNDED ]
+        properties:
+          protocol: https
+          port: 443 # set a default value for the port
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          occurrences: [0, 0]
+
+  org.alien4cloud.nodes.CloudifyManager:
+    derived_from: org.alien4cloud.nodes.AbstractCloudifyManager
+    description: Cloudify CLI and Manager in place installation.
     properties:
       ssh_user:
         type: string
@@ -43,7 +58,7 @@ node_types:
         description: Administration account password.
       component_version:
         type: version
-        default: 4.0.0-ga
+        default: 4.0.1-ga
         constraints:
           - valid_values: [ "4.0.1-ga" ]
     attributes:
@@ -52,12 +67,6 @@ node_types:
       cloudify_modules:
         type: org.alien4cloud.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
-      cloudify_api_v3:
-        type: org.alien4cloud.capabilities.CloudifyAPIv3
-        occurrences: [ 0, UNBOUNDED ]
-        properties:
-          protocol: https
-          port: 443 # set a default value for the port
     requirements:
       - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
           capability: tosca.capabilities.Container
@@ -217,9 +226,9 @@ node_types:
         default: westeurope
     requirements:
       - cfy_manager:
-        capability: org.alien4cloud.capabilities.CloudifyManagerContainer
-        relationship: tosca.relationships.HostedOn
-        occurrences: [1, 1]
+          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
     interfaces:
       Standard:
         create:

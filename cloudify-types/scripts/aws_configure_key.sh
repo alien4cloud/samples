@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -x
 
 # let's generate the input file from the parameters
 echo "Generate aws configuration input file."

@@ -27,12 +27,6 @@ node_types:
           file: org.springframework.samples:spring-petclinic:4.2.6-SNAPSHOT@war
           type: tosca.artifacts.File
           repository: fastconnect_nexus
-      - postgresql_dir:
-          file: artifacts/postgresql
-          type: tosca.artifacts.File
-      - mysql_dir:
-          file: artifacts/mysql
-          type: tosca.artifacts.File
     requirements:
       - database:
           capability: tosca.capabilities.Endpoint.Database

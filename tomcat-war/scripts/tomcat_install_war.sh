@@ -34,6 +34,10 @@ download () {
 }
 
 if [ -z "${WAR_URL}" ];then
+	# The war_file MUST have the .war extension otherwise it won't work
+	mv ${war_file} ${war_file}.war
+	war_file=${war_file}.war
+
     echo "Use deployment artifact from ${war_file}"
 else
     echo "Override deployment artifact ${war_file} with war from ${WAR_URL}"

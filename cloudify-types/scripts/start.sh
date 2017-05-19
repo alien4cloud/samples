@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # That kind of goes beyond a simple "start" but as the manager bootstrap is both an install and start it is better to place it here so configuration and relationship configuration can be done before.
 
@@ -6,6 +6,12 @@ echo "Bootstraping manager node"
 
 cd /opt/cfy/cloudify-manager-blueprints
 sudo cfy bootstrap simple-manager-blueprint.yaml -i inputs.yml
+
+echo "Setting ssl option"
+
+# modify a file so we can access the manager via the webui
+# sudo echo "NODE_TLS_REJECT_UNAUTHORIZED=0" >> /etc/sysconfig/cloudify-stage
+# sudo systemctl restart cloudify-stage
 
 echo "Manager node has been bootstraped"
 

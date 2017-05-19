@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 echo "Configure AWS"
 
@@ -18,7 +18,3 @@ fi
 sudo /opt/manager/env/bin/python ${python_script} -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl config -c "$HOME_DIR/cfy_config_aws.yml" -i "aws"
 
 echo "AWS configured"
-
-# modify a file so we can access the manager via the webui
-sudo sed -i -e '$a\NODE_TLS_REJECT_UNAUTHORIZED=0' /etc/sysconfig/cloudify-stage
-sudo systemctl restart cloudify-stage

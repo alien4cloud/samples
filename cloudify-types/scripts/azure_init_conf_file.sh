@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # let's generate the input file from the parameters
 echo "Generate azure configuration input file."

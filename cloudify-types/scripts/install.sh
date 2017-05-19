@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Let's pick the right download url based on the selected version.
 

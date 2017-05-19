@@ -29,8 +29,6 @@ topology_template:
   node_templates:
     War:
       type: org.alien4cloud.nodes.War
-      properties:
-        context_root: war
       requirements:
         - host:
             node: Tomcat

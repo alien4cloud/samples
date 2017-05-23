@@ -11,6 +11,7 @@ echo "Setting ssl option"
 
 # modify a file so we can access the manager via the webui
 sudo -E /opt/manager/env/bin/python ${ssl_ui_conf_python_script}
+sudo systemctl restart cloudify-stage
 
 echo "Manager node has been bootstraped"
 

@@ -21,14 +21,14 @@ node_types:
       java_url:
         type: string
         required: true
-        default: "http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
+        default: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
       java_home:
         type: string
         required: true
         default: "/opt/java"
       component_version:
         type: version
-        default: 8.101
+        default: 8.131.11
     attributes:
       java_version: { get_operation_output: [ SELF, Standard, create, JAVA_VERSION ] }
       java_message: { concat: ["Java help: ", get_operation_output: [ SELF, Standard, create, JAVA_HELP ]] }
@@ -49,6 +49,9 @@ node_types:
     description: The Alien JavaSoftware node represents a generic software component that can be launch by Java.
     metadata:
       icon: images/jdk.png
+    capabilities:
+      jolokia:
+        type: org.alien4cloud.java.capabilities.JolokiaEndpoint      
     requirements:
       - java:
           capability: org.alien4cloud.capabilities.JDK
@@ -58,6 +61,16 @@ node_types:
 capability_types:
   org.alien4cloud.capabilities.JDK:
     derived_from: tosca.capabilities.Container
+  org.alien4cloud.java.capabilities.JolokiaEndpoint:
+    description: >
+      Exposed by a java sofware that embed jolokia jar to expose JMX metrics.    
+    derived_from: tosca.capabilities.Root
+    properties:
+      jolokia_port:
+        type: integer
+        description: the port on witch the javaagent will listen
+        required: true
+        default: 8778
 
 relationship_types:
   org.alien4cloud.relationships.JavaSoftwareHostedOnJDK:

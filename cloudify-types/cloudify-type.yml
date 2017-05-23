@@ -117,6 +117,10 @@ node_types:
           file: scripts/cluster.py
           type: tosca.artifacts.File
           description: This artifact is the python script that configure the cluster. It should not be overriden.
+      - ssl_ui_conf_python_script:
+          file: scripts/conf_ip.py
+          type: tosca.artifacts.File
+          description: This artifact is the python script that configure the cluster. It should not be overriden.
 
   org.alien4cloud.nodes.CloudifySSHKey:
     derived_from: tosca.nodes.Root

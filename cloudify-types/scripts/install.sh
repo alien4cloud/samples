@@ -17,5 +17,6 @@ sudo rpm -i ~/cfy.rpm
 HOME_DIR=~
 mkdir "$HOME_DIR/cfy_keys"
 cp ${key_file} "$HOME_DIR/cfy_keys/$SSH_KEY_FILENAME"
+chmod 400 "$HOME_DIR/cfy_keys/$SSH_KEY_FILENAME"
 
 echo "CLI installation completed"

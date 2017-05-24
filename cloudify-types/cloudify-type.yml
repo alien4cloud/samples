@@ -30,6 +30,8 @@ node_types:
 
   org.alien4cloud.cloudify.nodes.Ansible4CloudifyManager:
     derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: images/ansible.png
     properties:
       component_version:
         type: version

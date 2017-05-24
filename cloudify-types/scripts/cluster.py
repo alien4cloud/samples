@@ -1,4 +1,5 @@
 # Python script to configure cloudify cluster
+import time
 import os
 import socket
 from cloudify_rest_client import CloudifyClient
@@ -7,7 +8,8 @@ from base64 import standard_b64encode
 def waitPortOpen(ip, port):
     isClosed = True
     while isClosed:
-        print "Waiting for port " + port + " to be openend on " + ip
+        time.sleep(1)
+        print "Waiting for port " + str(port) + " to be openend on " + ip
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex((ip, port))
         isClosed = result != 0
@@ -21,6 +23,9 @@ adminPassword = os.environ.get('ADMIN_PASSWORD')
 
 client = CloudifyClient(
     host=ip_address,
+    port=443,
+    protocol='https',
+    trust_all=True,
     username=adminUsername,
     password=adminPassword,
     tenant='default_tenant')
@@ -39,7 +44,7 @@ if current_instance == instanceIds[0]:
 else:
     # Wait for cluster initial node to have cluster mode enabled
     print "Waiting cluster master node to be started"
-    clusterMasterIp = os.environ.get(instanceIds[0] + 'PUBLIC_IP')
+    clusterMasterIp = os.environ.get(instanceIds[0] + '_PUBLIC_IP')
     waitPortOpen(clusterMasterIp, 8300)
     waitPortOpen(clusterMasterIp, 8301)
     waitPortOpen(clusterMasterIp, 15432)
@@ -50,6 +55,9 @@ else:
     print "Connecting to master rest api"
     masterClient = CloudifyClient(
         host=clusterMasterIp,
+        port=443,
+        protocol='https',
+        trust_all=True,
         username=adminUsername,
         password=adminPassword,
         tenant='default_tenant')

@@ -1,0 +1,30 @@
+---
+
+# ip manager Cloudify ex: 52.188.25.19
+ip_manager: '34.251.219.246'
+
+# ip of Alien4Cloud ex: 52.188.25.19
+ip_a4c: '10.67.79.6'
+
+# Name Group Host for inventory ex: testcharge
+group_host: 'vicoscharge'
+
+# Path of your key ex: /home/ec2-user/.ssh/user-key.pem
+a4c_path_key: '/home/centos/.ssh/havana.pem'
+cfy_path_key: '/home/centos/.ssh/aws.pem'
+
+# User for connection to the compute ex: ec2-user
+a4c_user: 'centos'
+cfy_user: 'centos'
+
+# User for copy the package Diamond ex: /home/ec2-user, /home/root, /home/centos, /home/ubuntu
+user_compute: '/home/centos'
+
+# Path where you should have put your metrics ex: /home/ec2-user/metrics_diamond  it's mandatory to put just /home/ec2-user
+path_metrics: '/home/centos/metrics_diamond'
+
+# Port Httpd; Port httpd authorized -> 80, 81, 443, 488, 8008, 8009, 8443, 9000
+port_httpd: '8008'
+
+# Let avoid, this variable is definied in a playbook
+rpm_version: ''

@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Diamond Collect RabbitMQ PreConfigureSource
+  become: true
+
+  roles:
+    - diamondCollectRabbitmqPreConfigureSource

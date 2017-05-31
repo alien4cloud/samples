@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Uninstall Graphana
+  become: true
+
+  roles:
+    - delete

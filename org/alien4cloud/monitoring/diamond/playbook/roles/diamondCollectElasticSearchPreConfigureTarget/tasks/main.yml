@@ -1,0 +1,5 @@
+---
+
+- name: Create config file for ElasticSearch collector
+  template: src=ElasticSearchCollector.conf.j2 dest=/etc/ansible_diamond/collectors/ElasticSearchCollector.conf force=yes
+

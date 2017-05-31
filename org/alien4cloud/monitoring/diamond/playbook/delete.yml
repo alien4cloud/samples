@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Delete Diamond Agent
+  become: true
+
+  roles:
+    - delete

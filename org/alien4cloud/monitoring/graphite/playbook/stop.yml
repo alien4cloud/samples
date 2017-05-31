@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Stop graphite
+  become: true
+
+  roles:
+    - stop

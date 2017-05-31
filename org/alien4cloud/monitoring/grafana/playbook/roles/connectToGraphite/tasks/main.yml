@@ -1,0 +1,39 @@
+---
+
+- name: Add repository
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+
+- name: Install pip
+  yum: pkg=python-pip state=present
+
+- name: pip httplib2
+  pip: name=httplib2 
+
+- name: First connection to Grafana
+  uri: 
+    url: "http://localhost:{{ grafana_port }}/api/org"
+    method: GET
+    user: "{{ grafana_user }}"
+    password: "{{ grafana_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    status_code: 200  
+
+- name: Post local graphite datasource
+  uri: 
+    url: "http://localhost:{{ grafana_port }}/api/datasources"
+    method: POST
+    user: "{{ grafana_user }}"
+    password: "{{ grafana_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    body: 
+      name: "{{ datasource_name }}"
+      type: graphite
+      url: "http://{{ graphite_host }}:{{ graphite_port }}"
+      access: proxy
+      basicAuth: false
+    body_format: json
+    status_code: 200 

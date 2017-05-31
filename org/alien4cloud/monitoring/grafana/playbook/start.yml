@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Start Graphana
+  become: true
+
+  roles:
+    - start

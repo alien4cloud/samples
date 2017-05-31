@@ -1,0 +1,34 @@
+---
+
+- name: Check pip command
+  shell: pip --version
+  register: pip_cmd
+  failed_when: False
+  changed_when: False
+
+- name: Remove pip packages
+  pip: name={{item}} state=absent
+  with_items:
+    - whisper
+    - carbon
+    - graphite-web
+  when: pip_cmd.rc == 0
+
+- name: Delete Graphite path
+  file: path=/opt/graphite state=absent
+
+- name: Remove package dependencies for graphite and carbon
+  yum: "pkg={{item}} state=absent"
+  with_items:
+    - cairo-devel
+    - libffi-devel
+    - mod_wsgi
+    - httpd
+    - python-pip
+
+- name: Remove EPEL repo
+  yum:
+    name: epel-release.noarch
+    state: removed
+    disable_gpg_check: true
+

@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Connect Graphana to Graphite
+  become: true
+
+  roles:
+    - connectToGraphite

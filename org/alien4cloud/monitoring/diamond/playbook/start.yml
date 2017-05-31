@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Start Diamond Agent
+  become: true
+
+  roles:
+    - start

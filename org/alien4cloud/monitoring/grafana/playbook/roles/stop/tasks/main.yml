@@ -1,0 +1,7 @@
+---
+
+- name: stop service Grafana
+  service:
+    name: grafana-server
+    state: stopped
+  ignore_errors: yes

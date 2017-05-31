@@ -1,0 +1,160 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.monitoring.diamond
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.backend:1.0.0-SNAPSHOT
+  - org.alien4cloud.monitoring.agent:1.0.0-SNAPSHOT
+  - org.alien4cloud.monitoring.graphite:1.0.0-SNAPSHOT
+  - alien4cloud-ha-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.cloudify-types:1.0.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent:
+    metadata:
+      icon: /images/diamond.png
+    description: |
+      Deploy a Diamond Agent
+    derived_from: org.alien4cloud.monitoring.agent.nodes.MonitoringAgent
+    # capabilities:
+    #   elasticsearchHttpClient:
+    #     type: org.alien4cloud.elasticsearch.capabilities.ElasticSearchHttpClient
+    requirements:
+      - graphite_backend:
+          capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteBackendEndpoint
+          relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
+          occurrences: [0, unbounded]
+      - collec_elasticsearch:
+          capability: org.alien4cloud.elasticsearch.capabilities.ElasticSearchHttpEndpoint
+          relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
+          occurrences: [0, 1]
+      - collec_jolokia:
+          capability: org.alien4cloud.alien.capabilities.JolokiaEndpoint
+          occurrences: [0, 1]  
+      - collec_rabbitmq:
+          capability: org.alien4cloud.cloudify.capabilities.RabbitMQManagementEndpoint
+          occurrences: [0, 1]    
+      - collec_postgresql:
+          capability: org.alien4cloud.cloudify.capabilities.PostgresqlEndpoint
+          occurrences: [0, 1]    
+      - host: 
+          # limit to linux host
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: create.yml
+          implementation: playbook/playbook.ansible
+        configure:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: configure.yml
+          implementation: playbook/playbook.ansible
+        start:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: start.yml
+          implementation: playbook/playbook.ansible
+        stop:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: stop.yml
+          implementation: playbook/playbook.ansible
+        delete:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: delete.yml
+          implementation: playbook/playbook.ansible
+
+relationship_types:
+  org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.monitoring.graphite.capabilities.GraphiteBackendEndpoint ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: connects_to_graphite.yml
+            graphite_host: { get_attribute: [TARGET, public_ip_address] }
+            graphite_port: { get_attribute: [TARGET, metrics_backend, port]}
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.elasticsearch.capabilities.ElasticSearchHttpEndpoint ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: diamondCollectElasticSearch.yml
+            elasticsearch_host: { get_attribute: [TARGET, ip_address] }
+            elasticsearch_port: { get_attribute: [TARGET, http, port] }
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.alien.capabilities.JolokiaEndpoint ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: diamondJolokiaCollector.yml
+            jolokia_host: { get_attribute: [TARGET, ip_address] }
+            jolokia_port: { get_attribute: [TARGET, jolokia, jolokia_port] }
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.monitoring.diamond.relationships.DiamondAlienCollector:
+    derived_from: org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector
+    valid_target_types: [ org.alien4cloud.alien.capabilities.JolokiaEndpoint ]
+    interfaces:
+      Configure:
+        pre_configure_target:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: diamondAlienCollector.yml
+            jolokia_host: { get_attribute: [TARGET, ip_address] }
+            alien_data_dir: { get_attribute: [TARGET, data_dir] }
+            jolokia_port: { get_attribute: [TARGET, jolokia, jolokia_port] }
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.monitoring.diamond.relationships.DiamondRabbitmqCollector:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.cloudify.capabilities.RabbitMQManagementEndpoint ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: diamondRabbitmqCollector.yml
+            rabbitmq_port: { get_attribute: [TARGET, rabbitmq_management, port] }
+            rabbitmq_user: { get_attribute: [TARGET, rabbitmq_management, user] }
+            rabbitmq_password: { get_attribute: [TARGET, rabbitmq_management, password] }
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.monitoring.diamond.relationships.DiamondPostgresqlCollector:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.cloudify.capabilities.PostgresqlEndpoint ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: diamondPostgresqlCollector.yml
+            postgresql_port: { get_attribute: [TARGET, postgresql, port] }
+            postgresql_user: { get_attribute: [TARGET, postgresql, user] }
+            postgresql_password: { get_attribute: [TARGET, postgresql, password] }
+          implementation: playbook/playbook.ansible

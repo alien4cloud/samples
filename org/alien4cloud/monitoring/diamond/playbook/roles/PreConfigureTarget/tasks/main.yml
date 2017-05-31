@@ -1,0 +1,7 @@
+---
+- file: path="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs" state=directory mode=0755
+
+- copy: content="{{ graphite_host }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs/graphite_host"
+
+- copy: content="{{ graphite_port }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs/graphite_port"
+

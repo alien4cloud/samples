@@ -1,0 +1,12 @@
+---
+
+- name: start service Grafana
+  service:
+    name: grafana-server
+    state: started
+
+- name:  wait port 3000
+  wait_for:
+    port: 3000
+    delay: 20
+    state: started

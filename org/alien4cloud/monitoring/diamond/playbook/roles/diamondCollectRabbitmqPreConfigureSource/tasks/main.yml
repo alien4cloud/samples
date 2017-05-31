@@ -1,0 +1,5 @@
+---
+
+- name: Create config file for RabbitMQ collector
+  template: src=RabbitMQCollector.conf.j2 dest=/etc/ansible_diamond/collectors/RabbitMQCollector.conf force=yes
+

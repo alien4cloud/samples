@@ -1,0 +1,40 @@
+---
+
+- name: Check httpd service exists
+  shell: systemctl | grep httpd
+  register: httpd_service
+  failed_when: False
+  changed_when: False
+
+- name: Stop httpd service
+  service:
+    name: httpd
+    state: stopped
+  ignore_errors: yes
+  when: httpd_service.rc == 0
+
+- name: Check Carbon exists
+  stat: path=/opt/graphite/bin/carbon-cache.py
+  register: carbon_cmd
+
+- name: Check Carbon status
+  command: /opt/graphite/bin/carbon-cache.py status
+  register: carbon
+  when: carbon_cmd.stat.exists
+  failed_when: False
+
+- name: Stop Carbon
+  command: /opt/graphite/bin/carbon-cache.py stop
+  when: (carbon_cmd.stat.exists) and (carbon.stdout.find('pid') != -1)
+
+- name: Check Graphite
+  stat: path=/var/run/graphite.pid
+  register: graphite
+
+- name: Stop Graphite server
+  shell: kill -9 $(ps -ef | grep `cat /var/run/graphite.pid` | awk '{print "kill -9 "$2}' | sh)
+  when: graphite.stat.exists
+  failed_when: False
+
+- file: path=/var/run/graphite.pid state=absent
+

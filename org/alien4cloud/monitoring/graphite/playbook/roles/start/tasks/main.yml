@@ -1,0 +1,25 @@
+---
+
+- name: Start httpd service
+  service:
+    name: httpd
+    state: started
+
+- name: Check Carbon
+  command: /opt/graphite/bin/carbon-cache.py status
+  register: carbon
+  failed_when: False
+  changed_when: False
+
+- name: Start carbon-cache
+  command: /opt/graphite/bin/carbon-cache.py start
+  when: carbon.stdout.find('pid') == -1
+
+- name: Check Graphite
+  stat: path=/var/run/graphite.pid
+  register: graphite
+
+- name: Start Graphite server
+  shell: nohup /opt/graphite/bin/run-graphite-devel-server.py /opt/graphite/ > /var/log/graphite.log 2>&1 & echo $! > /var/run/graphite.pid
+  when: not graphite.stat.exists
+

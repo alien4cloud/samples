@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Diamond CollectElasticSearch PreConfigureTarget
+  become: true
+
+  roles:
+    - diamondCollectElasticSearchPreConfigureTarget

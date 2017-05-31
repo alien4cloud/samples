@@ -1,0 +1,45 @@
+---
+
+# Remove Diamond service
+- name: Delete Diamond service configuration file 
+  file: path=/usr/lib/systemd/system/a4c_diamond.service state=absent
+  register: diamond_service
+
+- name: Reload systemctl deamon
+  command: sudo systemctl daemon-reload
+  when: diamond_service.changed
+
+# Remove Diamond configuration file
+- name: Delete Diamond configuration file
+  file: path=/etc/diamond/diamond.conf state=absent
+
+# Remove Diamond virtualenv 
+- name: Delete Diamond virtualenv directory
+  file: path=/opt/ansible_diamond/env state=absent
+
+# Remove virtualenv command if installed
+- name: Check if must delete python-pip
+  stat: path=/opt/ansible_diamond/.virtualenv-state
+  register: should_delete_virtualenv
+
+- name: Remove python-pip
+  command: pip uninstall -y virtualenv
+  become: true
+  when: should_delete_virtualenv.stat.exists
+
+- file: path=/opt/ansible_diamond/.virtualenv-state state=absent
+
+# Remove python pip if installed
+- name: Check if must delete python-pip
+  stat: path=/opt/ansible_diamond/.python-pip-state
+  register: should_delete_pip
+
+- name: Remove python-pip
+  command: python -m pip uninstall pip -y
+  become: true
+  when: should_delete_pip.stat.exists
+
+- file: path=/opt/ansible_diamond/.python-pip-state state=absent
+
+# Remove ansible diamond directory
+- file: path=/opt/ansible_diamond state=absent

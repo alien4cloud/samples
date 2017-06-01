@@ -235,7 +235,7 @@ node_types:
       - docker_cli:
           capability: org.alien4cloud.capabilities.DockerCLI
           relationship: tosca.relationships.DependsOn
-          occurrences: [1, 1]
+          occurrences: [0, 1]
     properties:
       component_version:
         type: version

@@ -1,0 +1,55 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.nodes.HostedMongo
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: This template contains a topology to introduce a substituted type that is already hosted on compute.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - mongo-types:1.4.0-SNAPSHOT
+
+topology_template:
+  inputs:
+    port:
+      type: integer
+      required: true
+      default: 27017
+      constraints:
+        - in_range: [8000, 65535]
+  substitution_mappings:
+    node_type: org.alien4cloud.nodes.AbstractMongod
+    capabilities:
+      endpoint: [ Mongod, endpoint ]
+  node_templates:
+    Mongod:
+      type: org.alien4cloud.nodes.Mongod
+      properties:
+        port: { get_input: port }
+      requirements:
+        - host:
+            node: MongoDbHost
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    MongoDbHost:
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu
+  outputs:
+    port:
+      value: { get_property: [ Mongod, port ] }
+    ip_address:
+      value: { get_attribute: [ MongoDbHost, ip_address ] }

@@ -1,0 +1,12 @@
+{
+  "client_addr": "127.0.0.1",
+  "ports": {
+    "dns" : -1,
+    "http" : -1,
+    "https": %CONSUL_API_PORT%
+  },
+  "key_file": "/etc/consul/ssl/client-key.pem",
+  "cert_file": "/etc/consul/ssl/client-cert.pem",
+  "ca_file": "/etc/consul/ssl/ca.pem",
+  "verify_outgoing": true
+}

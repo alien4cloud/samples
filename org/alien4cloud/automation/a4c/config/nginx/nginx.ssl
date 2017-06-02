@@ -1,0 +1,18 @@
+server {
+        listen %LISTEN_PORT% default_server;
+        listen [::]:%LISTEN_PORT% default_server ipv6only=on;
+
+        ssl on;
+        ssl_certificate /etc/nginx/ssl/server-cert.pem;
+        ssl_certificate_key /etc/nginx/ssl/server-key.pem;
+        ssl_session_cache shared:SSL:10m;
+
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        server_name %SERVER_NAME%;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+}

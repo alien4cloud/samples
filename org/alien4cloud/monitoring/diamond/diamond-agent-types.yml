@@ -11,8 +11,12 @@ imports:
   - org.alien4cloud.monitoring.backend:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.agent:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.graphite:1.0.0-SNAPSHOT
-  - alien4cloud-ha-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c:1.4.0-SNAPSHOT
   - org.alien4cloud.cloudify-types:1.0.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.java.jmx.jolokia:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent:
@@ -25,22 +29,22 @@ node_types:
     #   elasticsearchHttpClient:
     #     type: org.alien4cloud.elasticsearch.capabilities.ElasticSearchHttpClient
     requirements:
-      - graphite_backend:
-          capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteBackendEndpoint
-          relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
-          occurrences: [0, unbounded]
+      # - graphite_backend:
+      #     capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteBackendEndpoint
+      #     relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
+      #     occurrences: [0, unbounded]
       - collec_elasticsearch:
-          capability: org.alien4cloud.elasticsearch.capabilities.ElasticSearchHttpEndpoint
+          capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchHttpEndpoint
           relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
           occurrences: [0, 1]
       - collec_jolokia:
-          capability: org.alien4cloud.alien.capabilities.JolokiaEndpoint
+          capability: org.alien4cloud.java.jmx.jolokia.capabilities.JolokiaEndpoint
           occurrences: [0, 1]  
       - collec_rabbitmq:
-          capability: org.alien4cloud.cloudify.capabilities.RabbitMQManagementEndpoint
+          capability: org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint
           occurrences: [0, 1]    
       - collec_postgresql:
-          capability: org.alien4cloud.cloudify.capabilities.PostgresqlEndpoint
+          capability: org.alien4cloud.db.postgresql.public.PostgresqlEndpoint
           occurrences: [0, 1]    
       - host: 
           # limit to linux host
@@ -97,7 +101,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.elasticsearch.capabilities.ElasticSearchHttpEndpoint ]
+    valid_target_types: [ org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchHttpEndpoint ]
     interfaces:
       Configure:
         pre_configure_source:
@@ -109,7 +113,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.alien.capabilities.JolokiaEndpoint ]
+    valid_target_types: [ org.alien4cloud.java.jmx.jolokia.capabilities.JolokiaEndpoint ]
     interfaces:
       Configure:
         pre_configure_source:
@@ -121,7 +125,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondAlienCollector:
     derived_from: org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector
-    valid_target_types: [ org.alien4cloud.alien.capabilities.JolokiaEndpoint ]
+    valid_target_types: [ org.alien4cloud.automation.a4c.nodes.Alien4Cloud ]
     interfaces:
       Configure:
         pre_configure_target:
@@ -134,7 +138,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondRabbitmqCollector:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.cloudify.capabilities.RabbitMQManagementEndpoint ]
+    valid_target_types: [ org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint ]
     interfaces:
       Configure:
         pre_configure_source:
@@ -147,7 +151,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondPostgresqlCollector:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.cloudify.capabilities.PostgresqlEndpoint ]
+    valid_target_types: [ org.alien4cloud.db.postgresql.public.PostgresqlEndpoint ]
     interfaces:
       Configure:
         pre_configure_source:

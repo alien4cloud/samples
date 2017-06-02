@@ -1,0 +1,81 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.monitoring.topologies.grafana_graphite
+  template_version: 1.4.0-SNAPSHOT
+  template_author: A4C
+
+description: ""
+
+imports:
+  - org.alien4cloud.monitoring.grafana:1.0.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.monitoring.graphite:1.0.0-SNAPSHOT
+  - org.alien4cloud.monitoring.backend:1.0.0-SNAPSHOT
+  - alien-base-types:1.4.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    Graphite:
+      type: org.alien4cloud.monitoring.graphite.nodes.Graphite
+      properties:
+        component_version: "1.0.0"
+      requirements:
+        - host:
+            node: MonitoringCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        metrics_backend:
+          properties:
+            protocol: http
+            port: 2003
+        graphite_ui:
+          properties:
+            protocol: http
+            port: 8080
+    MonitoringCompute:
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: centos
+    Grafana:
+      type: org.alien4cloud.monitoring.grafana.nodes.Grafana
+      properties:
+        component_version: "4.1.2"
+      requirements:
+        - host:
+            node: MonitoringCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - metrics_backend:
+            node: Graphite
+            capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteBackendEndpoint
+            relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite
+            properties:
+              datasource_name: "Graphite_DS"
+      capabilities:
+        grafana_endpoint:
+          properties:
+            user: admin
+            password: admin
+            protocol: http
+            port: 3000
+    DiamondLinuxAgent:
+      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
+      requirements:
+        - metrics_backend:
+            node: Graphite
+            capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteBackendEndpoint
+            relationship: org.alien4cloud.monitoring.agent.relationships.MonitoringAgentConnectToMetricsBackend
+        - host:
+            node: MonitoringCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn            
+  outputs:
+    Grafana_grafana_url:
+      value: { get_attribute: [ Grafana, grafana_url ] }
+

@@ -1,0 +1,316 @@
+#############################
+# Provider specific Inputs
+#############################
+
+# The public IP of the manager to which the CLI will connect.
+public_ip: '%PUBLIC_IP%'
+
+# The manager's private IP address. This is the address which will be used by the
+# application hosts to connect to the Manager's fileserver and message broker.
+private_ip: '%PRIVATE_IP%'
+
+# SSH user used to connect to the manager
+ssh_user: '%SSH_USER%'
+
+# SSH key path used to connect to the manager
+ssh_key_filename: '%SSH_KEY_PATH%'
+
+# This is the user with which the Manager will try to connect to the application hosts.
+agents_user: '%AGENTS_USER%'
+#resources_prefix: ''
+
+#############################
+# Security Settings
+#############################
+# Cloudify REST security is disabled by default. To disable security, set to true.
+# Note: If security is disabled, the other security inputs are irrelevant.
+security_enabled: true
+
+# Enabling SSL limits communication with the server to SSL only.
+# NOTE: If enabled, the certificate and private key files must reside in resources/ssl.
+ssl_enabled: true
+
+# Username and password of the Cloudify administrator.
+# This user will also be included in the simple userstore repostiroty if the
+# simple userstore implementation is used.
+admin_username: '%ADMIN_USERNAME%'
+admin_password: '%ADMIN_PASSWORD%'
+
+insecure_endpoints_disabled: false
+
+#############################
+# Bootstrap Validations
+#############################
+# Validations are performed to check that attributes like disk space and memory
+# correspond with some prerequisites and that some resources are available for
+# download.
+# Setting to `true` will allow to ignore those validations.
+#ignore_bootstrap_validations: false
+
+# These allow to override specific validation values
+# NOTE: We do not recommend changing these values unless you know exactly
+# what you're doing.
+#minimum_required_total_physical_memory_in_mb: 3792
+#minimum_required_available_disk_space_in_gb: 5
+#allowed_heap_size_gap_in_mb: 1000
+
+#############################
+# Manager Resources Package
+#############################
+manager_resources_package: http://repository.cloudifysource.org/org/cloudify3/3.4.2/sp-RELEASE/cloudify-manager-resources_3.4.2-sp-b420.tar.gz
+
+# Providing a checksum file url will allow validating the resources package.
+# By default, no validation is performed. Providing a checksum file will use
+# the file to validate. Note that not providing a file but changing
+# `skip_checksum_validation` to false means we will try to guess the location
+# of an md5 checksum file and validate against it.
+# You can download our md5 checksum file by appending .md5
+# to the `manager_resources_package` url.
+#manager_resources_package_checksum_file: 'http://repository.cloudifysource.org/org/cloudify3/3.4.2/ga-RELEASE/cloudify-manager-resources_3.4.2-ga-b420.tar.gz.md5'
+#skip_checksum_validation: true
+
+#############################
+# Agent Packages
+#############################
+
+# The key names must be in the format: distro_release_agent (e.g. ubuntu_trusty_agent)
+# as the key is what's used to name the file, which later allows our
+# agent installer to identify it for your distro and release automatically.
+# Note that the windows agent key name MUST be `cloudify_windows_agent`
+#agent_package_urls:
+#  ubuntu_trusty_agent: ''
+#  ubuntu_precise_agent: ''
+#  centos_7x_agent: ''
+#  centos_6x_agent: ''
+#  redhat_7x_agent: ''
+#  redhat_6x_agent: ''
+#  cloudify_windows_agent: ''
+
+#############################
+# Cloudify Modules
+#############################
+
+# Note that you can replace rpm urls with names of packages as long as they're available in your default yum repository.
+# That is, as long as they provide the exact same version of that module.
+
+#rest_service_rpm_source_url: ''
+#management_worker_rpm_source_url: ''
+#amqpinflux_rpm_source_url: ''
+#cloudify_resources_url: ''
+#webui_source_url: ''
+
+# This is a Cloudify specific redistribution of Grafana.
+#grafana_source_url: ''
+
+#############################
+# External Components
+#############################
+
+# Note that you can replace rpm urls with names of packages as long as they're available in your default yum repository.
+# That is, as long as they provide the exact same version of that module.
+
+#pip_source_rpm_url: ''
+#java_source_url: ''
+
+# RabbitMQ Distribution of Erlang
+#erlang_source_url: ''
+#rabbitmq_source_url: ''
+
+#elasticsearch_source_url: ''
+#elasticsearch_curator_rpm_source_url: ''
+
+#logstash_source_url: ''
+#nginx_source_url: ''
+#influxdb_source_url: ''
+
+#riemann_source_url: ''
+# A RabbitMQ Client for Riemann
+#langohr_source_url: ''
+# Riemann's default daemonizer
+#daemonize_source_url: ''
+
+#nodejs_source_url: ''
+
+##################################
+# Management Workers configuration
+##################################
+
+# Sets the logging level to use for the management workers. This affects the logging performed
+# by the manager during the execution of management tasks, such as deployment creation
+# and deployment deletion.
+# NOTE: specifying "debug" will result in considerable amount of logging activity. Consider
+# using "info" (or a more restrictive level) for production environments.
+#management_worker_log_level: debug
+
+#############################
+# RabbitMQ Configuration
+#############################
+# Sets the username/password to use for clients such as celery
+# to connect to the rabbitmq broker.
+# It is recommended that you set both the username and password
+# to something reasonably secure.
+rabbitmq_username: '%RABBITMQ_USER%'
+rabbitmq_password: '%RABBITMQ_PASSWORD%'
+
+# Enable SSL for RabbitMQ. If this is set to true then the public and private
+# certs must be supplied (`rabbitmq_cert_private`, `rabbitmq_cert_public` inputs).
+rabbitmq_ssl_enabled: true
+
+# The private certificate for RabbitMQ to use for SSL. This must be PEM formatted.
+# It is expected to begin with a line containing 'PRIVATE KEY' in the middle.
+rabbitmq_cert_private: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCiDB4ua2IW3OlU
+    Tf+Vgl8Mii0XVUoVqhmaE+b8eBqNdK6kV3oHbS5ECmGcJq31lxhdVliLumYhLlQ3
+    EN3FNWtJMEhlMED/XTfq6yH0a91O1PNVfW3ZQfW8gnu6B3WbCp7tDXluP640rH0p
+    +trvQoS6GEFajhcJnkh5AIYZCbGLfRqv4p20wD3tsDzoqj9yyYKXBY1u3Ryb0L1w
+    DB6I59biI79x/niWR6raWNqjGzih5keUoYaK0M9DmMsFVb3ZpJ2Q3XF7OKAfaRKM
+    bqcUCREyF3wDx5sU66o6Zt6R+Fl3kngiW7MDgtfqF/Mv3mP7mvy19fMri8oVLwW6
+    uQF8qXv1AgMBAAECggEANkic66vpRgNm3mjqj2kG8ipvhHt7v9oljWnRXQ3Wx0Ap
+    KMBtDoPSldRscmS6raSZ8tpz+wrMH51ndLLft6p3cCMOfWc2vtS5YKa3zys7Dadk
+    hGTqIXdpHGcRj3XkPbXHG14CKZ6Hevm1TBTOtouv7q8lZXJn4T72xCIaydRnd3Q+
+    q2S6XzxKbBDGvRJ9+qwNOWyi/cLb7jnlb/L15Sqqn0Ew5ycETiPq+g9lYkJahaCK
+    +cUZPBVH76UClXmTNVYt99vyybE7sRSXC9bR94Juk8hocjvbz6iVvzRrb4VlC8Li
+    ya8Ck4CTZ0VjZgstIDQekTq9A5tV+zX8FLEJeLcxmQKBgQDS6UUqK/XFRhQJCQBe
+    R9oDYTaNY1v0E5OSRc57Z9xsOsQTzgKgLYanoAG1OlpMgePwUpdUwN4i4+oJ4odJ
+    8KlLT5BYnz9Eky2L/ADcnbJ5ionXRcTnK589+CBb3lBrolC4Tbz7Dh7CBelvHjMH
+    TlsqAszz3iAlSByVqJEH1/q+wwKBgQDEsKFBZMBgiUFDRIPCjmy2EYWgPFFyNyby
+    eOZG2C6ElpWcekM3JqKKrerY/RrLVdKeOLvSk6ZFm8VlneU62ucWG8chhAdJqBM5
+    gUV+XEKa2NfreATq9KbG+2BL8ZCZ1sANWDPDYU8zxJhdRMiMANejD8cjMK8wBiPe
+    ACOQxPme5wKBgQCd07XQMwk9UI2ZnUTLSJVaRhrefuXGpgeeQ+KZ8kS+MNOdxmGs
+    n6TONyxQA5Si/+gkZImeAJ26Gjd+oid/KzpkguuPhcuAc2p4AGJctR1jWkp/71PD
+    cZ8+bjk4xgoEIXiqEnJCpHRb2LSwVDb3VqldrK7WJviDLY1GaNfuuK6IpQKBgBgg
+    bndeC3cL/xRoSB1KaS1gMtr36ymueDmP+PdBt1sOOaXrHWmbdJ68PK2HRo0gpug/
+    n1JySBgLxofzeVXh2izNFX0X++jeFBWetM6ONKFX7gx1OW00u2x3E1XdeNZWEFLS
+    ue7Cdfuspt/x+wOpasoWul+nriWe6zFlJPeyIciLAoGAGnm2tajO7sfBkCh0R903
+    QopjlQ4dPEPHgTcpV14RkjXtpKHIi1eddAyCyfSF2Od7qJLQBDPGuSRpyKnKilhf
+    fqCiF77KrqqOOcHSeojvvBRvB9r0iQBdlK803GrgVjlrKvPDlHGup8pKB8QUy8w4
+    Y3ynnW1NolCuuYc9l19Otgc=
+    -----END PRIVATE KEY-----
+
+
+
+# The public certificate for RabbitMQ to use for SSL. This does not need to be signed by any CA,
+# as it will be deployed and explicitly used for all other components.
+# It may be self-signed. It must be PEM formatted.
+# It is expected to begin with a line of dashes with 'BEGIN CERTIFICATE' in the middle.
+# If an external endpoint is used, this must be the public certificate associated with the private
+# certificate that has already been configured for use by that rabbit endpoint.
+rabbitmq_cert_public: |
+    -----BEGIN CERTIFICATE-----
+    MIIDVzCCAj+gAwIBAgIJAKfXeh8OX4SKMA0GCSqGSIb3DQEBCwUAMEIxCzAJBgNV
+    BAYTAlhYMRUwEwYDVQQHDAxEZWZhdWx0IENpdHkxHDAaBgNVBAoME0RlZmF1bHQg
+    Q29tcGFueSBMdGQwHhcNMTcwMzIzMjEzOTM1WhcNMTgwMzIzMjEzOTM1WjBCMQsw
+    CQYDVQQGEwJYWDEVMBMGA1UEBwwMRGVmYXVsdCBDaXR5MRwwGgYDVQQKDBNEZWZh
+    dWx0IENvbXBhbnkgTHRkMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+    ogweLmtiFtzpVE3/lYJfDIotF1VKFaoZmhPm/HgajXSupFd6B20uRAphnCat9ZcY
+    XVZYi7pmIS5UNxDdxTVrSTBIZTBA/1036ush9GvdTtTzVX1t2UH1vIJ7ugd1mwqe
+    7Q15bj+uNKx9Kfra70KEuhhBWo4XCZ5IeQCGGQmxi30ar+KdtMA97bA86Ko/csmC
+    lwWNbt0cm9C9cAweiOfW4iO/cf54lkeq2ljaoxs4oeZHlKGGitDPQ5jLBVW92aSd
+    kN1xezigH2kSjG6nFAkRMhd8A8ebFOuqOmbekfhZd5J4IluzA4LX6hfzL95j+5r8
+    tfXzK4vKFS8FurkBfKl79QIDAQABo1AwTjAdBgNVHQ4EFgQU6tR4t+CJNED0fpk6
+    WmWsb0RORR0wHwYDVR0jBBgwFoAU6tR4t+CJNED0fpk6WmWsb0RORR0wDAYDVR0T
+    BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAKsTeYl1iF1OhBQsAZ/DUxY6UT94o
+    x3nwXOcmd5HFdlComvT4qhhLnwKXKhefbB815xI+tUASKXLG5Qrt/SSrgsT7Tz43
+    J5pxEwpdSOCDJLDPjtlCF3YKHfvqxKeGvPRPdrQfZ+b8CcRQUg4aWDuJMvniYxgQ
+    sBc0hpxzorm8mPddxTHMbH1TMAy8UltSixYMmmKib/wg31Gn4i2AAVxUSxfBrAzc
+    OZRireG919VxOKDqXlUKzxFrxcjIX3ykh1ufDagIP0HC7Jv4tfef+6E53JSV8LTc
+    LKPT0L0vwNfNorHmyTas2vVWR4T9ndSV3awim/a6u+vPEz/tHsfXKupWBw==
+    -----END CERTIFICATE-----
+
+
+
+# Allows to define the message-ttl for the different types of queues (in milliseconds).
+# These are not used if `rabbitmq_endpoint_ip` is provided.
+# https://www.rabbitmq.com/ttl.html
+#rabbitmq_events_queue_message_ttl: 60000
+#rabbitmq_logs_queue_message_ttl: 60000
+#rabbitmq_metrics_queue_message_ttl: 60000
+
+# This will set the queue length limit. Note that while new messages
+# will be queued in RabbitMQ, old messages will be deleted once the
+# limit is reached!
+# These are not used if `rabbitmq_endpoint_ip` is provided.
+# Note this is NOT the message byte length!
+# https://www.rabbitmq.com/maxlength.html
+#rabbitmq_events_queue_length_limit: 1000000
+#rabbitmq_logs_queue_length_limit: 1000000
+#rabbitmq_metrics_queue_length_limit: 1000000
+
+# RabbitMQ File Descriptors Limit
+#rabbitmq_fd_limit: 102400
+
+# You can configure an external endpoint of a RabbitMQ Cluster to use
+# instead of the built in one.
+# If one is provided, the built in RabbitMQ cluster will not run.
+# Also note that your external cluster must be preconfigured with any
+# user name/pass and SSL certs if you plan on using RabbitMQ's security
+# features.
+#rabbitmq_endpoint_ip: ''
+
+#############################
+# Elasticsearch Configuration
+#############################
+# bootstrap.mlockall is set to true by default.
+# This allows to set the heapsize for your cluster.
+# https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
+#elasticsearch_heap_size: 2g
+
+# This allows to provide any JAVA_OPTS to Elasticsearch.
+#elasticsearch_java_opts: ''
+
+# The index for events will be named `logstash-YYYY.mm.dd`.
+# A new index corresponding with today's date will be added each day.
+# Elasticsearch Curator is used to rotate the indices on a daily basis
+# via a cronjob. This allows to determine the number of days to keep.
+#elasticsearch_index_rotation_interval: 7
+
+# You can configure an external endpoint of an Elasticsearch Cluster to use
+# instead of the built in one. The built in Elasticsearch cluster will not run.
+# You need to provide an IP (defaults to localhost) and Port (defaults to 9200) of your Elasticsearch Cluster.
+#elasticsearch_endpoint_ip: ''
+#elasticsearch_endpoint_port: 9200
+
+# You can enable automatic clustering of elasticsearch nodes and choose the port in which multicast discovery
+# is performed. Note that when bootstrapping two managers on the same network, if enabling clustering, you must
+# use a different port as to prevent clustering. This can be either 'true' or 'false'.
+# Must be quoted to be passed as a string.
+#elasticsearch_clustering_enabled: 'false'
+#elasticsearch_clustering_discovery_port: 54329
+
+#############################
+# InfluxDB Configuration
+#############################
+# You can configure an external endpoint of an InfluxDB Cluster to use
+# instead of the built in one.
+# If one is provided, the built in InfluxDB cluster will not run.
+# Note that the port is currently not configurable and must remain 8086.
+# Also note that the database username and password are hardcoded to root:root.
+#influxdb_endpoint_ip: ''
+
+#################################
+# Management Worker Configuration
+#################################
+# Maximum number of worker processes started by the management worker.
+#management_worker_max_workers: 100
+
+# Minimum number of worker processes maintained by the management worker.
+#management_worker_min_workers: 2
+
+#############################
+# Offline Resources Upload
+#############################
+# You can configure a set of resources to upload at bootstrap. These resources
+# will reside on the manager and enable offline deployment. `dsl_resources`
+# should contain any resource needed in the parsing process (i.e. plugin.yaml files)
+
+dsl_resources:
+  - {'source_path': 'http://www.getcloudify.org/spec/fabric-plugin/1.4.1/plugin.yaml', 'destination_path': '/spec/fabric-plugin/1.4.1/plugin.yaml'}
+  - {'source_path': 'http://www.getcloudify.org/spec/diamond-plugin/1.3.1/plugin.yaml', 'destination_path': '/spec/diamond-plugin/1.3.1/plugin.yaml'}
+  - {'source_path': 'http://www.getcloudify.org/spec/host-pool-plugin/1.4/plugin.yaml', 'destination_path': '/spec/host-pool-plugin/1.4/plugin.yaml'}
+  - {'source_path': 'http://www.getcloudify.org/spec/cloudify/3.4/types.yaml', 'destination_path': '/spec/cloudify/3.4/types.yaml'}
+#  - {'source_path': 'http://www.getcloudify.org/spec/script-plugin/1.4/plugin.yaml', 'destination_path': '/spec/script-plugin/1.4/plugin.yaml'}
+#  - {'source_path': 'http://www.getcloudify.org/spec/aws-plugin/1.4.1/plugin.yaml', 'destination_path': '/spec/aws-plugin/1.4.1/plugin.yaml'}
+#  - {'source_path': 'http://www.getcloudify.org/spec/openstack-plugin/1.4/plugin.yaml', 'destination_path': '/spec/openstack-plugin/1.4/plugin.yaml'}
+#  - {'source_path': 'http://www.getcloudify.org/spec/tosca-vcloud-plugin/1.3.1/plugin.yaml', 'destination_path': '/spec/tosca-vcloud-plugin/1.3.1/plugin.yaml'}
+#  - {'source_path': 'http://www.getcloudify.org/spec/vsphere-plugin/2.0/plugin.yaml', 'destination_path': '/spec/vsphere-plugin/2.0/plugin.yaml'}

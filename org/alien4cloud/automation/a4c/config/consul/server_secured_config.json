@@ -1,0 +1,12 @@
+{
+  "ports": {
+    "dns" : -1,
+    "http" : -1,
+    "https": -1
+  },
+  "key_file": "/etc/consul/ssl/server-key.pem",
+  "cert_file": "/etc/consul/ssl/server-cert.pem",
+  "ca_file": "/etc/consul/ssl/ca.pem",
+  "verify_incoming": true,
+  "verify_outgoing": true
+}

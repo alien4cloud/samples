@@ -50,14 +50,14 @@ node_types:
                     - type: { equal: linux }
                     - architecture: { equal: x86_64 }
                     - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }  
-      # - metrics_backend:
-      #     capability: org.alien4cloud.monitoring.backend.capabilities.MetricsBackendEndpoint
-      #     relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend
-      #     occurrences: [0, UNBOUNDED]
-      - graphite:
-          capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteEndpoint
-          relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite
+      - metrics_backend:
+          capability: org.alien4cloud.monitoring.backend.capabilities.MetricsBackendEndpoint
+          relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend
           occurrences: [0, UNBOUNDED]
+      # - graphite:
+      #     capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteEndpoint
+      #     relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite
+      #     occurrences: [0, UNBOUNDED]
 
     interfaces:
       Standard:
@@ -98,13 +98,13 @@ capability_types:
 
 relationship_types:
   
-  # org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend:
-  #   derived_from: tosca.relationships.ConnectsTo
-  #   abstract: true
-  #   valid_target_types: [ org.alien4cloud.monitoring.backend.nodes.MetricsBackend ]   
-  org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite:
-    # derived_from: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend
+  org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend:
     derived_from: tosca.relationships.ConnectsTo
+    abstract: true
+    valid_target_types: [ org.alien4cloud.monitoring.backend.nodes.MetricsBackend ]   
+  org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite:
+    derived_from: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend
+    # derived_from: tosca.relationships.ConnectsTo
     properties:
       datasource_name:
         type: string

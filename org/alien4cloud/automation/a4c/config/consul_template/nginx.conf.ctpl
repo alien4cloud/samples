@@ -1,0 +1,26 @@
+{{ if key "service/a4c/leader" }}
+server {
+        listen %LISTEN_PORT%;
+        server_name %SERVER_NAME%;
+        location / {
+                proxy_pass http://{{key "service/a4c/leader"}}/;
+                proxy_set_header Host %SERVER_NAME%;
+                proxy_pass_request_headers      on;
+        }
+}
+{{ else }}
+server {
+        listen %LISTEN_PORT% default_server;
+        listen [::]:%LISTEN_PORT% default_server ipv6only=on;
+
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        # Make site accessible from http://localhost/
+        server_name %SERVER_NAME%;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+}
+{{ end }}

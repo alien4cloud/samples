@@ -1,0 +1,11 @@
+{
+  "datacenter": "a4c",
+  "data_dir": "%CONSUL_DATA_DIR%",
+  "log_level": "trace",
+  "node_name": "%INSTANCE%",
+  "client_addr": "0.0.0.0",
+  "bind_addr": "%CONSUL_BIND_ADDRESS%",
+  "ports": {
+    "http": %CONSUL_API_PORT%
+  }
+}

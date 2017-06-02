@@ -1,0 +1,43 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+template_name: org.alien4cloud.storage.elasticsearch.public
+template_version: 1.4.0-SNAPSHOT
+template_author: Fastconnect
+
+imports:
+  - "tosca-normative-types:1.0.0-ALIEN14"
+  
+capability_types:
+
+  org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchCLI:
+    derived_from: tosca.capabilities.Root
+    description: >
+      Exposed by a ElasticSearch node for CLI connection.
+    properties:
+      port:
+        type: integer
+        description: The port of the elasticsearch HTTP endpoint.
+        required: true
+        default: 9300
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        required: true
+        default: http        
+  org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchHttpEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    description: >
+      The HTTP endpoint exposed by elasticsearch.
+    properties:
+      port:
+        type: integer
+        description: The port of the elasticsearch HTTP endpoint.
+        required: true
+        default: 9200
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        required: true
+        default: http   

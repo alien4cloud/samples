@@ -10,10 +10,12 @@ echo "Manager node has been bootstraped"
 echo "Done"
 
 # try a connection on locahost and fail if not ok
-curl -fkL --connect-timeout 30 http://localhost/version
+connection_test_cmd="curl -fkL --connect-timeout 30 -u ${ADMIN_USERNAME}:${ADMIN_PASSWORD} --basic ${API_PROTOCOL}://localhost:${API_PORT}/version"
+echo "Expect ${API_PROTOCOL}://localhost:${API_PORT} to be up"
+eval ${connection_test_cmd}
 if [ "$?" -ne "0" ]; then
-  echo "waiting for locahost server to be up"
+  echo "Waiting for ${API_PROTOCOL}://localhost:${API_PORT} to be up"
   sleep 30
 fi
-curl -fkL --connect-timeout 30 http://localhost/version
+eval ${connection_test_cmd}
 exit $?

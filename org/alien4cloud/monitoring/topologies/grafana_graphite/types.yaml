@@ -12,16 +12,13 @@ imports:
   - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.messaging.rabbitmq.public:1.4.0-SNAPSHOT
-  - org.alien4cloud.cloudify-types:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.0.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.grafana:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.graphite:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.backend:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.agent:1.0.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
-  - jdk-type:1.4.0-SNAPSHOT
 
 topology_template:
   substitution_mappings:

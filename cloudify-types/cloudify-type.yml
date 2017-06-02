@@ -187,6 +187,8 @@ node_types:
             PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
             ADMIN_USERNAME: { get_property: [SELF, admin_username] }
             ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            API_PORT: { get_property: [SELF, cloudify_api_v3, port] }
+            API_PROTOCOL: https
             MAX_INSTANCES: { get_property: [HOST, scalable, max_instances] }
           implementation: scripts/start.sh
     artifacts:
@@ -292,6 +294,8 @@ node_types:
           inputs:
             ADMIN_USERNAME: { get_property: [SELF, admin_username] }
             ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            API_PORT: { get_property: [SELF, cloudify_api_v3, port] }
+            API_PROTOCOL: https            
             MAX_INSTANCES: { get_property: [HOST, scalable, max_instances] }
           implementation: scripts/Cloudify3Manager/start.sh
     artifacts:

@@ -20,7 +20,18 @@ node_types:
         type: org.alien4cloud.monitoring.backend.capabilities.MetricsBackendEndpoint
         occurrences: [0, UNBOUNDED]
 
+  org.alien4cloud.monitoring.backend.nodes.GraphiteBackend:
+    abstract: true
+    derived_from: org.alien4cloud.monitoring.backend.nodes.MetricsBackend
+    capabilities:
+      metrics_backend:
+        type: org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint
+        occurrences: [0, UNBOUNDED]
+
 capability_types:
   org.alien4cloud.monitoring.backend.capabilities.MetricsBackendEndpoint:
     derived_from: tosca.capabilities.Endpoint
     description: Store Metrics Streaming
+  org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint:
+    derived_from: org.alien4cloud.monitoring.backend.capabilities.MetricsBackendEndpoint
+    description: Graphite backend endpoint     

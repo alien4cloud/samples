@@ -30,7 +30,7 @@ node_types:
     #     type: org.alien4cloud.elasticsearch.capabilities.ElasticSearchHttpClient
     requirements:
       # - graphite_backend:
-      #     capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteBackendEndpoint
+      #     capability: org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint
       #     relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
       #     occurrences: [0, unbounded]
       - collec_elasticsearch:
@@ -89,14 +89,14 @@ node_types:
 relationship_types:
   org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.monitoring.graphite.capabilities.GraphiteBackendEndpoint ]
+    valid_target_types: [ org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint ]
     interfaces:
       Configure:
         pre_configure_source:
           inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: connects_to_graphite.yml
-            graphite_host: { get_attribute: [TARGET, public_ip_address] }
+            graphite_host: { get_attribute: [TARGET, metrics_backend, ip_address] }
             graphite_port: { get_attribute: [TARGET, metrics_backend, port]}
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch:

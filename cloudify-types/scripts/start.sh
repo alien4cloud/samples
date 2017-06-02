@@ -22,4 +22,11 @@ if [ $MAX_INSTANCES -gt 1 ]; then
   echo "Cluster mode enabled, configure cluster mode"
 fi
 
-echo "Done"
+# try a connection on locahost and fail if not ok
+curl -fkL --connect-timeout 30 http://localhost/version
+if [ "$?" -ne "0" ]; then
+  echo "waiting for locahost server to be up"
+  sleep 30
+fi
+curl -fkL --connect-timeout 30 http://localhost/version
+exit $?

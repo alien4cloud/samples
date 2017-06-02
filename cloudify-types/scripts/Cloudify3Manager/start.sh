@@ -8,3 +8,12 @@ sudo bash -c "export CLOUDIFY_USERNAME=$ADMIN_USERNAME && export CLOUDIFY_PASSWO
 
 echo "Manager node has been bootstraped"
 echo "Done"
+
+# try a connection on locahost and fail if not ok
+curl -fkL --connect-timeout 30 http://localhost/version
+if [ "$?" -ne "0" ]; then
+  echo "waiting for locahost server to be up"
+  sleep 30
+fi
+curl -fkL --connect-timeout 30 http://localhost/version
+exit $?

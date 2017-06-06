@@ -245,7 +245,7 @@ node_types:
         type: org.alien4cloud.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
       elastic_search:
-        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchHttpEndpoint
+        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI
         occurrences: [ 0, UNBOUNDED ]
         properties:
           port: 9200    

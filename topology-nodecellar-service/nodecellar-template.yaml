@@ -8,7 +8,7 @@ metadata:
 description: A nodecellar application topology template with nodecellar and a requirement on a mongodb that should be matched against a mongodb service.
 
 imports:
-  - org.alien4cloud.nodes.HostedMongo:1.4.0-SNAPSHOT
+  - mongo-types:1.4.0-SNAPSHOT
   - nodecellar-type:1.4.0-SNAPSHOT
   - nodejs-type:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14

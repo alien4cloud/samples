@@ -51,10 +51,10 @@ node_types:
     #                 - distribution: { valid_values: [ "ubuntu", "debian" ] }        
     capabilities:
       elasticsearch:
-        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchCLI
+        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI
         occurrences: [ 0, UNBOUNDED ]
       http:
-        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchHttpEndpoint
+        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI
         occurrences: [ 0, UNBOUNDED ]
     interfaces:
       Standard:

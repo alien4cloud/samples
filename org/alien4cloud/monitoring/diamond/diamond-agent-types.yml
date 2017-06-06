@@ -31,7 +31,7 @@ node_types:
       #     relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
       #     occurrences: [0, unbounded]
       - collec_elasticsearch:
-          capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchHttpEndpoint
+          capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI
           relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
           occurrences: [0, 1]
       - collec_jolokia:
@@ -98,7 +98,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchHttpEndpoint ]
+    valid_target_types: [ org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI ]
     interfaces:
       Configure:
         pre_configure_source:

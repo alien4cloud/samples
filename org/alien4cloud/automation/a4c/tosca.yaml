@@ -97,7 +97,7 @@ node_types:
       #               - architecture: { equal: x86_64 }
       #               - distribution: { valid_values: [ "ubuntu", "debian" ] }      
       - elasticsearch: 
-          capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchCLI
+          capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI
           relationship: org.alien4cloud.automation.a4c.relationships.AlienConnectToElasticSearch
           occurrences: [ 0, 1 ]
       # - consul: 
@@ -184,7 +184,7 @@ relationship_types:
   #         type: tosca.artifacts.File
   org.alien4cloud.automation.a4c.relationships.AlienConnectToElasticSearch:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchCLI]
+    valid_target_types: [org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI]
     interfaces:
       Configure:
         pre_configure_source:

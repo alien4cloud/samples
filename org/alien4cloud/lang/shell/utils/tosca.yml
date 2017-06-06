@@ -1,0 +1,23 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.lang.shell.utils
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Provide support for alien4cloud shell common utilities through specific artifact type.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+artifact_types:
+  org.alien4cloud.lang.shell.artifacts.implementation.EnrichedShell:
+    # This means that the wrapper implementation can be called by orchestrator from it's native tosca.artifacts.Implementation.Bash support.
+    derived_from: tosca.artifacts.Implementation.Bash
+    description: Implementation artifact that provide some shell utility methods for cross linux operations.
+    file_ext: [ aesh ]
+    implementation:
+      primary: scripts/wrapper.sh
+      # all the content of the script folder will be copied in the same directory as the wrapper.sh script
+      dependencies:
+        - scripts

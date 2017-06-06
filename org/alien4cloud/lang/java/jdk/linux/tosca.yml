@@ -1,0 +1,45 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.lang.java.jdk.linux
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Java Development Kit to run java software.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.lang.java.public:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: Installation of Oracle Java Development Kit
+    metadata:
+      icon: images/jdk.png
+    properties:
+      java_url:
+        type: string
+        required: true
+        default: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
+      java_home:
+        type: string
+        required: true
+        default: "/opt/java"
+      component_version:
+        type: version
+        default: 1.8.0-131-b11
+    attributes:
+      java_version: { get_operation_output: [ SELF, Standard, create, JAVA_VERSION ] }
+      java_message: { concat: ["Java help: ", get_operation_output: [ SELF, Standard, create, JAVA_HELP ]] }
+    capabilities:
+      jdk:
+        type: org.alien4cloud.lang.java.public.capabilities.JDK
+        occurrences: [ 0, UNBOUNDED ]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            JAVA_URL: { get_property: [SELF, java_url] }
+            JAVA_HOME: { get_property: [SELF, java_home] }
+          implementation: scripts/install_jdk.sh

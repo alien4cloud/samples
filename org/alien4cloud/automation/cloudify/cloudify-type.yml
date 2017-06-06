@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.cloudify-types
+  template_name: org.alien4cloud.automation.cloudify
   template_version: 1.0.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -14,14 +14,14 @@ imports:
   - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
 
 node_types:
-  org.alien4cloud.nodes.AbstractCloudifyManager:
+  org.alien4cloud.automation.cloudify.nodes.AbstractCloudifyManager:
     derived_from: tosca.nodes.SoftwareComponent
     abstract: true
     metadata:
       icon: images/cloudify.png
     capabilities:
       cloudify_api_v3:
-        type: org.alien4cloud.capabilities.CloudifyAPIv3
+        type: org.alien4cloud.automation.cloudify.capabilities.CloudifyAPIv3
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: https
@@ -31,7 +31,7 @@ node_types:
           capability: tosca.capabilities.Container
           occurrences: [0, 0]
 
-  org.alien4cloud.cloudify.nodes.Ansible4CloudifyManager:
+  org.alien4cloud.automation.cloudify.nodes.Ansible4CloudifyManager:
     derived_from: tosca.nodes.SoftwareComponent
     metadata:
       icon: images/ansible.png
@@ -40,7 +40,7 @@ node_types:
         type: version
         default: 2.0.1.0
         constraints:
-          - valid_values: [ "2.0.1.0" ]    
+          - valid_values: [ "2.0.1.0" ]
     requirements:
       - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on yum and so restricted to centos.
           capability: tosca.capabilities.Container
@@ -59,15 +59,15 @@ node_types:
         create:
             implementation: scripts/Ansible4CloudifyManager/install.sh
 
-  org.alien4cloud.cloudify.nodes.HostPoolService:
+  org.alien4cloud.automation.cloudify.nodes.HostPoolService:
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       cloudify_hostpool:
-        type: org.alien4cloud.cloudify.capabilities.CloudifyHostPoolService
+        type: org.alien4cloud.automation.cloudify.capabilities.CloudifyHostPoolService
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http
-          port: 8080 # set a default value for the port 
+          port: 8080 # set a default value for the port
     attributes:
       hostpool_url: { concat: [get_property: [SELF, cloudify_hostpool, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_hostpool, port]] }
       hostpool_url_hosts: { concat: [get_property: [SELF, cloudify_hostpool, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_hostpool, port], "/hosts"] }
@@ -94,8 +94,8 @@ node_types:
           type: tosca.artifacts.File
           description: The host pool service distribution package
 
-  org.alien4cloud.nodes.CloudifyManager:
-    derived_from: org.alien4cloud.nodes.AbstractCloudifyManager
+  org.alien4cloud.automation.cloudify.nodes.CloudifyManager:
+    derived_from: org.alien4cloud.automation.cloudify.nodes.AbstractCloudifyManager
     description: Cloudify CLI and Manager in place installation.
     properties:
       ssh_user:
@@ -131,21 +131,21 @@ node_types:
       manager_url: { concat: ["https://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v3, port]] }
     capabilities:
       cloudify_modules:
-        type: org.alien4cloud.capabilities.CloudifyManagerContainer
+        type: org.alien4cloud.automation.cloudify.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
       rabbitmq_management:
         type: org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http
-          port: 15672       
+          port: 15672
           user: cloudify
           password: c10udify
       postgresql:
         type: org.alien4cloud.db.postgresql.public.PostgresqlEndpoint
         occurrences: [ 0, UNBOUNDED ]
         properties:
-          port: 5432       
+          port: 5432
           user: cloudify
           password: cloudify
     requirements:
@@ -205,8 +205,8 @@ node_types:
           type: tosca.artifacts.File
           description: This artifact is the python script that configure the cluster. It should not be overriden.
 
-  org.alien4cloud.nodes.Cloudify3Manager:
-    derived_from: org.alien4cloud.nodes.AbstractCloudifyManager
+  org.alien4cloud.automation.cloudify.nodes.Cloudify3Manager:
+    derived_from: org.alien4cloud.automation.cloudify.nodes.AbstractCloudifyManager
     description: Cloudify CLI and Manager in place installation.
     properties:
       ssh_user:
@@ -242,19 +242,19 @@ node_types:
       manager_url: { concat: ["https://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v3, port]] }
     capabilities:
       cloudify_modules:
-        type: org.alien4cloud.capabilities.CloudifyManagerContainer
+        type: org.alien4cloud.automation.cloudify.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
       elastic_search:
         type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI
         occurrences: [ 0, UNBOUNDED ]
         properties:
-          port: 9200    
+          port: 9200
       rabbitmq_management:
         type: org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http
-          port: 15672       
+          port: 15672
           user: cloudify
           password: c10udify
     requirements:
@@ -288,14 +288,14 @@ node_types:
             PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
             PRIVATE_IP: { get_attribute: [HOST, ip_address] }
             RABBITMQ_USER: { get_property: [SELF, rabbitmq_management, user] }
-            RABBITMQ_PASSWORD: { get_property: [SELF, rabbitmq_management, password] } 
+            RABBITMQ_PASSWORD: { get_property: [SELF, rabbitmq_management, password] }
           implementation: scripts/Cloudify3Manager/configure.sh
         start:
           inputs:
             ADMIN_USERNAME: { get_property: [SELF, admin_username] }
             ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
             API_PORT: { get_property: [SELF, cloudify_api_v3, port] }
-            API_PROTOCOL: https            
+            API_PROTOCOL: https
             MAX_INSTANCES: { get_property: [HOST, scalable, max_instances] }
           implementation: scripts/Cloudify3Manager/start.sh
     artifacts:
@@ -307,7 +307,7 @@ node_types:
           type: tosca.artifacts.File
           description: This artifact contains the manager ssh key. Note that by default it will also be used
 
-  org.alien4cloud.nodes.CloudifySSHKey:
+  org.alien4cloud.automation.cloudify.nodes.CloudifySSHKey:
     derived_from: tosca.nodes.Root
     description: An SSH key to install on the cloudify manager.
     properties:
@@ -321,11 +321,11 @@ node_types:
         description: Optional name of the key as known by the iaas.
     capabilities:
       installed_key:
-        type: org.alien4cloud.capabilities.CloudifySSHKey
+        type: org.alien4cloud.automation.cloudify.capabilities.CloudifySSHKey
         occurrences: [ 0, UNBOUNDED ]
     requirements:
       - cfy_manager:
-          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          capability: org.alien4cloud.automation.cloudify.capabilities.CloudifyManagerContainer
           relationship: tosca.relationships.HostedOn
           occurrences: [1, 1]
     attributes:
@@ -341,7 +341,7 @@ node_types:
           file: key.pem
           type: tosca.artifacts.File
 
-  org.alien4cloud.nodes.CloudifyAwsConfiguration:
+  org.alien4cloud.automation.cloudify.nodes.CloudifyAwsConfiguration:
     derived_from: tosca.nodes.Root
     description: Configure the cloudify manager for aws.
     properties:
@@ -365,12 +365,12 @@ node_types:
         description: Comma separated list of security groups to use for agents.
     requirements:
       - cfy_manager:
-          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          capability: org.alien4cloud.automation.cloudify.capabilities.CloudifyManagerContainer
           relationship: tosca.relationships.HostedOn
           occurrences: [1, 1]
       - agent_key:
-          capability: org.alien4cloud.capabilities.CloudifySSHKey
-          relationship: org.alien4cloud.cloudify.relationships.ConfigureAWSKey
+          capability: org.alien4cloud.automation.cloudify.capabilities.CloudifySSHKey
+          relationship: org.alien4cloud.automation.cloudify.cloudify.relationships.ConfigureAWSKey
           occurrences: [0, 1]
     interfaces:
       Standard:
@@ -393,7 +393,7 @@ node_types:
       - python_script:
           file: scripts/iaas/cfy_config_iaas.py
           type: tosca.artifacts.File
-  org.alien4cloud.nodes.CloudifyAzureConfiguration:
+  org.alien4cloud.automation.cloudify.nodes.CloudifyAzureConfiguration:
     derived_from: tosca.nodes.Root
     description: Configure the cloudify manager for azure.
     properties:
@@ -415,7 +415,7 @@ node_types:
         default: westeurope
     requirements:
       - cfy_manager:
-          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          capability: org.alien4cloud.automation.cloudify.capabilities.CloudifyManagerContainer
           relationship: tosca.relationships.HostedOn
           occurrences: [1, 1]
     interfaces:
@@ -440,8 +440,8 @@ node_types:
       - python_script:
           file: scripts/iaas/cfy_config_iaas.py
           type: tosca.artifacts.File
-  org.alien4cloud.nodes.Cloudify3AwsConfiguration:
-    derived_from: org.alien4cloud.nodes.CloudifyAwsConfiguration
+  org.alien4cloud.automation.cloudify.nodes.Cloudify3AwsConfiguration:
+    derived_from: org.alien4cloud.automation.cloudify.nodes.CloudifyAwsConfiguration
     description: Configure the cloudify manager for aws.
     interfaces:
       Standard:
@@ -458,8 +458,7 @@ node_types:
           type: tosca.artifacts.File
 
 relationship_types:
-
-  org.alien4cloud.cloudify.relationships.ConfigureAWSKey:
+  org.alien4cloud.automation.cloudify.relationships.ConfigureAWSKey:
     derived_from: tosca.relationships.Root
     interfaces:
       Configure:
@@ -470,12 +469,11 @@ relationship_types:
           implementation:  scripts/aws_configure_key.sh
 
 capability_types:
-  
-  org.alien4cloud.capabilities.CloudifyManagerContainer:
+  org.alien4cloud.automation.cloudify.capabilities.CloudifyManagerContainer:
     derived_from: tosca.capabilities.Container
-  org.alien4cloud.capabilities.CloudifyAPIv3:
-    derived_from: tosca.capabilities.Endpoint      
-  org.alien4cloud.cloudify.capabilities.CloudifyHostPoolService:
-    derived_from: tosca.capabilities.Endpoint    
-  org.alien4cloud.capabilities.CloudifySSHKey:
+  org.alien4cloud.automation.cloudify.capabilities.CloudifyAPIv3:
+    derived_from: tosca.capabilities.Endpoint
+  org.alien4cloud.automation.cloudify.capabilities.CloudifyHostPoolService:
+    derived_from: tosca.capabilities.Endpoint
+  org.alien4cloud.automation.cloudify.capabilities.CloudifySSHKey:
     derived_from: tosca.capabilities.Root

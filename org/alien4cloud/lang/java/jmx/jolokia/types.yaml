@@ -1,0 +1,21 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.lang.java.jmx.jolokia
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+capability_types:
+  org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint:
+    description: >
+      Exposed by a java sofware that embed jolokia jar to expose JMX metrics.
+    derived_from: tosca.capabilities.Root
+    properties:
+      jolokia_port:
+        type: integer
+        description: the port on witch the javaagent will listen
+        required: true
+        default: 8778

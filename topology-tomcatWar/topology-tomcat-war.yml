@@ -42,7 +42,7 @@ topology_template:
       requirements:
         - host:
             node: Java
-            capability: org.alien4cloud.capabilities.JDK
+            capability: org.alien4cloud.lang.java.public.capabilities.JDK
             relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
     Compute:
       type: tosca.nodes.Compute
@@ -52,7 +52,7 @@ topology_template:
             architecture: { get_input: os_arch }
             type: { get_input: os_type }
     Java:
-      type: org.alien4cloud.nodes.JDK
+      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
       properties:
         java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
         java_home: /opt/java

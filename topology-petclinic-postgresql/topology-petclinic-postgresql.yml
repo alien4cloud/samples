@@ -10,7 +10,7 @@ description: "A sample topology of a Petclinic application hosted on a Tomcat se
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
   - petclinic-war-type:1.4.0-SNAPSHOT
-  - jdk-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - mysql-type:1.4.0-SNAPSHOT
   - tomcat-war-types:1.4.0-SNAPSHOT
   - postgresql-type:1.4.0-SNAPSHOT
@@ -18,7 +18,7 @@ imports:
 topology_template:
   node_templates:
     JDK:
-      type: org.alien4cloud.nodes.JDK
+      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
       properties:
         java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
         java_home: "/opt/java"
@@ -37,7 +37,7 @@ topology_template:
       requirements:
         - host:
             node: JDK
-            capability: org.alien4cloud.capabilities.JDK
+            capability: org.alien4cloud.lang.java.public.capabilities.JDK
             relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
       capabilities:
         data_endpoint:

@@ -7,7 +7,7 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - jdk-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
 
 description: Tomcat recipe, including war type and relationship.
 
@@ -38,7 +38,7 @@ node_types:
       server_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, data_endpoint, port]] }
     requirements:
       - host:
-          capability: org.alien4cloud.capabilities.JDK
+          capability: org.alien4cloud.lang.java.public.capabilities.JDK
           relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
           occurrences: [1, 1]
     capabilities:

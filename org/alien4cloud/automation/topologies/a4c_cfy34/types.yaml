@@ -3,12 +3,12 @@ tosca_definitions_version: alien_dsl_1_4_0
 metadata:
   template_name: org.alien4cloud.automation.topologies.a4c_cfy34
   template_version: 1.4.0-SNAPSHOT
-  template_author: A4C
+  template_author: alien4cloud
 
 description: ""
 
 imports:
-  - org.alien4cloud.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
   - org.alien4cloud.cloudify-tools.HostpoolFeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
@@ -21,7 +21,7 @@ imports:
   - org.alien4cloud.monitoring.graphite:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.agent:1.0.0-SNAPSHOT
   - org.alien4cloud.automation.a4c:1.4.0-SNAPSHOT
-  - jdk-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
 
 repositories:
@@ -58,7 +58,7 @@ topology_template:
       description: "The region where to start instances"
   node_templates:
     JDK:
-      type: org.alien4cloud.nodes.JDK
+      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
       properties:
         java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
         java_home: "/opt/java"
@@ -86,7 +86,7 @@ topology_template:
       requirements:
         - java:
             node: JDK
-            capability: org.alien4cloud.capabilities.JDK
+            capability: org.alien4cloud.lang.java.public.capabilities.JDK
             relationship: tosca.relationships.HostedOn
       capabilities:
         elasticsearch:
@@ -179,7 +179,7 @@ topology_template:
             relationship: tosca.relationships.HostedOn
         - collec_jolokia:
             node: Alien4Cloud
-            capability: org.alien4cloud.java.jmx.jolokia.capabilities.JolokiaEndpoint
+            capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondAlienCollector
         - metrics_backend:
             node: GraphiteBackend
@@ -202,7 +202,7 @@ topology_template:
       requirements:
         - java:
             node: JDK
-            capability: org.alien4cloud.capabilities.JDK
+            capability: org.alien4cloud.lang.java.public.capabilities.JDK
             relationship: tosca.relationships.HostedOn
         - elasticsearch:
             node: ElasticSearch

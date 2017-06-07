@@ -14,7 +14,7 @@ imports:
 
 node_types:
   org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud:
-    derived_from: org.alien4cloud.lang.java.public.nodes.JavaSoftware
+    derived_from: org.alien4cloud.lang.java.pub.nodes.JavaSoftware
     description: >
       The TOSCA Alien Node Type represents an alien webapp.
     tags:
@@ -63,7 +63,7 @@ node_types:
       # elasticsearch:
       #   type: org.alien4cloud.elasticsearch.capabilities.ElasticSearchClient
       rest:
-        type: org.alien4cloud.automation.a4c.public.capabilities.A4cRestApi
+        type: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
       jolokia:
         type: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
     requirements:
@@ -83,7 +83,7 @@ node_types:
       #               - architecture: { equal: x86_64 }
       #               - distribution: { valid_values: [ "ubuntu", "debian" ] }
       - elasticsearch:
-          capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI
+          capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchTransportAPI
           relationship: org.alien4cloud.automation.a4c.webapp.relationships.AlienConnectToElasticSearch
           occurrences: [ 0, 1 ]
       # - consul:
@@ -168,7 +168,7 @@ relationship_types:
   #         type: tosca.artifacts.File
   org.alien4cloud.automation.a4c.webapp.relationships.AlienConnectToElasticSearch:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI]
+    valid_target_types: [org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchTransportAPI]
     interfaces:
       Configure:
         pre_configure_source:

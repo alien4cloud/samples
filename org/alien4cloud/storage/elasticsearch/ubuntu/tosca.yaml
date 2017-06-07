@@ -12,7 +12,7 @@ imports:
 node_types:
 
   org.alien4cloud.storage.elasticsearch.ubuntu.nodes.ElasticSearch:
-    derived_from: org.alien4cloud.lang.java.public.nodes.JavaSoftware
+    derived_from: org.alien4cloud.lang.java.pub.nodes.JavaSoftware
     description: >
       Installation of replicated ElasticSearch (if this node is scaled, will be replicated).
     tags:
@@ -51,10 +51,10 @@ node_types:
     #                 - distribution: { valid_values: [ "ubuntu", "debian" ] }        
     capabilities:
       elasticsearch:
-        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI
+        type: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchTransportAPI
         occurrences: [ 0, UNBOUNDED ]
       http:
-        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI
+        type: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
         occurrences: [ 0, UNBOUNDED ]
     interfaces:
       Standard:

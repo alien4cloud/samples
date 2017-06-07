@@ -37,8 +37,8 @@ topology_template:
       requirements:
         - host:
             node: JDK
-            capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
       capabilities:
         data_endpoint:
           properties:

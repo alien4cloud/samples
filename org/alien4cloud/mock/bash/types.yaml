@@ -18,7 +18,7 @@ node_types:
   org.alien4cloud.mock.bash.nodes.BashMockHost:
     description: |
       A software component that hosts MockComponent.
-    derived_from: org.alien4cloud.mock.public.nodes.AbstractMockHost
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
     interfaces:
       Standard:
         create:
@@ -63,7 +63,7 @@ node_types:
   org.alien4cloud.mock.bash.nodes.BashMockComponent:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.
-    derived_from: org.alien4cloud.mock.public.nodes.AbstractMockComponent
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockComponent
     properties:
       sleep_factor:
         type: float
@@ -131,7 +131,7 @@ node_types:
 relationship_types:
 
   org.alien4cloud.mock.bash.relationships.BashComponentHostedOnHost:
-    derived_from: org.alien4cloud.mock.public.relationships.AbstractComponentHostedOnHost
+    derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost
     valid_target_types: [ org.alien4cloud.mock.bash.nodes.BashMockHost ]
     interfaces:
       configure:
@@ -196,7 +196,7 @@ relationship_types:
           file: data/data.txt
           type: tosca.artifacts.File
   org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent:
-    derived_from: org.alien4cloud.mock.public.relationships.AbstractComponentConnectToComponent
+    derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
     valid_target_types: [ org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint ]
     interfaces:
       configure:
@@ -264,4 +264,4 @@ relationship_types:
 capability_types:
 
   org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint:
-    derived_from: org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint
+    derived_from: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint

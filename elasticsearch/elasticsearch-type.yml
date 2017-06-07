@@ -13,7 +13,7 @@ imports:
 
 node_types:
   org.alien4cloud.nodes.ElasticSearch:
-    derived_from: org.alien4cloud.lang.java.public.nodes.JavaSoftware
+    derived_from: org.alien4cloud.lang.java.pub.nodes.JavaSoftware
     description: >
       Installation of ElasticSearch
     metadata:

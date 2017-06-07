@@ -83,13 +83,13 @@ node_types:
           - valid_values: [ "linux", "windows" ]
     requirements:
       - hostpool:
-          capability: org.alien4cloud.automation.cloudify.hostpool.public.capabilities.HostPoolServiceApi
+          capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
           occurrences: [1, 1]
 
 relationship_types:
   org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.automation.cloudify.hostpool.public.capabilities.HostPoolServiceApi ]
+    valid_target_types: [ org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi ]
     interfaces:
       Configure:
         add_target:

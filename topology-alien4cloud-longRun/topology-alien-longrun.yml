@@ -33,8 +33,8 @@ topology_template:
       requirements:
         - java:
             node: JDK
-            capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
         - elasticsearch:
             node: ElasticSearch1
             capability: org.alien4cloud.capabilities.ElasticSearch
@@ -50,8 +50,8 @@ topology_template:
       requirements:
         - java:
             node: JDK_P0
-            capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
         - elasticsearch:
             node: ElasticSearch1
             capability: org.alien4cloud.capabilities.ElasticSearch
@@ -65,8 +65,8 @@ topology_template:
       requirements:
         - java:
             node: JDK
-            capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
         - elasticsearch:
             node: ElasticSearch0
             capability: org.alien4cloud.capabilities.ElasticSearch
@@ -82,8 +82,8 @@ topology_template:
       requirements:
         - java:
             node: JDK_P1
-            capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
     Network:
       type: tosca.nodes.Network
       properties:

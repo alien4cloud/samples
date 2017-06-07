@@ -9,7 +9,7 @@ imports:
 
 capability_types:
 
-  org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint:
+  org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint:
     derived_from: tosca.capabilities.Endpoint     
     properties:
       user:

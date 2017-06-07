@@ -17,7 +17,7 @@ node_types:
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       cloudify_hostpool:
-        type: org.alien4cloud.automation.cloudify.hostpool.public.capabilities.HostPoolServiceApi
+        type: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http

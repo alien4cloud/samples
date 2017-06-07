@@ -86,7 +86,7 @@ topology_template:
       requirements:
         - java:
             node: JDK
-            capability: org.alien4cloud.lang.java.public.capabilities.JDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
             relationship: tosca.relationships.HostedOn
       capabilities:
         elasticsearch:
@@ -187,7 +187,7 @@ topology_template:
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
         - collec_elasticsearch:
             node: ElasticSearch
-            capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI
+            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
     Alien4Cloud:
       type: org.alien4cloud.automation.a4c.nodes.Alien4Cloud
@@ -202,11 +202,11 @@ topology_template:
       requirements:
         - java:
             node: JDK
-            capability: org.alien4cloud.lang.java.public.capabilities.JDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
             relationship: tosca.relationships.HostedOn
         - elasticsearch:
             node: ElasticSearch
-            capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI
+            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchTransportAPI
             relationship: org.alien4cloud.automation.a4c.relationships.AlienConnectToElasticSearch
       capabilities:
         jolokia:
@@ -231,11 +231,11 @@ topology_template:
       requirements:
         - collec_rabbitmq:
             node: Cloudify3Manager
-            capability: org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint
+            capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondRabbitmqCollector
         - collec_elasticsearch:
             node: Cloudify3Manager
-            capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI
+            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
         - metrics_backend:
             node: GraphiteBackend

@@ -18,7 +18,7 @@ node_types:
   org.alien4cloud.mock.ansible.nodes.AnsibleMockHost:
     description: |
       A software component that hosts MockComponent.
-    derived_from: org.alien4cloud.mock.public.nodes.AbstractMockHost
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
     interfaces:
       Standard:
         create:
@@ -69,7 +69,7 @@ node_types:
   org.alien4cloud.mock.ansible.nodes.AnsibleMockComponent:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.
-    derived_from: org.alien4cloud.mock.public.nodes.AbstractMockComponent
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockComponent
     properties:
       sleep_factor:
         type: float
@@ -143,7 +143,7 @@ node_types:
 relationship_types:
 
   org.alien4cloud.mock.ansible.relationships.AnsibleComponentHostedOnHost:
-    derived_from: org.alien4cloud.mock.public.relationships.AbstractComponentHostedOnHost
+    derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost
     valid_target_types: [ org.alien4cloud.mock.ansible.nodes.AnsibleMockHost ]
     interfaces:
       configure:
@@ -220,7 +220,7 @@ relationship_types:
         #     log_length: { get_property: [ SOURCE, log_length ] } 
         #   implementation: playbook/playbook.ansible
   org.alien4cloud.mock.ansible.relationships.AnsibleComponentConnectToComponent:
-    derived_from: org.alien4cloud.mock.public.relationships.AbstractComponentConnectToComponent
+    derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
     valid_target_types: [ org.alien4cloud.mock.ansible.capabilities.AnsibleComponentEndpoint ]
     interfaces:
       configure:
@@ -299,4 +299,4 @@ relationship_types:
 
 capability_types:
   org.alien4cloud.mock.ansible.capabilities.AnsibleComponentEndpoint:
-    derived_from: org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint
+    derived_from: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint

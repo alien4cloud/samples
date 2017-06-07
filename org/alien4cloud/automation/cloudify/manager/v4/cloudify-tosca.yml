@@ -17,7 +17,7 @@ imports:
 node_types:
 
   org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyManager:
-    derived_from: org.alien4cloud.automation.cloudify.manager.public.nodes.AbstractCloudifyManager
+    derived_from: org.alien4cloud.automation.cloudify.manager.pub.nodes.AbstractCloudifyManager
     description: Cloudify CLI and Manager in place installation.
     properties:
       ssh_user:
@@ -53,10 +53,10 @@ node_types:
       manager_url: { concat: ["https://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v3, port]] }
     capabilities:
       cloudify_modules:
-        type: org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifyManagerContainer
+        type: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
       rabbitmq_management:
-        type: org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint
+        type: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http
@@ -64,7 +64,7 @@ node_types:
           user: cloudify
           password: c10udify
       postgresql:
-        type: org.alien4cloud.db.postgresql.public.PostgresqlEndpoint
+        type: org.alien4cloud.db.postgresql.pub.PostgresqlEndpoint
         occurrences: [ 0, UNBOUNDED ]
         properties:
           port: 5432
@@ -141,11 +141,11 @@ node_types:
         description: Optional name of the key as known by the iaas.
     capabilities:
       installed_key:
-        type: org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifySSHKey
+        type: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifySSHKey
         occurrences: [ 0, UNBOUNDED ]
     requirements:
       - cfy_manager:
-          capability: org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifyManagerContainer
+          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
           relationship: tosca.relationships.HostedOn
           occurrences: [1, 1]
     attributes:
@@ -185,11 +185,11 @@ node_types:
         description: Comma separated list of security groups to use for agents.
     requirements:
       - cfy_manager:
-          capability: org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifyManagerContainer
+          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
           relationship: tosca.relationships.HostedOn
           occurrences: [1, 1]
       - agent_key:
-          capability: org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifySSHKey
+          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifySSHKey
           relationship: org.alien4cloud.automation.cloudify.manager.v4.relationships.ConfigureAWSKey
           occurrences: [0, 1]
     interfaces:
@@ -235,7 +235,7 @@ node_types:
         default: westeurope
     requirements:
       - cfy_manager:
-          capability: org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifyManagerContainer
+          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
           relationship: tosca.relationships.HostedOn
           occurrences: [1, 1]
     interfaces:

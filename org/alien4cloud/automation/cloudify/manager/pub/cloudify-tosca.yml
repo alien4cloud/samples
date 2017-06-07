@@ -11,14 +11,14 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
-  org.alien4cloud.automation.cloudify.manager.public.nodes.AbstractCloudifyManager:
+  org.alien4cloud.automation.cloudify.manager.pub.nodes.AbstractCloudifyManager:
     derived_from: tosca.nodes.SoftwareComponent
     abstract: true
     metadata:
       icon: images/cloudify.png
     capabilities:
       cloudify_api_v3:
-        type: org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifyAPIv3
+        type: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: https
@@ -29,9 +29,9 @@ node_types:
           occurrences: [0, 0]
 
 capability_types:
-  org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifyManagerContainer:
+  org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer:
     derived_from: tosca.capabilities.Container
-  org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifyAPIv3:
+  org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3:
     derived_from: tosca.capabilities.Endpoint
-  org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifySSHKey:
+  org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifySSHKey:
     derived_from: tosca.capabilities.Root

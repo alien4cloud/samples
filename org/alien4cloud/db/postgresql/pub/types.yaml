@@ -10,7 +10,7 @@ imports:
 
 capability_types:
 
-  org.alien4cloud.db.postgresql.public.PostgresqlEndpoint:
+  org.alien4cloud.db.postgresql.pub.PostgresqlEndpoint:
     derived_from: tosca.capabilities.Endpoint
     properties:
       user:

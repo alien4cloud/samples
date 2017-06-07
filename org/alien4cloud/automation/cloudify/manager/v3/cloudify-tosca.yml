@@ -18,7 +18,7 @@ imports:
 node_types:
 
   org.alien4cloud.automation.cloudify.manager.v3.nodes.Cloudify3Manager:
-    derived_from: org.alien4cloud.automation.cloudify.manager.public.nodes.AbstractCloudifyManager
+    derived_from: org.alien4cloud.automation.cloudify.manager.pub.nodes.AbstractCloudifyManager
     description: Cloudify CLI and Manager in place installation.
     properties:
       ssh_user:
@@ -54,15 +54,15 @@ node_types:
       manager_url: { concat: ["https://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v3, port]] }
     capabilities:
       cloudify_modules:
-        type: org.alien4cloud.automation.cloudify.manager.public.capabilities.CloudifyManagerContainer
+        type: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
         occurrences: [ 0, UNBOUNDED ]
       elastic_search:
-        type: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI
+        type: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
         occurrences: [ 0, UNBOUNDED ]
         properties:
           port: 9200
       rabbitmq_management:
-        type: org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint
+        type: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http

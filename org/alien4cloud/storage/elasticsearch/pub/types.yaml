@@ -9,7 +9,7 @@ imports:
 
 capability_types:
 
-  org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI:
+  org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchTransportAPI:
     derived_from: tosca.capabilities.Endpoint
     description: >
       Exposed by a ElasticSearch node for internal Transport connection.
@@ -26,7 +26,7 @@ capability_types:
         type: string
         required: true
         default: tcp
-  org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchRestAPI:
+  org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI:
     derived_from: tosca.capabilities.Endpoint
     description: >
       The HTTP endpoint exposed by elasticsearch.

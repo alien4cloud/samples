@@ -34,7 +34,7 @@ node_types:
       java_message: { concat: ["Java help: ", get_operation_output: [ SELF, Standard, create, JAVA_HELP ]] }
     capabilities:
       jdk:
-        type: org.alien4cloud.lang.java.public.capabilities.JDK
+        type: org.alien4cloud.lang.java.pub.capabilities.JDK
         occurrences: [ 0, UNBOUNDED ]
     interfaces:
       Standard:

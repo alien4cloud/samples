@@ -11,7 +11,7 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
-  org.alien4cloud.lang.java.public.nodes.JavaSoftware:
+  org.alien4cloud.lang.java.pub.nodes.JavaSoftware:
     abstract: true
     derived_from: tosca.nodes.Root
     description: The JavaSoftware node represents a generic software component that can be launch by Java.
@@ -19,22 +19,22 @@ node_types:
       icon: images/jdk.png
     requirements:
       - java:
-          capability: org.alien4cloud.lang.java.public.capabilities.JDK
-          relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
+          capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+          relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
           occurrences: [1, 1]
 
 capability_types:
-  org.alien4cloud.lang.java.public.capabilities.JDK:
+  org.alien4cloud.lang.java.pub.capabilities.JDK:
     derived_from: tosca.capabilities.Container
 
 relationship_types:
-  org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK:
+  org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK:
     derived_from: tosca.relationships.HostedOn
     description: Relationship use to describe that the SoftwareComponent is hosted on the JDK.
-    valid_target_types: [ org.alien4cloud.lang.java.public.capabilities.JDK ]
+    valid_target_types: [ org.alien4cloud.lang.java.pub.capabilities.JDK ]
 
 artifact_types:
-  org.alien4cloud.lang.java.public.artifacts.WarFile:
+  org.alien4cloud.lang.java.pub.artifacts.WarFile:
     derived_from: tosca.artifacts.Root
     description: A war file (Web Archive).
     file_ext: [ war ]

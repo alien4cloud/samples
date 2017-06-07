@@ -13,7 +13,7 @@ description: >
 
 node_types:
 
-  org.alien4cloud.mock.public.nodes.AbstractMockHost:
+  org.alien4cloud.mock.pub.nodes.AbstractMockHost:
     description: |
       A software component that hosts MockComponent.
     abstract: true      
@@ -30,38 +30,38 @@ node_types:
     capabilities:
       host:
         type: tosca.capabilities.Container
-  org.alien4cloud.mock.public.nodes.AbstractMockComponent:
+  org.alien4cloud.mock.pub.nodes.AbstractMockComponent:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.
     abstract: true        
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       mock_endpoint:
-        type: org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint
+        type: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
         occurrences: [0, unbounded]
     requirements:
       - host:
           capability: tosca.capabilities.Container
-          relationship: org.alien4cloud.mock.public.relationships.AbstractComponentHostedOnHost
+          relationship: org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost
           occurrences: [1,1]
       - mock_endpoint:
-          capability: org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint
-          relationship: org.alien4cloud.mock.public.relationships.AbstractComponentConnectToComponent
+          capability: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+          relationship: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
           occurrences: [0, unbounded]
 
 relationship_types:
 
-  org.alien4cloud.mock.public.relationships.AbstractComponentHostedOnHost:
+  org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost:
     derived_from: tosca.relationships.HostedOn
     abstract: true
-    valid_target_types: [ org.alien4cloud.mock.public.nodes.AbstractMockHost ]  
-  org.alien4cloud.mock.public.relationships.AbstractComponentConnectToComponent:
+    valid_target_types: [ org.alien4cloud.mock.pub.nodes.AbstractMockHost ]  
+  org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent:
     derived_from: tosca.relationships.ConnectsTo
     abstract: true
-    valid_target_types: [ org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint ]
+    valid_target_types: [ org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint ]
 
 capability_types:
 
-  org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint:
+  org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint:
     derived_from: tosca.capabilities.Root
     abstract: true

@@ -11,5 +11,5 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
 capability_types:
-  org.alien4cloud.automation.cloudify.hostpool.public.capabilities.HostPoolServiceApi:
+  org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi:
     derived_from: tosca.capabilities.Endpoint

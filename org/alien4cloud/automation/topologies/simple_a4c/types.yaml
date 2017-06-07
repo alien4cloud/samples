@@ -24,6 +24,8 @@ repositories:
     type: maven
 
 topology_template:
+  description: |
+    Simply an Alien with an embeded ES, both hosted on JDK.  
   node_templates:
     OracleJDK:
       type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK

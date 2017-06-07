@@ -7,20 +7,24 @@ metadata:
 
 description: |
   Graphite As a Service : a Grafana that connects to a Graphite as a backend.
+  Can be used to expose a monitoring service.
 
 imports:
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
-  - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.grafana:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.graphite:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
 
 topology_template:
+  description: |
+    Graphite As a Service : a Grafana that connects to a Graphite as a backend.
+    Can be used to expose a monitoring service.  
   substitution_mappings:
     node_type: org.alien4cloud.monitoring.pub.nodes.MetricsBackend
     capabilities:

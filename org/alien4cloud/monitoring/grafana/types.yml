@@ -7,9 +7,9 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.graphite:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.graphite:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
 
 node_types:
 
@@ -101,7 +101,7 @@ relationship_types:
   org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend:
     derived_from: tosca.relationships.ConnectsTo
     abstract: true
-    valid_target_types: [ org.alien4cloud.monitoring.pub.nodes.MetricsBackend ]   
+    valid_target_types: [ org.alien4cloud.monitoring.pub.nodes.MetricsBackend ]
   org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite:
     derived_from: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend
     # derived_from: tosca.relationships.ConnectsTo

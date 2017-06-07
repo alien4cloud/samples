@@ -7,7 +7,7 @@ template_author: Fastconnect
 imports:
   - "tosca-normative-types:1.0.0-ALIEN14"
   - "org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT"
-  - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
 
 node_types:
 
@@ -23,7 +23,7 @@ node_types:
         type: version
         default: 1.7.0
         constraints:
-          - valid_values: [ "1.7.0" ]              
+          - valid_values: [ "1.7.0" ]
       elasticsearch_url:
         type: string
         required: true
@@ -48,7 +48,7 @@ node_types:
     #               properties:
     #                 - type: { equal: linux }
     #                 - architecture: { equal: x86_64 }
-    #                 - distribution: { valid_values: [ "ubuntu", "debian" ] }        
+    #                 - distribution: { valid_values: [ "ubuntu", "debian" ] }
     capabilities:
       elasticsearch:
         type: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchTransportAPI
@@ -71,11 +71,9 @@ node_types:
         start:
           implementation: scripts/elasticsearch/start_elasticsearch.sh
     artifacts:
-      - configs: 
+      - configs:
           file: config/elasticsearch
           type: tosca.artifacts.File
-      - commons: 
+      - commons:
           file: scripts/commons
           type: tosca.artifacts.File
-
-       

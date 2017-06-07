@@ -1,6 +1,6 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
-template_name: org.alien4cloud.messaging.rabbitmq.public
+template_name: org.alien4cloud.messaging.rabbitmq.pub
 template_version: 1.4.0-SNAPSHOT
 template_author: Fastconnect
 
@@ -10,7 +10,7 @@ imports:
 capability_types:
 
   org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint:
-    derived_from: tosca.capabilities.Endpoint     
+    derived_from: tosca.capabilities.Endpoint
     properties:
       user:
         type: string

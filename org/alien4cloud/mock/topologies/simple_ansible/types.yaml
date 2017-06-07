@@ -11,12 +11,12 @@ imports:
   - org.alien4cloud.mock.ansible:1.0.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
   - alien-base-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.mock.public:1.0.0-SNAPSHOT
+  - org.alien4cloud.mock.pub:1.0.0-SNAPSHOT
 
 topology_template:
   node_templates:
     Compute:
-      type: tosca.nodes.Compute    
+      type: tosca.nodes.Compute
     AnsibleMockHost:
       type: org.alien4cloud.mock.ansible.nodes.AnsibleMockHost
       properties:

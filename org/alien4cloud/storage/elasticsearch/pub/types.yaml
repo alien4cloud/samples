@@ -1,6 +1,6 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
-template_name: org.alien4cloud.storage.elasticsearch.public
+template_name: org.alien4cloud.storage.elasticsearch.pub
 template_version: 1.4.0-SNAPSHOT
 template_author: Fastconnect
 

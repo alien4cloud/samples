@@ -9,10 +9,10 @@ description: TOSCA template that contains a basic node type to install a cloudif
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.automation.cloudify.manager.public:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.public:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
 
 node_types:
 
@@ -271,4 +271,3 @@ relationship_types:
             SSH_KEY_FILENAME: { get_property: [TARGET, key_file_name] }
             KEYPAIR_NAME: { get_property: [TARGET, keypair_name] }
           implementation:  scripts/aws_configure_key.sh
-

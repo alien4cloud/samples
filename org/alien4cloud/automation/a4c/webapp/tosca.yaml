@@ -7,9 +7,9 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.automation.a4c.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
 
 node_types:

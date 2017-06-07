@@ -1,35 +1,57 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.a4c.public
+  template_name: org.alien4cloud.automation.a4c.config.csar
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
 
-capability_types:
-  org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi:
-    derived_from: tosca.capabilities.Endpoint
+node_types:
+  org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit:
+    description: |
+      Deploy a Diamond Agent
+    derived_from: tosca.nodes.Root
     properties:
-      user:
-        type: string
-        default: admin
-        required: true
-      password:
-        type: string
-        default: admin
-        required: true      
-      port:
-        type: integer
-        description: The port of the elasticsearch HTTP endpoint.
-        required: true
-        default: 8080
-        constraints:
-          - in_range: [ 1, 65535 ]
-      protocol:
+      repositoryUrl:
         type: string
         required: true
-        default: http
-        constraints:
-          - valid_values: ["http", "https"]
+      repositoryUsername:
+        type: string
+        required: false
+      repositoryPassword:
+        type: string
+        required: false
+      branchId:
+        type: string
+        required: true
+      subPath:
+        type: string
+        required: true
+    requirements:
+      - alien:
+          capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
+          relationship: org.alien4cloud.automation.a4c.config.csar.relationships.AddCsarFromGitConnectToAlien
+          occurrences: [1, 1]
+
+relationship_types:
+  org.alien4cloud.automation.a4c.config.csar.relationships.AddCsarFromGitConnectToAlien:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi ]
+    interfaces:
+      Configure:
+        add_target:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: connect.yml
+            repositoryUrl: { get_property: [SOURCE, repositoryUrl] }
+            repositoryUsername: { get_property: [SOURCE, repositoryUsername] }
+            repositoryPassword: { get_property: [SOURCE, repositoryPassword] }
+            branchId: { get_property: [SOURCE, branchId] }
+            subPath: { get_property: [SOURCE, subPath] }
+            alien_user: { get_property: [TARGET, rest, user] }
+            alien_password: { get_property: [TARGET, rest, password] }
+            alien_url: { concat: [get_property: [TARGET, rest, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, rest, port]] }
+          implementation: playbook/playbook.ansible

@@ -9,7 +9,7 @@ description: Java Development Kit to run java software.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.lang.java.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK:

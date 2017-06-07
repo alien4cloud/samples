@@ -9,16 +9,16 @@ description: ""
 
 imports:
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.messaging.rabbitmq.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.grafana:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.graphite:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.backend:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.agent:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
 
 topology_template:
   substitution_mappings:

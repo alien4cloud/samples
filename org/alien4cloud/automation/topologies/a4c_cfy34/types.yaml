@@ -13,8 +13,8 @@ imports:
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
   - org.alien4cloud.cloudify-tools.HostpoolFeeder:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.backend:1.0.0-SNAPSHOT
@@ -22,7 +22,7 @@ imports:
   - org.alien4cloud.monitoring.agent:1.0.0-SNAPSHOT
   - org.alien4cloud.automation.a4c:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
 
 repositories:
   FC Nexus private snapshot:

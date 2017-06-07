@@ -8,7 +8,7 @@ metadata:
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
   - alien-base-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.mock.public:1.0.0-SNAPSHOT
+  - org.alien4cloud.mock.pub:1.0.0-SNAPSHOT
 
 description: >
   Mock types for A4C load tests.
@@ -22,50 +22,50 @@ node_types:
     interfaces:
       Standard:
         create:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: operation.yml
             operation: "create AnsibleMockHost"
             sleep_time: 240
-            sleep_factor: { get_property: [ SELF, sleep_factor ] } 
-            log_length: { get_property: [ SELF, log_length ] } 
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            log_length: { get_property: [ SELF, log_length ] }
           implementation: playbook/playbook.ansible
         configure:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: operation.yml
             operation: "configure AnsibleMockHost"
-            sleep_time: 10  
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }   
-            log_length: { get_property: [ SELF, log_length ] } 
+            sleep_time: 10
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            log_length: { get_property: [ SELF, log_length ] }
           implementation: playbook/playbook.ansible
         start:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml 
+            PLAYBOOK_ENTRY: operation.yml
             operation: "start AnsibleMockHost"
-            sleep_time: 30      
-            sleep_factor: { get_property: [ SELF, sleep_factor ] } 
-            log_length: { get_property: [ SELF, log_length ] }   
+            sleep_time: 30
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            log_length: { get_property: [ SELF, log_length ] }
           implementation: playbook/playbook.ansible
         # stop:
-        #   inputs:          
+        #   inputs:
         #     ANSIBLE_VERBOSE: true
-        #     PLAYBOOK_ENTRY: operation.yml 
-        #     operation: "stop AnsibleMockHost" 
-        #     sleep_time: 2       
-        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }  
-        #     log_length: { get_property: [ SELF, log_length ] }     
+        #     PLAYBOOK_ENTRY: operation.yml
+        #     operation: "stop AnsibleMockHost"
+        #     sleep_time: 2
+        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
+        #     log_length: { get_property: [ SELF, log_length ] }
         #   implementation: playbook/playbook.ansible
         # delete:
-        #   inputs:          
+        #   inputs:
         #     ANSIBLE_VERBOSE: true
-        #     PLAYBOOK_ENTRY: operation.yml 
+        #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "delete AnsibleMockHost"
-        #     sleep_time: 2                  
-        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }  
-        #     log_length: { get_property: [ SELF, log_length ] } 
-        #   implementation: playbook/playbook.ansible  
+        #     sleep_time: 2
+        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
+        #     log_length: { get_property: [ SELF, log_length ] }
+        #   implementation: playbook/playbook.ansible
   org.alien4cloud.mock.ansible.nodes.AnsibleMockComponent:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.
@@ -73,12 +73,12 @@ node_types:
     properties:
       sleep_factor:
         type: float
-        required: true    
-        default: 1    
+        required: true
+        default: 1
       log_length:
         type: integer
-        required: true    
-        default: 200          
+        required: true
+        default: 200
     capabilities:
       mock_endpoint:
         type: org.alien4cloud.mock.ansible.capabilities.AnsibleComponentEndpoint
@@ -95,49 +95,49 @@ node_types:
     interfaces:
       Standard:
         create:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml            
+            PLAYBOOK_ENTRY: operation.yml
             operation: "create AnsibleMockComponent"
-            sleep_time: 60                  
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
-            log_length: { get_property: [ SELF, log_length ] } 
+            sleep_time: 60
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            log_length: { get_property: [ SELF, log_length ] }
           implementation: playbook/playbook.ansible
         configure:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml    
+            PLAYBOOK_ENTRY: operation.yml
             operation: "configure AnsibleMockComponent"
-            sleep_time: 20                  
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
-            log_length: { get_property: [ SELF, log_length ] }         
+            sleep_time: 20
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            log_length: { get_property: [ SELF, log_length ] }
           implementation: playbook/playbook.ansible
         start:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: operation.yml
             operation: "start AnsibleMockComponent"
-            sleep_time: 30                  
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
-            log_length: { get_property: [ SELF, log_length ] } 
+            sleep_time: 30
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            log_length: { get_property: [ SELF, log_length ] }
           implementation: playbook/playbook.ansible
         # stop:
-        #   inputs:          
+        #   inputs:
         #     ANSIBLE_VERBOSE: true
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "stop AnsibleMockComponent"
-        #     sleep_time: 2                  
-        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }  
-        #     log_length: { get_property: [ SELF, log_length ] } 
+        #     sleep_time: 2
+        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
+        #     log_length: { get_property: [ SELF, log_length ] }
         #   implementation: playbook/playbook.ansible
         # delete:
-        #   inputs:          
+        #   inputs:
         #     ANSIBLE_VERBOSE: true
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "delete AnsibleMockComponent"
-        #     sleep_time: 2                  
-        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }  
-        #     log_length: { get_property: [ SELF, log_length ] }      
+        #     sleep_time: 2
+        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
+        #     log_length: { get_property: [ SELF, log_length ] }
         #   implementation: playbook/playbook.ansible
 
 relationship_types:
@@ -148,76 +148,76 @@ relationship_types:
     interfaces:
       configure:
         pre_configure_source:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml  
+            PLAYBOOK_ENTRY: operation.yml
             operation: "pre_configure_source AnsibleComponentHostedOnHost"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] }          
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         pre_configure_target:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "pre_configure_target AnsibleComponentHostedOnHost"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         post_configure_source:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "post_configure_source AnsibleComponentHostedOnHost"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         post_configure_target:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "post_configure_target AnsibleComponentHostedOnHost"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         add_target:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "add_target AnsibleComponentHostedOnHost"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         add_source:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "add_source AnsibleComponentHostedOnHost"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         # remove_target:
-        #   inputs:          
+        #   inputs:
         #     ANSIBLE_VERBOSE: true
-        #     PLAYBOOK_ENTRY: operation.yml           
+        #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "remove_target AnsibleComponentHostedOnHost"
-        #     sleep_time: 5                  
-        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-        #     log_length: { get_property: [ SOURCE, log_length ] } 
+        #     sleep_time: 5
+        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+        #     log_length: { get_property: [ SOURCE, log_length ] }
         #   implementation: playbook/playbook.ansible
         # remove_source:
-        #   inputs:          
+        #   inputs:
         #     ANSIBLE_VERBOSE: true
-        #     PLAYBOOK_ENTRY: operation.yml           
+        #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "remove_source AnsibleComponentHostedOnHost"
-        #     sleep_time: 5                  
-        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-        #     log_length: { get_property: [ SOURCE, log_length ] } 
+        #     sleep_time: 5
+        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+        #     log_length: { get_property: [ SOURCE, log_length ] }
         #   implementation: playbook/playbook.ansible
   org.alien4cloud.mock.ansible.relationships.AnsibleComponentConnectToComponent:
     derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
@@ -225,76 +225,76 @@ relationship_types:
     interfaces:
       configure:
         pre_configure_source:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml  
+            PLAYBOOK_ENTRY: operation.yml
             operation: "pre_configure_source AnsibleComponentConnectToComponent"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] }          
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         pre_configure_target:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "pre_configure_target AnsibleComponentConnectToComponent"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         post_configure_source:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "post_configure_source AnsibleComponentConnectToComponent"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         post_configure_target:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "post_configure_target AnsibleComponentConnectToComponent"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         add_target:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "add_target AnsibleComponentConnectToComponent"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         add_source:
-          inputs:          
+          inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: operation.yml           
+            PLAYBOOK_ENTRY: operation.yml
             operation: "add_source AnsibleComponentConnectToComponent"
-            sleep_time: 5                  
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-            log_length: { get_property: [ SOURCE, log_length ] } 
+            sleep_time: 5
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            log_length: { get_property: [ SOURCE, log_length ] }
           implementation: playbook/playbook.ansible
         # remove_target:
-        #   inputs:          
+        #   inputs:
         #     ANSIBLE_VERBOSE: true
-        #     PLAYBOOK_ENTRY: operation.yml           
+        #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "remove_target AnsibleComponentConnectToComponent"
-        #     sleep_time: 5                  
-        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-        #     log_length: { get_property: [ SOURCE, log_length ] } 
+        #     sleep_time: 5
+        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+        #     log_length: { get_property: [ SOURCE, log_length ] }
         #   implementation: playbook/playbook.ansible
         # remove_source:
-        #   inputs:          
+        #   inputs:
         #     ANSIBLE_VERBOSE: true
-        #     PLAYBOOK_ENTRY: operation.yml           
+        #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "remove_source AnsibleComponentConnectToComponent"
-        #     sleep_time: 5                  
-        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
-        #     log_length: { get_property: [ SOURCE, log_length ] } 
+        #     sleep_time: 5
+        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+        #     log_length: { get_property: [ SOURCE, log_length ] }
         #   implementation: playbook/playbook.ansible
 
 capability_types:

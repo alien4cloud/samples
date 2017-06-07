@@ -8,15 +8,15 @@ metadata:
 description: ""
 
 imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
   - org.alien4cloud.cloudify-tools.HostpoolFeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.messaging.rabbitmq.public:1.4.0-SNAPSHOT
-  - org.alien4cloud.cloudify-types:1.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.0.0-SNAPSHOT
-  - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.backend:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.graphite:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.agent:1.0.0-SNAPSHOT

@@ -110,7 +110,7 @@ topology_template:
       requirements:
         - cfy_manager:
             node: Cloudify3Manager
-            capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+            capability: org.alien4cloud.automation.cloudify.capabilities.CloudifyManagerContainer
             relationship: tosca.relationships.HostedOn
     HostPoolService:
       type: org.alien4cloud.automation.cloudify.nodes.HostPoolService

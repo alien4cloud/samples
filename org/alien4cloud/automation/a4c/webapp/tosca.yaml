@@ -1,18 +1,19 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.a4c
+  template_name: org.alien4cloud.automation.a4c.webapp
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.a4c.public:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
 
 node_types:
-  org.alien4cloud.automation.a4c.nodes.Alien4Cloud:
+  org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud:
     derived_from: org.alien4cloud.lang.java.public.nodes.JavaSoftware
     description: >
       The TOSCA Alien Node Type represents an alien webapp.
@@ -32,11 +33,11 @@ node_types:
         type: string
         required: false
         default: ""
-      listen_port:
-        description: The port on which A4C will listen.
-        type: integer
-        required: true
-        default: 8080
+      # listen_port:
+      #   description: The port on which A4C will listen.
+      #   type: integer
+      #   required: true
+      #   default: 8080
       component_version:
         description: The version of A4C (important in create stage).
         type: version
@@ -46,12 +47,12 @@ node_types:
         type: string
         required: true
         default: "/opt/alien4coud/data"
-      server_protocol:
-        type: string
-        required: true
-        default: http
-        constraints:
-          - valid_values: ["http", "https"]
+      # server_protocol:
+      #   type: string
+      #   required: true
+      #   default: http
+      #   constraints:
+      #     - valid_values: ["http", "https"]
       ca_passphrase:
         description: the provided CA cert passphrase
         type: string
@@ -61,6 +62,8 @@ node_types:
       #   type: org.alien4cloud.consul.capabilities.ConsulClient
       # elasticsearch:
       #   type: org.alien4cloud.elasticsearch.capabilities.ElasticSearchClient
+      rest:
+        type: org.alien4cloud.automation.a4c.public.capabilities.A4cRestApi
       jolokia:
         type: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
     requirements:
@@ -81,7 +84,7 @@ node_types:
       #               - distribution: { valid_values: [ "ubuntu", "debian" ] }
       - elasticsearch:
           capability: org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI
-          relationship: org.alien4cloud.automation.a4c.relationships.AlienConnectToElasticSearch
+          relationship: org.alien4cloud.automation.a4c.webapp.relationships.AlienConnectToElasticSearch
           occurrences: [ 0, 1 ]
       # - consul:
       #     capability: org.alien4cloud.consul.capabilities.ConsulAgent
@@ -98,13 +101,13 @@ node_types:
         configure:
           inputs:
             ALIEN_IP: { get_attribute: [HOST, ip_address] }
-            ALIEN_PORT: { get_property: [SELF, listen_port] }
+            ALIEN_PORT: { get_property: [SELF, rest, port] }
             DATA_DIR: { get_property: [SELF, data_dir] }
             TLS_ENABLED: { get_property: [SELF, consul, tls_enabled] }
             KEY_STORE_PATH: { get_property: [SELF, consul, key_store_path] }
             TRUST_STORE_PATH: { get_property: [SELF, consul, trust_store_path] }
             KEYSTORE_PWD: { get_property: [SELF, consul, keystore_pwd] }
-            SERVER_PROTOCOL: { get_property: [SELF, server_protocol] }
+            SERVER_PROTOCOL: { get_property: [SELF, rest, protocol] }
             CA_PASSPHRASE: { get_property: [SELF, ca_passphrase] }
           implementation: scripts/alien/config_alien.sh
         start:
@@ -112,8 +115,8 @@ node_types:
             APP_ARGS: { get_property: [SELF, app_args] }
             JVM_ARGS: { get_property: [SELF, jvm_args] }
             ALIEN_IP: { get_attribute: [HOST, ip_address] }
-            ALIEN_PORT: { get_property: [SELF, listen_port] }
-            SERVER_PROTOCOL: { get_property: [SELF, server_protocol] }
+            ALIEN_PORT: { get_property: [SELF, rest, port] }
+            SERVER_PROTOCOL: { get_property: [SELF, rest, protocol] }
           implementation: scripts/alien/start_alien.sh
     artifacts:
       - bin:
@@ -138,7 +141,7 @@ node_types:
           # repository: fastconnect_nexus_private_snapshot
           type: tosca.artifacts.File
     attributes:
-      alien_url: { concat: [get_property: [SELF, server_protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, listen_port]] }
+      alien_url: { concat: [get_property: [SELF, rest, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, rest, port]] }
 
 relationship_types:
 
@@ -163,7 +166,7 @@ relationship_types:
   #     - commons:
   #         file: scripts/commons
   #         type: tosca.artifacts.File
-  org.alien4cloud.automation.a4c.relationships.AlienConnectToElasticSearch:
+  org.alien4cloud.automation.a4c.webapp.relationships.AlienConnectToElasticSearch:
     derived_from: tosca.relationships.ConnectsTo
     valid_target_types: [org.alien4cloud.storage.elasticsearch.public.capabilities.ElasticSearchTransportAPI]
     interfaces:

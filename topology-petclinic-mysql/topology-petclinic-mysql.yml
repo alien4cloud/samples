@@ -38,7 +38,7 @@ topology_template:
         - host:
             node: JDK
             capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
+            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
       capabilities:
         data_endpoint:
           properties:

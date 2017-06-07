@@ -43,7 +43,7 @@ topology_template:
         - host:
             node: Java
             capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
+            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
     Compute:
       type: tosca.nodes.Compute
       capabilities:

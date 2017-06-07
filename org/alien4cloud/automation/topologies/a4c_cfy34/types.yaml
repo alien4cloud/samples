@@ -101,7 +101,7 @@ topology_template:
             network_name: PRIVATE
             initiator: source
     Cloudify3AwsConfiguration:
-      type: org.alien4cloud.nodes.Cloudify3AwsConfiguration
+      type: org.alien4cloud.automation.cloudify.nodes.Cloudify3AwsConfiguration
       properties:
         aws_access_key: { get_input: aws_access_key }
         aws_secret_key: { get_input: aws_secret_key }
@@ -113,7 +113,7 @@ topology_template:
             capability: org.alien4cloud.capabilities.CloudifyManagerContainer
             relationship: tosca.relationships.HostedOn
     HostPoolService:
-      type: org.alien4cloud.cloudify.nodes.HostPoolService
+      type: org.alien4cloud.automation.cloudify.nodes.HostPoolService
       requirements:
         - host:
             node: Cfy34ManagerCompute
@@ -128,7 +128,7 @@ topology_template:
             network_name: PRIVATE
             initiator: source
     Cloudify3Manager:
-      type: org.alien4cloud.nodes.Cloudify3Manager
+      type: org.alien4cloud.automation.cloudify.nodes.Cloudify3Manager
       properties:
         ssh_user: "ec2-user"
         ssh_key_filename: "xde-aws.pem"
@@ -218,7 +218,7 @@ topology_template:
           type: tosca.artifacts.File
           repository: FC Nexus private snapshot
     Ansible4CloudifyManager:
-      type: org.alien4cloud.cloudify.nodes.Ansible4CloudifyManager
+      type: org.alien4cloud.automation.cloudify.nodes.Ansible4CloudifyManager
       properties:
         component_version: "2.0.1.0"
       requirements:

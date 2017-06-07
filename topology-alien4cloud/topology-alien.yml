@@ -34,7 +34,7 @@ topology_template:
         - java:
             node: JDK
             capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
+            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
         - elasticsearch:
             node: ElasticSearch
             capability: org.alien4cloud.capabilities.ElasticSearch
@@ -47,7 +47,7 @@ topology_template:
         - java:
             node: JDK_2
             capability: org.alien4cloud.lang.java.public.capabilities.JDK
-            relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
+            relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
     JDK_2:
       type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
       properties:

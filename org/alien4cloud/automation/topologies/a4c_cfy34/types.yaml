@@ -6,30 +6,31 @@ metadata:
   template_author: alien4cloud
 
 description: |
-  A4C & CFY 3.4 manager, both monitored (need a monitoring service to match).
+  A4C & CFY 3.4 manager (with Ansible), both monitored (need a monitoring service to match).
   Need a link to maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.v3:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.cloudify.manager.v3:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 repositories:
   FC Nexus private snapshot:
@@ -37,9 +38,11 @@ repositories:
     type: maven
 
 topology_template:
+  
   description: |
-    A4C & CFY 3.4 manager, both monitored (need a monitoring service to match).
+    A4C & CFY 3.4 manager (with Ansible), both monitored (need a monitoring service to match).
     Need a link to maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
+
   inputs:
     aws_region:
       type: string
@@ -340,6 +343,15 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+    Ansible4CloudifyManager:
+      type: org.alien4cloud.automation.cloudify.ansible.nodes.Ansible4CloudifyManager
+      properties:
+        component_version: "2.0.1.0"
+      requirements:
+        - host:
+            node: CFY_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
   outputs:
     A4C_alien_url:
       value: { get_attribute: [ A4C, alien_url ] }
@@ -727,6 +739,7 @@ topology_template:
           on-success:
             - DiamondLinuxAgent_initial_1
             - HostPoolService_initial
+            - Ansible4CloudifyManager_initial
             - Cloudify3Manager_initial
         Cloudify3Manager_initial:
           node: CFY3Manager
@@ -911,6 +924,8 @@ topology_template:
           node: CFY_DiamondAgent
           activity:
             set_state: started
+          on-success:
+            - HostPoolService_initial
         AWSHostpoolFeeder_initial:
           node: AWSHostpoolFeeder
           activity:
@@ -1024,6 +1039,65 @@ topology_template:
             set_state: started
           on-success:
             - AWSHostpoolFeeder_configuring
+            - Ansible4CloudifyManager_initial
+        Ansible4CloudifyManager_initial:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: initial
+          on-success:
+            - Ansible4CloudifyManager_creating
+        Ansible4CloudifyManager_creating:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: creating
+          on-success:
+            - create_Ansible4CloudifyManager
+        create_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - Ansible4CloudifyManager_created
+        Ansible4CloudifyManager_created:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: created
+          on-success:
+            - Ansible4CloudifyManager_configuring
+        Ansible4CloudifyManager_configuring:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_Ansible4CloudifyManager
+        configure_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - Ansible4CloudifyManager_configured
+        Ansible4CloudifyManager_configured:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: configured
+          on-success:
+            - Ansible4CloudifyManager_starting
+        Ansible4CloudifyManager_starting:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: starting
+          on-success:
+            - start_Ansible4CloudifyManager
+        start_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Ansible4CloudifyManager_started
+        Ansible4CloudifyManager_started:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: started
     uninstall:
       steps:
         Compute_uninstall:
@@ -1433,6 +1507,42 @@ topology_template:
             - HostPoolService_deleted
         HostPoolService_deleted:
           node: HostPoolService
+          activity:
+            set_state: deleted
+          on-success:
+            - Compute_uninstall_1
+        Ansible4CloudifyManager_stopping:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Ansible4CloudifyManager
+        stop_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Ansible4CloudifyManager_stopped
+        Ansible4CloudifyManager_stopped:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: stopped
+          on-success:
+            - Ansible4CloudifyManager_deleting
+        Ansible4CloudifyManager_deleting:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_Ansible4CloudifyManager
+        delete_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - Ansible4CloudifyManager_deleted
+        Ansible4CloudifyManager_deleted:
+          node: Ansible4CloudifyManager
           activity:
             set_state: deleted
           on-success:

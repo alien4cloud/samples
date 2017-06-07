@@ -237,17 +237,6 @@ topology_template:
             protocol: tcp
             network_name: PRIVATE
             initiator: source
-    CFY_DiamondAgent:
-      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
-      requirements:
-        - metrics_backend:
-            node: GraphiteBackend
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
-            relationship: org.alien4cloud.monitoring.pub.relationships.MonitoringAgentConnectToMetricsBackend
-        - host:
-            node: CFY_Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
     AWSHostpoolFeeder:
       type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
       properties:
@@ -349,6 +338,21 @@ topology_template:
       properties:
         component_version: "2.0.1.0"
       requirements:
+        - host:
+            node: CFY_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    CFY_DiamondAgent:
+      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
+      requirements:
+        - collec_rabbitmq:
+            node: CloudifyManager
+            capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondRabbitmqCollector
+        - metrics_backend:
+            node: GraphiteBackend
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
         - host:
             node: CFY_Compute
             capability: tosca.capabilities.Container
@@ -735,77 +739,16 @@ topology_template:
           on-success:
             - DiamondLinuxAgent_initial_1
             - DiamondLinuxAgent_initial
+            - HostPoolService_initial
         Compute_install_1:
           node: CFY_Compute
           activity:
             delegate: install
           on-success:
             - DiamondLinuxAgent_initial_1
-            - DiamondLinuxAgent_configuring_1
             - HostPoolService_initial
             - CloudifyManager_initial
             - Ansible4CloudifyManager_initial
-        DiamondLinuxAgent_initial_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: initial
-          on-success:
-            - DiamondLinuxAgent_creating_1
-        DiamondLinuxAgent_creating_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: creating
-          on-success:
-            - create_DiamondLinuxAgent_1
-        create_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - DiamondLinuxAgent_created_1
-        DiamondLinuxAgent_created_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: created
-          on-success:
-            - DiamondLinuxAgent_configuring_1
-            - HostPoolService_initial
-        DiamondLinuxAgent_configuring_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_DiamondLinuxAgent_1
-        configure_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - DiamondLinuxAgent_configured_1
-        DiamondLinuxAgent_configured_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: configured
-          on-success:
-            - DiamondLinuxAgent_starting_1
-        DiamondLinuxAgent_starting_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: starting
-          on-success:
-            - start_DiamondLinuxAgent_1
-        start_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - DiamondLinuxAgent_started_1
-        DiamondLinuxAgent_started_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: started
-          on-success:
-            - HostPoolService_initial
         AWSHostpoolFeeder_initial:
           node: AWSHostpoolFeeder
           activity:
@@ -981,6 +924,7 @@ topology_template:
           on-success:
             - CloudifyAwsConfiguration_initial
             - AmqpClientPatch_initial
+            - DiamondLinuxAgent_configuring_1
         CloudifyAwsConfiguration_initial:
           node: CloudifyAwsConfiguration
           activity:
@@ -1040,7 +984,7 @@ topology_template:
           activity:
             set_state: started
           on-success:
-            - DiamondLinuxAgent_initial_1
+            - HostPoolService_initial
         AmqpClientPatch_initial:
           node: AmqpClientPatch
           activity:
@@ -1159,6 +1103,68 @@ topology_template:
           node: Ansible4CloudifyManager
           activity:
             set_state: started
+        DiamondLinuxAgent_initial_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: initial
+          on-success:
+            - DiamondLinuxAgent_creating_1
+        DiamondLinuxAgent_creating_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: creating
+          on-success:
+            - create_DiamondLinuxAgent_1
+        create_DiamondLinuxAgent_1:
+          node: CFY_DiamondAgent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - DiamondLinuxAgent_created_1
+        DiamondLinuxAgent_created_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: created
+          on-success:
+            - CloudifyManager_configuring
+            - DiamondLinuxAgent_configuring_1
+            - CloudifyManager_initial
+        DiamondLinuxAgent_configuring_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_DiamondLinuxAgent_1
+        configure_DiamondLinuxAgent_1:
+          node: CFY_DiamondAgent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - DiamondLinuxAgent_configured_1
+        DiamondLinuxAgent_configured_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: configured
+          on-success:
+            - DiamondLinuxAgent_starting_1
+        DiamondLinuxAgent_starting_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent_1
+        start_DiamondLinuxAgent_1:
+          node: CFY_DiamondAgent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started_1
+        DiamondLinuxAgent_started_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: started
+          on-success:
+            - AmqpClientPatch_initial
     uninstall:
       steps:
         Compute_uninstall:
@@ -1391,44 +1397,6 @@ topology_template:
           node: CFY_Compute
           activity:
             delegate: uninstall
-        DiamondLinuxAgent_stopping_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_DiamondLinuxAgent_1
-        stop_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - DiamondLinuxAgent_stopped_1
-        DiamondLinuxAgent_stopped_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: stopped
-          on-success:
-            - DiamondLinuxAgent_deleting_1
-            - Compute_uninstall_1
-        DiamondLinuxAgent_deleting_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_DiamondLinuxAgent_1
-        delete_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - DiamondLinuxAgent_deleted_1
-        DiamondLinuxAgent_deleted_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: deleted
-          on-success:
-            - GraphiteBackend_uninstall
-            - Compute_uninstall_1
         AWSHostpoolFeeder_stopping:
           node: AWSHostpoolFeeder
           activity:
@@ -1643,4 +1611,42 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
+            - Compute_uninstall_1
+        DiamondLinuxAgent_stopping_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent_1
+        stop_DiamondLinuxAgent_1:
+          node: CFY_DiamondAgent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped_1
+        DiamondLinuxAgent_stopped_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_deleting_1
+            - CloudifyManager_stopping
+        DiamondLinuxAgent_deleting_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_DiamondLinuxAgent_1
+        delete_DiamondLinuxAgent_1:
+          node: CFY_DiamondAgent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - DiamondLinuxAgent_deleted_1
+        DiamondLinuxAgent_deleted_1:
+          node: CFY_DiamondAgent
+          activity:
+            set_state: deleted
+          on-success:
+            - GraphiteBackend_uninstall
             - Compute_uninstall_1

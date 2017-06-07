@@ -5,10 +5,10 @@ echo "BEGIN install node.js"
 echo "apt-get update"
 sudo apt-get update
 
-echo "apt-get install nodejs npm"
-sudo apt-get install -y nodejs npm
+echo "installing nodejs version ${COMPONENT_VERSION}"
 
-sudo npm install -y npm -g
+curl -sL https://deb.nodesource.com/setup_${COMPONENT_VERSION} | sudo bash -
+sudo apt-get install -y nodejs
 
 echo "ln -s /usr/bin/nodejs /usr/bin/node"
 sudo ln -s /usr/bin/nodejs /usr/bin/node

@@ -9,11 +9,11 @@ description: TOSCA simple profile with ElasticSearch.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - jdk-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.nodes.ElasticSearch:
-    derived_from: org.alien4cloud.nodes.JavaSoftware
+    derived_from: org.alien4cloud.lang.java.public.nodes.JavaSoftware
     description: >
       Installation of ElasticSearch
     metadata:

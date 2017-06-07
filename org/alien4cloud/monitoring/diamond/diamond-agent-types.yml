@@ -13,7 +13,7 @@ imports:
   - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.public:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
-  - org.alien4cloud.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent:
@@ -35,7 +35,7 @@ node_types:
           relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
           occurrences: [0, 1]
       - collec_jolokia:
-          capability: org.alien4cloud.java.jmx.jolokia.capabilities.JolokiaEndpoint
+          capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
           occurrences: [0, 1]  
       - collec_rabbitmq:
           capability: org.alien4cloud.messaging.rabbitmq.public.capabilities.RabbitMQManagementEndpoint
@@ -110,7 +110,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.java.jmx.jolokia.capabilities.JolokiaEndpoint ]
+    valid_target_types: [ org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint ]
     interfaces:
       Configure:
         pre_configure_source:

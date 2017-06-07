@@ -3,25 +3,25 @@ tosca_definitions_version: alien_dsl_1_4_0
 metadata:
   template_name: org.alien4cloud.automation.topologies.a4c_cfy34
   template_version: 1.4.0-SNAPSHOT
-  template_author: A4C
+  template_author: alien4cloud
 
 description: ""
 
 imports:
-  - org.alien4cloud.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
   - org.alien4cloud.cloudify-tools.HostpoolFeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.public:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.messaging.rabbitmq.public:1.4.0-SNAPSHOT
-  - org.alien4cloud.cloudify-types:1.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.0.0-SNAPSHOT
-  - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.backend:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.graphite:1.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.agent:1.0.0-SNAPSHOT
   - org.alien4cloud.automation.a4c:1.4.0-SNAPSHOT
-  - jdk-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.public:1.4.0-SNAPSHOT
 
 repositories:
@@ -58,7 +58,7 @@ topology_template:
       description: "The region where to start instances"
   node_templates:
     JDK:
-      type: org.alien4cloud.nodes.JDK
+      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
       properties:
         java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
         java_home: "/opt/java"
@@ -86,7 +86,7 @@ topology_template:
       requirements:
         - java:
             node: JDK
-            capability: org.alien4cloud.capabilities.JDK
+            capability: org.alien4cloud.lang.java.public.capabilities.JDK
             relationship: tosca.relationships.HostedOn
       capabilities:
         elasticsearch:
@@ -101,7 +101,7 @@ topology_template:
             network_name: PRIVATE
             initiator: source
     Cloudify3AwsConfiguration:
-      type: org.alien4cloud.nodes.Cloudify3AwsConfiguration
+      type: org.alien4cloud.automation.cloudify.nodes.Cloudify3AwsConfiguration
       properties:
         aws_access_key: { get_input: aws_access_key }
         aws_secret_key: { get_input: aws_secret_key }
@@ -110,10 +110,10 @@ topology_template:
       requirements:
         - cfy_manager:
             node: Cloudify3Manager
-            capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+            capability: org.alien4cloud.automation.cloudify.capabilities.CloudifyManagerContainer
             relationship: tosca.relationships.HostedOn
     HostPoolService:
-      type: org.alien4cloud.cloudify.nodes.HostPoolService
+      type: org.alien4cloud.automation.cloudify.nodes.HostPoolService
       requirements:
         - host:
             node: Cfy34ManagerCompute
@@ -128,7 +128,7 @@ topology_template:
             network_name: PRIVATE
             initiator: source
     Cloudify3Manager:
-      type: org.alien4cloud.nodes.Cloudify3Manager
+      type: org.alien4cloud.automation.cloudify.nodes.Cloudify3Manager
       properties:
         ssh_user: "ec2-user"
         ssh_key_filename: "xde-aws.pem"
@@ -179,7 +179,7 @@ topology_template:
             relationship: tosca.relationships.HostedOn
         - collec_jolokia:
             node: Alien4Cloud
-            capability: org.alien4cloud.java.jmx.jolokia.capabilities.JolokiaEndpoint
+            capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondAlienCollector
         - metrics_backend:
             node: GraphiteBackend
@@ -202,7 +202,7 @@ topology_template:
       requirements:
         - java:
             node: JDK
-            capability: org.alien4cloud.capabilities.JDK
+            capability: org.alien4cloud.lang.java.public.capabilities.JDK
             relationship: tosca.relationships.HostedOn
         - elasticsearch:
             node: ElasticSearch
@@ -218,7 +218,7 @@ topology_template:
           type: tosca.artifacts.File
           repository: FC Nexus private snapshot
     Ansible4CloudifyManager:
-      type: org.alien4cloud.cloudify.nodes.Ansible4CloudifyManager
+      type: org.alien4cloud.automation.cloudify.nodes.Ansible4CloudifyManager
       properties:
         component_version: "2.0.1.0"
       requirements:
@@ -305,7 +305,7 @@ topology_template:
       requirements:
         - hostpool:
             node: HostPoolService
-            capability: org.alien4cloud.cloudify.capabilities.CloudifyHostPoolService
+            capability: org.alien4cloud.automation.cloudify.capabilities.HostPoolServiceApi
             relationship: org.alien4cloud.cloudify-tools.relationships.HostpoolFeederConnectToHostpool
   outputs:
     Cloudify3Manager_manager_url:

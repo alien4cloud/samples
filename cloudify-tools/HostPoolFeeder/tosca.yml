@@ -11,7 +11,7 @@ metadata:
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
   - alien-base-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.cloudify-types:1.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.cloudify-tools.nodes.HostpoolFeeder:
@@ -19,7 +19,7 @@ node_types:
       Feed a hostpool with many instanciated EC2 instances
     derived_from: tosca.nodes.Root
     properties:
-      aws_access_key: 
+      aws_access_key:
         type: string
         required: true
         description: The AWS access key
@@ -31,7 +31,7 @@ node_types:
         type: string
         required: true
         description: The AWS key name
-      key_content:  
+      key_content:
         type: string
         required: true
         description: The AWS key
@@ -80,16 +80,16 @@ node_types:
         default: linux
         description: The instance os for hostpool config
         constraints:
-          - valid_values: [ "linux", "windows" ]        
+          - valid_values: [ "linux", "windows" ]
     requirements:
       - hostpool:
-          capability: org.alien4cloud.cloudify.capabilities.CloudifyHostPoolService
+          capability: org.alien4cloud.automation.cloudify.capabilities.HostPoolServiceApi
           occurrences: [1, 1]
 
 relationship_types:
   org.alien4cloud.cloudify-tools.relationships.HostpoolFeederConnectToHostpool:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.cloudify.capabilities.CloudifyHostPoolService ]
+    valid_target_types: [ org.alien4cloud.automation.cloudify.capabilities.HostPoolServiceApi ]
     interfaces:
       Configure:
         add_target:
@@ -100,7 +100,7 @@ relationship_types:
             aws_secret_key: { get_property: [SOURCE, aws_secret_key] }
             key_name: { get_property: [SOURCE, key_name] }
             key_content: { get_property: [SOURCE, key_content] }
-            region: { get_property: [SOURCE, region] }         
+            region: { get_property: [SOURCE, region] }
             instance_name: { get_property: [SOURCE, instance_name] }
             instance_count: { get_property: [SOURCE, instance_count] }
             host_per_instance: { get_property: [SOURCE, host_per_instance] }
@@ -119,9 +119,8 @@ relationship_types:
             aws_secret_key: { get_property: [SOURCE, aws_secret_key]}
             key_name: { get_property: [SOURCE, key_name]}
             key_content: { get_property: [SOURCE, key_content]}
-            region: { get_property: [SOURCE, region]}         
+            region: { get_property: [SOURCE, region]}
             instance_name: { get_property: [SOURCE, instance_name]}
             instance_count: { get_property: [SOURCE, instance_count]}
             hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
-          implementation: playbook/playbook.ansible          
-
+          implementation: playbook/playbook.ansible

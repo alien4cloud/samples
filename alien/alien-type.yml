@@ -9,12 +9,12 @@ description: TOSCA simple profile with Alien.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - jdk-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - elasticsearch-type:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.nodes.Alien:
-    derived_from: org.alien4cloud.nodes.JavaSoftware
+    derived_from: org.alien4cloud.lang.java.public.nodes.JavaSoftware
     description: The TOSCA Alien Node Type represents an alien component.
     metadata:
       icon: /images/alien4cloud-logo.png
@@ -57,7 +57,7 @@ node_types:
 
   # We should be able to provide transitive host requirements (to limit the os through node filter).
   org.alien4cloud.nodes.AlienIT:
-    derived_from: org.alien4cloud.nodes.JavaSoftware
+    derived_from: org.alien4cloud.lang.java.public.nodes.JavaSoftware
     description: Alien 4 cloud java client application that performs Integration tests against alien4cloud.
     metadata:
       icon: /images/alien4cloud-logo.png

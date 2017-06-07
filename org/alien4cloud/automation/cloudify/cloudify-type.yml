@@ -370,7 +370,7 @@ node_types:
           occurrences: [1, 1]
       - agent_key:
           capability: org.alien4cloud.automation.cloudify.capabilities.CloudifySSHKey
-          relationship: org.alien4cloud.automation.cloudify.cloudify.relationships.ConfigureAWSKey
+          relationship: org.alien4cloud.automation.cloudify.relationships.ConfigureAWSKey
           occurrences: [0, 1]
     interfaces:
       Standard:

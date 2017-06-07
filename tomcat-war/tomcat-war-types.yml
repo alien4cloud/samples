@@ -39,7 +39,7 @@ node_types:
     requirements:
       - host:
           capability: org.alien4cloud.lang.java.public.capabilities.JDK
-          relationship: org.alien4cloud.relationships.JavaSoftwareHostedOnJDK
+          relationship: org.alien4cloud.lang.java.public.relationships.JavaSoftwareHostedOnJDK
           occurrences: [1, 1]
     capabilities:
       data_endpoint: # This is the application endpoint of tomcat server.

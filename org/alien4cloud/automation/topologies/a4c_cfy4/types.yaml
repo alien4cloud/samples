@@ -305,7 +305,7 @@ topology_template:
       requirements:
         - hostpool:
             node: HostPoolService
-            capability: org.alien4cloud.cloudify.capabilities.CloudifyHostPoolService
+            capability: org.alien4cloud.automation.cloudify.capabilities.HostPoolServiceApi
             relationship: org.alien4cloud.cloudify-tools.relationships.HostpoolFeederConnectToHostpool
   outputs:
     Cloudify3Manager_manager_url:

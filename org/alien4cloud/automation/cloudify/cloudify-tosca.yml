@@ -63,7 +63,7 @@ node_types:
     derived_from: tosca.nodes.SoftwareComponent
     capabilities:
       cloudify_hostpool:
-        type: org.alien4cloud.automation.cloudify.capabilities.CloudifyHostPoolService
+        type: org.alien4cloud.automation.cloudify.capabilities.HostPoolServiceApi
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http
@@ -473,7 +473,7 @@ capability_types:
     derived_from: tosca.capabilities.Container
   org.alien4cloud.automation.cloudify.capabilities.CloudifyAPIv3:
     derived_from: tosca.capabilities.Endpoint
-  org.alien4cloud.automation.cloudify.capabilities.CloudifyHostPoolService:
+  org.alien4cloud.automation.cloudify.capabilities.HostPoolServiceApi:
     derived_from: tosca.capabilities.Endpoint
   org.alien4cloud.automation.cloudify.capabilities.CloudifySSHKey:
     derived_from: tosca.capabilities.Root

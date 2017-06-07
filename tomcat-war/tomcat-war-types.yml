@@ -95,7 +95,7 @@ node_types:
     artifacts:
       - war_file:
           file: warFiles/helloWorld.war
-          type: org.alien4cloud.artifacts.WarFile
+          type: org.alien4cloud.lang.java.public.artifacts.WarFile
     interfaces:
       custom:
         update_war_file:

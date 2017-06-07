@@ -1,0 +1,65 @@
+---
+
+#- name: Add repository
+#  yum:
+#    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+#    state: present
+
+#- name: Install pip
+#  yum: pkg=python-pip state=present
+
+- name: Install system dependencies (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - python-pip
+    - python-dev
+    - build-essential
+  when: ansible_distribution == 'Ubuntu'
+
+- name: pip httplib2
+  pip: name=httplib2 
+
+- name: login
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: Create CSAR GIT repository
+  uri: 
+    url: "{{ alien_url }}/rest/latest/csarsgit"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body: 
+      repositoryUrl: "{{ repositoryUrl }}"
+      username: "{{ repositoryUsername }}"
+      password: "{{ repositoryPassword }}"
+      storedLocally: true
+      importLocations:
+        - branchId: "{{ branchId }}"
+          subPath: "{{ subPath }}"
+    body_format: json
+  register: result
+
+- set_fact:
+    content: "{{ result.content }}"
+
+- set_fact:
+    repository_id: "{{ content.data }}"
+
+- name: Import CSAR GIT repository
+  uri:
+    url: "{{ alien_url }}/rest/latest/csarsgit/{{ repository_id }}"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    timeout: 60
+  register: result

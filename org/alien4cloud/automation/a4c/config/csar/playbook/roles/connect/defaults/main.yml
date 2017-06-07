@@ -1,8 +1,8 @@
-alien_url: 
-alien_user: 
-alien_password: 
-repositoryUrl: 
+alien_url: http://52.211.174.223:8080
+alien_user: admin
+alien_password: admin
+repositoryUrl: https://github.com/alien4cloud/tosca-normative-types.git
 repositoryUsername: 
 repositoryPassword: 
-branchId: 
-subPath: 
+branchId: master
+subPath: "*"

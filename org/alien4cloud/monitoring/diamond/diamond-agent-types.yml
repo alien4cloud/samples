@@ -8,8 +8,7 @@ metadata:
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
   - alien-base-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.backend:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.agent:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
@@ -21,7 +20,7 @@ node_types:
       icon: /images/diamond.png
     description: |
       Deploy a Diamond Agent
-    derived_from: org.alien4cloud.monitoring.agent.nodes.MonitoringAgent
+    derived_from: org.alien4cloud.monitoring.pub.nodes.MonitoringAgent
     # capabilities:
     #   elasticsearchHttpClient:
     #     type: org.alien4cloud.elasticsearch.capabilities.ElasticSearchHttpClient
@@ -86,7 +85,7 @@ node_types:
 relationship_types:
   org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite:
     derived_from: tosca.relationships.ConnectsTo
-    valid_target_types: [ org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint ]
+    valid_target_types: [ org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint ]
     interfaces:
       Configure:
         pre_configure_source:

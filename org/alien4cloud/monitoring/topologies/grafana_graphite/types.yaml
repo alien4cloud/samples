@@ -3,9 +3,10 @@ tosca_definitions_version: alien_dsl_1_4_0
 metadata:
   template_name: org.alien4cloud.monitoring.topologies.grafana_graphite
   template_version: 1.4.0-SNAPSHOT
-  template_author: A4C
+  template_author: alien4cloud
 
-description: ""
+description: |
+  Graphite As a Service : a Grafana that connects to a Graphite as a backend.
 
 imports:
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
@@ -16,13 +17,12 @@ imports:
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.grafana:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.graphite:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.backend:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.agent:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
 
 topology_template:
   substitution_mappings:
-    node_type: org.alien4cloud.monitoring.backend.nodes.MetricsBackend
+    node_type: org.alien4cloud.monitoring.pub.nodes.MetricsBackend
     capabilities:
       metrics_backend: [ Graphite, metrics_backend ]
   node_templates:
@@ -80,7 +80,7 @@ topology_template:
             relationship: tosca.relationships.HostedOn
         - metrics_backend:
             node: Graphite
-            capability: org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
             relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite
             properties:
               datasource_name: "Graphite_DS"
@@ -103,7 +103,7 @@ topology_template:
             relationship: tosca.relationships.HostedOn
         - metrics_backend:
             node: Graphite
-            capability: org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
   outputs:
     Grafana_grafana_url:

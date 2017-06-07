@@ -2,10 +2,11 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.mock.topologies.simple_ansible
-  template_version: 1.0.0-SNAPSHOT
-  template_author: admin
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4Cloud
 
-description: "This archive has been created with alien4cloud."
+description: |
+  An ansible topology that do nothing but sleeping and generating some logs, used for load tests
 
 imports:
   - org.alien4cloud.mock.ansible:1.0.0-SNAPSHOT

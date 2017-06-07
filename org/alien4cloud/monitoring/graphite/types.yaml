@@ -7,13 +7,13 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.monitoring.backend:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
 
 node_types:
 
   org.alien4cloud.monitoring.graphite.nodes.Graphite:
-    derived_from: org.alien4cloud.monitoring.backend.nodes.GraphiteBackend
+    derived_from: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
     metadata:
       icon: /images/graphite.png
     description: |
@@ -23,10 +23,10 @@ node_types:
         type: version
         default: 1.0.0
         constraints:
-          - valid_values: [ "1.0.0" ]      
+          - valid_values: [ "1.0.0" ]
     capabilities:
       metrics_backend:
-        type: org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint
+        type: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
         occurrences: [0, UNBOUNDED]
         description: Endpoint to stream metrics into graphite
         properties:
@@ -38,7 +38,7 @@ node_types:
         description: UI Endpoint to connect to graphite
         properties:
           protocol: http
-          port: 8080      
+          port: 8080
     requirements:
       - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on yum and so restricted to centos.
           capability: tosca.capabilities.Container
@@ -51,7 +51,7 @@ node_types:
                   properties:
                     - type: { equal: linux }
                     - architecture: { equal: x86_64 }
-                    - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }          
+                    - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }
     interfaces:
       Standard:
         create:
@@ -77,7 +77,7 @@ node_types:
           implementation: playbook/playbook.ansible
 
 capability_types:
- 
+
   org.alien4cloud.monitoring.graphite.capabilities.GraphiteEndpoint:
     derived_from: tosca.capabilities.Endpoint
     description: Graphite UI endpoint

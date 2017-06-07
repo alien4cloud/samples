@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  connection: local
+  name: Create EC2 instance & feed Hostpool with them
+  become: true
+ 
+  roles:
+    - create
+

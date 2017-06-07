@@ -1,0 +1,31 @@
+---
+
+- name: Backup file
+  copy: 
+    remote_src: True 
+    src: /opt/mgmtworker/env/lib/python2.7/site-packages/cloudify/amqp_client.py 
+    dest: /opt/mgmtworker/env/lib/python2.7/site-packages/cloudify/amqp_client.py.back
+
+- name: Remove old file
+  file: 
+    path: /opt/mgmtworker/env/lib/python2.7/site-packages/cloudify/amqp_client.py
+    state: absent
+
+- name: Remove compiled file
+  file:
+    path: /opt/mgmtworker/env/lib/python2.7/site-packages/cloudify/amqp_client.pyc
+    state: absent
+
+- name: Copy patch
+  copy:
+    src: amqp_client.py
+    dest: /opt/mgmtworker/env/lib/python2.7/site-packages/cloudify/amqp_client.py
+    owner: cfyuser
+    group: cfyuser
+    mode: 0777
+
+- name: Restart cloudify-mgmtworker
+  command: systemctl restart cloudify-mgmtworker.service
+
+- name: Restart cloudify-restservice
+  command: systemctl restart cloudify-restservice.service

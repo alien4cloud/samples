@@ -1,0 +1,267 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.mock.bash
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.mock.public:1.0.0-SNAPSHOT
+
+description: >
+  Mock types for A4C load tests.
+
+# TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
+node_types:
+
+  org.alien4cloud.mock.bash.nodes.BashMockHost:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.public.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        create:
+          inputs:          
+            operation: "create AnsibleMockHost"
+            sleep_time: 240
+            sleep_factor: { get_property: [ SELF, sleep_factor ] } 
+            log_length: { get_property: [ SELF, log_length ] } 
+          implementation: scripts/operation.sh
+        configure:
+          inputs:          
+            operation: "configure AnsibleMockHost"
+            sleep_time: 10  
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }   
+            log_length: { get_property: [ SELF, log_length ] } 
+          implementation: scripts/operation.sh
+        start:
+          inputs:          
+            operation: "start AnsibleMockHost"
+            sleep_time: 30      
+            sleep_factor: { get_property: [ SELF, sleep_factor ] } 
+            log_length: { get_property: [ SELF, log_length ] }   
+          implementation: scripts/operation.sh
+        stop:
+          inputs:           
+            operation: "stop AnsibleMockHost" 
+            sleep_time: 30       
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
+            log_length: { get_property: [ SELF, log_length ] }     
+          implementation: scripts/operation.sh
+        delete:
+          inputs:          
+            operation: "delete AnsibleMockHost"
+            sleep_time: 60                  
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
+            log_length: { get_property: [ SELF, log_length ] } 
+          implementation: scripts/operation.sh
+    artifacts:
+      - data: 
+          file: data/data.txt
+          type: tosca.artifacts.File
+  org.alien4cloud.mock.bash.nodes.BashMockComponent:
+    description: |
+      A software component hosted on GenericHost and that can connect to many other Generic.
+    derived_from: org.alien4cloud.mock.public.nodes.AbstractMockComponent
+    properties:
+      sleep_factor:
+        type: float
+        required: true    
+        default: 1    
+      log_length:
+        type: integer
+        required: true    
+        default: 200          
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentHostedOnHost
+          occurrences: [1,1]
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    interfaces:
+      Standard:
+        create:
+          inputs:          
+            operation: "create AnsibleMockComponent"
+            sleep_time: 60                  
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
+            log_length: { get_property: [ SELF, log_length ] } 
+          implementation: scripts/operation.sh
+        configure:
+          inputs:          
+            operation: "configure AnsibleMockComponent"
+            sleep_time: 20                  
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
+            log_length: { get_property: [ SELF, log_length ] }         
+          implementation: scripts/operation.sh
+        start:
+          inputs:          
+            operation: "start AnsibleMockComponent"
+            sleep_time: 30                  
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
+            log_length: { get_property: [ SELF, log_length ] } 
+          implementation: scripts/operation.sh
+        stop:
+          inputs:          
+            operation: "stop AnsibleMockComponent"
+            sleep_time: 30                  
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
+            log_length: { get_property: [ SELF, log_length ] } 
+          implementation: scripts/operation.sh
+        delete:
+          inputs:          
+            operation: "delete AnsibleMockComponent"
+            sleep_time: 15                  
+            sleep_factor: { get_property: [ SELF, sleep_factor ] }  
+            log_length: { get_property: [ SELF, log_length ] }      
+          implementation: scripts/operation.sh
+    artifacts:
+      - data: 
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+relationship_types:
+
+  org.alien4cloud.mock.bash.relationships.BashComponentHostedOnHost:
+    derived_from: org.alien4cloud.mock.public.relationships.AbstractComponentHostedOnHost
+    valid_target_types: [ org.alien4cloud.mock.bash.nodes.BashMockHost ]
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:          
+            operation: "pre_configure_source AnsibleComponentHostedOnHost"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] }          
+          implementation: scripts/operation.sh
+        pre_configure_target:
+          inputs:          
+            operation: "pre_configure_target AnsibleComponentHostedOnHost"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        post_configure_source:
+          inputs:          
+            operation: "post_configure_source AnsibleComponentHostedOnHost"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        post_configure_target:
+          inputs:          
+            operation: "post_configure_target AnsibleComponentHostedOnHost"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        add_target:
+          inputs:          
+            operation: "add_target AnsibleComponentHostedOnHost"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        add_source:
+          inputs:          
+            operation: "add_source AnsibleComponentHostedOnHost"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        remove_target:
+          inputs:          
+            operation: "remove_target AnsibleComponentHostedOnHost"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        remove_source:
+          inputs:          
+            operation: "remove_source AnsibleComponentHostedOnHost"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh         
+    artifacts:
+      - data: 
+          file: data/data.txt
+          type: tosca.artifacts.File
+  org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent:
+    derived_from: org.alien4cloud.mock.public.relationships.AbstractComponentConnectToComponent
+    valid_target_types: [ org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint ]
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:          
+            operation: "pre_configure_source AnsibleComponentConnectToComponent"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] }          
+          implementation: scripts/operation.sh
+        pre_configure_target:
+          inputs:          
+            operation: "pre_configure_target AnsibleComponentConnectToComponent"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        post_configure_source:
+          inputs:          
+            operation: "post_configure_source AnsibleComponentConnectToComponent"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        post_configure_target:
+          inputs:          
+            operation: "post_configure_target AnsibleComponentConnectToComponent"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        add_target:
+          inputs:          
+            operation: "add_target AnsibleComponentConnectToComponent"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        add_source:
+          inputs:          
+            operation: "add_source AnsibleComponentConnectToComponent"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        remove_target:
+          inputs:          
+            operation: "remove_target AnsibleComponentConnectToComponent"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+        remove_source:
+          inputs:          
+            operation: "remove_source AnsibleComponentConnectToComponent"
+            sleep_time: 5                  
+            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }  
+            log_length: { get_property: [ SOURCE, log_length ] } 
+          implementation: scripts/operation.sh
+    artifacts:
+      - data: 
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+capability_types:
+
+  org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint:
+    derived_from: org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint

@@ -1,8 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  name: Remove EC2 instance & clear Hostpool hosts
-  become: true
- 
-  roles:
-    - delete

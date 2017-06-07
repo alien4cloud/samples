@@ -1,0 +1,41 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.ansible
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: TOSCA template that contains a basic node type to install a cloudify manager.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+
+  org.alien4cloud.automation.cloudify.ansible.nodes.Ansible4CloudifyManager:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      icon: images/ansible.png
+    properties:
+      component_version:
+        type: version
+        default: 2.0.1.0
+        constraints:
+          - valid_values: [ "2.0.1.0" ]
+    requirements:
+      - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on yum and so restricted to centos.
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }
+    interfaces:
+      Standard:
+        create:
+            implementation: scripts/Ansible4CloudifyManager/install.sh

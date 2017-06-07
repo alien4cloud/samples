@@ -1,0 +1,46 @@
+---
+
+- debug: msg="{{ operation }}"  
+
+# generate a UUID to name data file
+- set_fact:
+    data_file_name: "/tmp/data{{ 9999999999999999999999 | random | to_uuid }}.txt"
+  run_once: yes
+
+# the template will generate a file containing log_length words
+- name: Copy log template data file
+  template: src=data.txt.j2 dest="{{ data_file_name }}"
+
+- name: extract words from data file
+  command: /bin/cat "{{ data_file_name }}"
+  register: data
+  no_log: True
+
+# finally log a message containing the line read from the file
+- debug: msg="{{ data.stdout_lines[0] }}"
+
+- set_fact:
+    actual_log_length: "{{ (data.stdout_lines[0].split(' ') | length) }}"
+  run_once: yes
+
+- set_fact:
+    sleep_time_in_seconds: "{{ ((sleep_time|int) * (sleep_factor|int)) | random }}"
+  run_once: yes
+
+- set_fact:
+    sleep_time_in_seconds_async: "{{ sleep_time_in_seconds|int + 5 }}"
+  run_once: yes
+
+- debug: msg="Sleeping {{ sleep_time_in_seconds }} seconds"  
+
+- name: simulate long running op (15 sec), wait for up to 45 sec, poll every 5 sec
+  command: "/bin/sleep {{ sleep_time_in_seconds }}"
+  async: "{{ sleep_time_in_seconds_async }}"
+  poll: 5
+
+#- pause:
+#    seconds: "{{ sleep_time_in_seconds }}"
+
+- debug: msg="Sleeped {{ sleep_time_in_seconds }} seconds"  
+
+- file: path="{{ data_file_name }}" state=absent    

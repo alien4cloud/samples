@@ -1,0 +1,126 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.hostpool.awsfeeder
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+# build command:
+# cd playbook && rm -f playbook.ansible && zip -r playbook.ansible * && cd .. && rm -f stuff.zip && zip -r stuff.zip *
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.public:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder:
+    description: |
+      Feed a hostpool with many instanciated EC2 instances
+    derived_from: tosca.nodes.Root
+    properties:
+      aws_access_key:
+        type: string
+        required: true
+        description: The AWS access key
+      aws_secret_key:
+        type: string
+        required: true
+        description: The AWS secret key
+      key_name:
+        type: string
+        required: true
+        description: The AWS key name
+      key_content:
+        type: string
+        required: true
+        description: The AWS key
+      region:
+        type: string
+        required: false
+        description: The region where to start instances
+        default: eu-west-1
+      instance_groups:
+        type: string
+        required: true
+        description: Security groups the instances will be associated with
+      instance_username:
+        type: string
+        required: true
+        default: ubuntu
+        description: The user to use to connect to the instance
+      instance_type:
+        type: string
+        required: true
+        default: t2.nano
+        description: The AWS instance type
+      instance_image:
+        type: string
+        required: true
+        default: ami-47a23a30
+        description: The AWS ami
+      instance_count:
+        type: integer
+        required: true
+        default: 1
+        description: Number of instances to start
+      host_per_instance:
+        type: integer
+        required: true
+        default: 1
+        description: Number of host to declare in hostpool per EC2 instance
+      instance_name:
+        type: string
+        required: true
+        default: HostpoolInstance
+        description: The AWS instance name
+      instance_os:
+        type: string
+        required: true
+        default: linux
+        description: The instance os for hostpool config
+        constraints:
+          - valid_values: [ "linux", "windows" ]
+    requirements:
+      - hostpool:
+          capability: org.alien4cloud.automation.cloudify.hostpool.public.capabilities.HostPoolServiceApi
+          occurrences: [1, 1]
+
+relationship_types:
+  org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.automation.cloudify.hostpool.public.capabilities.HostPoolServiceApi ]
+    interfaces:
+      Configure:
+        add_target:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: create.yml
+            aws_access_key: { get_property: [SOURCE, aws_access_key] }
+            aws_secret_key: { get_property: [SOURCE, aws_secret_key] }
+            key_name: { get_property: [SOURCE, key_name] }
+            key_content: { get_property: [SOURCE, key_content] }
+            region: { get_property: [SOURCE, region] }
+            instance_name: { get_property: [SOURCE, instance_name] }
+            instance_count: { get_property: [SOURCE, instance_count] }
+            host_per_instance: { get_property: [SOURCE, host_per_instance] }
+            instance_username: { get_property: [SOURCE, instance_username] }
+            instance_groups: { get_property: [SOURCE, instance_groups] }
+            instance_image: { get_property: [SOURCE, instance_image] }
+            instance_type: { get_property: [SOURCE, instance_type] }
+            instance_os: { get_property: [SOURCE, instance_os] }
+            hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
+          implementation: playbook/playbook.ansible
+        remove_target:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: delete.yml
+            aws_access_key: { get_property: [SOURCE, aws_access_key]}
+            aws_secret_key: { get_property: [SOURCE, aws_secret_key]}
+            key_name: { get_property: [SOURCE, key_name]}
+            key_content: { get_property: [SOURCE, key_content]}
+            region: { get_property: [SOURCE, region]}
+            instance_name: { get_property: [SOURCE, instance_name]}
+            instance_count: { get_property: [SOURCE, instance_count]}
+            hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
+          implementation: playbook/playbook.ansible

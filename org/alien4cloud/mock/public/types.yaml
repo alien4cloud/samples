@@ -1,0 +1,67 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.mock.public
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+description: >
+  Mock types for A4C load tests.
+
+node_types:
+
+  org.alien4cloud.mock.public.nodes.AbstractMockHost:
+    description: |
+      A software component that hosts MockComponent.
+    abstract: true      
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      sleep_factor:
+        type: integer
+        required: true    
+        default: 1
+      log_length:
+        type: integer
+        required: true    
+        default: 200        
+    capabilities:
+      host:
+        type: tosca.capabilities.Container
+  org.alien4cloud.mock.public.nodes.AbstractMockComponent:
+    description: |
+      A software component hosted on GenericHost and that can connect to many other Generic.
+    abstract: true        
+    derived_from: tosca.nodes.SoftwareComponent
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          relationship: org.alien4cloud.mock.public.relationships.AbstractComponentHostedOnHost
+          occurrences: [1,1]
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint
+          relationship: org.alien4cloud.mock.public.relationships.AbstractComponentConnectToComponent
+          occurrences: [0, unbounded]
+
+relationship_types:
+
+  org.alien4cloud.mock.public.relationships.AbstractComponentHostedOnHost:
+    derived_from: tosca.relationships.HostedOn
+    abstract: true
+    valid_target_types: [ org.alien4cloud.mock.public.nodes.AbstractMockHost ]  
+  org.alien4cloud.mock.public.relationships.AbstractComponentConnectToComponent:
+    derived_from: tosca.relationships.ConnectsTo
+    abstract: true
+    valid_target_types: [ org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint ]
+
+capability_types:
+
+  org.alien4cloud.mock.public.capabilities.AbstractComponentEndpoint:
+    derived_from: tosca.capabilities.Root
+    abstract: true

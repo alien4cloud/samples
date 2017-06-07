@@ -1,0 +1,15 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.hostpool.public
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Define contracts for HostPool
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+capability_types:
+  org.alien4cloud.automation.cloudify.hostpool.public.capabilities.HostPoolServiceApi:
+    derived_from: tosca.capabilities.Endpoint

@@ -32,29 +32,29 @@ node_types:
           inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: create.yml
-          implementation: playbook/apache.ansible
+          implementation: playbook/playbook.ansible
         configure:
           inputs:
             port: { get_property: [SELF, port] }
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: configure.yml
-          implementation: playbook/apache.ansible
+          implementation: playbook/playbook.ansible
         start:
           inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: start.yml
-          implementation: playbook/apache.ansible
+          implementation: playbook/playbook.ansible
         stop:
           inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: stop.yml
-          implementation: playbook/apache.ansible
+          implementation: playbook/playbook.ansible
         delete:
           inputs:
             port: { get_property: [SELF, port] }
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: delete.yml
-          implementation: playbook/apache.ansible
+          implementation: playbook/playbook.ansible
 capability_types:
     alien.capabilities.ApacheContainer:
       derived_from: tosca.capabilities.Container

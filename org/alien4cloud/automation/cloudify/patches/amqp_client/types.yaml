@@ -1,0 +1,31 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.patches.amqp_client
+  template_version: 1.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: TOSCA template that contains a basic node type to install a cloudify manager.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.cloudify-types:1.0.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.automation.cloudify.patches.amqp_client.nodes.AmqpClientPatch:
+    derived_from: tosca.nodes.Root
+    description: Fix AMQP client patch.
+    requirements:
+      - cfy_manager:
+          capability: org.alien4cloud.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+    interfaces:  
+      Standard:
+        create:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: create.yml
+          implementation: playbook/playbook.ansible    

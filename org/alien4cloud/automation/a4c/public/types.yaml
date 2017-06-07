@@ -19,10 +19,10 @@ capability_types:
       password:
         type: string
         default: admin
-        required: true      
+        required: true
       port:
         type: integer
-        description: The port of the elasticsearch HTTP endpoint.
+        description: The port of the alien HTTP endpoint.
         required: true
         default: 8080
         constraints:

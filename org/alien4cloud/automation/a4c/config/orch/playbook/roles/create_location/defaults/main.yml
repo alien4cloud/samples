@@ -1,11 +1,6 @@
 name: MyLocation
 type: byon
-orchestratorId: d6549e35-c71f-4dc8-b0af-a4ba2ce91f26
-alien_url: http://34.249.247.234:8080
+orchestratorId: 945fccab-c58f-4cb5-923c-b210a71ff236
+alien_url: http://52.213.59.159:8080
 alien_user: admin 
 alien_password: admin
-resourceType: 
-resourceName:
-resourceArchiveName:
-resourceArchiveVersion:
-resourceId:

@@ -5,4 +5,4 @@
   become: true
 
   roles:
-    - create_location
+    - create_location_resource

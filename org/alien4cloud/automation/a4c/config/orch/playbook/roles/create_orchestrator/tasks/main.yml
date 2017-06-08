@@ -110,10 +110,10 @@
   register: stat_orchestrator_plugin
 - copy:
     src: "{{ orchestrator_plugin }}"
-    dest: /tmp/orchestrator_plugin.zip
+    dest: "/tmp/orchestrator_plugin_{{ INSTANCE }}.zip"
   when: stat_orchestrator_plugin.stat.exists
 - name: upload plugin archive to A4C
-  shell: "curl -k -X POST -H 'cookie: {{ session_id }}' --upload-file /tmp/orchestrator_plugin.zip '{{ alien_url }}/rest/latest/csars'"
+  shell: "curl -k -X POST -H 'cookie: {{ session_id }}' -F file=@/tmp/orchestrator_plugin_{{ INSTANCE }}.zip '{{ alien_url }}/rest/latest/plugins'"
   when: stat_orchestrator_plugin.stat.exists
 
 - name: Create Orchestrator

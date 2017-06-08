@@ -1,5 +1,18 @@
 ---
 
+- name: login
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
 - name: Create Location
   uri:
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations"
@@ -10,6 +23,7 @@
       name: "{{ name }}"
       infrastructureType: "{{ type }}"
     body_format: json
+    status_code: 201
   register: result
 
 - set_fact:

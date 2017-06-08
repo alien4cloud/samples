@@ -115,6 +115,7 @@
       pluginId: "{{ pluginId }}"
       pluginBean: "{{ pluginBean }}"
     body_format: json
+    status_code: 201
   register: result
 
 - set_fact:
@@ -126,9 +127,75 @@
 - name: Add orchestrator configuration
   uri:
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
-    method: POST
+    method: PUT
     return_content: yes
     HEADER_cookie: "{{ session_id }}"
     HEADER_Content-Type: "application/json"
-    body: "{{ lookup('templates','orchestratorConfiguration.json') | to_json }}"
+    body:
+      url: "{{ cfy_url }}"
+      locations:
+        openstack:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+          - http://www.getcloudify.org/spec/openstack-plugin/1.3.1/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.1/plugin.yaml
+        amazon:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+          - http://www.getcloudify.org/spec/aws-plugin/1.3.1/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.1/plugin.yaml
+        byon:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+          - http://www.getcloudify.org/spec/host-pool-plugin/1.4/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.1/plugin.yaml
+        vsphere:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+          - http://getcloudify.org.s3.amazonaws.com/spec/vsphere-plugin/2.0/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.1/plugin.yaml
+        azure:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+          - https://raw.githubusercontent.com/cloudify-cosmo/cloudify-azure-plugin/1.4.1/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.1/plugin.yaml
+          location: westeurope
+          resourceGroup: ''
+          virtualNetwork: ''
+          subnet: ''
+      userName: "{{ cfy_user }}"
+      password: "{{ cfy_password }}" 
+      disableSSLVerification: true
+      delayBetweenDeploymentStatusPolling: 30
+      delayBetweenLogPolling: 5
+      delayBetweenInProgressDeploymentStatusPolling: 5
+      disableDiamondMonitorAgent: true
+      postDeploymentRestURL: 
+      caCertificate: 
+      clientKey: 
+      clientCertificate: 
+      artifactConfigurations:
+        ansibleConfiguration:
+          defaultTimeout: 600
+          defaultVerbose: false
+      kubernetes:
+        imports:
+        - http://www.getcloudify.org/spec/fabric-plugin/1.4.1/plugin.yaml
+        - plugins/cloudify-kubernetes-plugin/plugin-remote.yaml
+        kubernetesUrl: 
+    body_format: json
+    status_code: 200
   register: result
+ 
+- name: Add orchestrator configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/instance"
+    method: POST
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+

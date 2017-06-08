@@ -5,5 +5,4 @@
   become: true
 
   roles:
-    - a4c_login
     - create_location

@@ -1,8 +1,6 @@
-alien_url: http://52.211.174.223:8080
-alien_user: admin
+name: MyLocation
+type: byon
+orchestratorId: d6549e35-c71f-4dc8-b0af-a4ba2ce91f26
+alien_url: http://34.249.247.234:8080
+alien_user: admin 
 alien_password: admin
-repositoryUrl: https://github.com/alien4cloud/tosca-normative-types.git
-repositoryUsername: 
-repositoryPassword: 
-branchId: master
-subPath: "*"

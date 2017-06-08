@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  name: Connect to cfy manager
+  become: true
+
+  roles:
+    - connect_cfy

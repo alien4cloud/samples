@@ -24,9 +24,9 @@ imports:
 topology_template:
   description: |
     Graphite As a Service : a Grafana that connects to a Graphite as a backend.
-    Can be used to expose a monitoring service.  
+    Can be used to expose a monitoring service.
   substitution_mappings:
-    node_type: org.alien4cloud.monitoring.pub.nodes.MetricsBackend
+    node_type: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
     capabilities:
       metrics_backend: [ Graphite, metrics_backend ]
   node_templates:

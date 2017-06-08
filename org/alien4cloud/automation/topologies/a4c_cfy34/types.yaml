@@ -38,7 +38,7 @@ repositories:
     type: maven
 
 topology_template:
-  
+
   description: |
     A4C & CFY 3.4 manager (with Ansible), both monitored (need a monitoring service to match).
     Need a link to maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
@@ -221,6 +221,10 @@ topology_template:
     CFY_Compute:
       type: tosca.nodes.Compute
       capabilities:
+        host:
+          properties:
+            num_cpus: 4
+            mem_size: "4 GIB"
         os:
           properties:
             architecture: "x86_64"
@@ -259,7 +263,7 @@ topology_template:
         - metrics_backend:
             node: GraphiteBackend
             capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
-            relationship: org.alien4cloud.monitoring.pub.relationships.MonitoringAgentConnectToMetricsBackend
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
         - collec_elasticsearch:
             node: CFY3Manager
             capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
@@ -307,6 +311,10 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+      artifacts:
+        key_file:
+          file: xde-aws.pem
+          type: tosca.artifacts.File
     AWSHostpoolFeeder:
       type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
       properties:

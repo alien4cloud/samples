@@ -13,12 +13,13 @@ imports:
 node_types:
   org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit:
     description: |
-      Deploy a Diamond Agent
+      Add a git repository and import CSARs.
     derived_from: tosca.nodes.Root
     properties:
       repositoryUrl:
         type: string
         required: true
+        default: https://github.com/alien4cloud/tosca-normative-types.git
       repositoryUsername:
         type: string
         required: false
@@ -28,6 +29,7 @@ node_types:
       branchId:
         type: string
         required: true
+        default: master
       subPath:
         type: string
         required: false
@@ -36,6 +38,19 @@ node_types:
           capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
           relationship: org.alien4cloud.automation.a4c.config.csar.relationships.AddCsarFromGitConnectToAlien
           occurrences: [1, 1]
+    interfaces:
+      Standard:
+        start:
+          # create the location
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: start.yml
+            repositoryUrl: { get_property: [SELF, repositoryUrl] }
+            repositoryUsername: { get_property: [SELF, repositoryUsername] }
+            repositoryPassword: { get_property: [SELF, repositoryPassword] }
+            branchId: { get_property: [SELF, branchId] }
+            subPath: { get_property: [SELF, subPath] }
+          implementation: playbook/playbook.ansible
 
 relationship_types:
   org.alien4cloud.automation.a4c.config.csar.relationships.AddCsarFromGitConnectToAlien:
@@ -43,15 +58,10 @@ relationship_types:
     valid_target_types: [ org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi ]
     interfaces:
       Configure:
-        add_target:
+        pre_configure_source:
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: connect.yml
-            repositoryUrl: { get_property: [SOURCE, repositoryUrl] }
-            repositoryUsername: { get_property: [SOURCE, repositoryUsername] }
-            repositoryPassword: { get_property: [SOURCE, repositoryPassword] }
-            branchId: { get_property: [SOURCE, branchId] }
-            subPath: { get_property: [SOURCE, subPath] }
+            PLAYBOOK_ENTRY: connect_a4c.yml
             alien_user: { get_property: [TARGET, rest, user] }
             alien_password: { get_property: [TARGET, rest, password] }
             alien_url: { concat: [get_property: [TARGET, rest, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, rest, port]] }

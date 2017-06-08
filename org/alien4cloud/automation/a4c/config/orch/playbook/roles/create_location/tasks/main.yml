@@ -1,0 +1,19 @@
+---
+
+- name: Create Location
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      name: "{{ name }}"
+      infrastructureType: "{{ type }}"
+    body_format: json
+  register: result
+
+- set_fact:
+    content: "{{ result.content }}"
+
+- set_fact:
+    locationId: "{{ content.data }}"

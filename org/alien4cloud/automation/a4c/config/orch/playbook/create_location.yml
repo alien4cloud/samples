@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  connection: local
+  name: Add and configure orchestrator
+  become: true
+
+  roles:
+    - a4c_login
+    - create_location

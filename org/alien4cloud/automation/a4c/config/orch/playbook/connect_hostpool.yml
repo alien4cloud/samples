@@ -1,8 +1,8 @@
 ---
 - hosts: localhost
   connection: local
-  name: Connect to alien so do configure git csar
+  name: Connect to hostpool
   become: true
 
   roles:
-    - connect
+    - connect_hostpool

@@ -8,6 +8,7 @@ metadata:
 imports:
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
 
@@ -31,6 +32,9 @@ node_types:
         default: cloudify-orchestrator
     attributes:
       orchestratorId: { get_operation_output: [ SELF, Standard, start, orchestratorId ] }
+      alien_url: { get_operation_output: [ SELF, Standard, start, alien_url ] }
+      alien_user: { get_operation_output: [ SELF, Standard, start, alien_user ] }
+      alien_password: { get_operation_output: [ SELF, Standard, start, alien_password ] }
     capabilities:
       location_config:
         type: org.alien4cloud.automation.a4c.config.orch.capabilities.OrchestratorConfigurator
@@ -77,7 +81,39 @@ node_types:
           capability: org.alien4cloud.automation.a4c.config.orch.capabilities.OrchestratorConfigurator
           relationship: org.alien4cloud.automation.a4c.config.orch.relationships.LocationHostedOnOrchestrator
           occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          # create the location
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: create_location.yml
+            name: { get_property: [SELF, name] }
+            type: { get_property: [SELF, type] }
+            orchestratorId: { get_attribute: [HOST, orchestratorId] }
+            alien_url: { get_attribute: [HOST, alien_url] }
+            alien_user: { get_attribute: [HOST, alien_user] }
+            alien_password: { get_attribute: [HOST, alien_password] }
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.automation.a4c.config.orch.nodes.ByonLocationConfigurator:
+    description: |
+      Configure a BYON location for A4C
+    derived_from: org.alien4cloud.automation.a4c.config.orch.nodes.LocationConfigurator
+    properties:
+      type:
+        type: string
+        required: true
+        default: byon
+        constraints:
+          - valid_values: [ "byon" ]
+    attributes:
+      locationId: { get_operation_output: [ SELF, Standard, start, locationId ] }
 
+    requirements:
+      - hostpool:
+          capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
+          relationship: org.alien4cloud.automation.a4c.config.orch.relationships.LocationConnectsToHostpool
+          occurrences: [1, 1]
 
 capability_types:
   org.alien4cloud.automation.a4c.config.orch.capabilities.OrchestratorConfigurator:
@@ -112,3 +148,14 @@ relationship_types:
           implementation: playbook/playbook.ansible
   org.alien4cloud.automation.a4c.config.orch.relationships.LocationHostedOnOrchestrator:
     derived_from: tosca.relationships.HostedOn
+  org.alien4cloud.automation.a4c.config.orch.relationships.LocationConnectsToHostpool:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: connect_hostpool.yml
+            hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
+          implementation: playbook/playbook.ansible

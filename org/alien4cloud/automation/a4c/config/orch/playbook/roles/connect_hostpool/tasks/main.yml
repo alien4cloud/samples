@@ -1,0 +1,4 @@
+---
+- file: path="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_hostpool/inputs" state=directory mode=0755
+
+- copy: content="{{ hostpool_url }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_hostpool/inputs/hostpool_url"

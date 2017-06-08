@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   connection: local
-  name: Add and configure orchestrator
+  name: Create an orchestrator location
   become: true
 
   roles:

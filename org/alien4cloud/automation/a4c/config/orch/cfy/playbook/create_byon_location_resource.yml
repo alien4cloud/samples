@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  name: Add BYON on-demand resource
+  become: true
+
+  roles:
+    - create_byon_location_resource

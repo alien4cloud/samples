@@ -1,12 +1,14 @@
 ---
 
-#- name: Add repository
-#  yum:
-#    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-#    state: present
+- name: Add repository
+  yum:
+   name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
 
-#- name: Install pip
-#  yum: pkg=python-pip state=present
+- name: Install pip
+  yum: pkg=python-pip state=present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
 
 - name: Install system dependencies (Ubuntu)
   apt: name={{item}} state=installed

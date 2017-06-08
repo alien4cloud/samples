@@ -1,14 +1,16 @@
 ---
 
-#- name: Add repository
-#  yum:
-#    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-#    state: present
+- name: Add repository
+  yum:
+   name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
 
-#- name: Install pip
-#  yum: pkg=python-pip state=present
+- name: Install pip
+  yum: pkg=python-pip state=present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
 
-- name: Install system dependencies (Ubuntu)
+- name: Install python dependencies (Ubuntu)
   apt: name={{item}} state=installed
   with_items:
     - python-pip
@@ -91,7 +93,7 @@
     cfy_password: "{{ cfy_password_content.stdout_lines[0] }}"
   when: cfy_password_file.stat.exists and cfy_password_content.stdout_lines|length > 0
 
-- name: login
+- name: Login onto A4C
   uri:
     url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
     method: POST
@@ -112,7 +114,7 @@
     src: "{{ orchestrator_plugin }}"
     dest: "/tmp/orchestrator_plugin_{{ INSTANCE }}.zip"
   when: stat_orchestrator_plugin.stat.exists
-- name: upload plugin archive to A4C
+- name: Upload plugin archive to A4C
   shell: "curl -k -X POST -H 'cookie: {{ session_id }}' -F file=@/tmp/orchestrator_plugin_{{ INSTANCE }}.zip '{{ alien_url }}/rest/latest/plugins'"
   when: stat_orchestrator_plugin.stat.exists
 
@@ -136,7 +138,7 @@
 - set_fact:
     orchestratorId: "{{ content.data }}"
 
-- name: Add orchestrator configuration
+- name: Add orchestrator v3 configuration
   uri:
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
     method: PUT
@@ -203,8 +205,10 @@
     body_format: json
     status_code: 200
   register: result
+  # this config is a cloudify v3 orchestrator config
+  when: "{{ pluginId | search('3') }}"
 
-- name: Add orchestrator configuration
+- name: Activate orchestrator
   uri:
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/instance"
     method: POST

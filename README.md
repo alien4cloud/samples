@@ -17,5 +17,5 @@ The other components are still in SNAPSHOT version because we make regular chang
 Here is da magic command you should use to build csar:
 
 ```
-if [ -d "playbook" ]; then echo "Zip playbook" && cd playbook && rm -f playbook.ansible && zip -r playbook.ansible * && cd ..; fi && rm -f stuff.zip && echo "Zip csar" && zip -r csar.zip *
+if [ -d "playbook" ]; then echo "Zip playbook" && cd playbook && rm -f playbook.ansible && zip -r playbook.ansible * && cd ..; fi && rm -f *.zip && echo "Zip csar" && zip -r csar.zip *
 ```

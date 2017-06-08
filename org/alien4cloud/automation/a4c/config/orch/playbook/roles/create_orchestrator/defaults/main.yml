@@ -2,4 +2,5 @@ NODE: OrchestratorConfigurator
 INSTANCE: OrchestratorConfigurator-1
 name: CFYOrchestrator
 pluginId: alien-cloudify-3-orchestrator-premium
-pluginBean: cloudify-orchestrator 
+pluginBean: cloudify-orchestrator
+orchestrator_plugin: 

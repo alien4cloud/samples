@@ -31,19 +31,3 @@
 
 - set_fact:
     locationId: "{{ content.data }}"
-
-- name: Create on-demand location resource
-  uri:
-    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources"
-    method: POST
-    return_content: yes
-    HEADER_cookie: "{{ session_id }}"
-    body:
-      resourceType: "{{ }}"
-      resourceName: "{{ }}"
-      archiveName: ""
-      archiveVersion: "" 
-      id: ""
-    body_format: json
-    status_code: 201
-  register: result

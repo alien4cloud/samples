@@ -53,11 +53,14 @@ node_types:
         start:
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: start.yml
+            PLAYBOOK_ENTRY: create_orchestrator.yml
             name: { get_property: [SELF, name] }
             pluginId: { get_property: [SELF, pluginId] }
             pluginBean: { get_property: [SELF, pluginBean] }
           implementation: playbook/playbook.ansible
+    artifacts:
+      - orchestrator_plugin:
+          type: tosca.artifacts.File
   org.alien4cloud.automation.a4c.config.orch.nodes.LocationConfigurator:
     abstract: true
     description: |

@@ -104,6 +104,18 @@
 - set_fact:
     session_id: "{{ login.set_cookie.split(';')[0] }}"
 
+# if a file is given as an artifact, upload it as a plugin for alien
+- name: Check for orchestrator_plugin file
+  local_action: "stat path={{ orchestrator_plugin }}"
+  register: stat_orchestrator_plugin
+- copy:
+    src: "{{ orchestrator_plugin }}"
+    dest: /tmp/orchestrator_plugin.zip
+  when: stat_orchestrator_plugin.stat.exists
+- name: upload plugin archive to A4C
+  shell: "curl -k -X POST -H 'cookie: {{ session_id }}' --upload-file /tmp/orchestrator_plugin.zip '{{ alien_url }}/rest/latest/csars'"
+  when: stat_orchestrator_plugin.stat.exists
+
 - name: Create Orchestrator
   uri:
     url: "{{ alien_url }}/rest/latest/orchestrators"
@@ -169,16 +181,16 @@
           virtualNetwork: ''
           subnet: ''
       userName: "{{ cfy_user }}"
-      password: "{{ cfy_password }}" 
+      password: "{{ cfy_password }}"
       disableSSLVerification: true
       delayBetweenDeploymentStatusPolling: 30
       delayBetweenLogPolling: 5
       delayBetweenInProgressDeploymentStatusPolling: 5
       disableDiamondMonitorAgent: true
-      postDeploymentRestURL: 
-      caCertificate: 
-      clientKey: 
-      clientCertificate: 
+      postDeploymentRestURL:
+      caCertificate:
+      clientKey:
+      clientCertificate:
       artifactConfigurations:
         ansibleConfiguration:
           defaultTimeout: 600
@@ -187,15 +199,14 @@
         imports:
         - http://www.getcloudify.org/spec/fabric-plugin/1.4.1/plugin.yaml
         - plugins/cloudify-kubernetes-plugin/plugin-remote.yaml
-        kubernetesUrl: 
+        kubernetesUrl:
     body_format: json
     status_code: 200
   register: result
- 
+
 - name: Add orchestrator configuration
   uri:
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/instance"
     method: POST
     HEADER_cookie: "{{ session_id }}"
     HEADER_Content-Type: "application/json"
-

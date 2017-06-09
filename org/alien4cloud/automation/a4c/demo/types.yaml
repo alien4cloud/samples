@@ -1,0 +1,20 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.a4c.demo
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.automation.a4c.demo.nodes.Alien4CloudDemo:
+    derived_from: org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud
+    description: >
+      Add backup/restore features to the A4C webapp.

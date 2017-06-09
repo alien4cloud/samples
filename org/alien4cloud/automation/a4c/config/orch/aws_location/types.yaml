@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.a4c.config.orch.cfy_location
+  template_name: org.alien4cloud.automation.a4c.config.orch.aws_location
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -15,7 +15,7 @@ imports:
 
 node_types:
 
-  org.alien4cloud.automation.a4c.config.orch.cfy_location.nodes.AWSLocationConfigurator:
+  org.alien4cloud.automation.a4c.config.orch.aws_location.nodes.AWSLocationConfigurator:
     description: |
       Configure a AWS location for A4C
     derived_from: org.alien4cloud.automation.a4c.config.orch.pub.nodes.LocationConfigurator

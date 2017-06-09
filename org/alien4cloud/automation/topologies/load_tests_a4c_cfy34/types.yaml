@@ -10,31 +10,32 @@ description: >
   Need a link to maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
   Cloudify orchestrator is configured with a BYON location.
   The Host pool is fed with fresh EC2 instances.
+  Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
 
 imports:
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.v3:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - ansible-apache-type:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.cloudify.manager.v3:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.orch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - ansible-apache-type:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 repositories:
@@ -49,6 +50,7 @@ topology_template:
     Need a link to maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
     Cloudify orchestrator is configured with a BYON location.
     The Host pool is fed with fresh EC2 instances.
+    Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
 
   inputs:
     aws_region:
@@ -81,6 +83,11 @@ topology_template:
       required: true
       default: "sg-cffd98b6"
       description: "Comma separated list of security groups to use for agents."
+  input_artifacts:
+    aws_key_file:
+        type: tosca.artifacts.File
+    orchestrator_plugin:
+        type: tosca.artifacts.File
   node_templates:
     GraphiteBackend:
       type: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
@@ -295,7 +302,7 @@ topology_template:
             initiator: source
       artifacts:
         key_file:
-          file: xde-aws.pem
+          file: { get_input_artifact: aws_key_file }
           type: tosca.artifacts.File
     AWSHostpoolFeeder:
       type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
@@ -390,7 +397,7 @@ topology_template:
             capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
             relationship: org.alien4cloud.automation.a4c.config.csar.relationships.AddCsarFromGitConnectToAlien
     OrchestratorConfigurator:
-      type: org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorConfigurator
+      type: org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorPluginConfigurator
       properties:
         name: CFYOrchestrator
         pluginId: "alien-cloudify-3-orchestrator-premium"
@@ -410,8 +417,7 @@ topology_template:
             relationship: org.alien4cloud.automation.a4c.config.orch.pub.relationships.ConnectsToA4C
       artifacts:
         orchestrator_plugin:
-          type: tosca.artifacts.File
-          file: alien4cloud:alien4cloud-cloudify3-provider-premium:1.4.0-SNAPSHOT@zip
+          file: { get_input_artifact: orchestrator_plugin }
           type: tosca.artifacts.File
     ByonLocationConfigurator:
       type: org.alien4cloud.automation.a4c.config.orch.cfy.nodes.ByonLocationConfigurator
@@ -435,6 +441,8 @@ topology_template:
   outputs:
     A4C_alien_url:
       value: { get_attribute: [ A4C, alien_url ] }
+    CFY3Manager_manager_url:
+      value: { get_attribute: [ CFY3Manager, manager_url ] }
     HostPoolService_hostpool_url_hosts:
       value: { get_attribute: [ HostPoolService, hostpool_url_hosts ] }
     HostPoolService_hostpool_url:

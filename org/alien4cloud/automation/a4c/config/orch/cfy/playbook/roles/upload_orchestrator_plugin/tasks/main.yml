@@ -1,0 +1,83 @@
+---
+
+- name: Add repository
+  yum:
+   name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install pip
+  yum: pkg=python-pip state=present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install python dependencies (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - python-pip
+    - python-dev
+    - build-essential
+  when: ansible_distribution == 'Ubuntu'
+
+- name: pip httplib2
+  pip: name=httplib2
+
+# read alien_url from a4c connection
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_url"
+  register: alien_url_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_url"
+  register: alien_url_content
+  when: alien_url_file.stat.exists
+- set_fact:
+    alien_url: "{{ alien_url_content.stdout_lines[0] }}"
+  when: alien_url_file.stat.exists and alien_url_content.stdout_lines|length > 0
+
+# read alien_user from a4c connection
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_user"
+  register: alien_user_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_user"
+  register: alien_user_content
+  when: alien_user_file.stat.exists
+- set_fact:
+    alien_user: "{{ alien_user_content.stdout_lines[0] }}"
+  when: alien_user_file.stat.exists and alien_user_content.stdout_lines|length > 0
+
+# read alien_password from a4c connection
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_password"
+  register: alien_password_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_password"
+  register: alien_password_content
+  when: alien_password_file.stat.exists
+- set_fact:
+    alien_password: "{{ alien_password_content.stdout_lines[0] }}"
+  when: alien_password_file.stat.exists and alien_password_content.stdout_lines|length > 0
+
+- name: Login onto A4C
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+# if a file is given as an artifact, upload it as a plugin for alien
+- name: Check for orchestrator_plugin file
+  local_action: "stat path={{ orchestrator_plugin }}"
+  register: stat_orchestrator_plugin
+- copy:
+    src: "{{ orchestrator_plugin }}"
+    dest: "/tmp/orchestrator_plugin_{{ INSTANCE }}.zip"
+  when: stat_orchestrator_plugin.stat.exists
+- name: Upload plugin archive to A4C
+  shell: "curl -k -X POST -H 'cookie: {{ session_id }}' -F file=@/tmp/orchestrator_plugin_{{ INSTANCE }}.zip '{{ alien_url }}/rest/latest/plugins'"
+  when: stat_orchestrator_plugin.stat.exists

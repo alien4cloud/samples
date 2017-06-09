@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  connection: local
+  name: Upload an orchestrator plugin
+  become: true
+
+  roles:
+    - upload_orchestrator_plugin

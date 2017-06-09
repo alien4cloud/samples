@@ -106,18 +106,6 @@
 - set_fact:
     session_id: "{{ login.set_cookie.split(';')[0] }}"
 
-# if a file is given as an artifact, upload it as a plugin for alien
-- name: Check for orchestrator_plugin file
-  local_action: "stat path={{ orchestrator_plugin }}"
-  register: stat_orchestrator_plugin
-- copy:
-    src: "{{ orchestrator_plugin }}"
-    dest: "/tmp/orchestrator_plugin_{{ INSTANCE }}.zip"
-  when: stat_orchestrator_plugin.stat.exists
-- name: Upload plugin archive to A4C
-  shell: "curl -k -X POST -H 'cookie: {{ session_id }}' -F file=@/tmp/orchestrator_plugin_{{ INSTANCE }}.zip '{{ alien_url }}/rest/latest/plugins'"
-  when: stat_orchestrator_plugin.stat.exists
-
 - name: Create Orchestrator
   uri:
     url: "{{ alien_url }}/rest/latest/orchestrators"
@@ -207,6 +195,77 @@
   register: result
   # this config is a cloudify v3 orchestrator config
   when: "{{ pluginId | search('3') }}"
+
+- name: Add orchestrator v4 configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
+    method: PUT
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    body:
+      url: "{{ cfy_url }}"
+      locations:
+        openstack:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
+          - http://www.getcloudify.org/spec/openstack-plugin/1.3.1/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.4/plugin.yaml
+        amazon:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
+          - http://www.getcloudify.org/spec/aws-plugin/1.3.1/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.4/plugin.yaml
+        byon:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
+          - http://www.getcloudify.org/spec/host-pool-plugin/1.4/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.4/plugin.yaml
+        vsphere:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
+          - http://getcloudify.org.s3.amazonaws.com/spec/vsphere-plugin/2.0/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.4/plugin.yaml
+        azure:
+          dsl: cloudify_dsl_1_3
+          imports:
+          - http://www.getcloudify.org/spec/cloudify/4.0/types.yaml
+          - https://raw.githubusercontent.com/cloudify-cosmo/cloudify-azure-plugin/1.4.1/plugin.yaml
+          - http://www.getcloudify.org/spec/diamond-plugin/1.3.4/plugin.yaml
+          location: westeurope
+          resourceGroup: ''
+          virtualNetwork: ''
+          subnet: ''
+      userName: "{{ cfy_user }}"
+      password: "{{ cfy_password }}"
+      tenant: default_tenant
+      disableSSLVerification: false
+      delayBetweenDeploymentStatusPolling: 30
+      delayBetweenLogPolling: 5
+      delayBetweenInProgressDeploymentStatusPolling: 5
+      disableDiamondMonitorAgent: false
+      postDeploymentRestURL:
+      caCertificate:
+      clientKey:
+      clientCertificate:
+      artifactConfigurations:
+        ansibleConfiguration:
+          defaultTimeout: 600
+          defaultVerbose: false
+      kubernetes:
+        imports:
+        - http://www.getcloudify.org/spec/fabric-plugin/1.4.2/plugin.yaml
+        - plugins/cloudify-kubernetes-plugin/plugin-remote.yaml
+        kubernetesUrl:
+    body_format: json
+    status_code: 200
+  register: result
+  # this config is a cloudify v3 orchestrator config
+  when: "{{ pluginId | search('4') }}"
 
 - name: Activate orchestrator
   uri:

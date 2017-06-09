@@ -1,28 +1,25 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.topologies.a4c_cfy34
+  template_name: org.alien4cloud.automation.topologies.a4c_cfy34_aws
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
-description: |
-  A4C & CFY 3.4 manager (with Ansible), both monitored (need a monitoring service to match).
-  Need a link to maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
+description: >
+  A4C & CFY 3.4 manager (with Ansible) configured for AWS.
+  Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
 
 imports:
-  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.automation.cloudify.manager.v3:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
@@ -39,9 +36,9 @@ repositories:
 
 topology_template:
 
-  description: |
-    A4C & CFY 3.4 manager (with Ansible), both monitored (need a monitoring service to match).
-    Need a link to maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
+  description: >
+    A4C & CFY 3.4 manager (with Ansible) configured for AWS.
+    Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
 
   inputs:
     aws_region:
@@ -74,41 +71,14 @@ topology_template:
       required: true
       default: "sg-cffd98b6"
       description: "Comma separated list of security groups to use for agents."
+    a4c_version:
+      type: version
+      required: true
+      description: "The version of A4C (important in create stage)."
+  input_artifacts:
+    orchestrator_plugin:
+        type: tosca.artifacts.File
   node_templates:
-    AddExtendedTypes:
-      type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
-      properties:
-        repositoryUrl: "https://github.com/alien4cloud/alien4cloud-extended-types.git"
-        branchId: master
-      requirements:
-        - alien:
-            node: A4C
-            capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
-            relationship: org.alien4cloud.automation.a4c.config.csar.relationships.AddCsarFromGitConnectToAlien
-    AddMockTypes:
-      type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
-      properties:
-        repositoryUrl: "https://github.com/alien4cloud/samples.git"
-        branchId: master
-        subPath: "org/alien4cloud/mock"
-      requirements:
-        - dependency:
-            node: AddExtendedTypes
-            capability: tosca.capabilities.Node
-            relationship: tosca.relationships.DependsOn
-        - alien:
-            node: A4C
-            capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
-            relationship: org.alien4cloud.automation.a4c.config.csar.relationships.AddCsarFromGitConnectToAlien
-    GraphiteBackend:
-      type: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
-      capabilities:
-        metrics_backend:
-          properties:
-            protocol: tcp
-            secure: false
-            network_name: PRIVATE
-            initiator: source
     A4C_JDK:
       type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
       properties:
@@ -120,25 +90,6 @@ topology_template:
             node: A4C_Compute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-    A4C_DiamondAgent:
-      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
-      requirements:
-        - host:
-            node: A4C_Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
-        - collec_jolokia:
-            node: A4C
-            capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector
-        - collec_elasticsearch:
-            node: A4C_ElasticSearch
-            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
-        - metrics_backend:
-            node: GraphiteBackend
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
     A4C_Compute:
       type: tosca.nodes.Compute
       capabilities:
@@ -163,7 +114,7 @@ topology_template:
       properties:
         context_root: "/"
         app_args: "--spring.profiles.active=security-demo,noApiDoc"
-        component_version: "1.4.0-SNAPSHOT"
+        component_version: { get_input: a4c_version }
         data_dir: "/opt/alien4coud/data"
       requirements:
         - elasticsearch:
@@ -253,25 +204,6 @@ topology_template:
             node: CFY3Manager
             capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
             relationship: tosca.relationships.HostedOn
-    CFY_DiamondAgent:
-      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
-      requirements:
-        - collec_rabbitmq:
-            node: CFY3Manager
-            capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondRabbitmqCollector
-        - metrics_backend:
-            node: GraphiteBackend
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
-        - collec_elasticsearch:
-            node: CFY3Manager
-            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
-        - host:
-            node: CFY_Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
     CFY3Manager:
       type: org.alien4cloud.automation.cloudify.manager.v3.nodes.Cloudify3Manager
       properties:
@@ -315,42 +247,6 @@ topology_template:
         key_file:
           file: xde-aws.pem
           type: tosca.artifacts.File
-    AWSHostpoolFeeder:
-      type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
-      properties:
-        aws_access_key: { get_input: aws_access_key }
-        aws_secret_key: { get_input: aws_secret_key }
-        key_name: { get_input: keypair_name }
-        key_content: { get_input: key_content }
-        region: { get_input: aws_region }
-        instance_groups: { get_input: agent_security_groups }
-        instance_username: ubuntu
-        instance_type: "t2.nano"
-        instance_image: "ami-47a23a30"
-        instance_count: 1
-        host_per_instance: 1
-        instance_name: HostpoolInstance
-        instance_os: linux
-      requirements:
-        - hostpool:
-            node: HostPoolService
-            capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
-            relationship: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool
-    HostPoolService:
-      type: org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPoolService
-      requirements:
-        - host:
-            node: CFY_Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
-      capabilities:
-        cloudify_hostpool:
-          properties:
-            protocol: http
-            port: 8080
-            secure: false
-            network_name: PRIVATE
-            initiator: source
     Ansible4CloudifyManager:
       type: org.alien4cloud.automation.cloudify.ansible.nodes.Ansible4CloudifyManager
       properties:
@@ -360,13 +256,30 @@ topology_template:
             node: CFY_Compute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
+    OrchestratorConfigurator:
+      type: org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorPluginConfigurator
+      properties:
+        name: CFYOrchestrator
+        pluginId: "alien-cloudify-3-orchestrator-premium"
+        pluginBean: "cloudify-orchestrator"
+      requirements:
+        - cfy:
+            node: CFY3Manager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
+            relationship: org.alien4cloud.automation.a4c.config.orch.cfy.relationships.ConnectsToCfy
+        - alien:
+            node: A4C
+            capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
+            relationship: org.alien4cloud.automation.a4c.config.orch.pub.relationships.ConnectsToA4C
+      artifacts:
+        orchestrator_plugin:
+          file: { get_input_artifact: orchestrator_plugin }
+          type: tosca.artifacts.File
   outputs:
     A4C_alien_url:
       value: { get_attribute: [ A4C, alien_url ] }
-    HostPoolService_hostpool_url_hosts:
-      value: { get_attribute: [ HostPoolService, hostpool_url_hosts ] }
-    HostPoolService_hostpool_url:
-      value: { get_attribute: [ HostPoolService, hostpool_url ] }
+    CFY3Manager_manager_url:
+      value: { get_attribute: [ CFY3Manager, manager_url ] }      
   workflows:
     install:
       steps:
@@ -375,7 +288,8 @@ topology_template:
           activity:
             delegate: install
           on-success:
-            - DiamondLinuxAgent_initial
+            - ElasticSearch_configuring
+            - Alien4Cloud_configuring
             - OracleJDK_initial
         OracleJDK_initial:
           node: A4C_JDK
@@ -498,118 +412,8 @@ topology_template:
           activity:
             set_state: started
           on-success:
-            - AddCsarFromGit_2_configuring_1
-            - AddCsarFromGit_2_configuring
-            - DiamondLinuxAgent_configuring
-        AddCsarFromGit_2_initial:
-          node: AddExtendedTypes
-          activity:
-            set_state: initial
-          on-success:
-            - AddCsarFromGit_2_creating
-        AddCsarFromGit_2_creating:
-          node: AddExtendedTypes
-          activity:
-            set_state: creating
-          on-success:
-            - AddCsarFromGit_2_created
-        AddCsarFromGit_2_created:
-          node: AddExtendedTypes
-          activity:
-            set_state: created
-          on-success:
-            - Alien4Cloud_configuring
-            - AddCsarFromGit_2_configuring
-        AddCsarFromGit_2_configuring:
-          node: AddExtendedTypes
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_AddCsarFromGit_2
-        configure_AddCsarFromGit_2:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - AddCsarFromGit_2_configured
-        AddCsarFromGit_2_configured:
-          node: AddExtendedTypes
-          activity:
-            set_state: configured
-          on-success:
-            - AddCsarFromGit_2_starting
-        AddCsarFromGit_2_starting:
-          node: AddExtendedTypes
-          activity:
-            set_state: starting
-          on-success:
-            - start_AddCsarFromGit_2
-        start_AddCsarFromGit_2:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - AddCsarFromGit_2_started
-        AddCsarFromGit_2_started:
-          node: AddExtendedTypes
-          activity:
-            set_state: started
-          on-success:
-            - AddCsarFromGit_2_configuring_1
-        AddCsarFromGit_2_initial_1:
-          node: AddMockTypes
-          activity:
-            set_state: initial
-          on-success:
-            - AddCsarFromGit_2_creating_1
-        AddCsarFromGit_2_creating_1:
-          node: AddMockTypes
-          activity:
-            set_state: creating
-          on-success:
-            - AddCsarFromGit_2_created_1
-        AddCsarFromGit_2_created_1:
-          node: AddMockTypes
-          activity:
-            set_state: created
-          on-success:
-            - AddCsarFromGit_2_configuring_1
-            - Alien4Cloud_configuring
-            - AddCsarFromGit_2_configuring
-        AddCsarFromGit_2_configuring_1:
-          node: AddMockTypes
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_AddCsarFromGit_2_1
-        configure_AddCsarFromGit_2_1:
-          node: AddMockTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - AddCsarFromGit_2_configured_1
-        AddCsarFromGit_2_configured_1:
-          node: AddMockTypes
-          activity:
-            set_state: configured
-          on-success:
-            - AddCsarFromGit_2_starting_1
-        AddCsarFromGit_2_starting_1:
-          node: AddMockTypes
-          activity:
-            set_state: starting
-          on-success:
-            - start_AddCsarFromGit_2_1
-        start_AddCsarFromGit_2_1:
-          node: AddMockTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - AddCsarFromGit_2_started_1
-        AddCsarFromGit_2_started_1:
-          node: AddMockTypes
-          activity:
-            set_state: started
+            - OrchestratorConfigurator_configuring
+            - Ansible4CloudifyManager_initial
         ElasticSearch_initial:
           node: A4C_ElasticSearch
           activity:
@@ -671,82 +475,12 @@ topology_template:
             set_state: started
           on-success:
             - Alien4Cloud_configuring
-            - DiamondLinuxAgent_configuring
-        DiamondLinuxAgent_initial:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: initial
-          on-success:
-            - DiamondLinuxAgent_creating
-        DiamondLinuxAgent_creating:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: creating
-          on-success:
-            - create_DiamondLinuxAgent
-        create_DiamondLinuxAgent:
-          node: A4C_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - DiamondLinuxAgent_created
-        DiamondLinuxAgent_created:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: created
-          on-success:
-            - ElasticSearch_configuring
-            - Alien4Cloud_configuring
-            - OracleJDK_initial
-            - DiamondLinuxAgent_configuring
-        DiamondLinuxAgent_configuring:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_DiamondLinuxAgent
-        configure_DiamondLinuxAgent:
-          node: A4C_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - DiamondLinuxAgent_configured
-        DiamondLinuxAgent_configured:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: configured
-          on-success:
-            - DiamondLinuxAgent_starting
-        DiamondLinuxAgent_starting:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: starting
-          on-success:
-            - start_DiamondLinuxAgent
-        start_DiamondLinuxAgent:
-          node: A4C_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - DiamondLinuxAgent_started
-        DiamondLinuxAgent_started:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: started
-        GraphiteBackend_install:
-          node: GraphiteBackend
-          activity:
-            delegate: install
-          on-success:
-            - DiamondLinuxAgent_initial_1
-            - DiamondLinuxAgent_initial
         Compute_install_1:
           node: CFY_Compute
           activity:
             delegate: install
           on-success:
-            - DiamondLinuxAgent_initial_1
-            - HostPoolService_initial
+            - Cloudify3Manager_configuring
             - Ansible4CloudifyManager_initial
             - Cloudify3Manager_initial
         Cloudify3Manager_initial:
@@ -773,7 +507,7 @@ topology_template:
             set_state: created
           on-success:
             - Cloudify3Manager_configuring
-            - HostPoolService_initial
+            - Ansible4CloudifyManager_initial
         Cloudify3Manager_configuring:
           node: CFY3Manager
           activity:
@@ -810,8 +544,8 @@ topology_template:
             set_state: started
           on-success:
             - Cloudify3AwsConfiguration_initial
-            - DiamondLinuxAgent_configuring_1
-            - HostPoolService_initial
+            - OrchestratorConfigurator_configuring
+            - Ansible4CloudifyManager_initial
         Cloudify3AwsConfiguration_initial:
           node: Cloudify3AwsConfiguration
           activity:
@@ -871,182 +605,6 @@ topology_template:
           activity:
             set_state: started
           on-success:
-            - DiamondLinuxAgent_configuring_1
-        DiamondLinuxAgent_initial_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: initial
-          on-success:
-            - DiamondLinuxAgent_creating_1
-        DiamondLinuxAgent_creating_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: creating
-          on-success:
-            - create_DiamondLinuxAgent_1
-        create_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - DiamondLinuxAgent_created_1
-        DiamondLinuxAgent_created_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: created
-          on-success:
-            - DiamondLinuxAgent_configuring_1
-            - Cloudify3Manager_configuring
-            - Cloudify3Manager_initial
-        DiamondLinuxAgent_configuring_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_DiamondLinuxAgent_1
-        configure_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - DiamondLinuxAgent_configured_1
-        DiamondLinuxAgent_configured_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: configured
-          on-success:
-            - DiamondLinuxAgent_starting_1
-        DiamondLinuxAgent_starting_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: starting
-          on-success:
-            - start_DiamondLinuxAgent_1
-        start_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - DiamondLinuxAgent_started_1
-        DiamondLinuxAgent_started_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: started
-          on-success:
-            - HostPoolService_initial
-        AWSHostpoolFeeder_initial:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: initial
-          on-success:
-            - AWSHostpoolFeeder_creating
-        AWSHostpoolFeeder_creating:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: creating
-          on-success:
-            - AWSHostpoolFeeder_created
-        AWSHostpoolFeeder_created:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: created
-          on-success:
-            - HostPoolService_configuring
-            - AWSHostpoolFeeder_configuring
-        AWSHostpoolFeeder_configuring:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_AWSHostpoolFeeder
-        configure_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - AWSHostpoolFeeder_configured
-        AWSHostpoolFeeder_configured:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: configured
-          on-success:
-            - AWSHostpoolFeeder_starting
-        AWSHostpoolFeeder_starting:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: starting
-          on-success:
-            - start_AWSHostpoolFeeder
-        start_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - AWSHostpoolFeeder_started
-        AWSHostpoolFeeder_started:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: started
-        HostPoolService_initial:
-          node: HostPoolService
-          activity:
-            set_state: initial
-          on-success:
-            - HostPoolService_creating
-        HostPoolService_creating:
-          node: HostPoolService
-          activity:
-            set_state: creating
-          on-success:
-            - create_HostPoolService
-        create_HostPoolService:
-          node: HostPoolService
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - HostPoolService_created
-        HostPoolService_created:
-          node: HostPoolService
-          activity:
-            set_state: created
-          on-success:
-            - HostPoolService_configuring
-        HostPoolService_configuring:
-          node: HostPoolService
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_HostPoolService
-        configure_HostPoolService:
-          node: HostPoolService
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - HostPoolService_configured
-        HostPoolService_configured:
-          node: HostPoolService
-          activity:
-            set_state: configured
-          on-success:
-            - HostPoolService_starting
-        HostPoolService_starting:
-          node: HostPoolService
-          activity:
-            set_state: starting
-          on-success:
-            - start_HostPoolService
-        start_HostPoolService:
-          node: HostPoolService
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - HostPoolService_started
-        HostPoolService_started:
-          node: HostPoolService
-          activity:
-            set_state: started
-          on-success:
-            - AWSHostpoolFeeder_configuring
             - Ansible4CloudifyManager_initial
         Ansible4CloudifyManager_initial:
           node: Ansible4CloudifyManager
@@ -1106,6 +664,63 @@ topology_template:
           node: Ansible4CloudifyManager
           activity:
             set_state: started
+        OrchestratorConfigurator_initial:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: initial
+          on-success:
+            - OrchestratorConfigurator_creating
+        OrchestratorConfigurator_creating:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: creating
+          on-success:
+            - OrchestratorConfigurator_created
+        OrchestratorConfigurator_created:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: created
+          on-success:
+            - OrchestratorConfigurator_configuring
+            - Alien4Cloud_configuring
+            - Cloudify3Manager_configuring
+            - Ansible4CloudifyManager_initial
+        OrchestratorConfigurator_configuring:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_OrchestratorConfigurator
+        configure_OrchestratorConfigurator:
+          node: OrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - OrchestratorConfigurator_configured
+        OrchestratorConfigurator_configured:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: configured
+          on-success:
+            - OrchestratorConfigurator_starting
+        OrchestratorConfigurator_starting:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: starting
+          on-success:
+            - start_OrchestratorConfigurator
+        start_OrchestratorConfigurator:
+          node: OrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - OrchestratorConfigurator_started
+        OrchestratorConfigurator_started:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: started
+          on-success:
+            - Ansible4CloudifyManager_initial
     uninstall:
       steps:
         Compute_uninstall:
@@ -1185,76 +800,7 @@ topology_template:
             set_state: deleted
           on-success:
             - OracleJDK_stopping
-        AddCsarFromGit_2_stopping:
-          node: AddExtendedTypes
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_AddCsarFromGit_2
-        stop_AddCsarFromGit_2:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - AddCsarFromGit_2_stopped
-        AddCsarFromGit_2_stopped:
-          node: AddExtendedTypes
-          activity:
-            set_state: stopped
-          on-success:
-            - Alien4Cloud_stopping
-            - AddCsarFromGit_2_deleting
-        AddCsarFromGit_2_deleting:
-          node: AddExtendedTypes
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_AddCsarFromGit_2
-        delete_AddCsarFromGit_2:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - AddCsarFromGit_2_deleted
-        AddCsarFromGit_2_deleted:
-          node: AddExtendedTypes
-          activity:
-            set_state: deleted
-        AddCsarFromGit_2_stopping_1:
-          node: AddMockTypes
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_AddCsarFromGit_2_1
-        stop_AddCsarFromGit_2_1:
-          node: AddMockTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - AddCsarFromGit_2_stopped_1
-        AddCsarFromGit_2_stopped_1:
-          node: AddMockTypes
-          activity:
-            set_state: stopped
-          on-success:
-            - Alien4Cloud_stopping
-            - AddCsarFromGit_2_deleting_1
-        AddCsarFromGit_2_deleting_1:
-          node: AddMockTypes
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_AddCsarFromGit_2_1
-        delete_AddCsarFromGit_2_1:
-          node: AddMockTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - AddCsarFromGit_2_deleted_1
-        AddCsarFromGit_2_deleted_1:
-          node: AddMockTypes
-          activity:
-            set_state: deleted
+            - ElasticSearch_stopping
         ElasticSearch_stopping:
           node: A4C_ElasticSearch
           activity:
@@ -1291,49 +837,6 @@ topology_template:
             set_state: deleted
           on-success:
             - OracleJDK_stopping
-        DiamondLinuxAgent_stopping:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_DiamondLinuxAgent
-        stop_DiamondLinuxAgent:
-          node: A4C_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - DiamondLinuxAgent_stopped
-        DiamondLinuxAgent_stopped:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: stopped
-          on-success:
-            - DiamondLinuxAgent_deleting
-            - Alien4Cloud_stopping
-            - ElasticSearch_stopping
-        DiamondLinuxAgent_deleting:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_DiamondLinuxAgent
-        delete_DiamondLinuxAgent:
-          node: A4C_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - DiamondLinuxAgent_deleted
-        DiamondLinuxAgent_deleted:
-          node: A4C_DiamondAgent
-          activity:
-            set_state: deleted
-          on-success:
-            - Compute_uninstall
-            - GraphiteBackend_uninstall
-        GraphiteBackend_uninstall:
-          node: GraphiteBackend
-          activity:
-            delegate: uninstall
         Compute_uninstall_1:
           node: CFY_Compute
           activity:
@@ -1373,6 +876,7 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
+            - Ansible4CloudifyManager_stopping
             - Compute_uninstall_1
         Cloudify3AwsConfiguration_stopping:
           node: Cloudify3AwsConfiguration
@@ -1410,115 +914,6 @@ topology_template:
             set_state: deleted
           on-success:
             - Cloudify3Manager_stopping
-        DiamondLinuxAgent_stopping_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_DiamondLinuxAgent_1
-        stop_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - DiamondLinuxAgent_stopped_1
-        DiamondLinuxAgent_stopped_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: stopped
-          on-success:
-            - Cloudify3Manager_stopping
-            - DiamondLinuxAgent_deleting_1
-        DiamondLinuxAgent_deleting_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_DiamondLinuxAgent_1
-        delete_DiamondLinuxAgent_1:
-          node: CFY_DiamondAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - DiamondLinuxAgent_deleted_1
-        DiamondLinuxAgent_deleted_1:
-          node: CFY_DiamondAgent
-          activity:
-            set_state: deleted
-          on-success:
-            - GraphiteBackend_uninstall
-            - Compute_uninstall_1
-        AWSHostpoolFeeder_stopping:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_AWSHostpoolFeeder
-        stop_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - AWSHostpoolFeeder_stopped
-        AWSHostpoolFeeder_stopped:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: stopped
-          on-success:
-            - HostPoolService_stopping
-            - AWSHostpoolFeeder_deleting
-        AWSHostpoolFeeder_deleting:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_AWSHostpoolFeeder
-        delete_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - AWSHostpoolFeeder_deleted
-        AWSHostpoolFeeder_deleted:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: deleted
-        HostPoolService_stopping:
-          node: HostPoolService
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_HostPoolService
-        stop_HostPoolService:
-          node: HostPoolService
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - HostPoolService_stopped
-        HostPoolService_stopped:
-          node: HostPoolService
-          activity:
-            set_state: stopped
-          on-success:
-            - HostPoolService_deleting
-        HostPoolService_deleting:
-          node: HostPoolService
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_HostPoolService
-        delete_HostPoolService:
-          node: HostPoolService
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - HostPoolService_deleted
-        HostPoolService_deleted:
-          node: HostPoolService
-          activity:
-            set_state: deleted
-          on-success:
-            - Compute_uninstall_1
         Ansible4CloudifyManager_stopping:
           node: Ansible4CloudifyManager
           activity:
@@ -1555,3 +950,39 @@ topology_template:
             set_state: deleted
           on-success:
             - Compute_uninstall_1
+        OrchestratorConfigurator_stopping:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_OrchestratorConfigurator
+        stop_OrchestratorConfigurator:
+          node: OrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - OrchestratorConfigurator_stopped
+        OrchestratorConfigurator_stopped:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: stopped
+          on-success:
+            - Cloudify3Manager_stopping
+            - Alien4Cloud_stopping
+            - OrchestratorConfigurator_deleting
+        OrchestratorConfigurator_deleting:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_OrchestratorConfigurator
+        delete_OrchestratorConfigurator:
+          node: OrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - OrchestratorConfigurator_deleted
+        OrchestratorConfigurator_deleted:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: deleted

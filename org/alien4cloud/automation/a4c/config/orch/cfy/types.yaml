@@ -13,9 +13,10 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
+
   org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorConfigurator:
     description: |
-      Configure an CFY orchestrator for A4C
+      Configure a CFY orchestrator for A4C
     derived_from: org.alien4cloud.automation.a4c.config.orch.pub.nodes.OrchestratorConfigurator
     properties:
       name:
@@ -30,11 +31,6 @@ node_types:
         type: string
         required: true
         default: cloudify-orchestrator
-    # attributes:
-    #   orchestratorId: { get_operation_output: [ SELF, Standard, start, orchestratorId ] }
-    #   alien_url: { get_operation_output: [ SELF, Standard, start, alien_url ] }
-    #   alien_user: { get_operation_output: [ SELF, Standard, start, alien_user ] }
-    #   alien_password: { get_operation_output: [ SELF, Standard, start, alien_password ] }
     requirements:
       - cfy:
           capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
@@ -49,6 +45,18 @@ node_types:
             name: { get_property: [SELF, name] }
             pluginId: { get_property: [SELF, pluginId] }
             pluginBean: { get_property: [SELF, pluginBean] }
+          implementation: playbook/playbook.ansible
+
+  org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorPluginConfigurator:
+    description: |
+      Upload CFY orchestrator plugin and configure a CFY orchestrator for A4C
+    derived_from: org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorConfigurator
+    interfaces:
+      Standard:
+        configure:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: upload_orchestrator_plugin.yml
           implementation: playbook/playbook.ansible
     artifacts:
       - orchestrator_plugin:

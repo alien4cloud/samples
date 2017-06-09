@@ -78,6 +78,8 @@ topology_template:
   input_artifacts:
     orchestrator_plugin:
         type: tosca.artifacts.File
+    aws_key_file:
+        type: tosca.artifacts.File
   node_templates:
     A4C_JDK:
       type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
@@ -245,7 +247,7 @@ topology_template:
             initiator: source
       artifacts:
         key_file:
-          file: xde-aws.pem
+          file: { get_input_artifact: aws_key_file }
           type: tosca.artifacts.File
     Ansible4CloudifyManager:
       type: org.alien4cloud.automation.cloudify.ansible.nodes.Ansible4CloudifyManager
@@ -279,7 +281,7 @@ topology_template:
     A4C_alien_url:
       value: { get_attribute: [ A4C, alien_url ] }
     CFY3Manager_manager_url:
-      value: { get_attribute: [ CFY3Manager, manager_url ] }      
+      value: { get_attribute: [ CFY3Manager, manager_url ] }
   workflows:
     install:
       steps:

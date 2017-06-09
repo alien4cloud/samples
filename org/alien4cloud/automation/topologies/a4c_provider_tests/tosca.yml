@@ -1,0 +1,178 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: a4c_provider_tests
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: "Enclosing archive for topology Topology for alien4cloud provider tests"
+
+imports:
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+
+repositories:
+  fastconnect-staging:
+    url: https://fastconnect.org/maven/content/repositories/fastconnect-staging
+    type: maven
+
+topology_template:
+  inputs:
+    admin_username:
+      type: string
+      required: true
+      description: "Administration account username."
+    admin_password:
+      type: string
+      required: true
+      description: "Administration account password."
+    aws_access_key:
+      type: string
+      required: true
+      description: "The aws access key of the account to use to start aws instances."
+    aws_secret_key:
+      type: string
+      required: true
+      description: "The aws secret key of the account to use to start aws instances."
+  node_templates:
+    CloudifyManager:
+      type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyManager
+      properties:
+        ssh_user: "ec2-user"
+        ssh_key_filename: "a4c_build.pem"
+        keypair_name: "a4c_build"
+        agents_user: ubuntu
+        admin_username: { get_input: admin_username }
+        admin_password: { get_input: admin_password }
+        component_version: "4.0.1-ga"
+      requirements:
+        - host:
+            node: cloudify_compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        rabbitmq_management:
+          properties:
+            user: cloudify
+            password: c10udify
+            protocol: http
+            port: 15672
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        postgresql:
+          properties:
+            user: cloudify
+            password: cloudify
+            protocol: tcp
+            port: 5432
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        cloudify_api_v3:
+          properties:
+            protocol: https
+            port: 443
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    OracleJDK:
+      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
+      properties:
+        java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
+        java_home: "/opt/java"
+        component_version: "1.8.0-131-b11"
+      requirements:
+        - host:
+            node: alien_compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    alien_compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    cloudify_compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 2
+            cpu_frequency: "2 GHz"
+            disk_size: "15 GIB"
+            mem_size: "8 GIB"
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: centos
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    CloudifyAwsConfiguration:
+      type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyAwsConfiguration
+      properties:
+        aws_access_key: { get_input: aws_access_key }
+        aws_secret_key: { get_input: aws_secret_key }
+        aws_region: "eu-west-1"
+        agent_security_groups: "sg-cffd98b6"
+      requirements:
+        - cfy_manager:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+            relationship: tosca.relationships.HostedOn
+    Alien4Cloud:
+      type: org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud
+      properties:
+        context_root: "/"
+        component_version: "1.4.0-SNAPSHOT"
+        data_dir: "/opt/alien4coud/data"
+      requirements:
+        - java:
+            node: OracleJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
+      capabilities:
+        rest:
+          properties:
+            user: admin
+            password: admin
+            port: 8080
+            protocol: http
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        jolokia:
+          properties:
+            jolokia_port: 8778
+      artifacts:
+        alien_dist:
+          file: alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+          type: tosca.artifacts.File
+          repository: fastconnect-staging

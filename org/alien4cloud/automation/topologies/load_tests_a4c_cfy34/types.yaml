@@ -11,6 +11,7 @@ description: >
   Cloudify orchestrator is configured with a BYON location.
   The Host pool is fed with fresh EC2 instances.
   Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
+  The apache installed on cfy compute is here to manager offline plugins but is not fed. You'll need to populate it and upload plugins onto manager to switch to offline mode
 
 imports:
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
@@ -51,6 +52,7 @@ topology_template:
     Cloudify orchestrator is configured with a BYON location.
     The Host pool is fed with fresh EC2 instances.
     Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
+    The apache installed on cfy compute is here to manager offline plugins but is not fed. You'll need to populate it and upload plugins onto manager to switch to offline mode
 
   inputs:
     aws_region:
@@ -58,22 +60,10 @@ topology_template:
       required: true
       default: "eu-west-1"
       description: "The aws region to use to start aws instances."
-    ssh_key_filename:
-      type: string
-      required: true
-      description: "Name of the file in which we will store the manager ssh key (see required artifact)."
     aws_access_key:
       type: string
       required: true
       description: "The aws access key of the account to use to start aws instances."
-    key_content:
-      type: string
-      required: true
-      description: "The AWS key (mulitiline content)"
-    keypair_name:
-      type: string
-      required: false
-      description: "Optional name of the key as known by the iaas (in case of iaas key)."
     aws_secret_key:
       type: string
       required: true
@@ -83,6 +73,39 @@ topology_template:
       required: true
       default: "sg-cffd98b6"
       description: "Comma separated list of security groups to use for agents."
+    hostpool_instance_username:
+      type: string
+      required: true
+      default: ubuntu
+      description: "The user to use to connect to the instance"
+    hostpool_instance_type:
+      type: string
+      required: true
+      default: "t2.nano"
+      description: "The AWS instance type"
+    hostpool_instance_count:
+      type: integer
+      required: true
+      default: 1
+      description: "Number of instances to start"
+    hostpool_instance_image:
+      type: string
+      required: true
+      default: "ami-47a23a30"
+      description: "The AWS ami"
+    hostpool_host_per_instance:
+      type: integer
+      required: true
+      default: 1
+      description: "Number of host to declare in hostpool per EC2 instance"
+    aws_keypair_name:
+      type: string
+      required: false
+      description: "Optional name of the key as known by the iaas (in case of iaas key)."
+    aws_key_content:
+      type: string
+      required: true
+      description: "The AWS key (mulitiline content)"
   input_artifacts:
     aws_key_file:
         type: tosca.artifacts.File
@@ -265,8 +288,8 @@ topology_template:
       type: org.alien4cloud.automation.cloudify.manager.v3.nodes.Cloudify3Manager
       properties:
         ssh_user: "ec2-user"
-        ssh_key_filename: { get_input: ssh_key_filename }
-        keypair_name: { get_input: keypair_name }
+        ssh_key_filename: "aws-key.pem"
+        keypair_name: { get_input: aws_keypair_name }
         agents_user: ubuntu
         admin_username: admin
         admin_password: admin
@@ -309,15 +332,15 @@ topology_template:
       properties:
         aws_access_key: { get_input: aws_access_key }
         aws_secret_key: { get_input: aws_secret_key }
-        key_name: { get_input: keypair_name }
-        key_content: { get_input: key_content }
+        key_name: { get_input: aws_keypair_name }
+        key_content: { get_input: aws_key_content }
         region: { get_input: aws_region }
         instance_groups: { get_input: agent_security_groups }
-        instance_username: ubuntu
-        instance_type: "t2.nano"
-        instance_image: "ami-47a23a30"
-        instance_count: 1
-        host_per_instance: 1
+        instance_username: { get_input: hostpool_instance_username }
+        instance_type: { get_input: hostpool_instance_type }
+        instance_image: { get_input: hostpool_instance_image }
+        instance_count: { get_input: hostpool_instance_count }
+        host_per_instance: { get_input: hostpool_host_per_instance }
         instance_name: HostpoolInstance
         instance_os: linux
       requirements:
@@ -441,12 +464,12 @@ topology_template:
   outputs:
     A4C_alien_url:
       value: { get_attribute: [ A4C, alien_url ] }
-    CFY3Manager_manager_url:
-      value: { get_attribute: [ CFY3Manager, manager_url ] }
     HostPoolService_hostpool_url_hosts:
       value: { get_attribute: [ HostPoolService, hostpool_url_hosts ] }
     HostPoolService_hostpool_url:
       value: { get_attribute: [ HostPoolService, hostpool_url ] }
+    CFY3Manager_manager_url:
+      value: { get_attribute: [ CFY3Manager, manager_url ] }
   workflows:
     install:
       steps:

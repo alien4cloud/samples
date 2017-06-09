@@ -243,7 +243,7 @@
       userName: "{{ cfy_user }}"
       password: "{{ cfy_password }}"
       tenant: default_tenant
-      disableSSLVerification: false
+      disableSSLVerification: true
       delayBetweenDeploymentStatusPolling: 30
       delayBetweenLogPolling: 5
       delayBetweenInProgressDeploymentStatusPolling: 5
@@ -264,7 +264,7 @@
     body_format: json
     status_code: 200
   register: result
-  # this config is a cloudify v3 orchestrator config
+  # this config is a cloudify v4 orchestrator config
   when: "{{ pluginId | search('4') }}"
 
 - name: Activate orchestrator

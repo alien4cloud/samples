@@ -1,38 +1,30 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.topologies.a4c_cfy4_aws
+  template_name: org.alien4cloud.automation.topologies.cfy4_aws
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
-description: |
-  A4C & CFY 4 manager (with Asnible).
-  You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+description: >
+  Just a CFY 4 manager configured for AWS (with Ansible).
+  Has been tested on a Centos ami-4c4b003b (m4.large).
 
 imports:
-  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.0.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.0.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
-
-  description: |
-    A4C & CFY 4 manager (with Asnible).
-    You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+  description: >
+    Just a CFY 4 manager configured for AWS (with Ansible).
+    Has been tested on a Centos ami-4c4b003b (m4.large).
+    Can be used to cfy manager as a service.
 
   inputs:
     aws_region:
@@ -57,75 +49,14 @@ topology_template:
       type: string
       required: false
       description: "Optional name of the key as known by the iaas (in case of iaas key)."
-    a4c_version:
-      type: version
-      required: true
-      description: "The version of A4C (important in create stage)."
   input_artifacts:
     aws_key_file:
         type: tosca.artifacts.File
-    a4c_dist_package:
-        type: tosca.artifacts.File
+  substitution_mappings:
+    node_type: org.alien4cloud.automation.cloudify.manager.pub.nodes.AbstractCloudifyManager
+    capabilities:
+      cloudify_api_v3: [ CloudifyManager, cloudify_api_v3 ]
   node_templates:
-    A4C_JDK:
-      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
-      properties:
-        java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
-        java_home: "/opt/java"
-        component_version: "1.8.0-131-b11"
-      requirements:
-        - host:
-            node: A4C_Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
-    A4C_Compute:
-      type: tosca.nodes.Compute
-      capabilities:
-        os:
-          properties:
-            architecture: "x86_64"
-            type: linux
-            distribution: ubuntu
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
-        endpoint:
-          properties:
-            secure: true
-            protocol: tcp
-            network_name: PRIVATE
-            initiator: source
-    A4C:
-      type: org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud
-      properties:
-        context_root: "/"
-        app_args: "--spring.profiles.active=security-demo,noApiDoc"
-        component_version: { get_input: a4c_version }
-        data_dir: "/opt/alien4coud/data"
-      requirements:
-        - java:
-            node: A4C_JDK
-            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
-            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
-      capabilities:
-        rest:
-          properties:
-            user: admin
-            password: admin
-            port: 8080
-            protocol: http
-            secure: false
-            network_name: PRIVATE
-            initiator: source
-        jolokia:
-          properties:
-            jolokia_port: 8778
-      artifacts:
-        alien_dist:
-          file: { get_input_artifact: a4c_dist_package }
-          type: tosca.artifacts.File
     CFY_Compute:
       type: tosca.nodes.Compute
       capabilities:
@@ -158,27 +89,11 @@ topology_template:
             node: CFY_Compute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-    OrchestratorConfigurator:
-      type: org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorConfigurator
-      properties:
-        name: CFYOrchestrator
-        pluginId: "alien-cloudify-4-orchestrator-premium"
-        pluginBean: "cloudify-orchestrator"
-        disableDiamondMonitorAgent: true
-      requirements:
-        - alien:
-            node: A4C
-            capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
-            relationship: org.alien4cloud.automation.a4c.config.orch.pub.relationships.ConnectsToA4C
-        - cfy:
-            node: CloudifyManager
-            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
-            relationship: org.alien4cloud.automation.a4c.config.orch.cfy.relationships.ConnectsToCfy
     CloudifyManager:
       type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyManager
       properties:
         ssh_user: "ec2-user"
-        ssh_key_filename: "aws-key.pem"
+        ssh_key_filename: "awe-key.pem"
         keypair_name: { get_input: aws_keypair_name }
         agents_user: ubuntu
         admin_username: admin
@@ -239,148 +154,20 @@ topology_template:
             capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
             relationship: tosca.relationships.HostedOn
   outputs:
-    A4C_alien_url:
-      value: { get_attribute: [ A4C, alien_url ] }
+    CloudifyManager_admin_password:
+      value: { get_property: [ CloudifyManager, admin_password ] }
+    CloudifyManager_admin_username:
+      value: { get_property: [ CloudifyManager, admin_username ] }
     CloudifyManager_manager_url:
       value: { get_attribute: [ CloudifyManager, manager_url ] }
   workflows:
     install:
       steps:
-        Compute_install:
-          node: A4C_Compute
-          activity:
-            delegate: install
-          on-success:
-            - Alien4Cloud_configuring
-            - OracleJDK_initial
-        OracleJDK_initial:
-          node: A4C_JDK
-          activity:
-            set_state: initial
-          on-success:
-            - OracleJDK_creating
-        OracleJDK_creating:
-          node: A4C_JDK
-          activity:
-            set_state: creating
-          on-success:
-            - create_OracleJDK
-        create_OracleJDK:
-          node: A4C_JDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - OracleJDK_created
-        OracleJDK_created:
-          node: A4C_JDK
-          activity:
-            set_state: created
-          on-success:
-            - OracleJDK_configuring
-        OracleJDK_configuring:
-          node: A4C_JDK
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_OracleJDK
-        configure_OracleJDK:
-          node: A4C_JDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - OracleJDK_configured
-        OracleJDK_configured:
-          node: A4C_JDK
-          activity:
-            set_state: configured
-          on-success:
-            - OracleJDK_starting
-        OracleJDK_starting:
-          node: A4C_JDK
-          activity:
-            set_state: starting
-          on-success:
-            - start_OracleJDK
-        start_OracleJDK:
-          node: A4C_JDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - OracleJDK_started
-        OracleJDK_started:
-          node: A4C_JDK
-          activity:
-            set_state: started
-          on-success:
-            - Alien4Cloud_initial
-            - Alien4Cloud_configuring
-        Alien4Cloud_initial:
-          node: A4C
-          activity:
-            set_state: initial
-          on-success:
-            - Alien4Cloud_creating
-        Alien4Cloud_creating:
-          node: A4C
-          activity:
-            set_state: creating
-          on-success:
-            - create_Alien4Cloud
-        create_Alien4Cloud:
-          node: A4C
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - Alien4Cloud_created
-        Alien4Cloud_created:
-          node: A4C
-          activity:
-            set_state: created
-          on-success:
-            - Alien4Cloud_configuring
-        Alien4Cloud_configuring:
-          node: A4C
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_Alien4Cloud
-        configure_Alien4Cloud:
-          node: A4C
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - Alien4Cloud_configured
-        Alien4Cloud_configured:
-          node: A4C
-          activity:
-            set_state: configured
-          on-success:
-            - Alien4Cloud_starting
-        Alien4Cloud_starting:
-          node: A4C
-          activity:
-            set_state: starting
-          on-success:
-            - start_Alien4Cloud
-        start_Alien4Cloud:
-          node: A4C
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - Alien4Cloud_started
-        Alien4Cloud_started:
-          node: A4C
-          activity:
-            set_state: started
-          on-success:
-            - OrchestratorConfigurator_configuring
-            - Ansible4CloudifyManager_initial
         Compute_install_1:
           node: CFY_Compute
           activity:
             delegate: install
           on-success:
-            - OrchestratorConfigurator_configuring
             - AmqpClientPatch_initial
             - CloudifyManager_configuring
             - CloudifyManager_initial
@@ -443,64 +230,6 @@ topology_template:
           node: Ansible4CloudifyManager
           activity:
             set_state: started
-        OrchestratorConfigurator_initial:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: initial
-          on-success:
-            - OrchestratorConfigurator_creating
-        OrchestratorConfigurator_creating:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: creating
-          on-success:
-            - OrchestratorConfigurator_created
-        OrchestratorConfigurator_created:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: created
-          on-success:
-            - OrchestratorConfigurator_configuring
-            - AmqpClientPatch_initial
-            - CloudifyManager_configuring
-            - Alien4Cloud_configuring
-            - Ansible4CloudifyManager_initial
-        OrchestratorConfigurator_configuring:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_OrchestratorConfigurator
-        configure_OrchestratorConfigurator:
-          node: OrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - OrchestratorConfigurator_configured
-        OrchestratorConfigurator_configured:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: configured
-          on-success:
-            - OrchestratorConfigurator_starting
-        OrchestratorConfigurator_starting:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: starting
-          on-success:
-            - start_OrchestratorConfigurator
-        start_OrchestratorConfigurator:
-          node: OrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - OrchestratorConfigurator_started
-        OrchestratorConfigurator_started:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: started
-          on-success:
-            - Ansible4CloudifyManager_initial
         CloudifyManager_initial:
           node: CloudifyManager
           activity:
@@ -561,7 +290,6 @@ topology_template:
             set_state: started
           on-success:
             - CloudifyAwsConfiguration_initial
-            - OrchestratorConfigurator_configuring
             - AmqpClientPatch_initial
             - Ansible4CloudifyManager_initial
         CloudifyAwsConfiguration_initial:
@@ -687,83 +415,6 @@ topology_template:
             - Ansible4CloudifyManager_initial
     uninstall:
       steps:
-        Compute_uninstall:
-          node: A4C_Compute
-          activity:
-            delegate: uninstall
-        OracleJDK_stopping:
-          node: A4C_JDK
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_OracleJDK
-        stop_OracleJDK:
-          node: A4C_JDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - OracleJDK_stopped
-        OracleJDK_stopped:
-          node: A4C_JDK
-          activity:
-            set_state: stopped
-          on-success:
-            - OracleJDK_deleting
-        OracleJDK_deleting:
-          node: A4C_JDK
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_OracleJDK
-        delete_OracleJDK:
-          node: A4C_JDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - OracleJDK_deleted
-        OracleJDK_deleted:
-          node: A4C_JDK
-          activity:
-            set_state: deleted
-          on-success:
-            - Compute_uninstall
-        Alien4Cloud_stopping:
-          node: A4C
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_Alien4Cloud
-        stop_Alien4Cloud:
-          node: A4C
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - Alien4Cloud_stopped
-        Alien4Cloud_stopped:
-          node: A4C
-          activity:
-            set_state: stopped
-          on-success:
-            - OracleJDK_stopping
-            - Alien4Cloud_deleting
-        Alien4Cloud_deleting:
-          node: A4C
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_Alien4Cloud
-        delete_Alien4Cloud:
-          node: A4C
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - Alien4Cloud_deleted
-        Alien4Cloud_deleted:
-          node: A4C
-          activity:
-            set_state: deleted
-          on-success:
-            - OracleJDK_stopping
         Compute_uninstall_1:
           node: CFY_Compute
           activity:
@@ -804,44 +455,6 @@ topology_template:
             set_state: deleted
           on-success:
             - Compute_uninstall_1
-        OrchestratorConfigurator_stopping:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_OrchestratorConfigurator
-        stop_OrchestratorConfigurator:
-          node: OrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - OrchestratorConfigurator_stopped
-        OrchestratorConfigurator_stopped:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: stopped
-          on-success:
-            - Alien4Cloud_stopping
-            - OrchestratorConfigurator_deleting
-            - Ansible4CloudifyManager_stopping
-            - Compute_uninstall_1
-            - CloudifyManager_stopping
-        OrchestratorConfigurator_deleting:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_OrchestratorConfigurator
-        delete_OrchestratorConfigurator:
-          node: OrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - OrchestratorConfigurator_deleted
-        OrchestratorConfigurator_deleted:
-          node: OrchestratorConfigurator
-          activity:
-            set_state: deleted
         CloudifyManager_stopping:
           node: CloudifyManager
           activity:

@@ -31,6 +31,14 @@ node_types:
         type: string
         required: true
         default: cloudify-orchestrator
+      pluginBean:
+        type: string
+        required: true
+        default: cloudify-orchestrator
+      disableDiamondMonitorAgent:
+        type: boolean
+        required: true
+        default: true
     requirements:
       - cfy:
           capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
@@ -45,6 +53,7 @@ node_types:
             name: { get_property: [SELF, name] }
             pluginId: { get_property: [SELF, pluginId] }
             pluginBean: { get_property: [SELF, pluginBean] }
+            disableDiamondMonitorAgent: { get_property: [SELF, disableDiamondMonitorAgent] }
           implementation: playbook/playbook.ansible
 
   org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorPluginConfigurator:
@@ -129,7 +138,7 @@ relationship_types:
             PLAYBOOK_ENTRY: connect_cfy.yml
             cfy_user: { get_property: [TARGET, admin_username] }
             cfy_password: { get_property: [TARGET, admin_password] }
-            cfy_url: { concat: [get_property: [TARGET, cloudify_api_v3, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, cloudify_api_v3, port]] }
+            cfy_url: { concat: [get_property: [TARGET, cloudify_api_v3, protocol], "://", get_attribute: [TARGET, cloudify_api_v3, ip_address], ":", get_property: [TARGET, cloudify_api_v3, port]] }
           implementation: playbook/playbook.ansible
   org.alien4cloud.automation.a4c.config.orch.cfy.relationships.LocationConnectsToHostpool:
     derived_from: tosca.relationships.ConnectsTo

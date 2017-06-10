@@ -15,11 +15,14 @@
   command: /opt/graphite/bin/carbon-cache.py start
   when: carbon.stdout.find('pid') == -1
 
-# - name: Check Graphite
-#   stat: path=/var/run/graphite.pid
-#   register: graphite
+- name: Check Graphite
+  stat: path=/var/run/graphite.pid
+  register: graphite
 
+- name: Sleep 10 sec before starting Graphite
+  command: "/bin/sleep 10"
+  when: not graphite.stat.exists
+    
 - name: Start Graphite server
   shell: nohup /opt/graphite/bin/run-graphite-devel-server.py /opt/graphite/ > /var/log/graphite.log 2>&1 & echo $! > /var/run/graphite.pid
-  #when: not graphite.stat.exists
-
+  when: not graphite.stat.exists

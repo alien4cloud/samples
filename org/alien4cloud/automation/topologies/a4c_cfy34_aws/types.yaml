@@ -7,10 +7,10 @@ metadata:
 
 description: >
   A4C & CFY 3.4 manager (with Ansible) configured for AWS.
+  You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
   Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
 
 imports:
-  - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
@@ -23,45 +23,29 @@ imports:
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
-
-repositories:
-  FC Nexus private snapshot:
-    url: https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
-    type: maven
 
 topology_template:
 
   description: >
     A4C & CFY 3.4 manager (with Ansible) configured for AWS.
+    You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
     Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
-
+  
   inputs:
     aws_region:
       type: string
       required: true
       default: "eu-west-1"
       description: "The aws region to use to start aws instances."
-    ssh_key_filename:
-      type: string
-      required: true
-      description: "Name of the file in which we will store the manager ssh key (see required artifact)."
     aws_access_key:
       type: string
       required: true
       description: "The aws access key of the account to use to start aws instances."
-    key_content:
-      type: string
-      required: true
-      description: "The AWS key (mulitiline content)"
-    keypair_name:
-      type: string
-      required: false
-      description: "Optional name of the key as known by the iaas (in case of iaas key)."
     aws_secret_key:
       type: string
       required: true
@@ -71,14 +55,16 @@ topology_template:
       required: true
       default: "sg-cffd98b6"
       description: "Comma separated list of security groups to use for agents."
-    a4c_version:
-      type: version
-      required: true
-      description: "The version of A4C (important in create stage)."
+    aws_keypair_name:
+      type: string
+      required: false
+      description: "Optional name of the key as known by the iaas (in case of iaas key)."
   input_artifacts:
+    aws_key_file:
+        type: tosca.artifacts.File
     orchestrator_plugin:
         type: tosca.artifacts.File
-    aws_key_file:
+    a4c_dist_package:
         type: tosca.artifacts.File
   node_templates:
     A4C_JDK:
@@ -116,13 +102,9 @@ topology_template:
       properties:
         context_root: "/"
         app_args: "--spring.profiles.active=security-demo,noApiDoc"
-        component_version: { get_input: a4c_version }
+        component_version: "1.4.0-SNAPSHOT"
         data_dir: "/opt/alien4coud/data"
       requirements:
-        - elasticsearch:
-            node: A4C_ElasticSearch
-            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchTransportAPI
-            relationship: org.alien4cloud.automation.a4c.webapp.relationships.AlienConnectToElasticSearch
         - java:
             node: A4C_JDK
             capability: org.alien4cloud.lang.java.pub.capabilities.JDK
@@ -142,35 +124,8 @@ topology_template:
             jolokia_port: 8778
       artifacts:
         alien_dist:
-          file: alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+          file: { get_input_artifact: a4c_dist_package }
           type: tosca.artifacts.File
-          repository: FC Nexus private snapshot
-    A4C_ElasticSearch:
-      type: org.alien4cloud.storage.elasticsearch.ubuntu.nodes.ElasticSearch
-      properties:
-        component_version: "1.7.0"
-        elasticsearch_url: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
-        cluster_name: escluster
-      requirements:
-        - java:
-            node: A4C_JDK
-            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
-            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
-      capabilities:
-        elasticsearch:
-          properties:
-            port: 9300
-            protocol: tcp
-            secure: false
-            network_name: PRIVATE
-            initiator: source
-        http:
-          properties:
-            port: 9200
-            protocol: http
-            secure: false
-            network_name: PRIVATE
-            initiator: source
     CFY_Compute:
       type: tosca.nodes.Compute
       capabilities:
@@ -210,8 +165,8 @@ topology_template:
       type: org.alien4cloud.automation.cloudify.manager.v3.nodes.Cloudify3Manager
       properties:
         ssh_user: "ec2-user"
-        ssh_key_filename: { get_input: ssh_key_filename }
-        keypair_name: { get_input: keypair_name }
+        ssh_key_filename: "aws-key.pem"
+        keypair_name: { get_input: aws_keypair_name }
         agents_user: ubuntu
         admin_username: admin
         admin_password: admin
@@ -264,6 +219,7 @@ topology_template:
         name: CFYOrchestrator
         pluginId: "alien-cloudify-3-orchestrator-premium"
         pluginBean: "cloudify-orchestrator"
+        disableDiamondMonitorAgent: true
       requirements:
         - cfy:
             node: CFY3Manager
@@ -290,7 +246,6 @@ topology_template:
           activity:
             delegate: install
           on-success:
-            - ElasticSearch_configuring
             - Alien4Cloud_configuring
             - OracleJDK_initial
         OracleJDK_initial:
@@ -353,7 +308,7 @@ topology_template:
             set_state: started
           on-success:
             - Alien4Cloud_initial
-            - ElasticSearch_initial
+            - Alien4Cloud_configuring
         Alien4Cloud_initial:
           node: A4C
           activity:
@@ -378,7 +333,6 @@ topology_template:
             set_state: created
           on-success:
             - Alien4Cloud_configuring
-            - ElasticSearch_configuring
         Alien4Cloud_configuring:
           node: A4C
           activity:
@@ -416,67 +370,6 @@ topology_template:
           on-success:
             - OrchestratorConfigurator_configuring
             - Ansible4CloudifyManager_initial
-        ElasticSearch_initial:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: initial
-          on-success:
-            - ElasticSearch_creating
-        ElasticSearch_creating:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: creating
-          on-success:
-            - create_ElasticSearch
-        create_ElasticSearch:
-          node: A4C_ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - ElasticSearch_created
-        ElasticSearch_created:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: created
-          on-success:
-            - Alien4Cloud_initial
-            - ElasticSearch_configuring
-        ElasticSearch_configuring:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_ElasticSearch
-        configure_ElasticSearch:
-          node: A4C_ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - ElasticSearch_configured
-        ElasticSearch_configured:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: configured
-          on-success:
-            - ElasticSearch_starting
-        ElasticSearch_starting:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: starting
-          on-success:
-            - start_ElasticSearch
-        start_ElasticSearch:
-          node: A4C_ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - ElasticSearch_started
-        ElasticSearch_started:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: started
-          on-success:
-            - Alien4Cloud_configuring
         Compute_install_1:
           node: CFY_Compute
           activity:
@@ -782,7 +675,7 @@ topology_template:
           activity:
             set_state: stopped
           on-success:
-            - ElasticSearch_stopping
+            - OracleJDK_stopping
             - Alien4Cloud_deleting
         Alien4Cloud_deleting:
           node: A4C
@@ -798,43 +691,6 @@ topology_template:
             - Alien4Cloud_deleted
         Alien4Cloud_deleted:
           node: A4C
-          activity:
-            set_state: deleted
-          on-success:
-            - OracleJDK_stopping
-            - ElasticSearch_stopping
-        ElasticSearch_stopping:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_ElasticSearch
-        stop_ElasticSearch:
-          node: A4C_ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - ElasticSearch_stopped
-        ElasticSearch_stopped:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: stopped
-          on-success:
-            - ElasticSearch_deleting
-        ElasticSearch_deleting:
-          node: A4C_ElasticSearch
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_ElasticSearch
-        delete_ElasticSearch:
-          node: A4C_ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - ElasticSearch_deleted
-        ElasticSearch_deleted:
-          node: A4C_ElasticSearch
           activity:
             set_state: deleted
           on-success:

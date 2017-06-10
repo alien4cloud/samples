@@ -8,6 +8,7 @@ metadata:
 description: |
   Graphite As a Service : a Grafana that connects to a Graphite as a backend.
   Can be used to expose a monitoring service.
+  Tested on a Centos ami-4c4b003b (t2.medium).
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
@@ -25,6 +26,7 @@ topology_template:
   description: |
     Graphite As a Service : a Grafana that connects to a Graphite as a backend.
     Can be used to expose a monitoring service.
+    Tested on a Centos ami-4c4b003b (t2.medium).
   substitution_mappings:
     node_type: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
     capabilities:

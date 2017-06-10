@@ -14,44 +14,39 @@ description: >
   The apache installed on cfy compute is here to manager offline plugins but is not fed. You'll need to populate it and upload plugins onto manager to switch to offline mode
 
 imports:
-  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.automation.cloudify.manager.v3:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
-  - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - ansible-apache-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.orch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - ansible-apache-type:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
-
-repositories:
-  FC Nexus private snapshot:
-    url: https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
-    type: maven
 
 topology_template:
 
   description: >
     A4C & CFY 3.4 manager (with Ansible), both monitored (need a monitoring service to match).
-    Need a link to maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot
+    You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
     Cloudify orchestrator is configured with a BYON location.
     The Host pool is fed with fresh EC2 instances.
-    Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
+    Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact (or get it from nexus).
     The apache installed on cfy compute is here to manager offline plugins but is not fed. You'll need to populate it and upload plugins onto manager to switch to offline mode
 
   inputs:
@@ -110,6 +105,8 @@ topology_template:
     aws_key_file:
         type: tosca.artifacts.File
     orchestrator_plugin:
+        type: tosca.artifacts.File
+    a4c_dist_package:
         type: tosca.artifacts.File
   node_templates:
     GraphiteBackend:
@@ -201,9 +198,8 @@ topology_template:
             jolokia_port: 8778
       artifacts:
         alien_dist:
-          file: alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+          file: { get_input_artifact: a4c_dist_package }
           type: tosca.artifacts.File
-          repository: FC Nexus private snapshot
     A4C_ElasticSearch:
       type: org.alien4cloud.storage.elasticsearch.ubuntu.nodes.ElasticSearch
       properties:
@@ -425,6 +421,7 @@ topology_template:
         name: CFYOrchestrator
         pluginId: "alien-cloudify-3-orchestrator-premium"
         pluginBean: "cloudify-orchestrator"
+        disableDiamondMonitorAgent: true
       requirements:
         - cfy:
             node: CFY3Manager

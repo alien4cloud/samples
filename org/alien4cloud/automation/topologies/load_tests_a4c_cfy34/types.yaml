@@ -369,9 +369,7 @@ topology_template:
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     OfflineApache:
-      type: alien.nodes.org.alien4cloud.www.apache.linux_ans.nodes.Apache
-      properties:
-        port: 8787
+      type: org.alien4cloud.www.apache.linux_ans.nodes.Apache
       requirements:
         - host:
             node: CFY_Compute
@@ -380,7 +378,8 @@ topology_template:
       capabilities:
         data_endpoint:
           properties:
-            protocol: tcp
+            protocol: http
+            port: 8787
             secure: false
             network_name: PRIVATE
             initiator: source

@@ -23,7 +23,7 @@ node_types:
       type:
         type: string
         required: true
-        default: byon
+        default: amazon
         constraints:
           - valid_values: [ "amazon" ]
     interfaces:

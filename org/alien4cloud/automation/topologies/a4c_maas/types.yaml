@@ -8,8 +8,7 @@ metadata:
 description: |
   Simply an Alien with an embeded ES, both hosted on JDK.
   Need a cfy Manager As A Service to match.
-  Doesn't work (we need to move admin user & password to CFY capability).
-
+  FIXME: Doesn't work (we need to move admin user & password to CFY capability).
 
 imports:
   - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT

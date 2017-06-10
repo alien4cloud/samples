@@ -13,6 +13,7 @@ imports:
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent:
@@ -35,9 +36,11 @@ node_types:
           occurrences: [0, 1]
       - collec_jolokia:
           capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
+          relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector
           occurrences: [0, 1]
-      - collec_alien:
-          capability: org.alien4cloud.monitoring.diamond.relationships.DiamondAlienCollector
+      - collec_a4c:
+          capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
+          relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondA4CCollector
           occurrences: [0, 1]
       - collec_rabbitmq:
           capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
@@ -122,9 +125,9 @@ relationship_types:
             jolokia_host: { get_attribute: [TARGET, ip_address] }
             jolokia_port: { get_attribute: [TARGET, jolokia, jolokia_port] }
           implementation: playbook/playbook.ansible
-  org.alien4cloud.monitoring.diamond.relationships.DiamondAlienCollector:
+  org.alien4cloud.monitoring.diamond.relationships.DiamondA4CCollector:
     derived_from: org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector
-    valid_target_types: [ org.alien4cloud.automation.a4c.nodes.Alien4Cloud ]
+    valid_target_types: [ org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi ]
     interfaces:
       Configure:
         pre_configure_target:

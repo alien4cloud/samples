@@ -36,6 +36,9 @@ node_types:
       - collec_jolokia:
           capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
           occurrences: [0, 1]
+      - collec_alien:
+          capability: org.alien4cloud.monitoring.diamond.relationships.DiamondAlienCollector
+          occurrences: [0, 1]
       - collec_rabbitmq:
           capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
           occurrences: [0, 1]

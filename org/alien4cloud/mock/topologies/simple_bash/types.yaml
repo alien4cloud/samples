@@ -1,20 +1,23 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.mock.topologies.simple_ansible
+  template_name: org.alien4cloud.mock.topologies.simple_bash
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4Cloud
 
 description: |
-  An ansible topology that do nothing but sleeping and generating some logs, used for load tests.
+  An topology that do nothing but sleeping and generating some logs, used for load tests
 
 imports:
+  - org.alien4cloud.mock.bash:1.0.0-SNAPSHOT
   - org.alien4cloud.mock.pub:1.0.0-SNAPSHOT
-  - org.alien4cloud.mock.ansible:1.0.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0-SNAPSHOT
 
 topology_template:
+
+  description: |
+    An topology that do nothing but sleeping and generating some logs, used for load tests.
+
   inputs:
     duration:
       type: integer
@@ -39,21 +42,19 @@ topology_template:
       default: 2000
       description: "Words count in the generated logs."
   node_templates:
-    AnsibleMockComponent:
-      type: org.alien4cloud.mock.ansible.nodes.AnsibleMockComponent
+    BashMockComponent:
+      type: org.alien4cloud.mock.bash.nodes.BashMockComponent
       properties:
         duration: { get_input: duration }
         variation: { get_input: variation }
         log_length: { get_input: log_length }
       requirements:
         - host:
-            node: AnsibleMockHost
+            node: BashMockHost
             capability: tosca.capabilities.Container
-            relationship: org.alien4cloud.mock.ansible.relationships.AnsibleComponentHostedOnHost
-    Compute:
-      type: tosca.nodes.Compute
-    AnsibleMockHost:
-      type: org.alien4cloud.mock.ansible.nodes.AnsibleMockHost
+            relationship: org.alien4cloud.mock.bash.relationships.BashComponentHostedOnHost
+    BashMockHost:
+      type: org.alien4cloud.mock.bash.nodes.BashMockHost
       properties:
         duration: { get_input: duration }
         variation: { get_input: variation }
@@ -63,3 +64,5 @@ topology_template:
             node: Compute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
+    Compute:
+      type: tosca.nodes.Compute

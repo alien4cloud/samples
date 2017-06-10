@@ -142,7 +142,7 @@ topology_template:
         - collec_jolokia:
             node: A4C
             capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondAlienCollector
         - collec_elasticsearch:
             node: A4C_ElasticSearch
             capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI

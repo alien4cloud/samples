@@ -1,0 +1,66 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.www.apache.pub
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+
+  org.alien4cloud.www.apache.pub.nodes.Apache:
+    derived_from: tosca.nodes.WebServer
+    abstract: true
+    description: >
+      The TOSCA Apache Node Type represents an apache component
+      that can be managed and run by a TOSCA Compute Node Type.
+    # capabilities:
+    #   host: org.alien4cloud.www.apache.pub.capabilities.ApacheContainer
+    attributes:
+      apache_url: { concat: [get_property: [SELF, data_endpoint, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, data_endpoint, port], "/"] }
+    metadata:
+      icon: /images/Apache_PoweredBy.png
+    properties:
+      document_root:
+          type: string
+          default: "/var/www"
+    capabilities:
+      data_endpoint: org.alien4cloud.www.apache.pub.capabilities.ApacheDataEndpoint
+      host:
+        type: tosca.capabilities.Container
+        valid_source_types: [ org.alien4cloud.www.apache.pub.nodes.WebApplication ]
+
+  org.alien4cloud.www.apache.pub.nodes.WebApplication:
+    abstract: true
+    derived_from: tosca.nodes.WebApplication
+    description: >
+      The TOSCA WebApplication node represents a software application that can be managed and run by a TOSCA WebServer node.
+      Specific types of web applications such as Java, etc. could be derived from this type.
+    # capabilities:
+    #   app_endpoint:
+    #     type: tosca.capabilities.Endpoint
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: org.alien4cloud.www.apache.pub.nodes.Apache
+          relationship: tosca.relationships.HostedOn
+
+capability_types:
+
+  org.alien4cloud.www.apache.pub.capabilities.ApacheDataEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      protocol:
+        type: string
+        default: http
+      port:
+        type: integer
+        description: The port of the endpoint.
+        required: true
+        default: 80
+        constraints:
+          - in_range: [ 1, 65535 ]
+#   org.alien4cloud.www.apache.pub.capabilities.ApacheContainer:
+#       derived_from: tosca.capabilities.Container

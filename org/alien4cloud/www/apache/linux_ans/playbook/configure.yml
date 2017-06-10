@@ -1,0 +1,7 @@
+---
+- hosts: all
+  name: Configure apache server 
+  become: true
+ 
+  roles:
+    - configure

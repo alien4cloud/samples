@@ -1,0 +1,10 @@
+---
+
+- name: Install Apache server
+  yum: name=httpd state=absent
+
+- name: delete apache folder
+  file: path="/var/www/html" state=absent
+
+- name: delete port type definitions SELinux network http
+  seport: ports="{{ port }}" proto=tcp setype=http_port_t state=absent

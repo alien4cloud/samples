@@ -1,0 +1,7 @@
+---
+
+- name: Configure Apache server
+  template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
+
+# - name: add port type definitions SELinux network http
+#   seport: ports="{{ port }}" proto=tcp setype=http_port_t state=present

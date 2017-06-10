@@ -1,0 +1,68 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.www.apache.linux_ans
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: This archive contains an Apache webserver node installed through ansible scripts.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.www.apache.linux_ans.nodes.Apache:
+    derived_from: org.alien4cloud.www.apache.pub.nodes.Apache
+    description: >
+      The TOSCA Apache Node Type represents an apache component
+      that can be managed and run by a TOSCA Compute Node Type.
+      This version is installed by using Ansible.
+    properties:
+      document_root:
+          type: string
+          default: "/var/www/html"
+    requirements:
+      - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }         
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: create.yml
+          implementation: playbook/playbook.ansible
+        configure:
+          inputs:
+            port: { get_property: [SELF, data_endpoint, port] }
+            document_root: { get_property: [SELF, document_root] }
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: configure.yml
+          implementation: playbook/playbook.ansible
+        start:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: start.yml
+          implementation: playbook/playbook.ansible
+        stop:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: stop.yml
+          implementation: playbook/playbook.ansible
+        delete:
+          inputs:
+            port: { get_property: [SELF, data_endpoint, port] }
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: delete.yml
+          implementation: playbook/playbook.ansible

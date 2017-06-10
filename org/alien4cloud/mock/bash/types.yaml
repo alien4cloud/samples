@@ -24,38 +24,41 @@ node_types:
         create:
           inputs:
             operation: "create AnsibleMockHost"
-            sleep_time: 240
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 50
             log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
         configure:
           inputs:
             operation: "configure AnsibleMockHost"
-            sleep_time: 10
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 30
             log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
         start:
           inputs:
             operation: "start AnsibleMockHost"
-            sleep_time: 30
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 20
             log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
-        stop:
-          inputs:
-            operation: "stop AnsibleMockHost"
-            sleep_time: 30
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
-            log_length: { get_property: [ SELF, log_length ] }
-          implementation: scripts/operation.sh
-        delete:
-          inputs:
-            operation: "delete AnsibleMockHost"
-            sleep_time: 60
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
-            log_length: { get_property: [ SELF, log_length ] }
-          implementation: scripts/operation.sh
+        # stop:
+        #   inputs:
+        #     operation: "stop AnsibleMockHost"
+        #     sleep_time: 30
+        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
+        #     log_length: { get_property: [ SELF, log_length ] }
+        #   implementation: scripts/operation.sh
+        # delete:
+        #   inputs:
+        #     operation: "delete AnsibleMockHost"
+        #     sleep_time: 60
+        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
+        #     log_length: { get_property: [ SELF, log_length ] }
+        #   implementation: scripts/operation.sh
     artifacts:
       - data:
           file: data/data.txt
@@ -64,15 +67,6 @@ node_types:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.
     derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockComponent
-    properties:
-      sleep_factor:
-        type: float
-        required: true
-        default: 1
-      log_length:
-        type: integer
-        required: true
-        default: 200
     capabilities:
       mock_endpoint:
         type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
@@ -91,38 +85,41 @@ node_types:
         create:
           inputs:
             operation: "create AnsibleMockComponent"
-            sleep_time: 60
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 50
             log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
         configure:
           inputs:
             operation: "configure AnsibleMockComponent"
-            sleep_time: 20
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 30
             log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
         start:
           inputs:
             operation: "start AnsibleMockComponent"
-            sleep_time: 30
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 20
             log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
-        stop:
-          inputs:
-            operation: "stop AnsibleMockComponent"
-            sleep_time: 30
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
-            log_length: { get_property: [ SELF, log_length ] }
-          implementation: scripts/operation.sh
-        delete:
-          inputs:
-            operation: "delete AnsibleMockComponent"
-            sleep_time: 15
-            sleep_factor: { get_property: [ SELF, sleep_factor ] }
-            log_length: { get_property: [ SELF, log_length ] }
-          implementation: scripts/operation.sh
+        # stop:
+        #   inputs:
+        #     operation: "stop AnsibleMockComponent"
+        #     sleep_time: 30
+        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
+        #     log_length: { get_property: [ SELF, log_length ] }
+        #   implementation: scripts/operation.sh
+        # delete:
+        #   inputs:
+        #     operation: "delete AnsibleMockComponent"
+        #     sleep_time: 15
+        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
+        #     log_length: { get_property: [ SELF, log_length ] }
+        #   implementation: scripts/operation.sh
     artifacts:
       - data:
           file: data/data.txt
@@ -138,59 +135,65 @@ relationship_types:
         pre_configure_source:
           inputs:
             operation: "pre_configure_source AnsibleComponentHostedOnHost"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         pre_configure_target:
           inputs:
             operation: "pre_configure_target AnsibleComponentHostedOnHost"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         post_configure_source:
           inputs:
             operation: "post_configure_source AnsibleComponentHostedOnHost"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         post_configure_target:
           inputs:
             operation: "post_configure_target AnsibleComponentHostedOnHost"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         add_target:
           inputs:
             operation: "add_target AnsibleComponentHostedOnHost"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         add_source:
           inputs:
             operation: "add_source AnsibleComponentHostedOnHost"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
-        remove_target:
-          inputs:
-            operation: "remove_target AnsibleComponentHostedOnHost"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        remove_source:
-          inputs:
-            operation: "remove_source AnsibleComponentHostedOnHost"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
+        # remove_target:
+        #   inputs:
+        #     operation: "remove_target AnsibleComponentHostedOnHost"
+        #     sleep_time: 5
+        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+        #     log_length: { get_property: [ SOURCE, log_length ] }
+        #   implementation: scripts/operation.sh
+        # remove_source:
+        #   inputs:
+        #     operation: "remove_source AnsibleComponentHostedOnHost"
+        #     sleep_time: 5
+        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+        #     log_length: { get_property: [ SOURCE, log_length ] }
+        #   implementation: scripts/operation.sh
     artifacts:
       - data:
           file: data/data.txt
@@ -203,59 +206,65 @@ relationship_types:
         pre_configure_source:
           inputs:
             operation: "pre_configure_source AnsibleComponentConnectToComponent"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         pre_configure_target:
           inputs:
             operation: "pre_configure_target AnsibleComponentConnectToComponent"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         post_configure_source:
           inputs:
             operation: "post_configure_source AnsibleComponentConnectToComponent"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         post_configure_target:
           inputs:
             operation: "post_configure_target AnsibleComponentConnectToComponent"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         add_target:
           inputs:
             operation: "add_target AnsibleComponentConnectToComponent"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
         add_source:
           inputs:
             operation: "add_source AnsibleComponentConnectToComponent"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+            duration: 2
+            variation: { get_property: [ SOURCE, variation ] }
+            weight: 30
             log_length: { get_property: [ SOURCE, log_length ] }
           implementation: scripts/operation.sh
-        remove_target:
-          inputs:
-            operation: "remove_target AnsibleComponentConnectToComponent"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        remove_source:
-          inputs:
-            operation: "remove_source AnsibleComponentConnectToComponent"
-            sleep_time: 5
-            sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
+        # remove_target:
+        #   inputs:
+        #     operation: "remove_target AnsibleComponentConnectToComponent"
+        #     sleep_time: 5
+        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+        #     log_length: { get_property: [ SOURCE, log_length ] }
+        #   implementation: scripts/operation.sh
+        # remove_source:
+        #   inputs:
+        #     operation: "remove_source AnsibleComponentConnectToComponent"
+        #     sleep_time: 5
+        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
+        #     log_length: { get_property: [ SOURCE, log_length ] }
+        #   implementation: scripts/operation.sh
     artifacts:
       - data:
           file: data/data.txt

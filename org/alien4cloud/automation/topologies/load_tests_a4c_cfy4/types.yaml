@@ -24,7 +24,7 @@ imports:
   - org.alien4cloud.automation.cloudify.patches.amqp_client:1.0.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - ansible-apache-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.www.apache.linux_ans:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
@@ -313,7 +313,7 @@ topology_template:
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     OfflineApache:
-      type: alien.nodes.AnsibleApache
+      type: org.alien4cloud.www.apache.linux_ans.nodes.Apache
       properties:
         port: 8787
       requirements:

@@ -136,7 +136,7 @@ topology_template:
             node: A4C_Compute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-        - collec_a4c:
+        - collec_jolokia:
             node: A4C
             capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondA4CCollector
@@ -195,7 +195,7 @@ topology_template:
             initiator: source
         jolokia:
           properties:
-            jolokia_port: 8778
+            port: 8778
       artifacts:
         alien_dist:
           file: { get_input_artifact: a4c_dist_package }

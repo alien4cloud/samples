@@ -38,10 +38,10 @@ node_types:
           capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
           relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector
           occurrences: [0, 1]
-      - collec_a4c:
-          capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
-          relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondA4CCollector
-          occurrences: [0, 1]
+      # - collec_a4c:
+      #     capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
+      #     relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondA4CCollector
+      #     occurrences: [0, 1]
       - collec_rabbitmq:
           capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
           occurrences: [0, 1]
@@ -98,7 +98,7 @@ relationship_types:
           inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: connects_to_graphite.yml
-            graphite_host: { get_attribute: [TARGET, metrics_backend, ip_address] }
+            graphite_host: { get_attribute: [TARGET, ip_address] }
             graphite_port: { get_attribute: [TARGET, metrics_backend, port]}
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch:
@@ -123,11 +123,11 @@ relationship_types:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: diamondJolokiaCollector.yml
             jolokia_host: { get_attribute: [TARGET, ip_address] }
-            jolokia_port: { get_attribute: [TARGET, jolokia, jolokia_port] }
+            jolokia_port: { get_attribute: [TARGET, jolokia, port] }
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondA4CCollector:
     derived_from: org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector
-    valid_target_types: [ org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi ]
+    valid_target_types: [ org.alien4cloud.automation.a4c.pub.capabilities.JolokiaA4CEndpoint ]
     interfaces:
       Configure:
         pre_configure_target:
@@ -136,7 +136,7 @@ relationship_types:
             PLAYBOOK_ENTRY: diamondAlienCollector.yml
             jolokia_host: { get_attribute: [TARGET, ip_address] }
             alien_data_dir: { get_attribute: [TARGET, data_dir] }
-            jolokia_port: { get_attribute: [TARGET, jolokia, jolokia_port] }
+            jolokia_port: { get_attribute: [TARGET, jolokia, port] }
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondRabbitmqCollector:
     derived_from: tosca.relationships.ConnectsTo

@@ -14,8 +14,10 @@ capability_types:
       Exposed by a java sofware that embed jolokia jar to expose JMX metrics.
     derived_from: tosca.capabilities.Root
     properties:
-      jolokia_port:
+      port:
         type: integer
         description: the port on witch the javaagent will listen
         required: true
         default: 8778
+        constraints:
+          - in_range: [ 1, 65535 ]

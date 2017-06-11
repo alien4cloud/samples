@@ -65,7 +65,7 @@ node_types:
       rest:
         type: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
       jolokia:
-        type: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
+        type: org.alien4cloud.automation.a4c.pub.capabilities.JolokiaA4CEndpoint
     requirements:
       # This node is hosted on JDK, how can I express the fact that is must be hosted also on a ubuntu compute ?
       # Need for some inheritance in container capability ..

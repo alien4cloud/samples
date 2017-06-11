@@ -21,7 +21,7 @@ imports:
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.www.apache.linux_ans:1.4.0-SNAPSHOT

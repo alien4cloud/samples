@@ -9,8 +9,8 @@ description: |
   An topology that do nothing but sleeping and generating some logs, used for load tests
 
 imports:
-  - org.alien4cloud.mock.bash:1.0.0-SNAPSHOT
-  - org.alien4cloud.mock.pub:1.0.0-SNAPSHOT
+  - org.alien4cloud.mock.bash:1.4.0-SNAPSHOT
+  - org.alien4cloud.mock.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
 
 topology_template:

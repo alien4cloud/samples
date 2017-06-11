@@ -2,8 +2,8 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.automation.topologies.a4c_provider_tests
-  template_version: 0.1.0-SNAPSHOT
-  template_author: admin
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alient4cloud
 
 description: "Enclosing archive for topology Topology for alien4cloud provider tests"
 

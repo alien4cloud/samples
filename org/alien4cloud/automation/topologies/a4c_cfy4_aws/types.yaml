@@ -18,7 +18,7 @@ imports:
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.orch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT

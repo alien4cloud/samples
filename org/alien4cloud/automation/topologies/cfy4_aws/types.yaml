@@ -10,7 +10,7 @@ description: >
   Has been tested on a Centos ami-4c4b003b (m4.large).
 
 imports:
-  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT

@@ -35,7 +35,7 @@ topology_template:
     A4C & CFY 3.4 manager (with Ansible) configured for AWS.
     You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
     Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
-  
+
   inputs:
     aws_region:
       type: string
@@ -121,7 +121,7 @@ topology_template:
             initiator: source
         jolokia:
           properties:
-            jolokia_port: 8778
+            port: 8778
       artifacts:
         alien_dist:
           file: { get_input_artifact: a4c_dist_package }

@@ -170,7 +170,7 @@ topology_template:
             initiator: source
         jolokia:
           properties:
-            jolokia_port: 8778
+            port: 8778
       artifacts:
         alien_dist:
           file: alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz

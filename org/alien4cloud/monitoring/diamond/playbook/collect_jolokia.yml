@@ -5,4 +5,4 @@
   become: true
 
   roles:
-    - diamondCollectElasticSearchPreConfigureTarget
+    - collect_jolokia

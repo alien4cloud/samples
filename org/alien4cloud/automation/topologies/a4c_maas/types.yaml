@@ -94,7 +94,7 @@ topology_template:
             initiator: source
         jolokia:
           properties:
-            jolokia_port: 8778
+            port: 8778
       artifacts:
         alien_dist:
           file: { get_input_artifact: a4c_dist_package }

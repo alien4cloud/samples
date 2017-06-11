@@ -109,7 +109,7 @@ relationship_types:
         pre_configure_source:
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: diamondCollectElasticSearch.yml
+            PLAYBOOK_ENTRY: collect_elasticsearch.yml
             elasticsearch_host: { get_attribute: [TARGET, ip_address] }
             elasticsearch_port: { get_attribute: [TARGET, http, port] }
           implementation: playbook/playbook.ansible
@@ -121,7 +121,7 @@ relationship_types:
         pre_configure_source:
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: diamondJolokiaCollector.yml
+            PLAYBOOK_ENTRY: collect_jolokia.yml
             jolokia_host: { get_attribute: [TARGET, ip_address] }
             jolokia_port: { get_attribute: [TARGET, jolokia, port] }
           implementation: playbook/playbook.ansible
@@ -133,7 +133,7 @@ relationship_types:
         pre_configure_target:
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: diamondAlienCollector.yml
+            PLAYBOOK_ENTRY: collec_alien.yml
             jolokia_host: { get_attribute: [TARGET, ip_address] }
             alien_data_dir: { get_attribute: [TARGET, data_dir] }
             jolokia_port: { get_attribute: [TARGET, jolokia, port] }
@@ -146,7 +146,7 @@ relationship_types:
         pre_configure_source:
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: diamondRabbitmqCollector.yml
+            PLAYBOOK_ENTRY: collect_rabbitmq.yml
             rabbitmq_port: { get_attribute: [TARGET, rabbitmq_management, port] }
             rabbitmq_user: { get_attribute: [TARGET, rabbitmq_management, user] }
             rabbitmq_password: { get_attribute: [TARGET, rabbitmq_management, password] }
@@ -159,7 +159,7 @@ relationship_types:
         pre_configure_source:
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: diamondPostgresqlCollector.yml
+            PLAYBOOK_ENTRY: collect_postgresql.yml
             postgresql_port: { get_attribute: [TARGET, postgresql, port] }
             postgresql_user: { get_attribute: [TARGET, postgresql, user] }
             postgresql_password: { get_attribute: [TARGET, postgresql, password] }

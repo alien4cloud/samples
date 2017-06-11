@@ -176,7 +176,7 @@ topology_template:
         context_root: "/"
         app_args: "--spring.profiles.active=security-demo,noApiDoc"
         component_version: { get_input: a4c_version }
-        data_dir: "/opt/alien4coud/data"
+        data_dir: "/opt/alien4cloud/data"
       requirements:
         - elasticsearch:
             node: A4C_ElasticSearch

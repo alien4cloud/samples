@@ -152,7 +152,7 @@ topology_template:
       properties:
         context_root: "/"
         component_version: "1.4.0-SNAPSHOT"
-        data_dir: "/opt/alien4coud/data"
+        data_dir: "/opt/alien4cloud/data"
       requirements:
         - java:
             node: OracleJDK

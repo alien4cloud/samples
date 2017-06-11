@@ -46,7 +46,7 @@ node_types:
         description: The location on the file system where A4C will store data (plugins, images ...).
         type: string
         required: true
-        default: "/opt/alien4coud/data"
+        default: "/opt/alien4cloud/data"
       # server_protocol:
       #   type: string
       #   required: true

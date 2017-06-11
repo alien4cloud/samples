@@ -103,7 +103,7 @@ topology_template:
         context_root: "/"
         app_args: "--spring.profiles.active=security-demo,noApiDoc"
         component_version: "1.4.0-SNAPSHOT"
-        data_dir: "/opt/alien4coud/data"
+        data_dir: "/opt/alien4cloud/data"
       requirements:
         - java:
             node: A4C_JDK

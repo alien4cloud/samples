@@ -16,8 +16,9 @@ artifact_types:
     derived_from: tosca.artifacts.Implementation.Bash
     description: Implementation artifact that provide some shell utility methods for cross linux operations.
     file_ext: [ aesh ]
-    implementation:
-      primary: scripts/wrapper.sh
-      # all the content of the script folder will be copied in the same directory as the wrapper.sh script
-      dependencies:
-        - scripts
+    # FIXME: TOSCA artifact management WIP ...
+    # implementation:
+    #   primary: scripts/wrapper.sh
+    #   # all the content of the script folder will be copied in the same directory as the wrapper.sh script
+    #   dependencies:
+    #     - scripts

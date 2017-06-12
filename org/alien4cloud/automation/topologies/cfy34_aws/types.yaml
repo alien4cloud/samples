@@ -20,9 +20,11 @@ imports:
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
+
   description: >
-    Just a CFY 4 manager configured for AWS (with Ansible).
+    Just a CFY 3.4 manager configured for AWS (with Ansible).
     Has been tested on a Centos ami-4c4b003b (m4.large).
+
   inputs:
     aws_region:
       type: string
@@ -48,10 +50,6 @@ topology_template:
       description: "Optional name of the key as known by the iaas (in case of iaas key)."
   input_artifacts:
     aws_key_file:
-        type: tosca.artifacts.File
-    orchestrator_plugin:
-        type: tosca.artifacts.File
-    a4c_dist_package:
         type: tosca.artifacts.File
   node_templates:
     CFY_Compute:
@@ -93,7 +91,7 @@ topology_template:
       type: org.alien4cloud.automation.cloudify.manager.v3.nodes.Cloudify3Manager
       properties:
         ssh_user: "ec2-user"
-        ssh_key_filename: { get_input: agent_security_groups }
+        ssh_key_filename: "aws-key.pem"
         keypair_name: { get_input: aws_keypair_name }
         agents_user: ubuntu
         admin_username: admin

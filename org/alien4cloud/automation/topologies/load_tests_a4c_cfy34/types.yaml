@@ -12,6 +12,7 @@ description: >
   The Host pool is fed with fresh EC2 instances.
   Since the v3 orchestrator plugin is not embeded in A4C dist you need to provide it as input artifact.
   The apache installed on cfy compute is here to manager offline plugins but is not fed. You'll need to populate it and upload plugins onto manager to switch to offline mode
+  Has been tested on a Centos ami-4c4b003b (m4.large) for CFY and Ubuntu ami-47a23a30 (t2.medium) for A4C.
 
 imports:
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT

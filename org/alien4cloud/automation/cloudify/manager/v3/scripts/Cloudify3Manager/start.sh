@@ -9,13 +9,17 @@ sudo bash -c "export CLOUDIFY_USERNAME=$ADMIN_USERNAME && export CLOUDIFY_PASSWO
 echo "Manager node has been bootstraped"
 echo "Done"
 
-# try a connection on locahost and fail if not ok
+# try a connection on localhost and fail if not ok
 connection_test_cmd="curl -fkL --connect-timeout 30 -u ${ADMIN_USERNAME}:${ADMIN_PASSWORD} --basic ${API_PROTOCOL}://localhost:${API_PORT}/version"
 echo "Expect ${API_PROTOCOL}://localhost:${API_PORT} to be up"
 eval ${connection_test_cmd}
 if [ "$?" -ne "0" ]; then
   echo "Waiting for ${API_PROTOCOL}://localhost:${API_PORT} to be up"
   sleep 30
+  eval ${connection_test_cmd}
+  if [ "$?" -ne "0" ]; then
+    echo "Connection check failed return $?"
+    exit $?
+  fi
 fi
-eval ${connection_test_cmd}
-exit $?
+echo "Completed."

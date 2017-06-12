@@ -34,6 +34,9 @@ if [ "$?" -ne "0" ]; then
   echo "Waiting for ${API_PROTOCOL}://localhost:${API_PORT} to be up"
   sleep 30
   eval ${connection_test_cmd}
+  if [ "$?" -ne "0" ]; then
+    echo "Connection check failed return $?"
+    exit $?
+  fi
 fi
-echo "Check completed, return $?"
-exit $?
+echo "Completed."

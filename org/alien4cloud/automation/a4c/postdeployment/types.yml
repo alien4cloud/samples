@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.postdeployment
+  template_name: org.alien4cloud.automation.a4c.postdeployment
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -12,29 +12,24 @@ imports:
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
 
+repositories:
+  fastconnect_nexus:
+    url: https://fastconnect.org/maven/content/repositories/fastconnect
+    type: maven
+
 node_types:
-  org.alien4cloud.automation.postdeployment.Postdeployment:
+  org.alien4cloud.automation.a4c.postdeployment.nodes.Postdeployment:
     derived_from: org.alien4cloud.lang.java.pub.nodes.JavaSoftware
     properties:
       install_dir:
         type: string
         default: '/opt/alien'
-      download_user:
-        type: string
-      download_password:
-        type: string
-      download_url:
-        type: string
-        default: 'http://fastconnect.org/maven/service/local/artifact/maven/redirect?r=fastconnect-snapshot&g=alien4cloud&a=alien4cloud-postdeployment-rest&v=LATEST&p=war'
     interfaces:
       Standard:
         create:
           implementation: scripts/create.sh
           inputs:
             INSTALL_DIR: { get_property: [SELF, install_dir] }
-            DOWNLOAD_USER: { get_property: [SELF, download_user] }
-            DOWNLOAD_PASSWORD: { get_property: [SELF, download_password] }
-            DOWNLOAD_URL: { get_property: [SELF, download_url] }
         start:
           implementation: scripts/alien.sh
           inputs:
@@ -44,3 +39,8 @@ node_types:
           implementation: scripts/alien.sh
           inputs:
             CMD: stop
+    artifacts:
+      - bin:
+          file: alien4cloud:alien4cloud-postdeployment-rest:1.4.0-RC3@war
+          repository: fastconnect_nexus
+          type: tosca.artifacts.File

@@ -1,0 +1,10 @@
+---
+- hosts: all
+  # connection: local
+  name: Create EC2 instance & feed Hostpool with them
+  become: true
+
+  roles:
+    - setup
+    - { role: get_att, attribute_name: 'hostpool_url' }
+    - feed

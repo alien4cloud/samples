@@ -1,0 +1,33 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.manager.service
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: TOSCA template that contains a basic node type to install a cloudify manager.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyAsAService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    metadata:
+      icon: images/cloudify.png
+    capabilities:
+      cloudify_api_v3:
+        type: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
+        occurrences: [ 0, UNBOUNDED ]
+        properties:
+          protocol: https
+          port: 443 # set a default value for the port
+      cloudify_hostpool:
+        type: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
+        occurrences: [ 0, UNBOUNDED ]
+        properties:
+          protocol: http
+          port: 8080 # set a default value for the port

@@ -30,6 +30,10 @@ node_types:
       #     capability: org.alien4cloud.monitoring.backend.capabilities.GraphiteBackendEndpoint
       #     relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
       #     occurrences: [0, unbounded]
+      - metrics_backend:
+          capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
+          relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
+          occurrences: [0, 1]
       - collec_elasticsearch:
           capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
           relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
@@ -98,7 +102,7 @@ relationship_types:
           inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: connects_to_graphite.yml
-            graphite_host: { get_attribute: [TARGET, ip_address] }
+            graphite_host: { get_attribute: [TARGET, metrics_backend, ip_address] }
             graphite_port: { get_attribute: [TARGET, metrics_backend, port]}
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch:
@@ -110,7 +114,7 @@ relationship_types:
           inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: collect_elasticsearch.yml
-            elasticsearch_host: { get_attribute: [TARGET, ip_address] }
+            elasticsearch_host: { get_attribute: [TARGET, http, ip_address] }
             elasticsearch_port: { get_attribute: [TARGET, http, port] }
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondJolokiaCollector:
@@ -134,9 +138,9 @@ relationship_types:
           inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: collec_alien.yml
-            jolokia_host: { get_attribute: [TARGET, ip_address] }
-            alien_data_dir: { get_attribute: [TARGET, data_dir] }
-            jolokia_port: { get_attribute: [TARGET, jolokia, port] }
+            jolokia_host: { get_attribute: [TARGET, jolokia, ip_address] }
+            alien_data_dir: { get_property: [TARGET, data_dir] }
+            jolokia_port: { get_property: [TARGET, jolokia, port] }
           implementation: playbook/playbook.ansible
   org.alien4cloud.monitoring.diamond.relationships.DiamondRabbitmqCollector:
     derived_from: tosca.relationships.ConnectsTo

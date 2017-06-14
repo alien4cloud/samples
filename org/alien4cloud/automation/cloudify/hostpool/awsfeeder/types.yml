@@ -15,9 +15,11 @@ imports:
 
 node_types:
   org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder:
+    derived_from: tosca.nodes.SoftwareComponent
     description: |
       Feed a hostpool with many instanciated EC2 instances
-    derived_from: tosca.nodes.Root
+    metadata:
+      icon: images/aws.png
     properties:
       aws_access_key:
         type: string
@@ -81,10 +83,101 @@ node_types:
         description: The instance os for hostpool config
         constraints:
           - valid_values: [ "linux", "windows" ]
+    attributes:
+      # To be defined in connect op
+      hostpool_url: { get_property: [SELF, instance_name]}
     requirements:
       - hostpool:
           capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
+          relationship: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool
           occurrences: [1, 1]
+    interfaces:
+      Standard:
+        stop:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: stop.yml
+            aws_access_key: { get_property: [SELF, aws_access_key]}
+            aws_secret_key: { get_property: [SELF, aws_secret_key]}
+            key_name: { get_property: [SELF, key_name]}
+            key_content: { get_property: [SELF, key_content]}
+            region: { get_property: [SELF, region]}
+            instance_name: { get_property: [SELF, instance_name]}
+            instance_count: { get_property: [SELF, instance_count]}
+            # hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
+          implementation: playbook/playbook.ansible
+      org.alien4cloud.automation.cloudify.hostpool.awsfeeder.Admin:
+        clear:
+          description: |
+            Clear Hostpool from all it's entries and shutdown related EC2 instances.
+            The 'instance_name' property is used to detect and stop EC2 instances.
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: stop.yml
+            aws_access_key: { get_property: [SELF, aws_access_key] }
+            aws_secret_key: { get_property: [SELF, aws_secret_key] }
+            key_name: { get_property: [SELF, key_name] }
+            key_content: { get_property: [SELF, key_content] }
+            region: { get_property: [SELF, region] }
+            instance_name: { get_property: [SELF, instance_name] }
+            instance_count: { get_property: [SELF, instance_count] }
+            # hostpool_url: { get_attribute: [SELF, hostpool_url }
+          implementation: playbook/playbook.ansible
+        feed:
+          description: |
+            Start EC2 instances and populate Hostpool.
+            The node properties are used for instance properties and count.
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: feed.yml
+            aws_access_key: { get_property: [SELF, aws_access_key] }
+            aws_secret_key: { get_property: [SELF, aws_secret_key] }
+            key_name: { get_property: [SELF, key_name] }
+            key_content: { get_property: [SELF, key_content] }
+            region: { get_property: [SELF, region] }
+            instance_name: { get_property: [SELF, instance_name] }
+            instance_count: { get_property: [SELF, instance_count] }
+            host_per_instance: { get_property: [SELF, host_per_instance] }
+            instance_username: { get_property: [SELF, instance_username] }
+            instance_groups: { get_property: [SELF, instance_groups] }
+            instance_image: { get_property: [SELF, instance_image] }
+            instance_type: { get_property: [SELF, instance_type] }
+            instance_os: { get_property: [SELF, instance_os] }
+            # hostpool_url: { get_attribute: [SELF, hostpool_url }
+          implementation: playbook/playbook.ansible
+        feed_custom:
+          description: |
+            Start EC2 instances and populate Hostpool.
+            The node properties are used for instance properties and count.
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: feed.yml
+            aws_access_key: { get_property: [SELF, aws_access_key] }
+            aws_secret_key: { get_property: [SELF, aws_secret_key] }
+            key_name: { get_property: [SELF, key_name] }
+            key_content: { get_property: [SELF, key_content] }
+            region: { get_property: [SELF, region] }
+            instance_name: { get_property: [SELF, instance_name] }
+            instance_count:
+              type: integer
+              required: true
+              default: 1
+            host_per_instance:
+              type: integer
+              required: true
+              default: 1
+            instance_username: { get_property: [SELF, instance_username] }
+            instance_groups: { get_property: [SELF, instance_groups] }
+            instance_image:
+              type: string
+              required: true
+              default: ami-47a23a30
+            instance_type:
+              type: string
+              required: true
+              default: t2.nano
+            instance_os: { get_property: [SELF, instance_os] }
+          implementation: playbook/playbook.ansible
 
 relationship_types:
   org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool:
@@ -95,7 +188,7 @@ relationship_types:
         add_target:
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: create.yml
+            PLAYBOOK_ENTRY: hostpool_connected.yml
             aws_access_key: { get_property: [SOURCE, aws_access_key] }
             aws_secret_key: { get_property: [SOURCE, aws_secret_key] }
             key_name: { get_property: [SOURCE, key_name] }
@@ -109,18 +202,5 @@ relationship_types:
             instance_image: { get_property: [SOURCE, instance_image] }
             instance_type: { get_property: [SOURCE, instance_type] }
             instance_os: { get_property: [SOURCE, instance_os] }
-            hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
-          implementation: playbook/playbook.ansible
-        remove_target:
-          inputs:
-            ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: delete.yml
-            aws_access_key: { get_property: [SOURCE, aws_access_key]}
-            aws_secret_key: { get_property: [SOURCE, aws_secret_key]}
-            key_name: { get_property: [SOURCE, key_name]}
-            key_content: { get_property: [SOURCE, key_content]}
-            region: { get_property: [SOURCE, region]}
-            instance_name: { get_property: [SOURCE, instance_name]}
-            instance_count: { get_property: [SOURCE, instance_count]}
-            hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
+            hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, cloudify_hostpool, ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
           implementation: playbook/playbook.ansible

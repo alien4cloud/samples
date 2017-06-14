@@ -18,7 +18,7 @@ imports:
 node_types:
 
   org.alien4cloud.automation.cloudify.manager.v3.nodes.Cloudify3Manager:
-    derived_from: org.alien4cloud.automation.cloudify.manager.pub.nodes.AbstractCloudifyManager
+    derived_from: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService
     description: Cloudify CLI and Manager in place installation.
     properties:
       ssh_user:
@@ -95,8 +95,8 @@ node_types:
             SSH_USER: { get_property: [SELF, ssh_user] }
             SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
             AGENTS_USER: { get_property: [SELF, agents_user] }
-            ADMIN_USERNAME: { get_property: [SELF, admin_username] }
-            ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            ADMIN_USERNAME: { get_property: [SELF, cloudify_api_v3, admin_username] }
+            ADMIN_PASSWORD: { get_property: [SELF, cloudify_api_v3, admin_password] }
             PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
             PRIVATE_IP: { get_attribute: [HOST, ip_address] }
             RABBITMQ_USER: { get_property: [SELF, rabbitmq_management, user] }
@@ -104,8 +104,8 @@ node_types:
           implementation: scripts/Cloudify3Manager/configure.sh
         start:
           inputs:
-            ADMIN_USERNAME: { get_property: [SELF, admin_username] }
-            ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            ADMIN_USERNAME: { get_property: [SELF, cloudify_api_v3, admin_username] }
+            ADMIN_PASSWORD: { get_property: [SELF, cloudify_api_v3, admin_password] }
             API_PORT: { get_property: [SELF, cloudify_api_v3, port] }
             API_PROTOCOL: https
             MAX_INSTANCES: { get_property: [HOST, scalable, max_instances] }
@@ -128,8 +128,8 @@ node_types:
           inputs:
             SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
             KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
-            ADMIN_USERNAME: { get_property: [HOST, admin_username] }
-            ADMIN_PASSWORD: { get_property: [HOST, admin_password] }
+            ADMIN_USERNAME: { get_property: [HOST, cloudify_api_v3, admin_username] }
+            ADMIN_PASSWORD: { get_property: [HOST, cloudify_api_v3, admin_password] }
           implementation: scripts/Cloudify3Manager/aws_do_configure.sh
     artifacts:
       - resources:

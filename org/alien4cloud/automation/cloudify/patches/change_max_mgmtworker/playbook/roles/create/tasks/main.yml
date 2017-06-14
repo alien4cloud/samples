@@ -1,0 +1,16 @@
+---
+
+- name: Backup file
+  copy:
+    remote_src: True
+    src: /usr/lib/systemd/system/cloudify-mgmtworker.service
+    dest: /usr/lib/systemd/system/cloudify-mgmtworker.service.back
+
+- name: "Set mgmtworker count to {{ mgmt_worker_count }}"
+  template: src=cloudify-mgmtworker.service.j2 dest=/usr/lib/systemd/system/cloudify-mgmtworker.service force=yes
+
+- name: Reload systemctl
+  command: sudo systemctl daemon-reload
+
+- name: Restart cloudify-mgmtworker
+  command: systemctl restart cloudify-mgmtworker.service

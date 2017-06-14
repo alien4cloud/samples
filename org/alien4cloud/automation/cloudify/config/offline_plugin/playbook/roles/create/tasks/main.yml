@@ -1,0 +1,26 @@
+---
+
+- name: "Create directory {{ document_root }}/spec/host-pool-plugin/1.5"
+  file:
+    path: "{{ document_root }}/spec/host-pool-plugin/1.5"
+    state: directory
+    mode: 0755
+
+- name: Download plugin source
+  shell: "curl -kL https://github.com/cloudify-cosmo/cloudify-host-pool-plugin/archive/1.5.zip -o {{ document_root }}/spec/host-pool-plugin/1.5/1.5.zip"
+
+- name: Create plugin.yaml
+  template:
+    src: plugin.yaml.j2
+    dest: "{{ document_root }}/spec/host-pool-plugin/1.5/plugin.yaml"
+    force: yes
+
+# - name: Output offline_plugin_url
+#   set_fact:
+#     offline_plugin_url: "http://{{offline_ip}}:{{offline_port}}/spec/host-pool-plugin/1.5/plugin.yaml"
+- name: Output offline_plugin_url attribute name
+  set_fact:
+    attribute_name: "offline_plugin_url"
+- name: Output offline_plugin_url attribute value
+  set_fact:
+    attribute_value: "http://{{offline_ip}}:{{offline_port}}/spec/host-pool-plugin/1.5/plugin.yaml"

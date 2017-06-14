@@ -13,15 +13,15 @@ imports:
 
 node_types:
 
-  org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPoolService:
-    derived_from: tosca.nodes.SoftwareComponent
+  org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPool:
+    derived_from: org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService
     capabilities:
       cloudify_hostpool:
         type: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
         occurrences: [ 0, UNBOUNDED ]
         properties:
           protocol: http
-          port: 8080 # set a default value for the port
+          port: 8080 # readonly since this component doen't allow port cutomization
     attributes:
       hostpool_url: { concat: [get_property: [SELF, cloudify_hostpool, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_hostpool, port]] }
       hostpool_url_hosts: { concat: [get_property: [SELF, cloudify_hostpool, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_hostpool, port], "/hosts"] }

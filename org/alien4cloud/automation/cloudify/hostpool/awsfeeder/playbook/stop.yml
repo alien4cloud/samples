@@ -1,0 +1,10 @@
+---
+- hosts: all
+  # connection: local
+  name: Remove EC2 instance & clear Hostpool hosts
+  become: true
+
+  roles:
+    - setup
+    - { role: get_att, attribute_name: 'hostpool_url' }
+    - delete

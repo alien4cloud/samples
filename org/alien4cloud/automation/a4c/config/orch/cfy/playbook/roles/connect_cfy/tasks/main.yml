@@ -1,8 +1,27 @@
 ---
-- file: path="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_cfy/inputs" state=directory mode=0755
 
-- copy: content="{{ cfy_url }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_cfy/inputs/cfy_url"
+- set_fact:
+    file_dir: "/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_cfy/inputs"
 
-- copy: content="{{ cfy_user }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_cfy/inputs/cfy_user"
+- name: "Ensure <{{ file_dir }}> exists"
+  file:
+    path: "{{ file_dir }}"
+    state: directory
 
-- copy: content="{{ cfy_password }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_cfy/inputs/cfy_password"
+- name: "Echo <{{ cfy_url }}> in file <{{ file_dir }}/cfy_url>"
+  shell: "echo '{{ cfy_url }}' > {{ file_dir }}/cfy_url"
+  when: cfy_url is defined
+
+- name: "Echo <{{ cfy_user }}> in file <{{ file_dir }}/cfy_user>"
+  shell: "echo '{{ cfy_user }}' > {{ file_dir }}/cfy_user"
+  when: cfy_user is defined
+
+- name: "Echo <{{ cfy_password }}> in file <{{ file_dir }}/cfy_password>"
+  shell: "echo '{{ cfy_password }}' > {{ file_dir }}/cfy_password"
+  when: cfy_password is defined
+
+# - copy: content="{{ cfy_url }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_cfy/inputs/cfy_url"
+#
+# - copy: content="{{ cfy_user }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_cfy/inputs/cfy_user"
+#
+# - copy: content="{{ cfy_password }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connect_cfy/inputs/cfy_password"

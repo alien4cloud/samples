@@ -1,7 +1,16 @@
 ---
-- file: path="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs" state=directory mode=0755
 
-- copy: content="{{ graphite_host }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs/graphite_host"
+- set_fact:
+    file_dir: "/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs"
 
-- copy: content="{{ graphite_port }}" dest="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs/graphite_port"
+- file:
+    path: "{{ file_dir }}"
+    state: directory
 
+- name: "Echo <{{ graphite_host }}> into {{ file_dir }}/graphite_host"
+  shell: "echo '{{ graphite_host }}' > {{ file_dir }}/graphite_host"
+  when: graphite_host is defined
+
+- name: "Echo <{{ graphite_port }}> into {{ file_dir }}/graphite_port"
+  shell: "echo '{{ graphite_port }}' > {{ file_dir }}/graphite_port"
+  when: graphite_port is defined

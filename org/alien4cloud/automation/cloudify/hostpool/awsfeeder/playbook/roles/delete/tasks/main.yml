@@ -1,18 +1,36 @@
 
+- name: Get host list from
+  uri:
+    url: "{{ hostpool_url }}/hosts"
+    method: GET
+    return_content: yes
+    status_code: 200
+  register: result
+
+# Just to be compatible with both node & relationship operations
+- set_fact:
+    INSTANCE: "{{ SOURCE_INSTANCE }}"
+  when: SOURCE_INSTANCE is defined
+
+- set_fact:
+    hostList: "{{ result.json }}"
+- debug:
+    var: hostList
+
 - name: Remove instances from hostpool
-  uri: 
-    url: "{{ hostpool_url }}/host/{{ item }}"
+  uri:
+    url: "{{ hostpool_url }}/host/{{ item.id }}"
     method: DELETE
-    status_code: 204  
-  with_sequence: "start=1 end={{ instance_count | int }}"
+    status_code: 204
+  with_items: hostList
 
 - ec2_remote_facts:
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
-    region: "{{ region }}"  
+    region: "{{ region }}"
     filters:
-      "tag:Name": "{{ instance_name }}_{{ SOURCE_INSTANCE }}"
-      "tag:HostpoolFeeder": "{{ SOURCE_INSTANCE }}"
+      "tag:Name": "{{ instance_name }}_{{ INSTANCE }}"
+      "tag:HostpoolFeeder": "{{ INSTANCE }}"
   register: ec2_info
 
 - name: Terminate EC2 instances
@@ -24,4 +42,4 @@
      wait: false
      instance_ids: "{{ item.id }}"
      state: absent
-  with_items: ec2_info.instances     
+  with_items: ec2_info.instances

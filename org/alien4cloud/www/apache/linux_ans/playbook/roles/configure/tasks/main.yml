@@ -1,5 +1,8 @@
 ---
 
+- debug:
+    msg: "Apache wil listen on port {{ port }}"
+
 - name: Configure Apache server
   template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
 

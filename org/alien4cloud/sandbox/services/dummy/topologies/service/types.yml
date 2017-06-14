@@ -1,0 +1,42 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.dummy.topologies.service
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - org.alien4cloud.sandbox.services.dummy.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.sandbox.services.dummy.implem:1.4.0-SNAPSHOT
+
+topology_template:
+  substitution_mappings:
+    node_type: org.alien4cloud.sandbox.services.dummy.pub.nodes.DummyService
+    capabilities:
+      dummy_api: [ DummyImplem, dummy_api ]
+      dummy_public_api: [ DummyImplem, dummy_public_api ]
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+    DummyImplem:
+      type: org.alien4cloud.sandbox.services.dummy.implem.nodes.DummyImplem
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        dummy_api:
+          properties:
+            admin_username: john
+            admin_password: doe
+            protocol: http
+            port: 8989
+        dummy_public_api:
+          properties:
+            protocol: https
+            port: 8943
+  outputs:
+    DummyImplem_host_uname:
+      value: { get_attribute: [ DummyImplem, host_uname ] }

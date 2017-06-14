@@ -1,0 +1,45 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.sandbox.services.dummy.pub
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Dummy service and capabilities definitions.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+
+  org.alien4cloud.sandbox.services.dummy.pub.nodes.DummyService:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: A dummy service that do nothing.
+    abstract: true
+    attributes:
+      # To be defined in connect op
+      host_uname:
+        type: string
+    capabilities:
+      dummy_api:
+        type: org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyAPI
+        occurrences: [ 0, UNBOUNDED ]
+      dummy_public_api:
+        type: org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyPublicAPI
+        occurrences: [ 0, UNBOUNDED ]
+
+capability_types:
+
+  org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyAPI:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      admin_username:
+        type: string
+        required: true
+        description: Administration account username.
+      admin_password:
+        type: string
+        required: true
+        description: Administration account password.
+  org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyPublicAPI:
+    derived_from: tosca.capabilities.Endpoint.Public

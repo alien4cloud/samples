@@ -1,8 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  name: Connect to alien so do configure git csar
-  become: true
-
-  roles:
-    - connect_a4c

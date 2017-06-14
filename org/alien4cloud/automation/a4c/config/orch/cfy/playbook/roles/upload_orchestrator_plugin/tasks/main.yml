@@ -1,61 +1,40 @@
 ---
 
-- name: Add repository
-  yum:
-   name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-   state: present
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
-
-- name: Install pip
-  yum: pkg=python-pip state=present
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
-
-- name: Install python dependencies (Ubuntu)
-  apt: name={{item}} state=installed
-  with_items:
-    - python-pip
-    - python-dev
-    - build-essential
-  when: ansible_distribution == 'Ubuntu'
-
-- name: pip httplib2
-  pip: name=httplib2
-
-# read alien_url from a4c connection
-- name: Check relationship inputs exists
-  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_url"
-  register: alien_url_file
-- name: read relationship inputs
-  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_url"
-  register: alien_url_content
-  when: alien_url_file.stat.exists
-- set_fact:
-    alien_url: "{{ alien_url_content.stdout_lines[0] }}"
-  when: alien_url_file.stat.exists and alien_url_content.stdout_lines|length > 0
-
-# read alien_user from a4c connection
-- name: Check relationship inputs exists
-  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_user"
-  register: alien_user_file
-- name: read relationship inputs
-  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_user"
-  register: alien_user_content
-  when: alien_user_file.stat.exists
-- set_fact:
-    alien_user: "{{ alien_user_content.stdout_lines[0] }}"
-  when: alien_user_file.stat.exists and alien_user_content.stdout_lines|length > 0
-
-# read alien_password from a4c connection
-- name: Check relationship inputs exists
-  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_password"
-  register: alien_password_file
-- name: read relationship inputs
-  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_password"
-  register: alien_password_content
-  when: alien_password_file.stat.exists
-- set_fact:
-    alien_password: "{{ alien_password_content.stdout_lines[0] }}"
-  when: alien_password_file.stat.exists and alien_password_content.stdout_lines|length > 0
+# # read alien_url from a4c connection
+# - name: Check relationship inputs exists
+#   stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_url"
+#   register: alien_url_file
+# - name: read relationship inputs
+#   command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_url"
+#   register: alien_url_content
+#   when: alien_url_file.stat.exists
+# - set_fact:
+#     alien_url: "{{ alien_url_content.stdout_lines[0] }}"
+#   when: alien_url_file.stat.exists and alien_url_content.stdout_lines|length > 0
+#
+# # read alien_user from a4c connection
+# - name: Check relationship inputs exists
+#   stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_user"
+#   register: alien_user_file
+# - name: read relationship inputs
+#   command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_user"
+#   register: alien_user_content
+#   when: alien_user_file.stat.exists
+# - set_fact:
+#     alien_user: "{{ alien_user_content.stdout_lines[0] }}"
+#   when: alien_user_file.stat.exists and alien_user_content.stdout_lines|length > 0
+#
+# # read alien_password from a4c connection
+# - name: Check relationship inputs exists
+#   stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_password"
+#   register: alien_password_file
+# - name: read relationship inputs
+#   command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_a4c/inputs/alien_password"
+#   register: alien_password_content
+#   when: alien_password_file.stat.exists
+# - set_fact:
+#     alien_password: "{{ alien_password_content.stdout_lines[0] }}"
+#   when: alien_password_file.stat.exists and alien_password_content.stdout_lines|length > 0
 
 - name: Login onto A4C
   uri:

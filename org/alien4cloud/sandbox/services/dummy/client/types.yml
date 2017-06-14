@@ -1,0 +1,67 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.sandbox.services.dummy.client
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Dummy service implem.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.sandbox.services.dummy.pub:1.4.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.sandbox.services.dummy.client.nodes.DummyClient:
+    derived_from: tosca.nodes.SoftwareComponent
+    requirements:
+      - dummy_endpoint:
+          capability: org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyAPI
+          relationship: org.alien4cloud.sandbox.services.dummy.client.relationships.DummyClientConnectToService
+          occurrences: [0, unbounded]
+      - dummy_public_endpoint:
+          capability: org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyPublicAPI
+          relationship: org.alien4cloud.sandbox.services.dummy.client.relationships.DummyClientConnectToPublicService
+          occurrences: [0, unbounded]
+    interfaces:
+      Standard:
+        start:
+          implementation: scripts/start.sh
+
+relationship_types:
+
+  org.alien4cloud.sandbox.services.dummy.client.relationships.DummyClientConnectToService:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.sandbox.services.dummy.pub.nodes.DummyService ]
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:
+            context: "Private"
+            service_host_uname: { get_attribute: [ TARGET, host_uname ] }
+            service_protocol: { get_attribute: [ TARGET, dummy_api, protocol ] }
+            service_port: { get_attribute: [ TARGET, dummy_api, port ] }
+            service_ip_address: { get_attribute: [ TARGET, dummy_api, ip_address ] }
+          implementation: scripts/pre_configure_source_private.sh
+        add_target:
+          inputs:
+            context: "Private"
+            service_host_uname: { get_attribute: [ TARGET, host_uname ] }
+            service_protocol: { get_attribute: [ TARGET, dummy_public_api, protocol ] }
+            service_port: { get_attribute: [ TARGET, dummy_public_api, port ] }
+            service_ip_address: { get_attribute: [ TARGET, dummy_public_api, ip_address ] }
+          implementation: scripts/add_target.sh
+  org.alien4cloud.sandbox.services.dummy.client.relationships.DummyClientConnectToPublicService:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.sandbox.services.dummy.pub.nodes.DummyService ]
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:
+            context: "Public"
+            service_host_uname: { get_attribute: [ TARGET, host_uname ] }
+            service_protocol: { get_attribute: [ TARGET, dummy_public_api, protocol ] }
+            service_port: { get_attribute: [ TARGET, dummy_public_api, port ] }
+            service_ip_address: { get_attribute: [ TARGET, dummy_public_api, ip_address ] }
+          implementation: scripts/pre_configure_source_public.sh

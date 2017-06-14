@@ -1,0 +1,10 @@
+---
+- hosts: all
+  # connection: local
+  name: Create EC2 instance & feed Hostpool with them
+  become: true
+
+  roles:
+    - setup
+    - publish_att
+    - feed

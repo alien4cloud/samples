@@ -1,6 +1,5 @@
 ---
-- hosts: localhost
-  connection: local
+- hosts: all
   name: Do configure git csar
   become: true
 

@@ -1,0 +1,5 @@
+cfy_url: https://52.215.83.19:443
+cfy_user: admin
+cfy_password: admin
+SOURCE_NODE: OrchestratorConfigurator
+SOURCE_INSTANCE: OrchestratorConfigurator-1

@@ -1,0 +1,91 @@
+- name: Ensure httplib2 is present
+  pip:
+    name: httplib2
+    state: present
+
+- debug: msg="Offline plugin url is {{ offline_plugin_url }}"
+
+- name: Login onto A4C
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: Get first orchestrator id
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators"
+    method: GET
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    status_code: 200
+  register: result
+
+- set_fact:
+    orchestratorId: "{{ result.json.data.data[0].id }}"
+
+- debug:
+    var: result
+
+- name: Get orchestrator configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
+    method: GET
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    status_code: 200
+  register: result
+
+- set_fact:
+    configuration: "{{ result.json.data.configuration }}"
+
+- debug:
+    var: configuration
+
+- set_fact:
+    byon_configuration: "{{ configuration.locations.byon }}"
+
+- debug:
+    var: byon_configuration
+
+# Better but not available in this Ansible version
+#- set_fact:
+#    new_byon_configuration: "{{ byon_configuration|json_query(query) }}"
+#  vars:
+#    query: "imports[?(@!='http://www.getcloudify.org/spec/host-pool-plugin/1.4/plugin.yaml')]"
+
+- set_fact:
+    new_byon_configuration: '{ "dsl": "{{ byon_configuration.dsl }}", "imports": [ "{{ byon_configuration.imports[0] }}", "{{ offline_plugin_url  }}", "{{ byon_configuration.imports[2] }}" ] }'
+
+- debug:
+    var: new_byon_configuration
+
+- set_fact:
+    config_fragment: '{ "locations": { "byon": {{ new_byon_configuration }} } }'
+
+- debug:
+    var: config_fragment
+
+- set_fact:
+    configuration: "{{ configuration | combine(config_fragment) }}"
+
+- debug:
+    var: configuration
+
+- name: Update orchestrator configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
+    method: PUT
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    body: "{{ configuration }}"
+    body_format: json
+    status_code: 200
+  register: result

@@ -1,0 +1,49 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Fix AMQP client patch.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker.nodes.ChangeMaxMgmtWorkerPatch:
+    derived_from: tosca.nodes.Root
+    description: Increase number of mgmnt workers.
+    metadata:
+      icon: images/patch.png
+    properties:
+      mgmt_worker_count:
+        type: integer
+        required: true
+        default: 100
+    requirements:
+      - cfy_manager:
+          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: create.yml
+            mgmt_worker_count: { get_property: [SELF, mgmt_worker_count]}
+          implementation: playbook/playbook.ansible
+      org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker.interfaces.Admin:
+        setup:
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: create.yml
+            mgmt_worker_count:
+              type: integer
+              required: true
+              default: 100
+          implementation: playbook/playbook.ansible

@@ -17,7 +17,7 @@ imports:
 node_types:
 
   org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyManager:
-    derived_from: org.alien4cloud.automation.cloudify.manager.pub.nodes.AbstractCloudifyManager
+    derived_from: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService
     description: Cloudify CLI and Manager in place installation.
     properties:
       ssh_user:
@@ -36,14 +36,14 @@ node_types:
         type: string
         required: true
         description: Default ssh user for agents.
-      admin_username:
-        type: string
-        required: true
-        description: Administration account username.
-      admin_password:
-        type: string
-        required: true
-        description: Administration account password.
+      # admin_username:
+      #   type: string
+      #   required: true
+      #   description: Administration account username.
+      # admin_password:
+      #   type: string
+      #   required: true
+      #   description: Administration account password.
       component_version:
         type: version
         default: 4.0.1-ga
@@ -98,8 +98,8 @@ node_types:
             SSH_USER: { get_property: [SELF, ssh_user] }
             SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
             AGENTS_USER: { get_property: [SELF, agents_user] }
-            ADMIN_USERNAME: { get_property: [SELF, admin_username] }
-            ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            ADMIN_USERNAME: { get_property: [SELF, cloudify_api_v3, admin_username] }
+            ADMIN_PASSWORD: { get_property: [SELF, cloudify_api_v3, admin_password] }
             VERSION: { get_property: [SELF, version] }
             PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
             PRIVATE_IP: { get_attribute: [HOST, ip_address] }
@@ -107,8 +107,8 @@ node_types:
         start:
           inputs:
             PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
-            ADMIN_USERNAME: { get_property: [SELF, admin_username] }
-            ADMIN_PASSWORD: { get_property: [SELF, admin_password] }
+            ADMIN_USERNAME: { get_property: [SELF, cloudify_api_v3, admin_username] }
+            ADMIN_PASSWORD: { get_property: [SELF, cloudify_api_v3, admin_password] }
             API_PORT: { get_property: [SELF, cloudify_api_v3, port] }
             API_PROTOCOL: https
             MAX_INSTANCES: { get_property: [HOST, scalable, max_instances] }
@@ -162,7 +162,7 @@ node_types:
           type: tosca.artifacts.File
 
   org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyAwsConfiguration:
-    derived_from: tosca.nodes.Root
+    derived_from: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyIaaSConfiguration
     description: Configure the cloudify manager for aws.
     properties:
       aws_access_key:
@@ -184,10 +184,6 @@ node_types:
         default: sg-cffd98b6
         description: Comma separated list of security groups to use for agents.
     requirements:
-      - cfy_manager:
-          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
-          relationship: tosca.relationships.HostedOn
-          occurrences: [1, 1]
       - agent_key:
           capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifySSHKey
           relationship: org.alien4cloud.automation.cloudify.manager.v4.relationships.ConfigureAWSKey
@@ -206,15 +202,15 @@ node_types:
           inputs:
             SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
             KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
-            ADMIN_USERNAME: { get_property: [HOST, admin_username] }
-            ADMIN_PASSWORD: { get_property: [HOST, admin_password] }
+            ADMIN_USERNAME: { get_property: [HOST, cloudify_api_v3, admin_username] }
+            ADMIN_PASSWORD: { get_property: [HOST, cloudify_api_v3, admin_password] }
           implementation: scripts/aws_do_configure.sh
     artifacts:
       - python_script:
           file: scripts/iaas/cfy_config_iaas.py
           type: tosca.artifacts.File
   org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyAzureConfiguration:
-    derived_from: tosca.nodes.Root
+    derived_from: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyIaaSConfiguration
     description: Configure the cloudify manager for azure.
     properties:
       subscription_id:
@@ -233,11 +229,6 @@ node_types:
         type: string
         required: true
         default: westeurope
-    requirements:
-      - cfy_manager:
-          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
-          relationship: tosca.relationships.HostedOn
-          occurrences: [1, 1]
     interfaces:
       Standard:
         create:
@@ -253,8 +244,8 @@ node_types:
           inputs:
             SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
             KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
-            ADMIN_USERNAME: { get_property: [HOST, admin_username] }
-            ADMIN_PASSWORD: { get_property: [HOST, admin_password] }
+            ADMIN_USERNAME: { get_property: [HOST, cloudify_api_v3, admin_username] }
+            ADMIN_PASSWORD: { get_property: [HOST, cloudify_api_v3, admin_password] }
           implementation: scripts/azure_do_configure.sh
     artifacts:
       - python_script:

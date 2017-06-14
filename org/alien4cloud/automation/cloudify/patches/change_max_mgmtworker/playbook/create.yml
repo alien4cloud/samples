@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: Setup mgmtworker count
+  become: true
+
+  roles:
+    - create

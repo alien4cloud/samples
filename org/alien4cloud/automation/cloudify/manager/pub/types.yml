@@ -11,7 +11,7 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
 
 node_types:
-  org.alien4cloud.automation.cloudify.manager.pub.nodes.AbstractCloudifyManager:
+  org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService:
     derived_from: tosca.nodes.SoftwareComponent
     abstract: true
     metadata:
@@ -28,10 +28,30 @@ node_types:
           capability: tosca.capabilities.Container
           occurrences: [0, 0]
 
+  org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyIaaSConfiguration:
+    derived_from: tosca.nodes.Root
+    description: Configure the cloudify manager for a given IaaS.
+    metadata:
+      icon: images/config.png
+    requirements:
+      - cfy_manager:
+          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+
 capability_types:
   org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer:
     derived_from: tosca.capabilities.Container
   org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3:
     derived_from: tosca.capabilities.Endpoint
+    properties:
+      admin_username:
+        type: string
+        required: true
+        description: Administration account username.
+      admin_password:
+        type: string
+        required: true
+        description: Administration account password.
   org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifySSHKey:
     derived_from: tosca.capabilities.Root

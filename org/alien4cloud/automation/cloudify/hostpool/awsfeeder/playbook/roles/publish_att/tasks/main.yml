@@ -1,0 +1,22 @@
+
+- set_fact:
+    file_path: "/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/attributes/hostpool_url"
+
+- set_fact:
+    file_dir: "{{ file_path | dirname }}"
+
+# FIXME: remove
+# ugly workarround to have attribute from host
+- name : Ugly workarround to set attribute hostpool_url
+  file:
+    path: "{{ file_dir }}"
+    state: directory
+  when: hostpool_url is defined
+
+- name: "Echo <{{ hostpool_url }}> in file <{{ file_path }}>"
+  shell: "echo '{{ hostpool_url }}' > {{ file_path }}"
+  # copy:
+  #   content: "{{ hostpool_url }}"
+  #   dest: "{{ file_path }}"
+  #   remote_src: True
+  when: hostpool_url is defined

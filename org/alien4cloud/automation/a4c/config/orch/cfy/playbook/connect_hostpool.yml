@@ -1,8 +1,8 @@
 ---
-- hosts: localhost
-  connection: local
+- hosts: all
   name: Connect to hostpool
   become: true
 
   roles:
+    - setup
     - connect_hostpool

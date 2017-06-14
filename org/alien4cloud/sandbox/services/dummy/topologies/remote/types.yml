@@ -1,0 +1,83 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.dummy.topologies.remote
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - org.alien4cloud.sandbox.services.dummy.client:1.4.0-SNAPSHOT
+  - org.alien4cloud.sandbox.services.dummy.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+
+description: |
+  3 clients that connect to the same remote service.
+
+topology_template:
+  node_templates:
+    DummyClient_Private:
+      type: org.alien4cloud.sandbox.services.dummy.client.nodes.DummyClient
+      requirements:
+        - dummy_endpoint:
+            node: DummyService
+            capability: org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyAPI
+            relationship: org.alien4cloud.sandbox.services.dummy.client.relationships.DummyClientConnectToService
+        - host:
+            node: ComputeDummyClient
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    DummyClient_Public:
+      type: org.alien4cloud.sandbox.services.dummy.client.nodes.DummyClient
+      requirements:
+        - host:
+            node: ComputeDummyClient
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - dummy_public_endpoint:
+            node: DummyService
+            capability: org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyPublicAPI
+            relationship: org.alien4cloud.sandbox.services.dummy.client.relationships.DummyClientConnectToPublicService
+    DummyClient_All:
+      type: org.alien4cloud.sandbox.services.dummy.client.nodes.DummyClient
+      requirements:
+        - dummy_endpoint:
+            node: DummyService
+            capability: org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyAPI
+            relationship: org.alien4cloud.sandbox.services.dummy.client.relationships.DummyClientConnectToService
+        - host:
+            node: ComputeDummyClient
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - dummy_public_endpoint:
+            node: DummyService
+            capability: org.alien4cloud.sandbox.services.dummy.pub.capabilities.DummyPublicAPI
+            relationship: org.alien4cloud.sandbox.services.dummy.client.relationships.DummyClientConnectToPublicService
+    ComputeDummyClient:
+      type: tosca.nodes.Compute
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    DummyService:
+      type: org.alien4cloud.sandbox.services.dummy.pub.nodes.DummyService
+      capabilities:
+        dummy_api:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        dummy_public_api:
+          properties:
+            network_name: PUBLIC
+            protocol: tcp
+            secure: false
+            initiator: source

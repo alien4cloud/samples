@@ -1,0 +1,155 @@
+##################################################################################
+# Cloudify host pool built in types and plugins definitions.
+##################################################################################
+
+plugins:
+  hostpool:
+    executor: central_deployment_agent
+    source: http://{{offline_ip}}:{{offline_port}}/spec/host-pool-plugin/1.5/1.5.zip
+    package_name: cloudify-host-pool-plugin
+    package_version: '1.5'
+
+data_types:
+  cloudify.datatypes.hostpool.Filters:
+    properties:
+      tags:
+        description: |
+          List of tags which all must match in the hosts' tags list
+        required: false
+        default: []
+
+node_types:
+  cloudify.hostpool.nodes.Host:
+    derived_from: cloudify.nodes.Compute
+    properties:
+      os:
+        description: |
+          Host OS to search for
+        type: string
+        required: true
+      filters:
+        description: |
+          A dictionary of values to pass as filters
+        type: cloudify.datatypes.hostpool.Filters
+        required: false
+    interfaces:
+      cloudify.interfaces.worker_installer:
+        install:
+          implementation: agent.worker_installer.tasks.install
+          inputs:
+            cloudify_agent:
+              default:
+                user: { get_attribute: [SELF, user] }
+                key: { get_attribute: [SELF, key] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+        start:
+          implementation: agent.worker_installer.tasks.start
+          inputs:
+            cloudify_agent:
+              default:
+                user: { get_attribute: [SELF, user] }
+                key: { get_attribute: [SELF, key] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+        stop:
+          implementation: agent.worker_installer.tasks.stop
+          inputs:
+            cloudify_agent:
+              default:
+                user: { get_attribute: [SELF, user] }
+                key: { get_attribute: [SELF, key] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+        uninstall:
+          implementation: agent.worker_installer.tasks.uninstall
+          inputs:
+            cloudify_agent:
+              default:
+                user: { get_attribute: [SELF, user] }
+                key: { get_attribute: [SELF, key] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+        restart:
+          implementation: agent.worker_installer.tasks.restart
+          inputs:
+            cloudify_agent:
+              default:
+                user: { get_attribute: [SELF, user] }
+                key: { get_attribute: [SELF, key] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: hostpool.cloudify_hostpool_plugin.tasks.acquire
+          inputs:
+            service_url:
+              description: >
+                The URL endpoint of the host pool service (ex. http://127.0.0.1:8080)
+              type: string
+        delete:
+          implementation: hostpool.cloudify_hostpool_plugin.tasks.release
+          inputs:
+            service_url:
+              description: >
+                The url to hostpool service
+              type: string
+
+  cloudify.hostpool.nodes.LinuxHost:
+    derived_from: cloudify.hostpool.nodes.Host
+    properties:
+      os:
+        default: linux
+
+  cloudify.hostpool.nodes.WindowsHost:
+    derived_from: cloudify.hostpool.nodes.Host
+    properties:
+      os:
+        default: windows
+    interfaces:
+      cloudify.interfaces.worker_installer:
+        install:
+          implementation: agent.windows_agent_installer.tasks.install
+          inputs:
+            cloudify_agent:
+              default:
+                windows: true
+                user: { get_attribute: [SELF, user] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+        start:
+          implementation: agent.windows_agent_installer.tasks.start
+          inputs:
+            cloudify_agent:
+              default:
+                windows: true
+                user: { get_attribute: [SELF, user] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+        stop:
+          implementation: agent.windows_agent_installer.tasks.stop
+          inputs:
+            cloudify_agent:
+              default:
+                windows: true
+                user: { get_attribute: [SELF, user] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+        uninstall:
+          implementation: agent.windows_agent_installer.tasks.uninstall
+          inputs:
+            cloudify_agent:
+              default:
+                windows: true
+                user: { get_attribute: [SELF, user] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }
+        restart:
+          implementation: agent.windows_agent_installer.tasks.restart
+          inputs:
+            cloudify_agent:
+              default:
+                windows: true
+                user: { get_attribute: [SELF, user] }
+                password: { get_attribute: [SELF, password] }
+                port: { get_attribute: [SELF, port] }

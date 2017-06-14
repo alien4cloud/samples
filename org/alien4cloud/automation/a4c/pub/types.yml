@@ -1,0 +1,73 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.a4c.pub
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.automation.a4c.pub.nodes.Alien4CloudService:
+    derived_from: org.alien4cloud.lang.java.pub.nodes.JavaSoftware
+    description: >
+      An Alien !
+    tags:
+      icon: /images/alien4cloud-logo.png
+    properties:
+      component_version:
+        description: The version of A4C (important in create stage).
+        type: version
+        required: true
+    capabilities:
+      rest:
+        type: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
+
+  org.alien4cloud.automation.a4c.pub.nodes.AlienConfigurator:
+    derived_from: tosca.nodes.Root
+    description: |
+      Add component that can configure A4C.
+    tags:
+      icon: /images/config.png
+    requirements:
+      - host:
+          capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
+          relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+          occurrences: [ 1, 1 ]
+
+capability_types:
+  org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      user:
+        type: string
+        default: admin
+        required: true
+      password:
+        type: string
+        default: admin
+        required: true
+      port:
+        type: integer
+        description: The port of the alien HTTP endpoint.
+        required: true
+        default: 8080
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        required: true
+        default: http
+        constraints:
+          - valid_values: ["http", "https"]
+  org.alien4cloud.automation.a4c.pub.capabilities.JolokiaA4CEndpoint:
+    derived_from: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
+  org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer:
+    derived_from: tosca.capabilities.Container
+
+relationship_types:
+  org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien:
+    derived_from: tosca.relationships.HostedOn

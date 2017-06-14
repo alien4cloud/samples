@@ -1,0 +1,15 @@
+
+# TODO: fixme (remove)
+# read attribute from file
+- set_fact:
+    attribute_path: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/attributes/{{ attribute_name }}"
+
+- name: "Check attribute {{ attribute_name }} from path {{ attribute_path }}"
+  stat: path="{{ attribute_path }}"
+  register: attribute_file
+- name: "Get attribute {{ attribute_name }} from path {{ attribute_path }}"
+  command: /bin/cat "{{ attribute_path }}"
+  register: attribute_content
+  when: attribute_file.stat.exists
+- set_fact: {"{{ attribute_name }}":"{{ attribute_content.stdout_lines[0] }}"}
+  when: attribute_file.stat.exists and attribute_content.stdout_lines|length > 0

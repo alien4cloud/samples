@@ -67,3 +67,5 @@ EOF
 sudo yum -y  install patch
 sudo cp /usr/lib/python2.7/site-packages/ansible/plugins/callback/tree.py tree.py.back
 sudo patch /usr/lib/python2.7/site-packages/ansible/plugins/callback/tree.py /tmp/tree.py.patch
+sudo pip install httplib2
+sudo pip install boto

@@ -1,0 +1,51 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.a4c.config.csar
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+  org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit:
+    description: |
+      Add a git repository and import CSARs.
+    derived_from: org.alien4cloud.automation.a4c.pub.nodes.AlienConfigurator
+    properties:
+      repositoryUrl:
+        type: string
+        required: true
+        default: https://github.com/alien4cloud/tosca-normative-types.git
+      repositoryUsername:
+        type: string
+        required: false
+      repositoryPassword:
+        type: string
+        required: false
+      branchId:
+        type: string
+        required: true
+        default: master
+      subPath:
+        type: string
+        required: false
+    interfaces:
+      Standard:
+        start:
+          # create the location
+          inputs:
+            ANSIBLE_VERBOSE: true
+            PLAYBOOK_ENTRY: start.yml
+            repositoryUrl: { get_property: [SELF, repositoryUrl] }
+            repositoryUsername: { get_property: [SELF, repositoryUsername] }
+            repositoryPassword: { get_property: [SELF, repositoryPassword] }
+            branchId: { get_property: [SELF, branchId] }
+            subPath: { get_property: [SELF, subPath] }
+            alien_user: { get_property: [HOST, rest, user] }
+            alien_password: { get_property: [HOST, rest, password] }
+            alien_url: { get_attribute: [HOST, alien_url] }
+          implementation: playbook/playbook.ansible

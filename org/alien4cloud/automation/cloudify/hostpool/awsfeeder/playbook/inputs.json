@@ -1,0 +1,20 @@
+{
+	"aws_access_key": "",
+	"aws_secret_key": "",
+	"key_content": "",
+	"key_name": "xde-aws",
+	"region": "eu-west-1",
+	"instance_groups": "sg-fa45db9e",
+	"instance_type": "t2.nano",
+	"instance_image": "ami-47a23a30",
+	"instance_username": "ubuntu",
+	"instance_count": 1,
+	"host_per_instance": 10,
+	"instance_name": "Test",
+	"instance_os": "linux",
+	"hostpool_url": "http://34.253.147.39:8080",
+	"SOURCE_INSTANCE": "AWSHostpoolFeeder_z8mhvr",
+	"INSTANCE": "AWSHostpoolFeeder_z8mhvr",
+	"NODE": "AWSHostpoolFeeder",
+	"SOURCE_NODE": "AWSHostpoolFeeder"
+}

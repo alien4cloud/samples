@@ -1,14 +1,15 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.topologies.cfy4_hp_aws
+  template_name: org.alien4cloud.automation.cloudify.topologies.cfy4_hp_aws
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 description: >
   A Cloudify 4 manager configured for AWS (with Ansible) and a Hostpool.
   Also embed a HostpoolFeeder that can instanciate EC2 instances and feed the hostpool.
-  The workflow has been changed to ensure the hostpool is installed at the end of the deploy (to avoid issue with cfy bootstrap that needs port 8080)
+  The workflow has been changed to ensure the hostpool is installed at the end of the deploy (to avoid issue with cfy bootstrap that needs port 8080).
+  Instances are shutdown at uninstall workflow (but you can also use custom command to operate). 
   Has been tested on a Centos ami-4c4b003b (m4.large).
 
 imports:
@@ -27,13 +28,6 @@ imports:
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
-
-  description: >
-    A Cloudify 4 manager configured for AWS (with Ansible) and a Hostpool.
-    Also embed a HostpoolFeeder that can instanciate EC2 instances and feed the hostpool.
-    The workflow has been changed to ensure the hostpool is installed at the end of the deploy (to avoid issue with cfy bootstrap that needs port 8080)
-    Has been tested on a Centos ami-4c4b003b (m4.large).
-
   inputs:
     aws_region:
       type: string
@@ -52,10 +46,6 @@ topology_template:
       type: string
       required: false
       description: "Optional name of the key as known by the iaas (in case of iaas key)."
-    aws_key_name:
-      type: string
-      required: true
-      description: "The AWS key name"
     aws_key_content:
       type: string
       required: true
@@ -64,6 +54,11 @@ topology_template:
       type: string
       required: true
       description: "Security groups the instances will be associated with"
+    aws_instance_name:
+      type: string
+      required: true
+      default: MyHostpoolInstance
+      description: "The AWS instance name (eg, put your initials here to recognize your hostpool instances)."
   input_artifacts:
     key_file:
         type: tosca.artifacts.File
@@ -139,7 +134,7 @@ topology_template:
         aws_access_key: { get_input: aws_access_key }
         aws_secret_key: { get_input: aws_secret_key }
         aws_region: { get_input: aws_region }
-        agent_security_groups: "sg-fa45db9e"
+        agent_security_groups: { get_input: aws_instance_groups }
       requirements:
         - cfy_manager:
             node: CloudifyManager
@@ -197,7 +192,7 @@ topology_template:
       properties:
         aws_access_key: { get_input: aws_access_key }
         aws_secret_key: { get_input: aws_secret_key }
-        key_name: { get_input: aws_key_name }
+        key_name: { get_input: aws_keypair_name }
         key_content: { get_input: aws_key_content }
         region: { get_input: aws_region }
         instance_groups: { get_input: aws_instance_groups }
@@ -206,7 +201,7 @@ topology_template:
         instance_image: "ami-47a23a30"
         instance_count: 1
         host_per_instance: 1
-        instance_name: HostpoolInstance
+        instance_name: { get_input: aws_instance_name }
         instance_os: linux
       requirements:
         - hostpool:

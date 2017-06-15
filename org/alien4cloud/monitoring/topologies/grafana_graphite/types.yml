@@ -14,7 +14,6 @@ imports:
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - cloudify3-common-types:1.4.0
   - org.alien4cloud.monitoring.grafana:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
@@ -30,7 +29,7 @@ topology_template:
     Graphite As a Service : a Grafana that connects to a Graphite as a backend.
     Can be used to expose a monitoring service.
     Tested on a Centos ami-4c4b003b (t2.medium).
-  
+
   substitution_mappings:
     node_type: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
     capabilities:
@@ -62,11 +61,6 @@ topology_template:
             initiator: source
     MonitoringCompute:
       type: tosca.nodes.Compute
-      requirements:
-        - network:
-            node: PublicNetwork
-            capability: tosca.capabilities.Connectivity
-            relationship: tosca.relationships.Network
       capabilities:
         os:
           properties:
@@ -120,10 +114,6 @@ topology_template:
             node: Graphite
             capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
-    PublicNetwork:
-      type: alien.nodes.PublicNetwork
-      properties:
-        ip_version: 4
   outputs:
     Grafana_grafana_url:
       value: { get_attribute: [ Grafana, grafana_url ] }
@@ -323,10 +313,6 @@ topology_template:
             set_state: started
           on-success:
             - Grafana_configuring
-        PublicNetwork_install:
-          node: PublicNetwork
-          activity:
-            delegate: install
     uninstall:
       steps:
         MonitoringCompute_uninstall:
@@ -446,7 +432,3 @@ topology_template:
           on-success:
             - Grafana_stopping
             - MonitoringCompute_uninstall
-        PublicNetwork_uninstall:
-          node: PublicNetwork
-          activity:
-            delegate: uninstall

@@ -181,8 +181,6 @@ topology_template:
         ssh_key_filename: "aws-key.pem"
         keypair_name: { get_input: aws_keypair_name }
         agents_user: ubuntu
-        admin_username: admin
-        admin_password: admin
         component_version: "4.0.1-ga"
       requirements:
         - host:
@@ -215,6 +213,8 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+            admin_username: admin
+            admin_password: admin
       artifacts:
         key_file:
           file: { get_input_artifact: aws_key_file }

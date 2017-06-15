@@ -20,7 +20,7 @@ node_types:
     metadata:
       icon: /images/diamond.png
     description: |
-      Deploy a Diamond Agent
+      Deploy a Diamond Agent. 
     derived_from: org.alien4cloud.monitoring.pub.nodes.MonitoringAgent
     # capabilities:
     #   elasticsearchHttpClient:

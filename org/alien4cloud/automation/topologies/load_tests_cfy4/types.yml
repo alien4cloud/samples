@@ -1,30 +1,38 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.topologies.cfy4_aws
+  template_name: org.alien4cloud.automation.topologies.load_tests_cfy4
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
 description: >
-  Just a CFY 4 manager configured for AWS (with Ansible).
+  CFY 4 manager (with Ansible) monitored (need a monitoring service to match).
+  The workflow has been changed to reduces issue while bootstrapping.
   Has been tested on a Centos ami-4c4b003b (m4.large).
 
 imports:
-  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
+
   description: >
-    Just a CFY 4 manager configured for AWS (with Ansible).
+    CFY 4 manager (with Ansible) monitored (need a monitoring service to match).
+    The workflow has been changed to reduces issue while bootstrapping.
     Has been tested on a Centos ami-4c4b003b (m4.large).
-    Can be used to cfy manager as a service.
 
   inputs:
     aws_region:
@@ -40,64 +48,29 @@ topology_template:
       type: string
       required: true
       description: "The aws secret key of the account to use to start aws instances."
-    agent_security_groups:
-      type: string
-      required: true
-      default: "sg-cffd98b6"
-      description: "Comma separated list of security groups to use for agents."
     aws_keypair_name:
       type: string
       required: false
       description: "Optional name of the key as known by the iaas (in case of iaas key)."
+    component_version:
+      type: version
+      required: false
+      description: "The optional software component’s version."
   input_artifacts:
-    aws_key_file:
+    key_file:
         type: tosca.artifacts.File
   substitution_mappings:
-    node_type: org.alien4cloud.automation.cloudify.manager.pub.nodes.AbstractCloudifyManager
+    node_type: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService
     capabilities:
       cloudify_api_v3: [ CloudifyManager, cloudify_api_v3 ]
   node_templates:
-    CFY_Compute:
-      type: tosca.nodes.Compute
-      capabilities:
-        host:
-          properties:
-            num_cpus: 4
-            mem_size: "4 GIB"
-        os:
-          properties:
-            architecture: "x86_64"
-            type: linux
-            distribution: centos
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
-        endpoint:
-          properties:
-            secure: true
-            protocol: tcp
-            network_name: PRIVATE
-            initiator: source
-    Ansible4CloudifyManager:
-      type: org.alien4cloud.automation.cloudify.ansible.nodes.Ansible4CloudifyManager
-      properties:
-        component_version: "2.0.1.0"
-      requirements:
-        - host:
-            node: CFY_Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
     CloudifyManager:
       type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyManager
       properties:
         ssh_user: "ec2-user"
-        ssh_key_filename: "awe-key.pem"
+        ssh_key_filename: "aws-key.pem"
         keypair_name: { get_input: aws_keypair_name }
         agents_user: ubuntu
-        admin_username: admin
-        admin_password: admin
         component_version: "4.0.1-ga"
       requirements:
         - host:
@@ -125,6 +98,8 @@ topology_template:
             initiator: source
         cloudify_api_v3:
           properties:
+            admin_username: admin
+            admin_password: admin
             protocol: https
             port: 443
             secure: false
@@ -132,15 +107,12 @@ topology_template:
             initiator: source
       artifacts:
         key_file:
-          file: { get_input_artifact: aws_key_file }
+          file: { get_input_artifact: key_file }
           type: tosca.artifacts.File
-    CloudifyAwsConfiguration:
-      type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyAwsConfiguration
+    ChangeMaxMgmtWorkerPatch:
+      type: org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker.nodes.ChangeMaxMgmtWorkerPatch
       properties:
-        aws_access_key: { get_input: aws_access_key }
-        aws_secret_key: { get_input: aws_secret_key }
-        aws_region: { get_input: aws_region }
-        agent_security_groups: { get_input: agent_security_groups }
+        mgmt_worker_count: 100
       requirements:
         - cfy_manager:
             node: CloudifyManager
@@ -153,83 +125,156 @@ topology_template:
             node: CloudifyManager
             capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
             relationship: tosca.relationships.HostedOn
+    DiamondLinuxAgent:
+      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
+      requirements:
+        - metrics_backend:
+            node: GraphiteBackend
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
+        - collec_rabbitmq:
+            node: CloudifyManager
+            capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondRabbitmqCollector
+        - host:
+            node: CFY_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    CloudifyAwsConfiguration:
+      type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyAwsConfiguration
+      properties:
+        aws_access_key: { get_input: aws_access_key }
+        aws_secret_key: { get_input: aws_secret_key }
+        aws_region: { get_input: aws_region }
+        agent_security_groups: "sg-fa45db9e"
+      requirements:
+        - cfy_manager:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+            relationship: tosca.relationships.HostedOn
+    GraphiteBackend:
+      type: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
+      capabilities:
+        metrics_backend:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Ansible4CloudifyManager:
+      type: org.alien4cloud.automation.cloudify.ansible.nodes.Ansible4CloudifyManager
+      properties:
+        component_version: "2.0.1.0"
+      requirements:
+        - host:
+            node: CFY_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    CFY_Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 4
+            mem_size: "4 GIB"
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: centos
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
   outputs:
-    CloudifyManager_admin_password:
-      value: { get_property: [ CloudifyManager, cloudify_api_v3, admin_password ] }
-    CloudifyManager_admin_username:
-      value: { get_property: [ CloudifyManager, cloudify_api_v3, admin_username ] }
     CloudifyManager_manager_url:
       value: { get_attribute: [ CloudifyManager, manager_url ] }
   workflows:
     install:
       steps:
-        Compute_install_1:
+        Compute_install:
           node: CFY_Compute
           activity:
             delegate: install
           on-success:
-            - AmqpClientPatch_initial
-            - CloudifyManager_configuring
+            - DiamondLinuxAgent_initial
             - CloudifyManager_initial
             - Ansible4CloudifyManager_initial
-        Ansible4CloudifyManager_initial:
-          node: Ansible4CloudifyManager
+        GraphiteBackend_install:
+          node: GraphiteBackend
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+        DiamondLinuxAgent_initial:
+          node: DiamondLinuxAgent
           activity:
             set_state: initial
           on-success:
-            - Ansible4CloudifyManager_creating
-        Ansible4CloudifyManager_creating:
-          node: Ansible4CloudifyManager
+            - DiamondLinuxAgent_creating
+        DiamondLinuxAgent_creating:
+          node: DiamondLinuxAgent
           activity:
             set_state: creating
           on-success:
-            - create_Ansible4CloudifyManager
-        create_Ansible4CloudifyManager:
-          node: Ansible4CloudifyManager
+            - create_DiamondLinuxAgent
+        create_DiamondLinuxAgent:
+          node: DiamondLinuxAgent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.create
           on-success:
-            - Ansible4CloudifyManager_created
-        Ansible4CloudifyManager_created:
-          node: Ansible4CloudifyManager
+            - DiamondLinuxAgent_created
+        DiamondLinuxAgent_created:
+          node: DiamondLinuxAgent
           activity:
             set_state: created
           on-success:
-            - Ansible4CloudifyManager_configuring
-        Ansible4CloudifyManager_configuring:
-          node: Ansible4CloudifyManager
+            - CloudifyManager_configuring
+            - CloudifyManager_initial
+            - DiamondLinuxAgent_configuring
+        DiamondLinuxAgent_configuring:
+          node: DiamondLinuxAgent
           activity:
             set_state: configuring
           on-success:
-            - configure_Ansible4CloudifyManager
-        configure_Ansible4CloudifyManager:
-          node: Ansible4CloudifyManager
+            - configure_DiamondLinuxAgent
+        configure_DiamondLinuxAgent:
+          node: DiamondLinuxAgent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.configure
           on-success:
-            - Ansible4CloudifyManager_configured
-        Ansible4CloudifyManager_configured:
-          node: Ansible4CloudifyManager
+            - DiamondLinuxAgent_configured
+        DiamondLinuxAgent_configured:
+          node: DiamondLinuxAgent
           activity:
             set_state: configured
           on-success:
-            - Ansible4CloudifyManager_starting
-        Ansible4CloudifyManager_starting:
-          node: Ansible4CloudifyManager
+            - DiamondLinuxAgent_starting
+        DiamondLinuxAgent_starting:
+          node: DiamondLinuxAgent
           activity:
             set_state: starting
           on-success:
-            - start_Ansible4CloudifyManager
-        start_Ansible4CloudifyManager:
-          node: Ansible4CloudifyManager
+            - start_DiamondLinuxAgent
+        start_DiamondLinuxAgent:
+          node: DiamondLinuxAgent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on-success:
-            - Ansible4CloudifyManager_started
-        Ansible4CloudifyManager_started:
-          node: Ansible4CloudifyManager
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: DiamondLinuxAgent
           activity:
             set_state: started
+          on-success:
+            - CloudifyAwsConfiguration_initial
         CloudifyManager_initial:
           node: CloudifyManager
           activity:
@@ -291,7 +336,9 @@ topology_template:
           on-success:
             - CloudifyAwsConfiguration_initial
             - AmqpClientPatch_initial
+            - ChangeMaxMgmtWorkerPatch_initial
             - Ansible4CloudifyManager_initial
+            - DiamondLinuxAgent_configuring
         CloudifyAwsConfiguration_initial:
           node: CloudifyAwsConfiguration
           activity:
@@ -351,8 +398,7 @@ topology_template:
           activity:
             set_state: started
           on-success:
-            - AmqpClientPatch_initial
-            - Ansible4CloudifyManager_initial
+            - ChangeMaxMgmtWorkerPatch_initial
         AmqpClientPatch_initial:
           node: AmqpClientPatch
           activity:
@@ -411,50 +457,175 @@ topology_template:
           node: AmqpClientPatch
           activity:
             set_state: started
+        ChangeMaxMgmtWorkerPatch_initial:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: initial
           on-success:
-            - Ansible4CloudifyManager_initial
+            - ChangeMaxMgmtWorkerPatch_creating
+        ChangeMaxMgmtWorkerPatch_creating:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: creating
+          on-success:
+            - create_ChangeMaxMgmtWorkerPatch
+        create_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_created
+        ChangeMaxMgmtWorkerPatch_created:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: created
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_configuring
+        ChangeMaxMgmtWorkerPatch_configuring:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_ChangeMaxMgmtWorkerPatch
+        configure_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_configured
+        ChangeMaxMgmtWorkerPatch_configured:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: configured
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_starting
+        ChangeMaxMgmtWorkerPatch_starting:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: starting
+          on-success:
+            - start_ChangeMaxMgmtWorkerPatch
+        start_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_started
+        ChangeMaxMgmtWorkerPatch_started:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: started
+          on-success:
+            - AmqpClientPatch_initial
+        Ansible4CloudifyManager_initial:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: initial
+          on-success:
+            - Ansible4CloudifyManager_creating
+        Ansible4CloudifyManager_creating:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: creating
+          on-success:
+            - create_Ansible4CloudifyManager
+        create_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - Ansible4CloudifyManager_created
+        Ansible4CloudifyManager_created:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: created
+          on-success:
+            - Ansible4CloudifyManager_configuring
+        Ansible4CloudifyManager_configuring:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_Ansible4CloudifyManager
+        configure_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - Ansible4CloudifyManager_configured
+        Ansible4CloudifyManager_configured:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: configured
+          on-success:
+            - Ansible4CloudifyManager_starting
+        Ansible4CloudifyManager_starting:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: starting
+          on-success:
+            - start_Ansible4CloudifyManager
+        start_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Ansible4CloudifyManager_started
+        Ansible4CloudifyManager_started:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: started
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_initial
+            - DiamondLinuxAgent_configuring
     uninstall:
       steps:
-        Compute_uninstall_1:
+        Compute_uninstall:
           node: CFY_Compute
           activity:
             delegate: uninstall
-        Ansible4CloudifyManager_stopping:
-          node: Ansible4CloudifyManager
+        GraphiteBackend_uninstall:
+          node: GraphiteBackend
+          activity:
+            delegate: uninstall
+        DiamondLinuxAgent_stopping:
+          node: DiamondLinuxAgent
           activity:
             set_state: stopping
           on-success:
-            - stop_Ansible4CloudifyManager
-        stop_Ansible4CloudifyManager:
-          node: Ansible4CloudifyManager
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: DiamondLinuxAgent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on-success:
-            - Ansible4CloudifyManager_stopped
-        Ansible4CloudifyManager_stopped:
-          node: Ansible4CloudifyManager
+            - DiamondLinuxAgent_stopped
+        DiamondLinuxAgent_stopped:
+          node: DiamondLinuxAgent
           activity:
             set_state: stopped
           on-success:
-            - Ansible4CloudifyManager_deleting
-        Ansible4CloudifyManager_deleting:
-          node: Ansible4CloudifyManager
+            - DiamondLinuxAgent_deleting
+            - CloudifyManager_stopping
+        DiamondLinuxAgent_deleting:
+          node: DiamondLinuxAgent
           activity:
             set_state: deleting
           on-success:
-            - delete_Ansible4CloudifyManager
-        delete_Ansible4CloudifyManager:
-          node: Ansible4CloudifyManager
+            - delete_DiamondLinuxAgent
+        delete_DiamondLinuxAgent:
+          node: DiamondLinuxAgent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.delete
           on-success:
-            - Ansible4CloudifyManager_deleted
-        Ansible4CloudifyManager_deleted:
-          node: Ansible4CloudifyManager
+            - DiamondLinuxAgent_deleted
+        DiamondLinuxAgent_deleted:
+          node: DiamondLinuxAgent
           activity:
             set_state: deleted
           on-success:
-            - Compute_uninstall_1
+            - Compute_uninstall
+            - GraphiteBackend_uninstall
         CloudifyManager_stopping:
           node: CloudifyManager
           activity:
@@ -490,8 +661,7 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
-            - Ansible4CloudifyManager_stopping
-            - Compute_uninstall_1
+            - Compute_uninstall
         CloudifyAwsConfiguration_stopping:
           node: CloudifyAwsConfiguration
           activity:
@@ -564,3 +734,75 @@ topology_template:
             set_state: deleted
           on-success:
             - CloudifyManager_stopping
+        ChangeMaxMgmtWorkerPatch_stopping:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ChangeMaxMgmtWorkerPatch
+        stop_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_stopped
+        ChangeMaxMgmtWorkerPatch_stopped:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: stopped
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_deleting
+        ChangeMaxMgmtWorkerPatch_deleting:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_ChangeMaxMgmtWorkerPatch
+        delete_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_deleted
+        ChangeMaxMgmtWorkerPatch_deleted:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: deleted
+          on-success:
+            - CloudifyManager_stopping
+        Ansible4CloudifyManager_stopping:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Ansible4CloudifyManager
+        stop_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Ansible4CloudifyManager_stopped
+        Ansible4CloudifyManager_stopped:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: stopped
+          on-success:
+            - Ansible4CloudifyManager_deleting
+        Ansible4CloudifyManager_deleting:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_Ansible4CloudifyManager
+        delete_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - Ansible4CloudifyManager_deleted
+        Ansible4CloudifyManager_deleted:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: deleted
+          on-success:
+            - Compute_uninstall

@@ -1,0 +1,110 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.hostpool.topologies.hostpool_feeder
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: >
+  A Hostpool with a AWS Hostpool feeder.
+  Should work on a Centos (ami-4c4b003b) t2.small.
+
+imports:
+  - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0-SNAPSHOT
+
+topology_template:
+  inputs:
+    aws_key_name:
+      type: string
+      required: true
+      description: "The AWS key name"
+    aws_key_content:
+      type: string
+      required: true
+      description: "The AWS key content (multiline)"
+    aws_region:
+      type: string
+      required: false
+      default: "eu-west-1"
+      description: "The region where the instances will be started in"
+    aws_access_key:
+      type: string
+      required: true
+      description: "The AWS access key"
+    ec2_instance_groups:
+      type: string
+      required: true
+      description: "Security groups the instances will be associated with"
+    aws_secret_key:
+      type: string
+      required: true
+      description: "The AWS secret key"
+  substitution_mappings:
+    node_type: org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService
+    capabilities:
+      cloudify_hostpool: [ HostPool, cloudify_hostpool ]
+  node_templates:
+    HostPool_Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: centos
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    HostPool:
+      type: org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPool
+      requirements:
+        - host:
+            node: HostPool_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        cloudify_hostpool:
+          properties:
+            protocol: http
+            port: 8080
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    AWSHostpoolFeeder:
+      type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
+      properties:
+        aws_access_key: { get_input: aws_access_key }
+        aws_secret_key: { get_input: aws_secret_key }
+        key_name: { get_input: aws_key_name }
+        key_content: { get_input: aws_key_content }
+        region: { get_input: aws_region }
+        instance_groups: { get_input: ec2_instance_groups }
+        instance_username: ubuntu
+        instance_type: "t2.nano"
+        instance_image: "ami-47a23a30"
+        instance_count: 1
+        host_per_instance: 1
+        instance_name: HostpoolInstance
+        instance_os: linux
+      requirements:
+        - host:
+            node: HostPool_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+  outputs:
+    HostPool_hostpool_url:
+      value: { get_attribute: [ HostPool, hostpool_url ] }
+    HostPool_hostpool_url_hosts:
+      value: { get_attribute: [ HostPool, hostpool_url_hosts ] }

@@ -12,9 +12,11 @@ imports:
 
 node_types:
   org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit:
+    derived_from: org.alien4cloud.automation.a4c.pub.nodes.AlienConfigurator
     description: |
       Add a git repository and import CSARs.
-    derived_from: org.alien4cloud.automation.a4c.pub.nodes.AlienConfigurator
+    tags:
+      icon: /images/git.png
     properties:
       repositoryUrl:
         type: string

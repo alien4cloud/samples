@@ -17,7 +17,11 @@ node_types:
   org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder:
     derived_from: tosca.nodes.SoftwareComponent
     description: |
-      Feed a hostpool with many instanciated EC2 instances
+      Feed a hostpool with many instanciated EC2 instances.
+      You can use custom commands to populate and clear the host pool and EC2.
+      You can share EC2 instances between several Hostpool hosts (if host_per_instance > 1). Ideal for isolated and compatibles components, load tests, or containers but just understand it will be a colloc ;)
+      Hostpool is cleared and instances are stopped at Standard.stop operation.
+      TODO: add tags 
     metadata:
       icon: images/aws.png
     properties:

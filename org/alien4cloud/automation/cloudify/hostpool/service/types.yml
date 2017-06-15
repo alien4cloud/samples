@@ -15,6 +15,9 @@ node_types:
 
   org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPool:
     derived_from: org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService
+    description: |
+      !!! port is read only
+      TODO: make it configurable, and versionned
     capabilities:
       cloudify_hostpool:
         type: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi

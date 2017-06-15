@@ -1,5 +1,0 @@
-aws_region: 
-aws_access_key: AKIAIM23DPN52GCCY4MQ
-aws_secret_key: 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
-agent_security_groups: sg-fa45db9e
-aws_keypair_name: xde-aws

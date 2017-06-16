@@ -17,9 +17,10 @@ echo "Manager node has been bootstraped"
 
 # Eventually configure cluster
 if [ $MAX_INSTANCES -gt 1 ]; then
-  echo "Cluster mode enabled, configure cluster mode"
+  echo "Cluster mode enabled, configuring cluster mode"
   sudo -E /opt/manager/env/bin/python ${cluster_python_script}
-  echo "Cluster mode enabled, configure cluster mode"
+  sudo chown cfyuser:cfyuser /opt/mgmtworker/env/plugins
+  echo "Cluster mode configured"
 fi
 
 # added to make BYON work well !!!!

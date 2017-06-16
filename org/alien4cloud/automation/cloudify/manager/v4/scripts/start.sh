@@ -36,8 +36,8 @@ if [ "$?" -ne "0" ]; then
   sleep 30
   eval ${connection_test_cmd}
   if [ "$?" -ne "0" ]; then
-    echo "Connection check failed return $?"
-    exit $?
+    echo "Connection check failed"
+    exit 1
   fi
 fi
 echo "Completed."

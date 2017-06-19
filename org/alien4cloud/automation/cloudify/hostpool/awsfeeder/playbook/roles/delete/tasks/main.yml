@@ -14,8 +14,8 @@
 
 - set_fact:
     hostList: "{{ result.json }}"
-- debug:
-    var: hostList
+# - debug:
+#     var: hostList
 
 - name: Remove instances from hostpool
   uri:

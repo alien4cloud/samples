@@ -96,7 +96,7 @@ resources:
           properties:
             type: linux
             architecture: x86_64
-            distribution: ubuntu
+            distribution: centos
         host:
           properties:
             num_cpus: 1
@@ -116,7 +116,7 @@ resources:
           properties:
             type: linux
             architecture: x86_64
-            distribution: ubuntu
+            distribution: centos
         host:
           properties:
             num_cpus: 2
@@ -136,7 +136,7 @@ resources:
           properties:
             type: linux
             architecture: x86_64
-            distribution: ubuntu
+            distribution: centos
         host:
           properties:
             num_cpus: 2

@@ -27,7 +27,7 @@ node_types:
         constraints:
           - valid_values: [ "amazon" ]
     artifacts:
-      - resources:
+      - resources_file_artifact:
           type: tosca.artifacts.File
     interfaces:
       Standard:

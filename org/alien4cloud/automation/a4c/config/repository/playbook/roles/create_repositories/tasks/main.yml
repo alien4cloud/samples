@@ -1,16 +1,16 @@
 ---
 
 - set_fact:
-    file_dir: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/resources/"
+    file_dir: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/resources"
 
 - name: "Ensure <{{ file_dir }}> exists"
   file:
     path: "{{ file_dir }}"
     state: directory
 
-- name: "Upload artifact {{resources}} on remote in {{ file_dir }}/resources.yaml"
-- copy:
-    src: "{{resources}}"
+- name: "Upload artifact {{resources_file_artifact}} on remote in {{ file_dir }}/resources.yaml"
+  copy:
+    src: "{{resources_file_artifact}}"
     dest: "{{ file_dir }}/resources.yaml"
 
 - name: "Stat {{ file_dir }}/resources.yaml"
@@ -29,7 +29,7 @@
     var: resources_yaml
 
 - set_fact:
-    resources: "{{resources_yaml['resources']}}"
+    resources: "{{resources_yaml['repositories']}}"
 - debug:
     var: resources
 
@@ -58,7 +58,7 @@
     HEADER_cookie: "{{ session_id }}"
     body: "{{item}}"
     body_format: json
-    status_code: 200
+    status_code: 201
   register: result
   with_items: "{{resources}}"
 

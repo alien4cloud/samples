@@ -167,7 +167,7 @@ topology_template:
             capability: org.alien4cloud.automation.a4c.config.orch.pub.capabilities.OrchestratorConfigurator
             relationship: org.alien4cloud.automation.a4c.config.orch.pub.relationships.LocationHostedOnOrchestrator
       artifacts:
-        resources:
+        resources_file_artifact:
           file: { get_input_artifact: aws_location_resources_config }
           type: tosca.artifacts.File
     ArtifactRepositoriesConfigurator:
@@ -178,7 +178,7 @@ topology_template:
             capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
             relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
       artifacts:
-        resources:
+        resources_file_artifact:
           file: { get_input_artifact: repositories_config }
           type: tosca.artifacts.File
   outputs:

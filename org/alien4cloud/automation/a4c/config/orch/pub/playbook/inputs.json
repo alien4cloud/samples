@@ -1,8 +1,8 @@
 {
-"NODE": "Test",
-"INSTANCE": "Test",
 "alien_url": "http://localhost:8080",
 "alien_user": "admin",
 "alien_password": "admin",
-"resources_file_artifact": ""
+"orchestratorId": "5c83d990-119a-4e2c-bcf1-1b7d82db8882",
+"name": "EC2",
+"type": "amazon"
 }

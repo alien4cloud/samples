@@ -16,7 +16,7 @@ node_types:
       Configure artifact repositories from a resources file.
     derived_from: org.alien4cloud.automation.a4c.pub.nodes.AlienConfigurator
     artifacts:
-      - resources:
+      - resources_file_artifact:
           type: tosca.artifacts.File
     interfaces:
       Standard:

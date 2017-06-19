@@ -8,9 +8,9 @@
     path: "{{ file_dir }}"
     state: directory
 
-- name: "Upload artifact {{resources}} on remote in {{ file_dir }}/resources.yaml"
-- copy:
-    src: "{{resources}}"
+- name: "Upload artifact {{resources_file_artifact}} on remote in {{ file_dir }}/resources.yaml"
+  copy:
+    src: "{{resources_file_artifact}}"
     dest: "{{ file_dir }}/resources.yaml"
 
 - name: "Stat {{ file_dir }}/resources.yaml"

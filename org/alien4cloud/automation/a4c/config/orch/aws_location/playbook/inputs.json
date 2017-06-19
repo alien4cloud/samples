@@ -1,0 +1,10 @@
+{
+  "NODE": "Test",
+  "INSTANCE": "Test",
+"alien_url": "http://localhost:8080",
+"alien_user": "admin",
+"alien_password": "admin",
+"orchestratorId": "5c83d990-119a-4e2c-bcf1-1b7d82db8882",
+"locationId": "2e779a97-2306-436c-936b-f7c259805894",
+"resources_file_artifact": "/Users/xdegenne/checkout/samples/org/alien4cloud/automation/a4c/config/orch/aws_location/playbook/roles/create_aws_location_resources/files/resources.yaml"
+}

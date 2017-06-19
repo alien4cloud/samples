@@ -26,6 +26,8 @@ repositories:
     type: maven
 
 topology_template:
+  description: "Enclosing archive for topology Topology for alien4cloud provider tests"
+
   inputs:
     admin_username:
       type: string

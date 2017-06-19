@@ -1,0 +1,15 @@
+repositories:
+  - type: maven
+    name: "Nexus Private"
+    pluginId: "alien-maven-repository-plugin"
+    configuration:
+      url: "https://fastconnect.org/maven/content/repositories/fastconnect"
+      user: you
+      password: YourP@ssw0rd!
+  - type: maven
+    name: "Nexus Private (SNAPSHOT)"
+    pluginId: "alien-maven-repository-plugin"
+    configuration:
+      url: "https://fastconnect.org/maven/content/repositories/fastconnect-snapshot"
+      user: you
+      password: YourP@ssw0rd!

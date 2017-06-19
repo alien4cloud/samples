@@ -39,6 +39,14 @@ imports:
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
+  description: >
+    A4C monitored and connected to a CloudifyManagerService, ready to use for load tests.
+    You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+    The apache installed on HostPool_Compute is here to manager offline plugins (to avoid massive attacks on github from cfy). It also hosts a hostpool.
+    The Host pool is fed with fresh EC2 instances.
+    The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
+    This topology has been tested on a Centos ami-4c4b003b (t2.medium) for HostPool_Compute and Ubuntu ami-47a23a30 (t2.medium) for A4C_Compute.
+
   inputs:
     aws_key_name:
       type: string

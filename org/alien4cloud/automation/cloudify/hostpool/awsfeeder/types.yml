@@ -21,7 +21,7 @@ node_types:
       You can use custom commands to populate and clear the host pool and EC2.
       You can share EC2 instances between several Hostpool hosts (if host_per_instance > 1). Ideal for isolated and compatibles components, load tests, or containers but just understand it will be a colloc ;)
       Hostpool is cleared and instances are stopped at Standard.stop operation.
-      TODO: add tags 
+      TODO: add tags
     metadata:
       icon: images/aws.png
     properties:
@@ -54,17 +54,23 @@ node_types:
         type: string
         required: true
         default: ubuntu
+        constraints:
+          - valid_values: [ "ubuntu", "ec2-user" ]
         description: The user to use to connect to the instance
       instance_type:
         type: string
         required: true
         default: t2.nano
+        constraints:
+          - valid_values: [ "t2.nano", "t2.small", "t2.medium", "m4.large", "c4.8xlarge" ]
         description: The AWS instance type
       instance_image:
         type: string
         required: true
+        constraints:
+          - valid_values: [ "ami-4c4b003b", "ami-47a23a30" ]
         default: ami-47a23a30
-        description: The AWS ami
+        description: The AWS ami (Centos:4c or Ubuntu:47)
       instance_count:
         type: integer
         required: true
@@ -161,26 +167,43 @@ node_types:
             key_name: { get_property: [SELF, key_name] }
             key_content: { get_property: [SELF, key_content] }
             region: { get_property: [SELF, region] }
-            instance_name: { get_property: [SELF, instance_name] }
+            instance_os: { get_property: [SELF, instance_os] }
+            instance_groups: { get_property: [SELF, instance_groups] }
             instance_count:
               type: integer
               required: true
               default: 1
-            host_per_instance:
-              type: integer
-              required: true
-              default: 1
-            instance_username: { get_property: [SELF, instance_username] }
-            instance_groups: { get_property: [SELF, instance_groups] }
-            instance_image:
+            instance_username:
               type: string
               required: true
-              default: ami-47a23a30
+              default: ubuntu
+              constraints:
+                - valid_values: [ "ubuntu", "ec2-user" ]
+              description: The user to use to connect to the instance
             instance_type:
               type: string
               required: true
               default: t2.nano
-            instance_os: { get_property: [SELF, instance_os] }
+              constraints:
+                - valid_values: [ "t2.nano", "t2.small", "t2.medium", "m4.large", "c4.8xlarge" ]
+              description: The AWS instance type
+            instance_image:
+              type: string
+              required: true
+              constraints:
+                - valid_values: [ "ami-4c4b003b", "ami-47a23a30" ]
+              default: ami-47a23a30
+              description: The AWS ami (Centos:4c or Ubuntu:47)
+            host_per_instance:
+              type: integer
+              required: true
+              default: 1
+              description: Number of host to declare in hostpool per EC2 instance
+            instance_name:
+              type: string
+              required: true
+              default: HostpoolInstance
+              description: The AWS instance name
           implementation: playbook/playbook.ansible
 
 relationship_types:

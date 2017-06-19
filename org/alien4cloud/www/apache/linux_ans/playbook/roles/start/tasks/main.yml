@@ -1,4 +1,12 @@
 ---
+- set_fact:
+    service_name: "httpd"
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+- set_fact:
+    service_name: "apache2"
+  when: ansible_distribution == 'Ubuntu'
 
 - name: Start Apache server
-  service: name=httpd state=started
+  service:
+    name: "{{ service_name }}"
+    state: started

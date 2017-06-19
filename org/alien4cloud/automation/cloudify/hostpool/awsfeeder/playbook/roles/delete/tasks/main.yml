@@ -29,7 +29,6 @@
     aws_secret_key: "{{ aws_secret_key }}"
     region: "{{ region }}"
     filters:
-      "tag:Name": "{{ instance_name }}_{{ INSTANCE }}"
       "tag:HostpoolFeeder": "{{ INSTANCE }}"
   register: ec2_info
 

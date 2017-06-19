@@ -1,0 +1,13 @@
+---
+
+- set_fact:
+    file_dir: "/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGrafana/inputs"
+
+- file:
+    path: "{{ file_dir }}"
+    state: directory
+
+- name: "Echo <{{ grafana_url }}> into {{ file_dir }}/grafana_url"
+  shell: "echo '{{ grafana_url }}' > {{ file_dir }}/grafana_url"
+  when: grafana_url is defined
+

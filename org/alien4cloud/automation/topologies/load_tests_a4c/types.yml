@@ -17,11 +17,11 @@ imports:
   - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
@@ -35,19 +35,10 @@ imports:
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.www.apache.linux_ans:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
-
-  description: >
-    A4C monitored and connected to a CloudifyManagerService, ready to use for load tests.
-    You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
-    The apache installed on HostPool_Compute is here to manager offline plugins (to avoid massive attacks on github from cfy). It also hosts a hostpool.
-    The Host pool is fed with fresh EC2 instances.
-    The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
-    This topology has been tested on a Centos ami-4c4b003b (t2.medium) for HostPool_Compute and Ubuntu ami-47a23a30 (t2.medium) for A4C_Compute.
-
   inputs:
     aws_key_name:
       type: string
@@ -78,6 +69,11 @@ topology_template:
       type: string
       required: true
       description: "The AWS secret key"
+    instance_name:
+      type: string
+      required: true
+      default: HostpoolInstance
+      description: "The AWS instance name"
   input_artifacts:
     alien_dist:
         type: tosca.artifacts.File
@@ -97,6 +93,7 @@ topology_template:
       type: org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud
       properties:
         context_root: "/"
+        app_args: "--spring.profiles.active=security-demo"
         component_version: { get_input: a4c_version }
         data_dir: "/opt/alien4cloud/data"
       requirements:
@@ -125,25 +122,6 @@ topology_template:
         alien_dist:
           file: { get_input_artifact: alien_dist }
           type: tosca.artifacts.File
-    A4C_Compute:
-      type: tosca.nodes.Compute
-      capabilities:
-        os:
-          properties:
-            architecture: "x86_64"
-            type: linux
-            distribution: ubuntu
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
-        endpoint:
-          properties:
-            secure: true
-            protocol: tcp
-            network_name: PRIVATE
-            initiator: source
     OrchestratorConfigurator:
       type: org.alien4cloud.automation.a4c.config.orch.cfy.nodes.OrchestratorConfigurator
       properties:
@@ -169,7 +147,7 @@ topology_template:
         resourceArchiveName: "cloudify-byon-types"
         resourceArchiveVersion: "1.4.0"
         resourceAgentInstallMethod: none
-        name: MyLocation
+        name: Byon
       requirements:
         - hostpool:
             node: HostPool
@@ -186,34 +164,6 @@ topology_template:
           properties:
             protocol: https
             port: 443
-            secure: false
-            network_name: PRIVATE
-            initiator: source
-    DiamondLinuxAgent:
-      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
-      requirements:
-        - host:
-            node: A4C_Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
-        - metrics_backend:
-            node: GraphiteBackend
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
-        - collec_jolokia:
-            node: Alien4Cloud
-            capability: org.alien4cloud.automation.a4c.pub.capabilities.JolokiaA4CEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondA4CCollector
-        - collec_elasticsearch:
-            node: ElasticSearch
-            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
-    GraphiteBackend:
-      type: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
-      capabilities:
-        metrics_backend:
-          properties:
-            protocol: tcp
             secure: false
             network_name: PRIVATE
             initiator: source
@@ -241,25 +191,6 @@ topology_template:
             port: 9200
             protocol: http
             secure: false
-            network_name: PRIVATE
-            initiator: source
-    HostPool_Compute:
-      type: tosca.nodes.Compute
-      capabilities:
-        os:
-          properties:
-            architecture: "x86_64"
-            type: linux
-            distribution: centos
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
-        endpoint:
-          properties:
-            secure: true
-            protocol: tcp
             network_name: PRIVATE
             initiator: source
     HostPool:
@@ -331,24 +262,24 @@ topology_template:
         aws_secret_key: { get_input: aws_secret_key }
         key_name: { get_input: aws_key_name }
         key_content: { get_input: aws_key_content }
-        region: { get_input: aws_region }
+        region: "eu-west-1"
         instance_groups: { get_input: instance_groups }
         instance_username: ubuntu
         instance_type: "t2.nano"
         instance_image: "ami-47a23a30"
-        instance_count: 10
-        host_per_instance: 1
-        instance_name: HostpoolInstance
+        instance_count: 1
+        host_per_instance: 2
+        instance_name: { get_input: instance_name }
         instance_os: linux
       requirements:
-        - host:
-            node: HostPool_Compute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
         - hostpool:
             node: HostPool
             capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
             relationship: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool
+        - host:
+            node: HostPool_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
     AddExtendedTypes:
       type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
       properties:
@@ -374,6 +305,114 @@ topology_template:
             node: Alien4Cloud
             capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
             relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+    GraphiteService:
+      type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        http_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    GrafanaService:
+      type: org.alien4cloud.monitoring.pub.nodes.GrafanaService
+      capabilities:
+        http_endpoint:
+          properties:
+            user: admin
+            password: admin
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    HostPool_Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: centos
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    A4C_Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: ubuntu
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    A4C_Compute_Agent:
+      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
+      properties:
+        datasource_name: "Graphite_DS"
+        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
+      requirements:
+        - collec_jolokia:
+            node: Alien4Cloud
+            capability: org.alien4cloud.automation.a4c.pub.capabilities.JolokiaA4CEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondA4CCollector
+        - collec_elasticsearch:
+            node: ElasticSearch
+            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCollectElasticSearch
+        - data_endpoint:
+            node: GraphiteService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
+        - grafana:
+            node: GrafanaService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGrafana
+        - host:
+            node: A4C_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Hostpool_Compute_agent:
+      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
+      properties:
+        datasource_name: "Graphite_DS"
+        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
+      requirements:
+        - host:
+            node: HostPool_Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - data_endpoint:
+            node: GraphiteService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
+        - grafana:
+            node: GrafanaService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGrafana
   outputs:
     Alien4Cloud_alien_url:
       value: { get_attribute: [ Alien4Cloud, alien_url ] }
@@ -627,6 +666,9 @@ topology_template:
           node: ByonLocationConfigurator
           activity:
             set_state: started
+          on-success:
+            - AddCsarFromGit_initial_1
+            - AddCsarFromGit_initial
         CloudifyManagerService_install:
           node: CloudifyManagerService
           activity:
@@ -635,25 +677,25 @@ topology_template:
             - OrchestratorConfigurator_initial
             - PluginConfigurator_initial
         DiamondLinuxAgent_initial:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: initial
           on-success:
             - DiamondLinuxAgent_creating
         DiamondLinuxAgent_creating:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: creating
           on-success:
             - create_DiamondLinuxAgent
         create_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.create
           on-success:
             - DiamondLinuxAgent_created
         DiamondLinuxAgent_created:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: created
           on-success:
@@ -662,47 +704,41 @@ topology_template:
             - OracleJDK_initial
             - DiamondLinuxAgent_configuring
         DiamondLinuxAgent_configuring:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: configuring
           on-success:
             - configure_DiamondLinuxAgent
         configure_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.configure
           on-success:
             - DiamondLinuxAgent_configured
         DiamondLinuxAgent_configured:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: configured
           on-success:
             - DiamondLinuxAgent_starting
         DiamondLinuxAgent_starting:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: starting
           on-success:
             - start_DiamondLinuxAgent
         start_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on-success:
             - DiamondLinuxAgent_started
         DiamondLinuxAgent_started:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: started
           on-success:
             - ByonLocationConfigurator_configuring
-        GraphiteBackend_install:
-          node: GraphiteBackend
-          activity:
-            delegate: install
-          on-success:
-            - DiamondLinuxAgent_initial
         ElasticSearch_initial:
           node: ElasticSearch
           activity:
@@ -773,6 +809,7 @@ topology_template:
             - HostPool_initial
             - AWSHostpoolFeeder_initial
             - Apache_initial
+            - DiamondLinuxAgent_2_initial
         HostPool_initial:
           node: HostPool
           activity:
@@ -919,6 +956,7 @@ topology_template:
             set_state: created
           on-success:
             - Alien4Cloud_2_configuring
+            - AWSHostpoolFeeder_initial
             - PluginConfigurator_configuring
         PluginConfigurator_configuring:
           node: PluginConfigurator
@@ -972,6 +1010,7 @@ topology_template:
             set_state: created
           on-success:
             - HostPool_configuring
+            - HostPool_initial
             - AWSHostpoolFeeder_configuring
         AWSHostpoolFeeder_configuring:
           node: AWSHostpoolFeeder
@@ -1007,6 +1046,8 @@ topology_template:
           node: AWSHostpoolFeeder
           activity:
             set_state: started
+          on-success:
+            - PluginConfigurator_configuring
         AddCsarFromGit_initial:
           node: AddExtendedTypes
           activity:
@@ -1080,6 +1121,7 @@ topology_template:
           on-success:
             - AddCsarFromGit_configuring
             - AddCsarFromGit_configuring_1
+            - AddCsarFromGit_initial
         AddCsarFromGit_configuring_1:
           node: AddMockTypes
           activity:
@@ -1114,6 +1156,80 @@ topology_template:
           node: AddMockTypes
           activity:
             set_state: started
+        GraphiteService_install:
+          node: GraphiteService
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+            - DiamondLinuxAgent_2_initial
+        GrafanaService_install:
+          node: GrafanaService
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+            - DiamondLinuxAgent_2_initial
+        DiamondLinuxAgent_2_initial:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: initial
+          on-success:
+            - DiamondLinuxAgent_2_creating
+        DiamondLinuxAgent_2_creating:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: creating
+          on-success:
+            - create_DiamondLinuxAgent_2
+        create_DiamondLinuxAgent_2:
+          node: Hostpool_Compute_agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - DiamondLinuxAgent_2_created
+        DiamondLinuxAgent_2_created:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: created
+          on-success:
+            - DiamondLinuxAgent_2_configuring
+        DiamondLinuxAgent_2_configuring:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_DiamondLinuxAgent_2
+        configure_DiamondLinuxAgent_2:
+          node: Hostpool_Compute_agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - DiamondLinuxAgent_2_configured
+        DiamondLinuxAgent_2_configured:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: configured
+          on-success:
+            - DiamondLinuxAgent_2_starting
+        DiamondLinuxAgent_2_starting:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent_2
+        start_DiamondLinuxAgent_2:
+          node: Hostpool_Compute_agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_2_started
+        DiamondLinuxAgent_2_started:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: started
+          on-success:
+            - Apache_initial
     uninstall:
       steps:
         Compute_uninstall:
@@ -1272,19 +1388,19 @@ topology_template:
           activity:
             delegate: uninstall
         DiamondLinuxAgent_stopping:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: stopping
           on-success:
             - stop_DiamondLinuxAgent
         stop_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on-success:
             - DiamondLinuxAgent_stopped
         DiamondLinuxAgent_stopped:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: stopped
           on-success:
@@ -1292,28 +1408,25 @@ topology_template:
             - ElasticSearch_stopping
             - Alien4Cloud_2_stopping
         DiamondLinuxAgent_deleting:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: deleting
           on-success:
             - delete_DiamondLinuxAgent
         delete_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.delete
           on-success:
             - DiamondLinuxAgent_deleted
         DiamondLinuxAgent_deleted:
-          node: DiamondLinuxAgent
+          node: A4C_Compute_Agent
           activity:
             set_state: deleted
           on-success:
+            - GraphiteService_uninstall
             - Compute_uninstall
-            - GraphiteBackend_uninstall
-        GraphiteBackend_uninstall:
-          node: GraphiteBackend
-          activity:
-            delegate: uninstall
+            - GrafanaService_uninstall
         ElasticSearch_stopping:
           node: ElasticSearch
           activity:
@@ -1573,3 +1686,579 @@ topology_template:
             set_state: deleted
           on-success:
             - Alien4Cloud_2_stopping
+        GraphiteService_uninstall:
+          node: GraphiteService
+          activity:
+            delegate: uninstall
+        GrafanaService_uninstall:
+          node: GrafanaService
+          activity:
+            delegate: uninstall
+        DiamondLinuxAgent_2_stopping:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent_2
+        stop_DiamondLinuxAgent_2:
+          node: Hostpool_Compute_agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_2_stopped
+        DiamondLinuxAgent_2_stopped:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_2_deleting
+        DiamondLinuxAgent_2_deleting:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_DiamondLinuxAgent_2
+        delete_DiamondLinuxAgent_2:
+          node: Hostpool_Compute_agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - DiamondLinuxAgent_2_deleted
+        DiamondLinuxAgent_2_deleted:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: deleted
+          on-success:
+            - GraphiteService_uninstall
+            - GrafanaService_uninstall
+            - Compute_uninstall_1
+    start:
+      steps:
+        Alien4Cloud_started:
+          node: Alien4Cloud
+          activity:
+            set_state: started
+          on-success:
+            - AddMockTypes_starting
+            - PluginConfigurator_starting
+            - AddExtendedTypes_starting
+            - DiamondLinuxAgent_starting
+            - OrchestratorConfigurator_starting
+        start_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - HostPool_started
+        Apache_started:
+          node: Apache
+          activity:
+            set_state: started
+          on-success:
+            - PluginConfigurator_starting
+        AWSHostpoolFeeder_starting:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: starting
+          on-success:
+            - start_AWSHostpoolFeeder
+        start_AddExtendedTypes:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AddExtendedTypes_started
+        OracleJDK_starting:
+          node: OracleJDK
+          activity:
+            set_state: starting
+          on-success:
+            - start_OracleJDK
+        start_DiamondLinuxAgent:
+          node: A4C_Compute_Agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: A4C_Compute_Agent
+          activity:
+            set_state: started
+        HostPool_starting:
+          node: HostPool
+          activity:
+            set_state: starting
+          on-success:
+            - start_HostPool
+        HostPool_started:
+          node: HostPool
+          activity:
+            set_state: started
+          on-success:
+            - ByonLocationConfigurator_starting
+            - AWSHostpoolFeeder_starting
+        OrchestratorConfigurator_starting:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: starting
+          on-success:
+            - start_OrchestratorConfigurator
+        A4C_Compute_start:
+          node: A4C_Compute
+          activity:
+            delegate: start
+          on-success:
+            - OracleJDK_starting
+            - DiamondLinuxAgent_starting
+        ElasticSearch_started:
+          node: ElasticSearch
+          activity:
+            set_state: started
+          on-success:
+            - Alien4Cloud_starting
+            - DiamondLinuxAgent_starting
+        Alien4Cloud_starting:
+          node: Alien4Cloud
+          activity:
+            set_state: starting
+          on-success:
+            - start_Alien4Cloud
+        AddMockTypes_starting:
+          node: AddMockTypes
+          activity:
+            set_state: starting
+          on-success:
+            - start_AddMockTypes
+        PluginConfigurator_started:
+          node: PluginConfigurator
+          activity:
+            set_state: started
+        start_Apache:
+          node: Apache
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Apache_started
+        DiamondLinuxAgent_starting:
+          node: A4C_Compute_Agent
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        AddExtendedTypes_starting:
+          node: AddExtendedTypes
+          activity:
+            set_state: starting
+          on-success:
+            - start_AddExtendedTypes
+        AWSHostpoolFeeder_started:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: started
+        start_AddMockTypes:
+          node: AddMockTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AddMockTypes_started
+        ByonLocationConfigurator_started:
+          node: ByonLocationConfigurator
+          activity:
+            set_state: started
+        CloudifyManagerService_start:
+          node: CloudifyManagerService
+          activity:
+            delegate: start
+          on-success:
+            - PluginConfigurator_starting
+            - OrchestratorConfigurator_starting
+        start_ByonLocationConfigurator:
+          node: ByonLocationConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ByonLocationConfigurator_started
+        start_PluginConfigurator:
+          node: PluginConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - PluginConfigurator_started
+        Apache_starting:
+          node: Apache
+          activity:
+            set_state: starting
+          on-success:
+            - start_Apache
+        PluginConfigurator_starting:
+          node: PluginConfigurator
+          activity:
+            set_state: starting
+          on-success:
+            - start_PluginConfigurator
+        AddMockTypes_started:
+          node: AddMockTypes
+          activity:
+            set_state: started
+        ElasticSearch_starting:
+          node: ElasticSearch
+          activity:
+            set_state: starting
+          on-success:
+            - start_ElasticSearch
+        HostPool_Compute_start:
+          node: HostPool_Compute
+          activity:
+            delegate: start
+          on-success:
+            - AWSHostpoolFeeder_starting
+            - Apache_starting
+            - DiamondLinuxAgent_2_starting
+            - HostPool_starting
+        start_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Alien4Cloud_started
+        start_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - OracleJDK_started
+        start_OrchestratorConfigurator:
+          node: OrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - OrchestratorConfigurator_started
+        ByonLocationConfigurator_starting:
+          node: ByonLocationConfigurator
+          activity:
+            set_state: starting
+          on-success:
+            - start_ByonLocationConfigurator
+        start_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AWSHostpoolFeeder_started
+        OrchestratorConfigurator_started:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: started
+          on-success:
+            - ByonLocationConfigurator_starting
+        AddExtendedTypes_started:
+          node: AddExtendedTypes
+          activity:
+            set_state: started
+          on-success:
+            - AddMockTypes_starting
+        start_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ElasticSearch_started
+        OracleJDK_started:
+          node: OracleJDK
+          activity:
+            set_state: started
+          on-success:
+            - Alien4Cloud_starting
+            - ElasticSearch_starting
+        GraphiteService_start:
+          node: GraphiteService
+          activity:
+            delegate: start
+          on-success:
+            - DiamondLinuxAgent_2_starting
+            - DiamondLinuxAgent_starting
+        GrafanaService_start:
+          node: GrafanaService
+          activity:
+            delegate: start
+          on-success:
+            - DiamondLinuxAgent_2_starting
+            - DiamondLinuxAgent_starting
+        DiamondLinuxAgent_2_starting:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent_2
+        start_DiamondLinuxAgent_2:
+          node: Hostpool_Compute_agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_2_started
+        DiamondLinuxAgent_2_started:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: started
+    stop:
+      steps:
+        stop_PluginConfigurator:
+          node: PluginConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - PluginConfigurator_stopped
+        PluginConfigurator_stopped:
+          node: PluginConfigurator
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyManagerService_stop
+            - Apache_stopping
+        Alien4Cloud_stopping:
+          node: Alien4Cloud
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Alien4Cloud
+        stop_OrchestratorConfigurator:
+          node: OrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - OrchestratorConfigurator_stopped
+        DiamondLinuxAgent_stopping:
+          node: A4C_Compute_Agent
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        ElasticSearch_stopping:
+          node: ElasticSearch
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ElasticSearch
+        Apache_stopped:
+          node: Apache
+          activity:
+            set_state: stopped
+          on-success:
+            - HostPool_Compute_stop
+        Apache_stopping:
+          node: Apache
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Apache
+        PluginConfigurator_stopping:
+          node: PluginConfigurator
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_PluginConfigurator
+        AddMockTypes_stopping:
+          node: AddMockTypes
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AddMockTypes
+        AddExtendedTypes_stopped:
+          node: AddExtendedTypes
+          activity:
+            set_state: stopped
+          on-success:
+            - Alien4Cloud_stopping
+        OracleJDK_stopped:
+          node: OracleJDK
+          activity:
+            set_state: stopped
+          on-success:
+            - A4C_Compute_stop
+        AWSHostpoolFeeder_stopped:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: stopped
+          on-success:
+            - HostPool_Compute_stop
+        OracleJDK_stopping:
+          node: OracleJDK
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_OracleJDK
+        AddExtendedTypes_stopping:
+          node: AddExtendedTypes
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AddExtendedTypes
+        A4C_Compute_stop:
+          node: A4C_Compute
+          activity:
+            delegate: stop
+        HostPool_stopping:
+          node: HostPool
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_HostPool
+        stop_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Alien4Cloud_stopped
+        stop_DiamondLinuxAgent:
+          node: A4C_Compute_Agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        stop_AddExtendedTypes:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AddExtendedTypes_stopped
+        stop_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - HostPool_stopped
+        Alien4Cloud_stopped:
+          node: Alien4Cloud
+          activity:
+            set_state: stopped
+          on-success:
+            - OracleJDK_stopping
+        AWSHostpoolFeeder_stopping:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AWSHostpoolFeeder
+        stop_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AWSHostpoolFeeder_stopped
+        AddMockTypes_stopped:
+          node: AddMockTypes
+          activity:
+            set_state: stopped
+          on-success:
+            - Alien4Cloud_stopping
+        DiamondLinuxAgent_stopped:
+          node: A4C_Compute_Agent
+          activity:
+            set_state: stopped
+          on-success:
+            - A4C_Compute_stop
+            - GraphiteService_stop
+            - GrafanaService_stop
+        HostPool_stopped:
+          node: HostPool
+          activity:
+            set_state: stopped
+          on-success:
+            - HostPool_Compute_stop
+        ByonLocationConfigurator_stopping:
+          node: ByonLocationConfigurator
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ByonLocationConfigurator
+        OrchestratorConfigurator_stopping:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_OrchestratorConfigurator
+        HostPool_Compute_stop:
+          node: HostPool_Compute
+          activity:
+            delegate: stop
+        stop_AddMockTypes:
+          node: AddMockTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AddMockTypes_stopped
+        ByonLocationConfigurator_stopped:
+          node: ByonLocationConfigurator
+          activity:
+            set_state: stopped
+          on-success:
+            - OrchestratorConfigurator_stopping
+        stop_Apache:
+          node: Apache
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Apache_stopped
+        CloudifyManagerService_stop:
+          node: CloudifyManagerService
+          activity:
+            delegate: stop
+        stop_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - OracleJDK_stopped
+        OrchestratorConfigurator_stopped:
+          node: OrchestratorConfigurator
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyManagerService_stop
+            - Alien4Cloud_stopping
+        ElasticSearch_stopped:
+          node: ElasticSearch
+          activity:
+            set_state: stopped
+          on-success:
+            - OracleJDK_stopping
+        stop_ByonLocationConfigurator:
+          node: ByonLocationConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ByonLocationConfigurator_stopped
+        stop_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ElasticSearch_stopped
+        GraphiteService_stop:
+          node: GraphiteService
+          activity:
+            delegate: stop
+        GrafanaService_stop:
+          node: GrafanaService
+          activity:
+            delegate: stop
+        DiamondLinuxAgent_2_stopping:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent_2
+        stop_DiamondLinuxAgent_2:
+          node: Hostpool_Compute_agent
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_2_stopped
+        DiamondLinuxAgent_2_stopped:
+          node: Hostpool_Compute_agent
+          activity:
+            set_state: stopped
+          on-success:
+            - HostPool_Compute_stop
+            - GraphiteService_stop
+            - GrafanaService_stop

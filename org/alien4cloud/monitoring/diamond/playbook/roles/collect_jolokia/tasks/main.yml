@@ -1,5 +1,20 @@
 ---
 
 - name: Create config file for Jolokia collector
-  template: src=JolokiaCollector.conf.j2 dest=/etc/ansible_diamond/collectors/JolokiaCollector.conf force=yes
+  template:
+    src: JolokiaCollector.conf.j2
+    dest: /etc/ansible_diamond/collectors/JolokiaCollector.conf
+    force: yes
 
+- name: "Define /tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/dashboards as destination to store dashboards"
+  set_fact:
+    dashboard_dir: "/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/dashboards"
+- name: "Ensure directory {{ dashboard_dir }} exists"
+  file:
+    path: "{{ dashboard_dir }}"
+    state: directory
+- name: "Create grafana dashboard for JVM in {{ dashboard_dir }}/{{ SOURCE_INSTANCE }}.dashboard"
+  template:
+    src: dashboard.json.j2
+    dest: "{{ dashboard_dir }}/{{ TARGET_INSTANCE }}-JVM.dashboard"
+    force: yes

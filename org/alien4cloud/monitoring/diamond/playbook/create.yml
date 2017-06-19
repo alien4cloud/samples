@@ -1,8 +1,8 @@
 ---
-
 - hosts: all
   name: Install Diamond Agent
   become: true
 
   roles:
+    # - setup
     - create

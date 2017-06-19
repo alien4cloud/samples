@@ -1,4 +1,3 @@
 enabled = True
-hostname = ES-{{ elasticsearch_host|replace(".", "-") }}
-#hostname = localhost
+hostname = {{ TARGET_INSTANCE }}
 port = {{ elasticsearch_port }}

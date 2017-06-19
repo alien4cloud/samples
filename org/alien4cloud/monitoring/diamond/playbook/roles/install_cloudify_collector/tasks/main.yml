@@ -1,0 +1,13 @@
+---
+- name: "Preparing directory {{ collectors_path }}/cloudify to install CloudifyCollector"
+  set_fact:
+    cloudify_dir: "{{ collectors_path }}/cloudify"
+- name: "Ensure directory {{ cloudify_dir }} exists"
+  file:
+    path: "{{ cloudify_dir }}"
+    state: directory
+
+- name: Install python script for Cloudify monitoring
+  copy:
+    src: cloudify.py
+    dest: "{{ cloudify_dir }}/cloudify.py"

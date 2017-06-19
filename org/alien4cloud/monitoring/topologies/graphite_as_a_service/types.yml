@@ -1,0 +1,419 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.monitoring.topologies.graphite_as_a_service
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: |
+  Graphite As a Service.
+  Tested on a Centos ami-4c4b003b (t2.small).
+
+imports:
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - cloudify3-common-types:1.4.0
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.graphite:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+
+topology_template:
+  description: |
+    Graphite As a Service.
+    Tested on a Centos ami-4c4b003b (t2.small).
+
+  substitution_mappings:
+    node_type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
+    capabilities:
+      data_endpoint: [ Graphite, data_endpoint ]
+      http_endpoint: [ Graphite, http_endpoint ]
+  node_templates:
+    Graphite:
+      type: org.alien4cloud.monitoring.graphite.nodes.Graphite
+      properties:
+        component_version: "1.0.0"
+      requirements:
+        - host:
+            node: xGraphiteCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: http
+            port: 2003
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        http_endpoint:
+          properties:
+            protocol: http
+            port: 8080
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    xGraphiteCompute:
+      type: tosca.nodes.Compute
+      requirements:
+        - network:
+            node: PublicNetwork
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: centos
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    DiamondGraphite:
+      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
+      properties:
+        datasource_name: "Graphite_DS"
+        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
+      requirements:
+        - data_endpoint:
+            node: Graphite
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
+        - host:
+            node: xGraphiteCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    PublicNetwork:
+      type: alien.nodes.PublicNetwork
+      properties:
+        ip_version: 4
+  outputs:
+    Graphite_grafana_url:
+      value: { get_attribute: [ Graphite, grafana_url ] }
+  workflows:
+    install:
+      steps:
+        Graphite_configured:
+          node: Graphite
+          activity:
+            set_state: configured
+          on-success:
+            - Graphite_starting
+        Graphite_starting:
+          node: Graphite
+          activity:
+            set_state: starting
+          on-success:
+            - start_Graphite
+        start_Graphite:
+          node: Graphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Graphite_started
+        Graphite_initial:
+          node: Graphite
+          activity:
+            set_state: initial
+          on-success:
+            - Graphite_creating
+        Graphite_configuring:
+          node: Graphite
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_Graphite
+        Graphite_started:
+          node: Graphite
+          activity:
+            set_state: started
+          on-success:
+            - DiamondLinuxAgent_configuring
+        MonitoringCompute_install:
+          node: xGraphiteCompute
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+            - Graphite_initial
+            - Graphite_configuring
+        create_Graphite:
+          node: Graphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - Graphite_created
+        Graphite_created:
+          node: Graphite
+          activity:
+            set_state: created
+          on-success:
+            - DiamondLinuxAgent_initial
+            - Graphite_configuring
+        Graphite_creating:
+          node: Graphite
+          activity:
+            set_state: creating
+          on-success:
+            - create_Graphite
+        configure_Graphite:
+          node: Graphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - Graphite_configured
+        DiamondLinuxAgent_initial:
+          node: DiamondGraphite
+          activity:
+            set_state: initial
+          on-success:
+            - DiamondLinuxAgent_creating
+        DiamondLinuxAgent_creating:
+          node: DiamondGraphite
+          activity:
+            set_state: creating
+          on-success:
+            - create_DiamondLinuxAgent
+        create_DiamondLinuxAgent:
+          node: DiamondGraphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - DiamondLinuxAgent_created
+        DiamondLinuxAgent_created:
+          node: DiamondGraphite
+          activity:
+            set_state: created
+          on-success:
+            - Graphite_configuring
+            - DiamondLinuxAgent_configuring
+        DiamondLinuxAgent_configuring:
+          node: DiamondGraphite
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_DiamondLinuxAgent
+        configure_DiamondLinuxAgent:
+          node: DiamondGraphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - DiamondLinuxAgent_configured
+        DiamondLinuxAgent_configured:
+          node: DiamondGraphite
+          activity:
+            set_state: configured
+          on-success:
+            - DiamondLinuxAgent_starting
+        DiamondLinuxAgent_starting:
+          node: DiamondGraphite
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        start_DiamondLinuxAgent:
+          node: DiamondGraphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: DiamondGraphite
+          activity:
+            set_state: started
+        PublicNetwork_install:
+          node: PublicNetwork
+          activity:
+            delegate: install
+    uninstall:
+      steps:
+        MonitoringCompute_uninstall:
+          node: xGraphiteCompute
+          activity:
+            delegate: uninstall
+        Graphite_deleting:
+          node: Graphite
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_Graphite
+        delete_Graphite:
+          node: Graphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - Graphite_deleted
+        stop_Graphite:
+          node: Graphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Graphite_stopped
+        Graphite_stopping:
+          node: Graphite
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Graphite
+        Graphite_deleted:
+          node: Graphite
+          activity:
+            set_state: deleted
+          on-success:
+            - MonitoringCompute_uninstall
+        Graphite_stopped:
+          node: Graphite
+          activity:
+            set_state: stopped
+          on-success:
+            - Graphite_deleting
+        DiamondLinuxAgent_stopping:
+          node: DiamondGraphite
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: DiamondGraphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        DiamondLinuxAgent_stopped:
+          node: DiamondGraphite
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_deleting
+            - Graphite_stopping
+            - MonitoringCompute_uninstall
+        DiamondLinuxAgent_deleting:
+          node: DiamondGraphite
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_DiamondLinuxAgent
+        delete_DiamondLinuxAgent:
+          node: DiamondGraphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - DiamondLinuxAgent_deleted
+        DiamondLinuxAgent_deleted:
+          node: DiamondGraphite
+          activity:
+            set_state: deleted
+          on-success:
+            - Graphite_stopping
+            - MonitoringCompute_uninstall
+        PublicNetwork_uninstall:
+          node: PublicNetwork
+          activity:
+            delegate: uninstall
+    start:
+      steps:
+        MonitoringCompute_start:
+          node: xGraphiteCompute
+          activity:
+            delegate: start
+          on-success:
+            - Graphite_starting
+            - DiamondLinuxAgent_starting
+        Graphite_starting:
+          node: Graphite
+          activity:
+            set_state: starting
+          on-success:
+            - start_Graphite
+        start_Graphite:
+          node: Graphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Graphite_started
+        start_DiamondLinuxAgent:
+          node: DiamondGraphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        Graphite_started:
+          node: Graphite
+          activity:
+            set_state: started
+          on-success:
+            - DiamondLinuxAgent_starting
+        DiamondLinuxAgent_starting:
+          node: DiamondGraphite
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        DiamondLinuxAgent_started:
+          node: DiamondGraphite
+          activity:
+            set_state: started
+        PublicNetwork_start:
+          node: PublicNetwork
+          activity:
+            delegate: start
+    stop:
+      steps:
+        Graphite_stopping:
+          node: Graphite
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Graphite
+        DiamondLinuxAgent_stopping:
+          node: DiamondGraphite
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: DiamondGraphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        MonitoringCompute_stop:
+          node: xGraphiteCompute
+          activity:
+            delegate: stop
+        Graphite_stopped:
+          node: Graphite
+          activity:
+            set_state: stopped
+          on-success:
+            - MonitoringCompute_stop
+        DiamondLinuxAgent_stopped:
+          node: DiamondGraphite
+          activity:
+            set_state: stopped
+          on-success:
+            - MonitoringCompute_stop
+        stop_Graphite:
+          node: Graphite
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Graphite_stopped
+        PublicNetwork_stop:
+          node: PublicNetwork
+          activity:
+            delegate: stop

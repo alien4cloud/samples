@@ -9,7 +9,8 @@ description: |
   Graphite As a Service : a Grafana that connects to a Graphite as a backend.
   Can be used to expose a monitoring service.
   Tested on a Centos ami-4c4b003b (t2.medium).
-
+  - ALIEN-2409: I can't expose Graphite.capabilities.http_endpoint if
+    Graphite.capabilities.data_endpoint is already exposed !
 imports:
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
@@ -31,9 +32,9 @@ topology_template:
     Tested on a Centos ami-4c4b003b (t2.medium).
 
   substitution_mappings:
-    node_type: org.alien4cloud.monitoring.pub.nodes.GraphiteBackend
+    node_type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
     capabilities:
-      metrics_backend: [ Graphite, metrics_backend ]
+      data_endpoint: [ Graphite, data_endpoint ]
   node_templates:
     Graphite:
       type: org.alien4cloud.monitoring.graphite.nodes.Graphite
@@ -45,14 +46,14 @@ topology_template:
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
       capabilities:
-        metrics_backend:
+        data_endpoint:
           properties:
             protocol: http
             port: 2003
             secure: false
             network_name: PRIVATE
             initiator: source
-        graphite_ui:
+        http_endpoint:
           properties:
             protocol: http
             port: 8080
@@ -87,14 +88,14 @@ topology_template:
             node: MonitoringCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-        - metrics_backend:
+        - graphite:
             node: Graphite
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteHttpEndpoint
             relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite
             properties:
               datasource_name: "Graphite_DS"
       capabilities:
-        grafana_endpoint:
+        http_endpoint:
           properties:
             user: admin
             password: admin
@@ -110,9 +111,9 @@ topology_template:
             node: MonitoringCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-        - metrics_backend:
+        - data_endpoint:
             node: Graphite
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteBackendEndpoint
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
             relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
   outputs:
     Grafana_grafana_url:

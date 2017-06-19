@@ -1,12 +1,14 @@
 ---
 
-- name: Add repository
+- name: Install epel-release-latest-7
   yum:
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     state: present
 
 - name: Install package dependencies for graphite and carbon
-  yum: "pkg={{item}} state=present"
+  yum:
+    pkg: "{{item}}"
+    state: present
   with_items:
      - gcc
      - python-devel
@@ -27,7 +29,7 @@
   pip: name={{item}} state=present extra_args="--upgrade"
   with_items:
     - pyopenssl
-    
+
 - name: Install Graphite Components (Whisper, Carbon, Graphite-Web)
   pip: name={{item}} extra_args="--no-binary=:all:" state=present
   environment:
@@ -48,14 +50,14 @@
 
 - name: copy graphite.wsgi
   command: cp /opt/graphite/conf/graphite.wsgi.example /opt/graphite/conf/graphite.wsgi
-  
+
 - name: copy graphTemplates.conf
   command: cp /opt/graphite/conf/graphTemplates.conf.example /opt/graphite/conf/graphTemplates.conf
 
 - name: Set permissions graphite directory
-  file: 
+  file:
     path: /opt/graphite/storage/
-    owner: apache 
+    owner: apache
     group: apache
     recurse: yes
 
@@ -66,4 +68,3 @@
 
 - name: replace httpd.conf by the template modified
   template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf force=yes
-

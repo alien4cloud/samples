@@ -1,7 +1,6 @@
 ---
-
 - hosts: all
-  name: Diamond Collect RabbitMQ PreConfigureSource
+  name: Diamond Collect RabbitMQ
   become: true
 
   roles:

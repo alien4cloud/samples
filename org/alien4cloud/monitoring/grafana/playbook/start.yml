@@ -1,8 +1,20 @@
 ---
-
 - hosts: all
   name: Start Graphana
   become: true
 
   roles:
     - start
+
+  # tasks:
+
+  # - name: Start service grafana-server
+  #   service:
+  #     name: grafana-server
+  #     state: started
+  #
+  # - name: Wait for port 3000
+  #   wait_for:
+  #     port: 3000
+  #     delay: 20
+  #     state: started

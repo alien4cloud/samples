@@ -1,0 +1,8 @@
+---
+- hosts: all
+  name: Add AWS on-demand resource on an orchestrator resource
+  become: true
+
+  roles:
+    # - setup
+    - create_aws_location_resources

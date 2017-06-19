@@ -1,7 +1,6 @@
 ---
-
 - hosts: all
-  name: Diamond Collect Postgresql PreConfigureSource
+  name: Diamond Collect Postgresql
   become: true
 
   roles:

@@ -22,7 +22,7 @@
      count_tag:
         Name: "{{ instance_name }}"
      instance_tags:
-        Name: "{{ instance_name }}_{{ INSTANCE }}"
+        Name: "{{ instance_name }}"
         HostpoolFeeder: "{{ INSTANCE }}"
   register: ec2
 

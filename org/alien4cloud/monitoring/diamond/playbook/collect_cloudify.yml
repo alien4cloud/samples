@@ -1,0 +1,7 @@
+---
+- hosts: all
+  name: Diamond collect Cloudify
+  become: true
+
+  roles:
+    - collect_cloudify

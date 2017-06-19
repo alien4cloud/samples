@@ -1,5 +1,4 @@
 ---
-
 - hosts: all
   name: Configure Diamond Agent
   become: true

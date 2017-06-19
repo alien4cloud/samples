@@ -14,7 +14,7 @@ imports:
 node_types:
 
   org.alien4cloud.monitoring.grafana.nodes.Grafana:
-    derived_from: tosca.nodes.SoftwareComponent
+    derived_from: org.alien4cloud.monitoring.pub.nodes.GrafanaService
     metadata:
       icon: /images/grafana.png
     description: |
@@ -26,10 +26,10 @@ node_types:
         constraints:
           - valid_values: [ "4.1.2" ]
     attributes:
-      grafana_url: { concat: ["http://", get_attribute: [ SELF, public_ip_address ], ":", get_property: [ SELF, grafana_endpoint, port ]]}
+      grafana_url: { concat: ["http://", get_attribute: [ SELF, public_ip_address ], ":", get_property: [ SELF, http_endpoint, port ]]}
     capabilities:
-      grafana_endpoint:
-        type: org.alien4cloud.monitoring.grafana.capabilities.GrafanaEndpoint
+      http_endpoint:
+        type: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
         occurrences: [0, UNBOUNDED]
         description: UI endpoint
         properties:
@@ -50,12 +50,12 @@ node_types:
                     - type: { equal: linux }
                     - architecture: { equal: x86_64 }
                     - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }
-      - metrics_backend:
-          capability: org.alien4cloud.monitoring.pub.capabilities.MetricsBackendEndpoint
-          relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend
+      - graphite:
+          capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteHttpEndpoint
+          relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite
           occurrences: [0, UNBOUNDED]
       # - graphite:
-      #     capability: org.alien4cloud.monitoring.graphite.capabilities.GraphiteEndpoint
+      #     capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteHttpEndpoint
       #     relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite
       #     occurrences: [0, UNBOUNDED]
 
@@ -63,64 +63,51 @@ node_types:
       Standard:
         create:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: create.yml
           implementation: playbook/playbook.ansible
         start:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: start.yml
           implementation: playbook/playbook.ansible
         stop:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: stop.yml
           implementation: playbook/playbook.ansible
         delete:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: delete.yml
           implementation: playbook/playbook.ansible
 
-capability_types:
-
-  org.alien4cloud.monitoring.grafana.capabilities.GrafanaEndpoint:
-    derived_from: tosca.capabilities.Endpoint
-    properties:
-      user:
-        type: string
-        default: admin
-        required: true
-      password:
-        type: string
-        default: admin
-        required: true
 
 relationship_types:
 
-  org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend:
-    derived_from: tosca.relationships.ConnectsTo
-    abstract: true
-    valid_target_types: [ org.alien4cloud.monitoring.pub.nodes.MetricsBackend ]
+  # org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend:
+  #   derived_from: tosca.relationships.ConnectsTo
+  #   abstract: true
+  #   valid_target_types: [ org.alien4cloud.monitoring.pub.nodes.MetricsBackend ]
   org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite:
-    derived_from: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToBackend
+    derived_from: tosca.relationships.ConnectsTo
     # derived_from: tosca.relationships.ConnectsTo
     properties:
       datasource_name:
         type: string
         required: true
         default: Graphite_DS
-    valid_target_types: [ org.alien4cloud.monitoring.graphite.nodes.Graphite ]
+    valid_target_types: [ org.alien4cloud.monitoring.pub.capabilities.GraphiteHttpEndpoint ]
     interfaces:
       Configure:
         add_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: connects_to_graphite.yml
-            graphite_host: { get_attribute: [TARGET, graphite_ui, ip_address] }
-            graphite_port: { get_property: [TARGET, graphite_ui, port]}
-            grafana_port: { get_property: [SOURCE, grafana_endpoint, port]}
-            grafana_user: { get_property: [SOURCE, grafana_endpoint, user]}
-            grafana_password: { get_property: [SOURCE, grafana_endpoint, password]}
+            graphite_host: { get_attribute: [TARGET, http_endpoint, ip_address] }
+            graphite_port: { get_property: [TARGET, http_endpoint, port]}
+            grafana_port: { get_property: [SOURCE, http_endpoint, port]}
+            grafana_user: { get_property: [SOURCE, http_endpoint, user]}
+            grafana_password: { get_property: [SOURCE, http_endpoint, password]}
             datasource_name: { get_property: [SELF, datasource_name]}
           implementation: playbook/playbook.ansible

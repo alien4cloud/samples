@@ -1,0 +1,8 @@
+---
+- hosts: all
+  name: Create artifact repositories in A4C
+  become: true
+
+  roles:
+    - setup
+    - create_repositories

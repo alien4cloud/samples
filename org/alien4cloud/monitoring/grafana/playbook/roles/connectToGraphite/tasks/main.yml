@@ -9,31 +9,36 @@
   yum: pkg=python-pip state=present
 
 - name: pip httplib2
-  pip: name=httplib2 
+  pip: name=httplib2
 
-- name: First connection to Grafana
-  uri: 
+- name: "Login onto Grafana at http://localhost:{{ grafana_port }}/api/org with {{ grafana_user }}:{{ grafana_password }}"
+  uri:
     url: "http://localhost:{{ grafana_port }}/api/org"
     method: GET
     user: "{{ grafana_user }}"
     password: "{{ grafana_password }}"
     force_basic_auth: yes
     return_content: yes
-    status_code: 200  
+    status_code: 200
+  ignore_errors: yes
 
-- name: Post local graphite datasource
-  uri: 
+- set_fact:
+    datasource_url: "http://{{ graphite_host }}:{{ graphite_port }}"
+
+- name: "Create datasource with name <{{ datasource_name }}> and url <{{ datasource_url }}>"
+  uri:
     url: "http://localhost:{{ grafana_port }}/api/datasources"
     method: POST
     user: "{{ grafana_user }}"
     password: "{{ grafana_password }}"
     force_basic_auth: yes
     return_content: yes
-    body: 
+    body:
       name: "{{ datasource_name }}"
       type: graphite
-      url: "http://{{ graphite_host }}:{{ graphite_port }}"
+      url: "{{ datasource_url }}"
       access: proxy
       basicAuth: false
     body_format: json
-    status_code: 200 
+    status_code: 200
+  ignore_errors: yes

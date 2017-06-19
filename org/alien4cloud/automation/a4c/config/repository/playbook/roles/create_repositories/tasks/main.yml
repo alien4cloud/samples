@@ -1,0 +1,66 @@
+---
+
+- set_fact:
+    file_dir: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/resources"
+
+- name: "Ensure <{{ file_dir }}> exists"
+  file:
+    path: "{{ file_dir }}"
+    state: directory
+
+- name: "Upload artifact {{resources_file_artifact}} on remote in {{ file_dir }}/resources.yaml"
+  copy:
+    src: "{{resources_file_artifact}}"
+    dest: "{{ file_dir }}/resources.yaml"
+
+- name: "Stat {{ file_dir }}/resources.yaml"
+  stat: path="{{ file_dir }}/resources.yaml"
+  register: resources_file
+
+- name: Slurp resources files
+  slurp:
+    src: "{{ file_dir }}/resources.yaml"
+  register: resources_slurped
+  when: resources_file.stat.exists
+
+- set_fact:
+    resources_yaml: "{{resources_slurped['content'] | b64decode | from_yaml}}"
+- debug:
+    var: resources_yaml
+
+- set_fact:
+    resources: "{{resources_yaml['repositories']}}"
+- debug:
+    var: resources
+
+- debug:
+    msg: "{{item}}"
+  with_items: "{{resources}}"
+
+- name: login
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: Create repositories
+  uri:
+    url: "{{ alien_url }}/rest/latest/repositories"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body: "{{item}}"
+    body_format: json
+    status_code: 201
+  register: result
+  with_items: "{{resources}}"
+
+- debug:
+    var: result

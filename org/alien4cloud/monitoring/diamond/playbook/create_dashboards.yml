@@ -1,0 +1,7 @@
+---
+- hosts: all
+  name: Diamond create dashboards
+  become: true
+
+  roles:
+    - create_dashboards

@@ -70,6 +70,9 @@ node_types:
           port: 5432
           user: cloudify
           password: cloudify
+      diamond_collector:
+        type: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyMonitorEndpoint
+        occurrences: [ 0, 1 ]
     requirements:
       - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
           capability: tosca.capabilities.Container

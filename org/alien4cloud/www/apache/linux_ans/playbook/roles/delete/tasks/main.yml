@@ -1,10 +1,16 @@
 ---
-
-- name: Install Apache server
+- name: Remove from CentOS / Red Hat Enterprise Linux / RedHat
   yum: name=httpd state=absent
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Remove from Ubuntu
+  apt: name={{item}} state=installed
+  with_items:
+    - apache2
+  when: ansible_distribution == 'Ubuntu'
 
 - name: delete apache folder
-  file: path="/var/www/html" state=absent
+  file: path="{{ document_root }}" state=absent
 
-- name: delete port type definitions SELinux network http
-  seport: ports="{{ port }}" proto=tcp setype=http_port_t state=absent
+# - name: delete port type definitions SELinux network http
+#   seport: ports="{{ port }}" proto=tcp setype=http_port_t state=absent

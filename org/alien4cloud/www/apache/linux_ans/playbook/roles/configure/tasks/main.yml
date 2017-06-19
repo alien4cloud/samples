@@ -5,6 +5,16 @@
 
 - name: Configure Apache server
   template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: apache2 listen on port 8081
+  lineinfile:
+    dest: /etc/apache2/ports.conf
+    regexp: "^Listen 80"
+    line: "Listen {{ port }}"
+    state: present
+  when: ansible_distribution == 'Ubuntu'
+
 
 # - name: add port type definitions SELinux network http
 #   seport: ports="{{ port }}" proto=tcp setype=http_port_t state=present

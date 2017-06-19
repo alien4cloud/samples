@@ -1,0 +1,73 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.storage.elasticsearch.ansible
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.storage.elasticsearch.ansible.nodes.ElasticSearch:
+    derived_from: org.alien4cloud.storage.elasticsearch.pub.nodes.ElasticSearchService
+    description: >
+      Installation of an ElasticSearch with an UI to browse it !.
+    tags:
+      icon: images/elasticsearch.png
+    properties:
+      component_version:
+        description: The version of Elasticsearch
+        type: version
+        default: 1.7.0
+        constraints:
+          - valid_values: [ "1.7.0" ]
+      elasticsearch_url:
+        type: string
+        required: true
+        default: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
+      cluster_name:
+        description: The name of the ElasticSearch cluster.
+        type: string
+        required: true
+        default: "escluster"
+    # This node is hosted on JDK, how can I express the fact that is must be hosted also on a ubuntu compute ?
+    # Need for some inheritance in container capability ...
+    #
+    # requirements:
+    #   - host:
+    #       capability: tosca.capabilities.Container
+    #       node: tosca.nodes.Compute
+    #       relationship: tosca.relationships.HostedOn
+    #       occurrences: [1, 1]
+    #       node_filter:
+    #         capabilities:
+    #           - tosca.capabilities.OperatingSystem:
+    #               properties:
+    #                 - type: { equal: linux }
+    #                 - architecture: { equal: x86_64 }
+    #                 - distribution: { valid_values: [ "ubuntu", "debian" ] }
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            APPLICATION_URL: { get_property: [SELF, elasticsearch_url] }
+          implementation: scripts/elasticsearch/install_elasticsearch.sh
+        configure:
+          inputs:
+            ES_IP: { get_attribute: [HOST, ip_address] }
+            CLUSTER_NAME: { get_property: [SELF, cluster_name] }
+            HTTP_PORT: { get_property: [SELF, http, port] }
+          implementation: scripts/elasticsearch/configure_elasticsearch.sh
+        start:
+          implementation: scripts/elasticsearch/start_elasticsearch.sh
+    artifacts:
+      - configs:
+          file: config/elasticsearch
+          type: tosca.artifacts.File
+      - commons:
+          file: scripts/commons
+          type: tosca.artifacts.File

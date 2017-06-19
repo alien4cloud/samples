@@ -1,0 +1,51 @@
+- name: Add repository
+  yum:
+   name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+# Install system dependencies (Centos Redhat)
+- name: Install system dependencies
+  yum: pkg={{ item }} state=present
+  with_items:
+    - gcc
+    - python-devel
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+# Install system dependencies (Ubuntu)
+- name: Preprare apt cache
+  apt:
+    update_cache: yes
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install system dependencies (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - gcc
+    - python-dev
+  when: ansible_distribution == 'Ubuntu'
+
+# Install pip
+- name: Download get-pip.py
+  get_url:
+    url: "https://bootstrap.pypa.io/get-pip.py"
+    dest: /tmp/get-pip.py
+
+- name: Check python-pip exists
+  stat: path=/usr/bin/pip
+  register: pip_cmd
+
+- name: Install python-pip
+  command: python /tmp/get-pip.py
+  when: not pip_cmd.stat.exists
+
+- name: Install pip
+  yum: pkg=python-pip state=present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Ensure httplib2 & boto are present
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - httplib2

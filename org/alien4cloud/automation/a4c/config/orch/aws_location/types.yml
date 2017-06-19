@@ -26,16 +26,19 @@ node_types:
         default: amazon
         constraints:
           - valid_values: [ "amazon" ]
+    artifacts:
+      - resources_file_artifact:
+          type: tosca.artifacts.File
     interfaces:
       Standard:
         start:
           # create the location on demand resources
           inputs:
             ANSIBLE_VERBOSE: true
-            PLAYBOOK_ENTRY: create_byon_location_resource.yml
+            PLAYBOOK_ENTRY: create_aws_location_resources.yml
             orchestratorId: { get_attribute: [HOST, orchestratorId] }
             locationId: { get_attribute: [SELF, locationId] }
             alien_url: { get_attribute: [HOST, alien_url] }
             alien_user: { get_attribute: [HOST, alien_user] }
             alien_password: { get_attribute: [HOST, alien_password] }
-          implementation: scripts/configure_aws_location_resources.sh
+          implementation: playbook/playbook.ansible

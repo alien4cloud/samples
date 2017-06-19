@@ -52,7 +52,7 @@
   when: not pip_cmd.stat.exists
 
 - name: Save install python-pip state
-  file: 
+  file:
     path: /opt/ansible_diamond/.python-pip-state
     state: touch
   when: not pip_cmd.stat.exists
@@ -92,3 +92,6 @@
 
 # create directory for collector config
 - file: path=/etc/ansible_diamond/collectors state=directory mode=0755
+
+# - name: Install httplib2
+#   command: /opt/ansible_diamond/env/bin/pip install httplib2

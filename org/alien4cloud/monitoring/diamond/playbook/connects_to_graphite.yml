@@ -1,7 +1,6 @@
 ---
-
 - hosts: all
-  name: Diamond connectsToGraphite PreConfigureTarget
+  name: Diamond connects to Graphite
   become: true
 
   roles:

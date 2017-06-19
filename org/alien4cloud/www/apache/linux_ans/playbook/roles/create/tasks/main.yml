@@ -1,5 +1,17 @@
 ---
 
+# Install on CentOS / Red Hat Enterprise Linux / RedHat
 - name: Install Apache server
   yum: name=httpd state=present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
 
+# Install on Ubuntu
+- name: Install Apache server
+  apt:
+    name: "{{item}}"
+    state: latest
+    update_cache: yes
+  with_items:
+    - apache2
+    - git
+  when: ansible_distribution == 'Ubuntu'

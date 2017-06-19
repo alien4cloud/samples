@@ -63,6 +63,7 @@ node_types:
         delete:
           inputs:
             port: { get_property: [SELF, data_endpoint, port] }
+            document_root: { get_property: [SELF, document_root] }
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: delete.yml
           implementation: playbook/playbook.ansible

@@ -1,0 +1,84 @@
+---
+
+# - name: Check python-pip exists
+#   stat: path=/usr/bin/pip
+#   register: pip_cmd
+#
+# - name: Install python-pip
+#   command: python /tmp/get-pip.py
+#   when: not pip_cmd.stat.exists
+#
+# - name: Install pip
+#   yum: pkg=python-pip state=present
+#   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+#
+# - name: Ensure httplib2 & boto are present
+#   pip:
+#     name: "{{ item }}"
+#     state: present
+#   with_items:
+#     - httplib2
+
+- name: Ensure httplib2 is present
+  pip:
+    name: httplib2
+    state: present
+
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs/graphite_host"
+  register: graphite_host_file
+
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGraphite/inputs/graphite_host"
+  register: graphite_host_content
+  when: graphite_host_file.stat.exists
+
+# - set_fact:
+#     registry_file_path: "/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGrafana/inputs/grafana_url"
+# - name: Check relationship inputs exists
+#   stat:
+#     path: "{{ registry_file_path }}"
+#   register: registry_file
+# - name: read relationship inputs
+#   command: /bin/cat "{{ registry_file_path }}"
+#   register: registry_content
+#   when: registry_file.stat.exists
+# - set_fact:
+#     grafana_url: "{{ registry_content.stdout_lines[0] }}"
+#   when: registry_file.stat.exists and registry_content.stdout_lines|length > 0
+
+- debug:
+    var: grafana_url
+
+- name: "Get files in /tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/dashboards/"
+  shell: "ls /tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/dashboards/*.dashboard"
+  register: dashboards
+  when: grafana_url is defined
+
+- name: Slurp dashboard files
+  slurp:
+    src: "{{item}}"
+  with_items: "{{ dashboards.stdout_lines }}"
+  register: dashboards_slurped
+  when: grafana_url is defined
+
+- name: "Upload dashboards to Grafana using url {{ grafana_url }}/api/dashboards/db"
+  uri:
+    url: "{{ grafana_url }}/api/dashboards/db"
+    method: POST
+    HEADER_Content-Type: application/json
+    force_basic_auth: yes
+    user: "{{ grafana_user }}"
+    password: "{{ grafana_password }}"
+    body: "{\"dashboard\": {{ item['content'] | b64decode | from_json}}, \"overwrite\": true}"
+    body_format: json
+    return_content: yes
+    status_code: 200
+  ignore_errors: yes
+  register: result
+  with_items: dashboards_slurped.results
+  when: grafana_url is defined
+
+- debug:
+    var: result
+  when: grafana_url is defined

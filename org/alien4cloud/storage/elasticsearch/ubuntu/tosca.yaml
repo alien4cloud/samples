@@ -6,14 +6,14 @@ metadata:
   template_author: alien4cloud
 
 imports:
-  - "tosca-normative-types:1.0.0-ALIEN14"
-  - "org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT"
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
 
 node_types:
 
   org.alien4cloud.storage.elasticsearch.ubuntu.nodes.ElasticSearch:
-    derived_from: org.alien4cloud.lang.java.pub.nodes.JavaSoftware
+    derived_from: org.alien4cloud.storage.elasticsearch.pub.nodes.ElasticSearchService
     description: >
       Installation of replicated ElasticSearch (if this node is scaled, will be replicated).
     tags:
@@ -35,7 +35,7 @@ node_types:
         required: true
         default: "escluster"
     # This node is hosted on JDK, how can I express the fact that is must be hosted also on a ubuntu compute ?
-    # Need for some inheritance in container capability ..
+    # Need for some inheritance in container capability ...
     #
     # requirements:
     #   - host:
@@ -50,13 +50,6 @@ node_types:
     #                 - type: { equal: linux }
     #                 - architecture: { equal: x86_64 }
     #                 - distribution: { valid_values: [ "ubuntu", "debian" ] }
-    capabilities:
-      elasticsearch:
-        type: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchTransportAPI
-        occurrences: [ 0, UNBOUNDED ]
-      http:
-        type: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
-        occurrences: [ 0, UNBOUNDED ]
     interfaces:
       Standard:
         create:

@@ -1,7 +1,6 @@
 ---
-
 - hosts: all
-  name: Diamond CollectElasticSearch PreConfigureTarget
+  name: Diamond CollectJolokia
   become: true
 
   roles:

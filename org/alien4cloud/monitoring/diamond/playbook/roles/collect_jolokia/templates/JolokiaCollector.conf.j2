@@ -1,5 +1,4 @@
 enabled = True
-#hostname = localhost
-hostname = JVM-{{ TARGET_NODE }}-{{ jolokia_host|replace(".", "-") }}
+hostname = {{ TARGET_INSTANCE }}
 port = {{ jolokia_port }}
 #mbeans = "java.lang:type=Memory"

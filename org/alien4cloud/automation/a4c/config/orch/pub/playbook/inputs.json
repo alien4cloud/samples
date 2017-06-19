@@ -1,0 +1,8 @@
+{
+"alien_url": "http://localhost:8080",
+"alien_user": "admin",
+"alien_password": "admin",
+"orchestratorId": "69c075c6-b8d9-42ff-b12b-e4742df218fe",
+"name": "EC2",
+"type": "amazon"
+}

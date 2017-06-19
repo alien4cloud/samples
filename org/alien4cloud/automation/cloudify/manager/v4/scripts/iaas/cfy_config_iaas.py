@@ -5,13 +5,37 @@
 
 import argparse
 import yaml
+import json
 import os
 
 from cloudify_rest_client import CloudifyClient
 from ConfigParser import ConfigParser
 
+try:
+    # Remove the ssl warning message
+    import requests
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+except:
+    pass
+
 BOTO_CONF_PATH = '/etc/cloudify/aws_plugin/boto'
 AZURE_CONF_PATH = '/opt/cloudify_azure_provider.conf'
+OPENSTACK_CONF_PATH = '/etc/cloudify/openstack_plugin/openstack_config.json'
+
+OPENSTACK_RESOURCES_KEYS = {'agents_keypair', 'agents_security_group', 'ext_network',
+                            'floating_ip', 'int_network', 'management_keypair',
+                            'management_security_group', 'router', 'subnet'}
+
+OPENSTACK_RESOURCES_TYPES = {'agents_keypair': 'keypair',
+                             'agents_security_group': 'security_group',
+                             'ext_network': 'network',
+                             'floating_ip': 'floatingip',
+                             'int_network': 'network',
+                             'management_keypair': 'keypair',
+                             'management_security_group': 'security_group',
+                             'router': 'router',
+                             'subnet': 'subnet'}
 
 
 def configure_manager(cfy_client, iaas, configuration_file=None):
@@ -164,7 +188,81 @@ def update_manager_context_for_aws(cfy_client,
 
 
 def configure_openstack(cfy_client, yaml_config):
-    print "[Configure openstack] yaml_config={}".format(yaml_config)
+    create_openstack_config(path=OPENSTACK_CONF_PATH,
+                            auth_url=yaml_config['auth_url'],
+                            tenant_name=yaml_config['tenant_name'],
+                            username=yaml_config['username'],
+                            password=yaml_config['password'],
+                            region=yaml_config['region'])
+
+    update_manager_context_for_openstack(
+                       cfy_client=cfy_client,
+                       agent_user=yaml_config['agent_sh_user'],
+                       agent_pk_path=yaml_config['agent_private_key_path'],
+                       resources_config=yaml_config['resources'])
+
+
+def create_openstack_config(path,
+                            auth_url,
+                            tenant_name,
+                            username,
+                            password,
+                            region):
+    custom_configuration = {}
+    custom_configuration['cinder_client'] = {'insecure': False}
+    custom_configuration['keystone_client'] = {'insecure': False}
+    custom_configuration['neutron_client'] = {'insecure': False}
+    custom_configuration['nova_client'] = {'insecure': False}
+    openstack_config = {}
+    openstack_config['auth_url'] = auth_url
+    openstack_config['tenant_name'] = tenant_name
+    openstack_config['username'] = username
+    openstack_config['password'] = password
+    openstack_config['region'] = region
+    openstack_config['custom_configuration'] = custom_configuration
+
+    directory = os.path.dirname(path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    with open(path, 'w+') as fh:
+        json.dump(openstack_config, fh)
+
+    print "Created Openstack configuration at {}".format(path)
+
+
+def update_manager_context_for_openstack(cfy_client,
+                                         agent_pk_path='/root/.ssh/agent_key.pem',
+                                         agent_user='ubuntu',
+                                         resources_config={}):
+
+    name = cfy_client.manager.get_context()['name']
+    context = cfy_client.manager.get_context()['context']
+    context['cloudify']['cloudify_agent']['agent_key_path'] = agent_pk_path
+    context['cloudify']['cloudify_agent']['user'] = agent_user
+
+    # add openstack config
+    agent_env = context['cloudify']['cloudify_agent'].get('env', {})
+    agent_env['OPENSTACK_CONFIG_PATH'] = OPENSTACK_CONF_PATH
+    context['cloudify']['cloudify_agent']['env'] = agent_env
+
+    # add openstack config for plugins
+    plugins = context['cloudify'].get('plugins', {})
+    plugins['openstack_config_path'] = OPENSTACK_CONF_PATH
+    context['cloudify']['plugins'] = plugins
+
+    # add openstack resources informations
+    resources = context['cloudify'].get('resources', {})
+
+    for key in OPENSTACK_RESOURCES_KEYS:
+        if key in resources_config:
+            resources[key] = resources_config[key]
+            resources[key]['type'] = OPENSTACK_RESOURCES_TYPES[key]
+    context['resources'] = resources
+
+    cfy_client.manager.update_context(name, context)
+
+    print "Updated Openstack manager's context"
 
 
 def print_agent_env(cfy_client):

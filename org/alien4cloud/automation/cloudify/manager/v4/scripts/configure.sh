@@ -5,6 +5,11 @@ echo "Generate configuration input file."
 
 HOME_DIR=~
 
+if [ -z "$PUBLIC_IP" ] ; then
+  echo "Public ip not found. Use the private ip instead..."
+  PUBLIC_IP=$PRIVATE_IP
+fi
+
 echo "ssh_user: $SSH_USER" >> "$HOME_DIR/inputs.yml"
 echo "ssh_key_filename: $HOME_DIR/cfy_keys/$SSH_KEY_FILENAME" >> "$HOME_DIR/inputs.yml"
 echo "agents_user: $AGENTS_USER" >> "$HOME_DIR/inputs.yml"

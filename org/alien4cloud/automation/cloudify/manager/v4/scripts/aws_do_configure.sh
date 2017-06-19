@@ -7,12 +7,20 @@ HOME_DIR=~
 # check if the key has been configured (through relationship)
 if ! grep -q agent_private_key_path "$HOME_DIR/cfy_config_aws.yml"; then
   echo "Use manager key for aws"
-  echo "agent_keypair_name: '$KEYPAIR_NAME'" >> "$HOME_DIR/cfy_config_aws.yml"
-  sudo mkdir /home/cfyuser/
-  sudo chmod 700 /home/cfyuser/
+
+  if [ ! -d "/home/cfyuser" ] ; then
+    echo "Create /home/cfyuser"
+    sudo mkdir /home/cfyuser
+    sudo chmod 700 /home/cfyuser
+    sudo chown -R cfyuser:cfyuser /home/cfyuser
+  fi
+
+  echo "Copy ssh manager $SSH_KEY_FILENAME into /home/cfyuser"
   sudo cp "$HOME_DIR/cfy_keys/$SSH_KEY_FILENAME" "/home/cfyuser/$SSH_KEY_FILENAME"
-  sudo chmod 400 "$HOME_DIR/cfy_keys/$SSH_KEY_FILENAME"
-  sudo chown -R cfyuser:cfyuser /home/cfyuser/
+  sudo chmod 400 "/home/cfyuser/$SSH_KEY_FILENAME"
+  sudo chown -R cfyuser:cfyuser /home/cfyuser/$SSH_KEY_FILENAME
+
+  echo "agent_keypair_name: '$KEYPAIR_NAME'" >> "$HOME_DIR/cfy_config_aws.yml"
   echo "agent_private_key_path: '/home/cfyuser/$SSH_KEY_FILENAME'" >> "$HOME_DIR/cfy_config_aws.yml"
 fi
 

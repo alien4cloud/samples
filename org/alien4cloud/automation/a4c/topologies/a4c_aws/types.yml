@@ -28,11 +28,6 @@ imports:
   - org.alien4cloud.automation.a4c.config.repository:1.4.0-SNAPSHOT
 
 topology_template:
-  description: >
-    A ready to use A4C configured with repositories, an orchesrator configured and started and an AWS location configured with default sample resources.
-    The workflow has been changed to reduces issue while bootstrapping (so needs an orchestrator that supports custom workflows).
-    Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
-
   inputs:
     a4c_version:
       type: version
@@ -497,6 +492,8 @@ topology_template:
           node: AddMockTypes
           activity:
             set_state: started
+          on-success:
+            - ArtifactRepositoriesConfigurator_initial
         AWSLocationConfigurator_initial:
           node: AWSLocationConfigurator
           activity:
@@ -607,6 +604,8 @@ topology_template:
           node: ArtifactRepositoriesConfigurator
           activity:
             set_state: started
+          on-success:
+            - AWSLocationConfigurator_initial
     uninstall:
       steps:
         Compute_uninstall:

@@ -17,12 +17,13 @@ imports:
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
@@ -680,6 +681,7 @@ topology_template:
             set_state: deleted
           on-success:
             - Compute_uninstall
+            - Ansible4CloudifyManager_stopping
         AWSHostpoolFeeder_stopping:
           node: AWSHostpoolFeeder
           activity:
@@ -717,6 +719,7 @@ topology_template:
             set_state: deleted
           on-success:
             - Compute_uninstall
+            - HostPool_stopping
     start:
       steps:
         Ansible4CloudifyManager_started:

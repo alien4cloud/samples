@@ -1,0 +1,25 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.patches.pub
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: CFY Patches.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.automation.cloudify.patches.pub.nodes.CloudifyPatch:
+    derived_from: tosca.nodes.Root
+    description: A patch to apply on CFY.
+    metadata:
+      icon: images/patch.png
+    requirements:
+      - cfy_manager:
+          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]

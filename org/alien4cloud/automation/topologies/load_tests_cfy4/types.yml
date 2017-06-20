@@ -9,8 +9,11 @@ description: >
   CFY4 patched and monitored, with AWS configuration, Ansible.
   The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
 
+
 imports:
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.change_max_fd:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
@@ -27,10 +30,6 @@ imports:
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
-  description: >
-    CFY4 patched and monitored, with AWS configuration, Ansible.
-    The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
-
   inputs:
     aws_region:
       type: string
@@ -225,6 +224,15 @@ topology_template:
             protocol: tcp
             network_name: PRIVATE
             initiator: source
+    ChangeMaxFd:
+      type: org.alien4cloud.automation.cloudify.patches.change_max_fd.nodes.ChangeMaxFd
+      properties:
+        max_file: 500000
+      requirements:
+        - cfy_manager:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+            relationship: tosca.relationships.HostedOn
   outputs:
     CloudifyManager_manager_url:
       value: { get_attribute: [ CloudifyManager, manager_url ] }
@@ -365,6 +373,7 @@ topology_template:
             - AmqpClientPatch_initial
             - ChangeMaxMgmtWorkerPatch_initial
             - Ansible4CloudifyManager_initial
+            - ChangeMaxFd_initial
         CloudifyAwsConfiguration_initial:
           node: CloudifyAwsConfiguration
           activity:
@@ -483,6 +492,8 @@ topology_template:
           node: AmqpClientPatch
           activity:
             set_state: started
+          on-success:
+            - ChangeMaxFd_initial
         ChangeMaxMgmtWorkerPatch_initial:
           node: ChangeMaxMgmtWorkerPatch
           activity:
@@ -616,6 +627,64 @@ topology_template:
             delegate: install
           on-success:
             - DiamondLinuxAgent_initial
+        ChangeMaxFd_initial:
+          node: ChangeMaxFd
+          activity:
+            set_state: initial
+          on-success:
+            - ChangeMaxFd_creating
+        ChangeMaxFd_creating:
+          node: ChangeMaxFd
+          activity:
+            set_state: creating
+          on-success:
+            - create_ChangeMaxFd
+        create_ChangeMaxFd:
+          node: ChangeMaxFd
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - ChangeMaxFd_created
+        ChangeMaxFd_created:
+          node: ChangeMaxFd
+          activity:
+            set_state: created
+          on-success:
+            - ChangeMaxFd_configuring
+        ChangeMaxFd_configuring:
+          node: ChangeMaxFd
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_ChangeMaxFd
+        configure_ChangeMaxFd:
+          node: ChangeMaxFd
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - ChangeMaxFd_configured
+        ChangeMaxFd_configured:
+          node: ChangeMaxFd
+          activity:
+            set_state: configured
+          on-success:
+            - ChangeMaxFd_starting
+        ChangeMaxFd_starting:
+          node: ChangeMaxFd
+          activity:
+            set_state: starting
+          on-success:
+            - start_ChangeMaxFd
+        start_ChangeMaxFd:
+          node: ChangeMaxFd
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ChangeMaxFd_started
+        ChangeMaxFd_started:
+          node: ChangeMaxFd
+          activity:
+            set_state: started
     uninstall:
       steps:
         Compute_uninstall:
@@ -852,6 +921,42 @@ topology_template:
           node: GrafanaService
           activity:
             delegate: uninstall
+        ChangeMaxFd_stopping:
+          node: ChangeMaxFd
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ChangeMaxFd
+        stop_ChangeMaxFd:
+          node: ChangeMaxFd
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ChangeMaxFd_stopped
+        ChangeMaxFd_stopped:
+          node: ChangeMaxFd
+          activity:
+            set_state: stopped
+          on-success:
+            - ChangeMaxFd_deleting
+        ChangeMaxFd_deleting:
+          node: ChangeMaxFd
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_ChangeMaxFd
+        delete_ChangeMaxFd:
+          node: ChangeMaxFd
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - ChangeMaxFd_deleted
+        ChangeMaxFd_deleted:
+          node: ChangeMaxFd
+          activity:
+            set_state: deleted
+          on-success:
+            - CloudifyManager_stopping
     start:
       steps:
         Ansible4CloudifyManager_started:
@@ -866,6 +971,7 @@ topology_template:
             - ChangeMaxMgmtWorkerPatch_starting
             - AmqpClientPatch_starting
             - CloudifyAwsConfiguration_starting
+            - ChangeMaxFd_starting
         start_AmqpClientPatch:
           node: AmqpClientPatch
           activity:
@@ -974,6 +1080,22 @@ topology_template:
             delegate: start
           on-success:
             - DiamondLinuxAgent_starting
+        ChangeMaxFd_starting:
+          node: ChangeMaxFd
+          activity:
+            set_state: starting
+          on-success:
+            - start_ChangeMaxFd
+        start_ChangeMaxFd:
+          node: ChangeMaxFd
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ChangeMaxFd_started
+        ChangeMaxFd_started:
+          node: ChangeMaxFd
+          activity:
+            set_state: started
     stop:
       steps:
         DiamondLinuxAgent_stopping:
@@ -1098,3 +1220,21 @@ topology_template:
           node: GrafanaService
           activity:
             delegate: stop
+        ChangeMaxFd_stopping:
+          node: ChangeMaxFd
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ChangeMaxFd
+        stop_ChangeMaxFd:
+          node: ChangeMaxFd
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ChangeMaxFd_stopped
+        ChangeMaxFd_stopped:
+          node: ChangeMaxFd
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyManager_stopping

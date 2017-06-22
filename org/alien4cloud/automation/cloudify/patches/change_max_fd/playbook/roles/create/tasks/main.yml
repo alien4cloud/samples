@@ -1,0 +1,15 @@
+---
+
+- name: Backup file /etc/security/limits.conf
+  copy:
+    remote_src: True
+    src: /etc/security/limits.conf
+    dest: /etc/security/limits.conf.back
+
+- name: "Set hard limit to {{ max_file }}"
+  command: sudo bash -c "echo 'cfyuser         hard      nofile      {{ max_file }}' >> /etc/security/limits.conf"
+- name: "Set soft limit {{ max_file }}"
+  command: sudo bash -c "echo 'cfyuser         soft      nofile      {{ max_file }}' >> /etc/security/limits.conf"
+
+- name: Restart cloudify-mgmtworker
+  command: systemctl restart cloudify-mgmtworker.service

@@ -16,8 +16,6 @@ node_types:
     derived_from: org.alien4cloud.storage.elasticsearch.pub.nodes.ElasticSearchService
     description: >
       Installation of replicated ElasticSearch (if this node is scaled, will be replicated).
-    tags:
-      icon: images/elasticsearch.png
     properties:
       component_version:
         description: The version of Elasticsearch

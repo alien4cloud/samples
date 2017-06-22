@@ -11,19 +11,13 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.pub:1.4.0-SNAPSHOT
 
 node_types:
 
   org.alien4cloud.automation.cloudify.patches.amqp_client.nodes.AmqpClientPatch:
-    derived_from: tosca.nodes.Root
+    derived_from: org.alien4cloud.automation.cloudify.patches.pub.nodes.CloudifyPatch
     description: Fix AMQP client patch.
-    metadata:
-      icon: images/patch.png
-    requirements:
-      - cfy_manager:
-          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
-          relationship: tosca.relationships.HostedOn
-          occurrences: [1, 1]
     interfaces:
       Standard:
         create:

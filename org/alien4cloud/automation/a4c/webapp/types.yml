@@ -14,7 +14,7 @@ imports:
 
 node_types:
   org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud:
-    derived_from: org.alien4cloud.lang.java.pub.nodes.JavaSoftware
+    derived_from: org.alien4cloud.automation.a4c.pub.nodes.Alien4CloudService
     description: >
       The TOSCA Alien Node Type represents an alien webapp.
     tags:
@@ -62,8 +62,8 @@ node_types:
       #   type: org.alien4cloud.consul.capabilities.ConsulClient
       # elasticsearch:
       #   type: org.alien4cloud.elasticsearch.capabilities.ElasticSearchClient
-      rest:
-        type: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
+      # rest:
+      #   type: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
       jolokia:
         type: org.alien4cloud.automation.a4c.pub.capabilities.JolokiaA4CEndpoint
       config:

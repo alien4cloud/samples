@@ -13,6 +13,7 @@ description: >
   The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
   This topology has been tested on a Centos ami-4c4b003b (t2.medium) for HostPool_Compute and Ubuntu ami-47a23a30 (t2.medium) for A4C_Compute.
 
+
 imports:
   - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
@@ -39,14 +40,6 @@ imports:
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
-  description: >
-    A4C monitored and connected to a CloudifyManagerService, ready to use for load tests.
-    You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
-    The apache installed on HostPool_Compute is here to manager offline plugins (to avoid massive attacks on github from cfy). It also hosts a hostpool.
-    The Host pool is fed with fresh EC2 instances.
-    The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
-    This topology has been tested on a Centos ami-4c4b003b (t2.medium) for HostPool_Compute and Ubuntu ami-47a23a30 (t2.medium) for A4C_Compute.
-
   inputs:
     aws_key_name:
       type: string
@@ -1323,6 +1316,7 @@ topology_template:
             set_state: deleted
           on-success:
             - OracleJDK_stopping
+            - ElasticSearch_stopping
         OrchestratorConfigurator_stopping:
           node: OrchestratorConfigurator
           activity:
@@ -1360,6 +1354,7 @@ topology_template:
           on-success:
             - CloudifyManagerService_uninstall
             - Alien4Cloud_2_stopping
+            - AddCsarFromGit_stopping
         ByonLocationConfigurator_stopping:
           node: ByonLocationConfigurator
           activity:
@@ -1379,6 +1374,7 @@ topology_template:
           on-success:
             - HostPool_stopping
             - ByonLocationConfigurator_deleting
+            - AddCsarFromGit_stopping
         ByonLocationConfigurator_deleting:
           node: ByonLocationConfigurator
           activity:
@@ -1441,6 +1437,7 @@ topology_template:
             - GraphiteService_uninstall
             - Compute_uninstall
             - GrafanaService_uninstall
+            - Alien4Cloud_2_stopping
         ElasticSearch_stopping:
           node: ElasticSearch
           activity:
@@ -1517,6 +1514,7 @@ topology_template:
             set_state: deleted
           on-success:
             - Compute_uninstall_1
+            - AWSHostpoolFeeder_deleting
         Apache_stopping:
           node: Apache
           activity:
@@ -1572,6 +1570,7 @@ topology_template:
           on-success:
             - PluginConfigurator_deleting
             - Alien4Cloud_2_stopping
+            - DiamondLinuxAgent_2_stopping
         PluginConfigurator_deleting:
           node: PluginConfigurator
           activity:
@@ -1627,6 +1626,8 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
+            - PluginConfigurator_deleting
+            - Apache_stopping
             - Compute_uninstall_1
         AddCsarFromGit_stopping:
           node: AddExtendedTypes
@@ -1663,6 +1664,7 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
+            - AddCsarFromGit_stopping_1
             - Alien4Cloud_2_stopping
         AddCsarFromGit_stopping_1:
           node: AddMockTypes
@@ -1699,6 +1701,7 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
+            - DiamondLinuxAgent_stopping
             - Alien4Cloud_2_stopping
         GraphiteService_uninstall:
           node: GraphiteService
@@ -1745,6 +1748,7 @@ topology_template:
           on-success:
             - GraphiteService_uninstall
             - GrafanaService_uninstall
+            - AWSHostpoolFeeder_stopping
             - Compute_uninstall_1
     start:
       steps:

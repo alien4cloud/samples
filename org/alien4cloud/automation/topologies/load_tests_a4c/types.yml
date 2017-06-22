@@ -85,6 +85,8 @@ topology_template:
   input_artifacts:
     alien_dist:
         type: tosca.artifacts.File
+    hostpool_service_archive:
+        type: tosca.artifacts.File        
   node_templates:
     OracleJDK:
       type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
@@ -216,6 +218,10 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+      artifacts:
+        archive:
+          file: { get_input_artifact: hostpool_service_archive }
+          type: tosca.artifacts.File
     Apache:
       type: org.alien4cloud.www.apache.linux_ans.nodes.Apache
       properties:

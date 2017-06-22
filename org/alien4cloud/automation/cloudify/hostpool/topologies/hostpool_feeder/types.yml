@@ -87,6 +87,9 @@ topology_template:
       type: version
       required: false
       description: "The optional software component’s version."
+  input_artifacts:
+    hostpool_service_archive:
+        type: tosca.artifacts.File
   substitution_mappings:
     node_type: org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService
     capabilities:
@@ -176,6 +179,10 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+      artifacts:
+        archive:
+          file: { get_input_artifact: hostpool_service_archive }
+          type: tosca.artifacts.File
     xHostPoolCompute:
       type: tosca.nodes.Compute
       capabilities:

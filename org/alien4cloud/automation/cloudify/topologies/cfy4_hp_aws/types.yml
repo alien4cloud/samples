@@ -72,6 +72,8 @@ topology_template:
   input_artifacts:
     key_file:
         type: tosca.artifacts.File
+    hostpool_service_archive:
+        type: tosca.artifacts.File
   substitution_mappings:
     node_type: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService
     capabilities:
@@ -164,6 +166,10 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+      artifacts:
+        archive:
+          file: { get_input_artifact: hostpool_service_archive }
+          type: tosca.artifacts.File
     AWSHostpoolFeeder:
       type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
       properties:

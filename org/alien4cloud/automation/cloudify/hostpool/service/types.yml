@@ -12,22 +12,34 @@ imports:
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
 
 node_types:
-
   org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPool:
     derived_from: org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService
     description: |
-      !!! port is read only
-      TODO: make it configurable, and versionned
-    capabilities:
-      cloudify_hostpool:
-        type: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
-        occurrences: [ 0, UNBOUNDED ]
-        properties:
-          protocol: http
-          port: 8080 # readonly since this component doen't allow port cutomization
-    attributes:
-      hostpool_url: { concat: [get_property: [SELF, cloudify_hostpool, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_hostpool, port]] }
-      hostpool_url_hosts: { concat: [get_property: [SELF, cloudify_hostpool, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_hostpool, port], "/hosts"] }
+      Configurable hostpool service. The artifact 'archive' should be provided before deploying.
+      You can have it in the maven repository:
+      url:  https://fastconnect.org/maven/content/repositories/fastconnect[-snapshot]
+      id: cloudify-hostpool-service-pkg
+      package: tar.gz
+    properties:
+      homedir:
+        description: Path to the directory where to install the hostpool
+        type: string
+        default: /opt/cloudify-hostpool-service
+      user:
+        description: System user to create dedicated to the hostpool service
+        type: string
+        default: cfyhostpool
+      group:
+        description: System group to create dedicated to the hostpool service
+        type: string
+        default: cfyhostpool
+      data_path:
+        description: |
+          Where to store the pool data.
+          For HA for example, you might want to configure here the path to the mounted shared filesystem amongs the others instances.
+        type: string
+        required: false
+        default: /opt/cloudify-hostpool-service-shared
     requirements:
       - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on yum and so restricted to centos.
           capability: tosca.capabilities.Container
@@ -43,10 +55,18 @@ node_types:
                     - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }
     interfaces:
       Standard:
-        create:
-            implementation: scripts/HostPoolService/install.sh
+        inputs:
+          SVC_PORT: { get_property: [SELF, cloudify_hostpool, port] }
+          DATA_PATH: { get_property: [SELF, data_path] }
+          HOSTPOOL_HOMEDIR: { get_property: [SELF, homedir] }
+          HOSTPOOL_USER: { get_property: [SELF, user] }
+          HOSTPOOL_GROUP: { get_property: [SELF, group] }
+        create: scripts/HostPoolService/install.sh
+        start: scripts/HostPoolService/start.sh
+        stop: scripts/HostPoolService/stop.sh
+        delete: scripts/HostPoolService/uninstall.sh
     artifacts:
       - archive:
-          file: files/HostPoolService/cloudify-hostpool-service-pkg.tar.gz
+          # file: cloudify-hostpool-service-pkg:1.0.0-SNAPSHOT@tar.gz
+          # repository: fastconnect_nexus
           type: tosca.artifacts.File
-          description: The host pool service distribution package

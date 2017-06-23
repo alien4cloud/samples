@@ -1,0 +1,43 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.dummy.topologies.ALIEN_2412
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+
+imports:
+  - org.alien4cloud.sandbox.services.dummy.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.sandbox.services.dummy.implem:1.4.0-SNAPSHOT
+
+topology_template:
+  description: ALIEN-2412 reproduction topology
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+    DummyImplem:
+      type: org.alien4cloud.sandbox.services.dummy.implem.nodes.DummyImplem
+      properties:
+        my_service_property_1: simpleValue
+        my_service_property_2: "/a/path/to/something"
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        dummy_api:
+          properties:
+            admin_username: admin
+            admin_password: admin
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        dummy_public_api:
+          properties:
+            network_name: PUBLIC
+            protocol: tcp
+            secure: false
+            initiator: source

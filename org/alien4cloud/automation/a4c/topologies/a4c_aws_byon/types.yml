@@ -29,7 +29,6 @@ imports:
   - org.alien4cloud.automation.a4c.config.pub:1.4.0-SNAPSHOT
 
 topology_template:
-
   description: >
     A ready to use A4C configured with repositories, an orchesrator configured and started and an AWS location configured with default sample resources, anonther one connected to a hostpool (byon location).
     Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
@@ -44,15 +43,12 @@ topology_template:
       required: true
       default: YourInitials
       description: "a prefix for all deployments"
-    discriminator_0:
-      type: string
-      required: true
-      default: YourInitials
-      description: "a prefix for all deployments"
   input_artifacts:
     alien_dist:
         type: tosca.artifacts.File
-    resources_file_artifact:
+    repositories_file_artifact:
+        type: tosca.artifacts.File
+    aws_resources_file_artifact:
         type: tosca.artifacts.File
   node_templates:
     OracleJDK:
@@ -161,7 +157,7 @@ topology_template:
       properties:
         disableDiamondMonitorAgent: true
         name: MyCfy4
-        discriminator: { get_input: discriminator_0 }
+        discriminator: { get_input: discriminator }
         pluginId: "alien-cloudify-4-orchestrator-premium"
         pluginBean: "cloudify-orchestrator"
       requirements:
@@ -185,7 +181,7 @@ topology_template:
             relationship: org.alien4cloud.automation.a4c.config.pub.relationships.LocationHostedOnOrchestrator
       artifacts:
         resources_file_artifact:
-          file: { get_input_artifact: resources_file_artifact }
+          file: { get_input_artifact: repositories_file_artifact }
           type: tosca.artifacts.File
     AddSamplesTypes:
       type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
@@ -205,6 +201,10 @@ topology_template:
             node: Alien4Cloud
             capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
             relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+      artifacts:
+        resources_file_artifact:
+          file: { get_input_artifact: aws_resources_file_artifact }
+          type: tosca.artifacts.File
     A4cCompute:
       type: tosca.nodes.Compute
       capabilities:

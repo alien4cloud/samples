@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Diamond connects to Graphite
-  become: true
-
-  roles:
-    - connects_to_graphite

@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Diamond CollectAlien
-  become: true
-
-  roles:
-    - collect_alien

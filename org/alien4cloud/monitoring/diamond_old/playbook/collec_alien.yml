@@ -1,8 +1,0 @@
----
-
-- hosts: all
-  name: Diamond CollectAlien PreConfigureTarget
-  become: true
-
-  roles:
-    - collec_alien

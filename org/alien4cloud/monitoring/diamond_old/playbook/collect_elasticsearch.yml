@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Diamond CollectElasticSearch
-  become: true
-
-  roles:
-    - collect_elasticsearch

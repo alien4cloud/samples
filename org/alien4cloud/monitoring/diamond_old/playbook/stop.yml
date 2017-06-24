@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Stop Diamond Agent
-  become: true
-
-  roles:
-    - stop

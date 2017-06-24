@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Diamond connects to Grafana
-  become: true
-
-  roles:
-    - connects_to_grafana

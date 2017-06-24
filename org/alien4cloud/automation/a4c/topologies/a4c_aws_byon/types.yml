@@ -9,6 +9,7 @@ description: >
   A ready to use A4C configured with repositories, an orchesrator configured and started and an AWS location configured with default sample resources, anonther one connected to a hostpool (byon location).
   Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
 
+
 imports:
   - org.alien4cloud.automation.a4c.config.csar:1.4.1-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
@@ -29,10 +30,6 @@ imports:
   - org.alien4cloud.automation.a4c.config.pub:1.4.1-SNAPSHOT
 
 topology_template:
-  description: >
-    A ready to use A4C configured with repositories, an orchesrator configured and started and an AWS location configured with default sample resources, anonther one connected to a hostpool (byon location).
-    Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
-
   inputs:
     component_version:
       type: version
@@ -190,6 +187,10 @@ topology_template:
         branchId: master
         subPath: "org/alien4cloud"
       requirements:
+        - dependency:
+            node: AddExtendedTypes
+            capability: tosca.capabilities.Node
+            relationship: tosca.relationships.DependsOn
         - host:
             node: Alien4Cloud
             capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
@@ -228,6 +229,19 @@ topology_template:
             protocol: tcp
             network_name: PRIVATE
             initiator: source
+    AddExtendedTypes:
+      type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
+      properties:
+        repositoryUrl: "https://github.com/alien4cloud/tosca-normative-types.git"
+        branchId: master
+      requirements:
+        - host:
+            node: Alien4Cloud
+            capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
+            relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+  outputs:
+    Alien4Cloud_alien_url:
+      value: { get_attribute: [ Alien4Cloud, alien_url ] }
   workflows:
     install:
       steps:
@@ -359,6 +373,7 @@ topology_template:
             - ArtifactRepositoriesConfigurator_initial
             - CfyOrchestratorConfigurator_initial
             - CfyOrchestratorConfigurator_2_initial
+            - AddCsarFromGit_initial_1
             - AddCsarFromGit_initial
         CfyOrchestratorConfigurator_initial:
           node: CfyOrchestratorConfigurator
@@ -619,6 +634,8 @@ topology_template:
             set_state: created
           on-success:
             - AddCsarFromGit_configuring
+            - AddCsarFromGit_configuring_1
+            - AddCsarFromGit_initial_1
         AddCsarFromGit_configuring:
           node: AddSamplesTypes
           activity:
@@ -707,6 +724,60 @@ topology_template:
           node: FCRepositories
           activity:
             set_state: started
+        AddCsarFromGit_initial_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: initial
+          on-success:
+            - AddCsarFromGit_creating_1
+        AddCsarFromGit_creating_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: creating
+          on-success:
+            - AddCsarFromGit_created_1
+        AddCsarFromGit_created_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: created
+          on-success:
+            - AddCsarFromGit_configuring_1
+        AddCsarFromGit_configuring_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_AddCsarFromGit_1
+        configure_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - AddCsarFromGit_configured_1
+        AddCsarFromGit_configured_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: configured
+          on-success:
+            - AddCsarFromGit_starting_1
+        AddCsarFromGit_starting_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: starting
+          on-success:
+            - start_AddCsarFromGit_1
+        start_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AddCsarFromGit_started_1
+        AddCsarFromGit_started_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: started
+          on-success:
+            - AddCsarFromGit_configuring
     uninstall:
       steps:
         UbuntuNano_uninstall:
@@ -1012,6 +1083,42 @@ topology_template:
             set_state: deleted
           on-success:
             - Alien4Cloud_stopping
+        AddCsarFromGit_stopping_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AddCsarFromGit_1
+        stop_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AddCsarFromGit_stopped_1
+        AddCsarFromGit_stopped_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: stopped
+          on-success:
+            - AddCsarFromGit_deleting_1
+        AddCsarFromGit_deleting_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_AddCsarFromGit_1
+        delete_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - AddCsarFromGit_deleted_1
+        AddCsarFromGit_deleted_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: deleted
+          on-success:
+            - Alien4Cloud_stopping
     start:
       steps:
         UbuntuNano_start:
@@ -1057,6 +1164,7 @@ topology_template:
           on-success:
             - CfyOrchestratorConfigurator_starting
             - AddCsarFromGit_starting
+            - AddCsarFromGit_starting_1
             - CfyOrchestratorConfigurator_2_starting
             - ArtifactRepositoriesConfigurator_starting
         CfyOrchestratorConfigurator_starting:
@@ -1172,6 +1280,24 @@ topology_template:
           node: FCRepositories
           activity:
             set_state: started
+        AddCsarFromGit_starting_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: starting
+          on-success:
+            - start_AddCsarFromGit_1
+        start_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AddCsarFromGit_started_1
+        AddCsarFromGit_started_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: started
+          on-success:
+            - AddCsarFromGit_starting
     stop:
       steps:
         UbuntuNano_stop:
@@ -1329,6 +1455,24 @@ topology_template:
             - ArtifactRepositoriesConfigurator_stopped
         ArtifactRepositoriesConfigurator_stopped:
           node: FCRepositories
+          activity:
+            set_state: stopped
+          on-success:
+            - Alien4Cloud_stopping
+        AddCsarFromGit_stopping_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AddCsarFromGit_1
+        stop_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AddCsarFromGit_stopped_1
+        AddCsarFromGit_stopped_1:
+          node: AddExtendedTypes
           activity:
             set_state: stopped
           on-success:

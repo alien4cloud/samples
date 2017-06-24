@@ -10,23 +10,23 @@ description: >
   Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
 
 imports:
-  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.csar:1.4.1-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
   - alien-base-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.location:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.location:1.4.1-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.location_resources.cfy_byon:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.location_resources.cfy_byon:1.4.1-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.1-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orch.aws_location:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.repository:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orch.aws_location:1.4.1-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.repository:1.4.1-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.pub:1.4.1-SNAPSHOT
 
 topology_template:
   description: >
@@ -59,7 +59,7 @@ topology_template:
         component_version: "1.8.0-131-b11"
       requirements:
         - host:
-            node: A4cCompute
+            node: _A4cCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     Alien4Cloud:
@@ -181,7 +181,7 @@ topology_template:
             relationship: org.alien4cloud.automation.a4c.config.pub.relationships.LocationHostedOnOrchestrator
       artifacts:
         resources_file_artifact:
-          file: { get_input_artifact: repositories_file_artifact }
+          file: { get_input_artifact: aws_resources_file_artifact }
           type: tosca.artifacts.File
     AddSamplesTypes:
       type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
@@ -203,9 +203,9 @@ topology_template:
             relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
       artifacts:
         resources_file_artifact:
-          file: { get_input_artifact: aws_resources_file_artifact }
+          file: { get_input_artifact: repositories_file_artifact }
           type: tosca.artifacts.File
-    A4cCompute:
+    _A4cCompute:
       type: tosca.nodes.Compute
       capabilities:
         host:
@@ -232,7 +232,7 @@ topology_template:
     install:
       steps:
         UbuntuNano_install:
-          node: A4cCompute
+          node: _A4cCompute
           activity:
             delegate: install
           on-success:
@@ -710,7 +710,7 @@ topology_template:
     uninstall:
       steps:
         UbuntuNano_uninstall:
-          node: A4cCompute
+          node: _A4cCompute
           activity:
             delegate: uninstall
         OracleJDK_stopping:
@@ -1015,7 +1015,7 @@ topology_template:
     start:
       steps:
         UbuntuNano_start:
-          node: A4cCompute
+          node: _A4cCompute
           activity:
             delegate: start
           on-success:
@@ -1175,7 +1175,7 @@ topology_template:
     stop:
       steps:
         UbuntuNano_stop:
-          node: A4cCompute
+          node: _A4cCompute
           activity:
             delegate: stop
         OracleJDK_stopping:

@@ -22,19 +22,19 @@ node_types:
       mgmt_worker_count:
         type: integer
         required: true
-        default: 100
+        default: 500
     interfaces:
       Standard:
         create:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: create.yml
             mgmt_worker_count: { get_property: [SELF, mgmt_worker_count]}
           implementation: playbook/playbook.ansible
       org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker.interfaces.Admin:
         setup:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: create.yml
             mgmt_worker_count:
               type: integer

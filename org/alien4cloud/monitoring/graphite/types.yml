@@ -58,22 +58,22 @@ node_types:
       Standard:
         create:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: create.yml
             port_httpd: 8008
           implementation: playbook/playbook.ansible
         start:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: start.yml
           implementation: playbook/playbook.ansible
         stop:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: stop.yml
           implementation: playbook/playbook.ansible
         delete:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: delete.yml
           implementation: playbook/playbook.ansible

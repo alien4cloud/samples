@@ -1,0 +1,46 @@
+---
+- hosts: localhost
+  name: Setup an alien premium with repositories, 2 orchestrators (1 CFY & 1 BYON) with their resources.
+  become: false
+
+  roles:
+    - { role: repository/playbook/roles/create_repositories,
+        resources_file_artifact: 'repository/resources/repositories.yaml',
+      }
+    - { role: csar/playbook/roles/start,
+        repositoryUrl: 'https://github.com/alien4cloud/samples',
+        repositoryUsername: '',
+        repositoryPassword: '',
+        branchId: 'master',
+        subPath: 'org/alien4cloud'
+      }
+    - { role: orchestrator/cfy/playbook/roles/create_orchestrator,
+        name: 'Cloudify4Orchestrator',
+        pluginId: 'alien-cloudify-4-orchestrator-premium',
+        pluginBean: 'cloudify-orchestrator',
+        disableDiamondMonitorAgent: 'true'
+      }
+    - { role: 'location/playbook/roles/create_location',
+        location_name: 'AWS',
+        location_type: 'amazon'
+      }
+    - { role: 'location_resources/on_demand/playbook/roles/create_location_resources',
+        resources_file_artifact: 'location_resources/on_demand/resources/aws_resources.yaml'
+      }
+    - { role: orchestrator/cfy/playbook/roles/create_orchestrator,
+        name: 'Cloudify4Orchestrator-BYON',
+        pluginId: 'alien-cloudify-4-orchestrator-premium',
+        pluginBean: 'cloudify-orchestrator',
+        disableDiamondMonitorAgent: 'true'
+      }
+    - { role: 'location/playbook/roles/create_location',
+        location_name: 'BYON',
+        location_type: 'byon'
+      }
+    - { role: 'location_resources/cfy_byon/playbook/roles/create_byon_location_resource',
+        resourceType: 'alien.cloudify.byon.nodes.LinuxCompute',
+        resourceName: 'MyByonOnDemandResource',
+        resourceArchiveName: 'cloudify-byon-types',
+        resourceArchiveVersion: '1.4.0',
+        resourceAgentInstallMethod: 'none'
+      }

@@ -23,7 +23,7 @@ node_types:
       Standard:
         create:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "create AnsibleMockHost"
             duration: { get_property: [ SELF, duration ] }
@@ -33,7 +33,7 @@ node_types:
           implementation: playbook/playbook.ansible
         configure:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "configure AnsibleMockHost"
             duration: { get_property: [ SELF, duration ] }
@@ -44,7 +44,7 @@ node_types:
           implementation: playbook/playbook.ansible
         start:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "start AnsibleMockHost"
             duration: { get_property: [ SELF, duration ] }
@@ -54,7 +54,7 @@ node_types:
           implementation: playbook/playbook.ansible
         # stop:
         #   inputs:
-        #     ANSIBLE_VERBOSE: true
+        #     ANSIBLE_VERBOSE: false
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "stop AnsibleMockHost"
         #     sleep_time: 2
@@ -63,7 +63,7 @@ node_types:
         #   implementation: playbook/playbook.ansible
         # delete:
         #   inputs:
-        #     ANSIBLE_VERBOSE: true
+        #     ANSIBLE_VERBOSE: false
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "delete AnsibleMockHost"
         #     sleep_time: 2
@@ -91,7 +91,7 @@ node_types:
       Standard:
         create:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "create AnsibleMockComponent"
             duration: { get_property: [ SELF, duration ] }
@@ -101,7 +101,7 @@ node_types:
           implementation: playbook/playbook.ansible
         configure:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "configure AnsibleMockComponent"
             duration: { get_property: [ SELF, duration ] }
@@ -111,7 +111,7 @@ node_types:
           implementation: playbook/playbook.ansible
         start:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "start AnsibleMockComponent"
             duration: { get_property: [ SELF, duration ] }
@@ -121,7 +121,7 @@ node_types:
           implementation: playbook/playbook.ansible
         # stop:
         #   inputs:
-        #     ANSIBLE_VERBOSE: true
+        #     ANSIBLE_VERBOSE: false
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "stop AnsibleMockComponent"
         #     sleep_time: 2
@@ -130,7 +130,7 @@ node_types:
         #   implementation: playbook/playbook.ansible
         # delete:
         #   inputs:
-        #     ANSIBLE_VERBOSE: true
+        #     ANSIBLE_VERBOSE: false
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "delete AnsibleMockComponent"
         #     sleep_time: 2
@@ -147,7 +147,7 @@ relationship_types:
       configure:
         pre_configure_source:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "pre_configure_source AnsibleComponentHostedOnHost"
             duration: 2
@@ -157,7 +157,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         pre_configure_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "pre_configure_target AnsibleComponentHostedOnHost"
             duration: 2
@@ -167,7 +167,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         post_configure_source:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "post_configure_source AnsibleComponentHostedOnHost"
             duration: 2
@@ -177,7 +177,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         post_configure_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "post_configure_target AnsibleComponentHostedOnHost"
             duration: 2
@@ -187,7 +187,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         add_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "add_target AnsibleComponentHostedOnHost"
             duration: 2
@@ -197,7 +197,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         add_source:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "add_source AnsibleComponentHostedOnHost"
             duration: 2
@@ -207,7 +207,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         # remove_target:
         #   inputs:
-        #     ANSIBLE_VERBOSE: true
+        #     ANSIBLE_VERBOSE: false
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "remove_target AnsibleComponentHostedOnHost"
         #     sleep_time: 5
@@ -216,7 +216,7 @@ relationship_types:
         #   implementation: playbook/playbook.ansible
         # remove_source:
         #   inputs:
-        #     ANSIBLE_VERBOSE: true
+        #     ANSIBLE_VERBOSE: false
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "remove_source AnsibleComponentHostedOnHost"
         #     sleep_time: 5
@@ -230,7 +230,7 @@ relationship_types:
       configure:
         pre_configure_source:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "pre_configure_source AnsibleComponentConnectToComponent"
             duration: 2
@@ -240,7 +240,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         pre_configure_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "pre_configure_target AnsibleComponentConnectToComponent"
             duration: 2
@@ -250,7 +250,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         post_configure_source:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "post_configure_source AnsibleComponentConnectToComponent"
             duration: 2
@@ -260,7 +260,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         post_configure_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "post_configure_target AnsibleComponentConnectToComponent"
             duration: 2
@@ -270,7 +270,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         add_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "add_target AnsibleComponentConnectToComponent"
             duration: 2
@@ -280,7 +280,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         add_source:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: operation.yml
             operation: "add_source AnsibleComponentConnectToComponent"
             duration: 2
@@ -290,7 +290,7 @@ relationship_types:
           implementation: playbook/playbook.ansible
         # remove_target:
         #   inputs:
-        #     ANSIBLE_VERBOSE: true
+        #     ANSIBLE_VERBOSE: false
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "remove_target AnsibleComponentConnectToComponent"
         #     sleep_time: 5
@@ -299,7 +299,7 @@ relationship_types:
         #   implementation: playbook/playbook.ansible
         # remove_source:
         #   inputs:
-        #     ANSIBLE_VERBOSE: true
+        #     ANSIBLE_VERBOSE: false
         #     PLAYBOOK_ENTRY: operation.yml
         #     operation: "remove_source AnsibleComponentConnectToComponent"
         #     sleep_time: 5

@@ -40,7 +40,7 @@ node_types:
         start:
           # create the location
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: start.yml
             repositoryUrl: { get_property: [SELF, repositoryUrl] }
             repositoryUsername: { get_property: [SELF, repositoryUsername] }

@@ -22,6 +22,6 @@ node_types:
       Standard:
         create:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: create.yml
           implementation: playbook/playbook.ansible

@@ -68,6 +68,8 @@ node_types:
         type: org.alien4cloud.automation.a4c.pub.capabilities.JolokiaA4CEndpoint
       config:
         type: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
+      http:
+        type: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
     requirements:
       # This node is hosted on JDK, how can I express the fact that is must be hosted also on a ubuntu compute ?
       # Need for some inheritance in container capability ..

@@ -1,8 +1,0 @@
----
-- hosts: all
-  name: Upload an orchestrator plugin
-  become: true
-
-  roles:
-    - setup
-    - upload_orchestrator_plugin

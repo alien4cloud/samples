@@ -9,22 +9,26 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.automation.a4c.pub.nodes.Alien4CloudService:
     derived_from: org.alien4cloud.lang.java.pub.nodes.JavaSoftware
+    abstract: true
     description: >
       An Alien !
     tags:
       icon: /images/alien4cloud-logo.png
-    properties:
-      component_version:
-        description: The version of A4C (important in create stage).
-        type: version
-        required: true
+    # properties:
+    #   component_version:
+    #     description: The version of A4C (important in create stage).
+    #     type: version
+    #     required: true
     capabilities:
       rest:
         type: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
+      http:
+        type: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
 
   org.alien4cloud.automation.a4c.pub.nodes.AlienConfigurator:
     derived_from: tosca.nodes.Root

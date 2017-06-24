@@ -9,49 +9,33 @@ description: >
   A Hostpool with a AWS Hostpool feeder.
   Should work on a Centos (ami-4c4b003b) t2.small.
 
+
 imports:
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0-SNAPSHOT
 
 topology_template:
+  description: >
+    A Hostpool with a AWS Hostpool feeder.
+    Should work on a Centos (ami-4c4b003b) t2.small.
+
   inputs:
-    aws_key_name:
+    key_name:
       type: string
       required: true
       description: "The AWS key name"
-    aws_instance_type:
-      type: string
-      required: true
-      default: "t2.nano"
-      constraints:
-        - valid_values: [t2.nano, t2.small, t2.medium, m4.large, c4.8xlarge]
-      description: "The AWS instance type"
-    instance_name:
-      type: string
-      required: true
-      default: HostpoolInstance
-      description: "The AWS instance name"
-    aws_key_content:
-      type: string
-      required: true
-      description: "The AWS key"
     aws_access_key:
       type: string
       required: true
       description: "The AWS access key"
-    aws_instance_groups:
+    key_content:
+      type: string
+      required: true
+      description: "The AWS key"
+    instance_groups:
       type: string
       required: true
       description: "Security groups the instances will be associated with"
@@ -59,113 +43,41 @@ topology_template:
       type: string
       required: true
       description: "The AWS secret key"
-    aws_instance_image:
-      type: string
-      required: true
-      default: "ami-47a23a30"
-      constraints:
-        - valid_values: ["ami-4c4b003b", "ami-47a23a30"]
-      description: "The AWS ami (Centos:4c or Ubuntu:47)"
-    host_per_instance:
-      type: integer
-      required: true
-      default: 1
-      description: "Number of host to declare in hostpool per EC2 instance"
-    instance_username:
-      type: string
-      required: true
-      default: ubuntu
-      constraints:
-        - valid_values: [ubuntu, "ec2-user"]
-      description: "The user to use to connect to the instance"
-    instance_count:
-      type: integer
-      required: true
-      default: 1
-      description: "Number of instances to start"
-    component_version:
-      type: version
-      required: false
-      description: "The optional software component’s version."
   substitution_mappings:
     node_type: org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService
     capabilities:
       cloudify_hostpool: [ HostPool, cloudify_hostpool ]
   node_templates:
-    GraphiteService:
-      type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
-      capabilities:
-        data_endpoint:
-          properties:
-            protocol: tcp
-            secure: false
-            network_name: PRIVATE
-            initiator: source
-        http_endpoint:
-          properties:
-            protocol: tcp
-            secure: false
-            network_name: PRIVATE
-            initiator: source
-    DiamondHostPool:
-      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
-      properties:
-        datasource_name: "Graphite_DS"
-        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
-      requirements:
-        - host:
-            node: xHostPoolCompute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
-        - data_endpoint:
-            node: GraphiteService
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
-        - grafana:
-            node: GrafanaService
-            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGrafana
     AWSHostpoolFeeder:
       type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
       properties:
         aws_access_key: { get_input: aws_access_key }
         aws_secret_key: { get_input: aws_secret_key }
-        key_name: { get_input: aws_key_name }
-        key_content: { get_input: aws_key_content }
+        key_name: { get_input: key_name }
+        key_content: { get_input: key_content }
         region: "eu-west-1"
-        instance_groups: { get_input: aws_instance_groups }
-        instance_username: { get_input: instance_username }
-        instance_type: { get_input: aws_instance_type }
-        instance_image: { get_input: aws_instance_image }
-        instance_count: { get_input: instance_count }
-        host_per_instance: { get_input: host_per_instance }
-        instance_name: { get_input: instance_name }
+        instance_groups: { get_input: instance_groups }
+        instance_username: ubuntu
+        instance_type: "t2.nano"
+        instance_image: "ami-47a23a30"
+        instance_count: 0
+        host_per_instance: 1
+        instance_name: HostpoolInstance
         instance_os: linux
       requirements:
         - host:
-            node: xHostPoolCompute
+            node: Compute_Hostpool
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
         - hostpool:
             node: HostPool
             capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
             relationship: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool
-    GrafanaService:
-      type: org.alien4cloud.monitoring.pub.nodes.GrafanaService
-      capabilities:
-        http_endpoint:
-          properties:
-            user: admin
-            password: admin
-            protocol: tcp
-            secure: false
-            network_name: PRIVATE
-            initiator: source
     HostPool:
       type: org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPool
       requirements:
         - host:
-            node: xHostPoolCompute
+            node: Compute_Hostpool
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
       capabilities:
@@ -176,7 +88,7 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
-    xHostPoolCompute:
+    Compute_Hostpool:
       type: tosca.nodes.Compute
       capabilities:
         os:
@@ -195,83 +107,16 @@ topology_template:
             protocol: tcp
             network_name: PRIVATE
             initiator: source
-  outputs:
-    HostPool_hostpool_url:
-      value: { get_attribute: [ HostPool, hostpool_url ] }
-    HostPool_hostpool_url_hosts:
-      value: { get_attribute: [ HostPool, hostpool_url_hosts ] }
   workflows:
     install:
       steps:
         Compute_install:
-          node: xHostPoolCompute
+          node: Compute_Hostpool
           activity:
             delegate: install
           on-success:
-            - DiamondLinuxAgent_initial
+            - AWSHostpoolFeeder_initial
             - HostPool_initial
-            - AWSHostpoolFeeder_initial
-        HostPool_initial:
-          node: HostPool
-          activity:
-            set_state: initial
-          on-success:
-            - HostPool_creating
-        HostPool_creating:
-          node: HostPool
-          activity:
-            set_state: creating
-          on-success:
-            - create_HostPool
-        create_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - HostPool_created
-        HostPool_created:
-          node: HostPool
-          activity:
-            set_state: created
-          on-success:
-            - HostPool_configuring
-            - AWSHostpoolFeeder_initial
-        HostPool_configuring:
-          node: HostPool
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_HostPool
-        configure_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - HostPool_configured
-        HostPool_configured:
-          node: HostPool
-          activity:
-            set_state: configured
-          on-success:
-            - HostPool_starting
-        HostPool_starting:
-          node: HostPool
-          activity:
-            set_state: starting
-          on-success:
-            - start_HostPool
-        start_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - HostPool_started
-        HostPool_started:
-          node: HostPool
-          activity:
-            set_state: started
-          on-success:
-            - AWSHostpoolFeeder_configuring
         AWSHostpoolFeeder_initial:
           node: AWSHostpoolFeeder
           activity:
@@ -325,121 +170,72 @@ topology_template:
           node: AWSHostpoolFeeder
           activity:
             set_state: started
-        DiamondLinuxAgent_initial:
-          node: DiamondHostPool
+        HostPool_initial:
+          node: HostPool
           activity:
             set_state: initial
           on-success:
-            - DiamondLinuxAgent_creating
-        DiamondLinuxAgent_creating:
-          node: DiamondHostPool
+            - HostPool_creating
+        HostPool_creating:
+          node: HostPool
           activity:
             set_state: creating
           on-success:
-            - create_DiamondLinuxAgent
-        create_DiamondLinuxAgent:
-          node: DiamondHostPool
+            - create_HostPool
+        create_HostPool:
+          node: HostPool
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.create
           on-success:
-            - DiamondLinuxAgent_created
-        DiamondLinuxAgent_created:
-          node: DiamondHostPool
+            - HostPool_created
+        HostPool_created:
+          node: HostPool
           activity:
             set_state: created
           on-success:
-            - DiamondLinuxAgent_configuring
-        DiamondLinuxAgent_configuring:
-          node: DiamondHostPool
+            - HostPool_configuring
+        HostPool_configuring:
+          node: HostPool
           activity:
             set_state: configuring
           on-success:
-            - configure_DiamondLinuxAgent
-        configure_DiamondLinuxAgent:
-          node: DiamondHostPool
+            - configure_HostPool
+        configure_HostPool:
+          node: HostPool
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.configure
           on-success:
-            - DiamondLinuxAgent_configured
-        DiamondLinuxAgent_configured:
-          node: DiamondHostPool
+            - HostPool_configured
+        HostPool_configured:
+          node: HostPool
           activity:
             set_state: configured
           on-success:
-            - DiamondLinuxAgent_starting
-        DiamondLinuxAgent_starting:
-          node: DiamondHostPool
+            - HostPool_starting
+        HostPool_starting:
+          node: HostPool
           activity:
             set_state: starting
           on-success:
-            - start_DiamondLinuxAgent
-        start_DiamondLinuxAgent:
-          node: DiamondHostPool
+            - start_HostPool
+        start_HostPool:
+          node: HostPool
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on-success:
-            - DiamondLinuxAgent_started
-        DiamondLinuxAgent_started:
-          node: DiamondHostPool
+            - HostPool_started
+        HostPool_started:
+          node: HostPool
           activity:
             set_state: started
           on-success:
-            - HostPool_initial
-        GraphiteService_install:
-          node: GraphiteService
-          activity:
-            delegate: install
-          on-success:
-            - DiamondLinuxAgent_initial
-        GrafanaService_install:
-          node: GrafanaService
-          activity:
-            delegate: install
-          on-success:
-            - DiamondLinuxAgent_initial
+            - AWSHostpoolFeeder_configuring
     uninstall:
       steps:
         Compute_uninstall:
-          node: xHostPoolCompute
+          node: Compute_Hostpool
           activity:
             delegate: uninstall
-        HostPool_stopping:
-          node: HostPool
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_HostPool
-        stop_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - HostPool_stopped
-        HostPool_stopped:
-          node: HostPool
-          activity:
-            set_state: stopped
-          on-success:
-            - HostPool_deleting
-        HostPool_deleting:
-          node: HostPool
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_HostPool
-        delete_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - HostPool_deleted
-        HostPool_deleted:
-          node: HostPool
-          activity:
-            set_state: deleted
-          on-success:
-            - Compute_uninstall
-            - DiamondLinuxAgent_stopping
         AWSHostpoolFeeder_stopping:
           node: AWSHostpoolFeeder
           activity:
@@ -477,63 +273,67 @@ topology_template:
             set_state: deleted
           on-success:
             - Compute_uninstall
-            - HostPool_stopping
-        DiamondLinuxAgent_stopping:
-          node: DiamondHostPool
+        HostPool_stopping:
+          node: HostPool
           activity:
             set_state: stopping
           on-success:
-            - stop_DiamondLinuxAgent
-        stop_DiamondLinuxAgent:
-          node: DiamondHostPool
+            - stop_HostPool
+        stop_HostPool:
+          node: HostPool
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on-success:
-            - DiamondLinuxAgent_stopped
-        DiamondLinuxAgent_stopped:
-          node: DiamondHostPool
+            - HostPool_stopped
+        HostPool_stopped:
+          node: HostPool
           activity:
             set_state: stopped
           on-success:
-            - DiamondLinuxAgent_deleting
-        DiamondLinuxAgent_deleting:
-          node: DiamondHostPool
+            - HostPool_deleting
+        HostPool_deleting:
+          node: HostPool
           activity:
             set_state: deleting
           on-success:
-            - delete_DiamondLinuxAgent
-        delete_DiamondLinuxAgent:
-          node: DiamondHostPool
+            - delete_HostPool
+        delete_HostPool:
+          node: HostPool
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.delete
           on-success:
-            - DiamondLinuxAgent_deleted
-        DiamondLinuxAgent_deleted:
-          node: DiamondHostPool
+            - HostPool_deleted
+        HostPool_deleted:
+          node: HostPool
           activity:
             set_state: deleted
           on-success:
-            - GraphiteService_uninstall
             - Compute_uninstall
-            - GrafanaService_uninstall
-        GraphiteService_uninstall:
-          node: GraphiteService
-          activity:
-            delegate: uninstall
-        GrafanaService_uninstall:
-          node: GrafanaService
-          activity:
-            delegate: uninstall
     start:
       steps:
         Compute_start:
-          node: xHostPoolCompute
+          node: Compute_Hostpool
           activity:
             delegate: start
           on-success:
             - AWSHostpoolFeeder_starting
             - HostPool_starting
-            - DiamondLinuxAgent_starting
+        AWSHostpoolFeeder_starting:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: starting
+          on-success:
+            - start_AWSHostpoolFeeder
+        start_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AWSHostpoolFeeder_started
+        AWSHostpoolFeeder_started:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: started
         HostPool_starting:
           node: HostPool
           activity:
@@ -552,77 +352,12 @@ topology_template:
             set_state: started
           on-success:
             - AWSHostpoolFeeder_starting
-        AWSHostpoolFeeder_starting:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: starting
-          on-success:
-            - start_AWSHostpoolFeeder
-        start_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - AWSHostpoolFeeder_started
-        AWSHostpoolFeeder_started:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: started
-        DiamondLinuxAgent_starting:
-          node: DiamondHostPool
-          activity:
-            set_state: starting
-          on-success:
-            - start_DiamondLinuxAgent
-        start_DiamondLinuxAgent:
-          node: DiamondHostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - DiamondLinuxAgent_started
-        DiamondLinuxAgent_started:
-          node: DiamondHostPool
-          activity:
-            set_state: started
-          on-success:
-            - HostPool_starting
-        GraphiteService_start:
-          node: GraphiteService
-          activity:
-            delegate: start
-          on-success:
-            - DiamondLinuxAgent_starting
-        GrafanaService_start:
-          node: GrafanaService
-          activity:
-            delegate: start
-          on-success:
-            - DiamondLinuxAgent_starting
     stop:
       steps:
         Compute_stop:
-          node: xHostPoolCompute
+          node: Compute_Hostpool
           activity:
             delegate: stop
-        HostPool_stopping:
-          node: HostPool
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_HostPool
-        stop_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - HostPool_stopped
-        HostPool_stopped:
-          node: HostPool
-          activity:
-            set_state: stopped
-          on-success:
-            - DiamondLinuxAgent_stopping
-            - Compute_stop
         AWSHostpoolFeeder_stopping:
           node: AWSHostpoolFeeder
           activity:
@@ -640,33 +375,22 @@ topology_template:
           activity:
             set_state: stopped
           on-success:
-            - HostPool_stopping
             - Compute_stop
-        DiamondLinuxAgent_stopping:
-          node: DiamondHostPool
+        HostPool_stopping:
+          node: HostPool
           activity:
             set_state: stopping
           on-success:
-            - stop_DiamondLinuxAgent
-        stop_DiamondLinuxAgent:
-          node: DiamondHostPool
+            - stop_HostPool
+        stop_HostPool:
+          node: HostPool
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on-success:
-            - DiamondLinuxAgent_stopped
-        DiamondLinuxAgent_stopped:
-          node: DiamondHostPool
+            - HostPool_stopped
+        HostPool_stopped:
+          node: HostPool
           activity:
             set_state: stopped
           on-success:
-            - GraphiteService_stop
-            - GrafanaService_stop
             - Compute_stop
-        GraphiteService_stop:
-          node: GraphiteService
-          activity:
-            delegate: stop
-        GrafanaService_stop:
-          node: GrafanaService
-          activity:
-            delegate: stop

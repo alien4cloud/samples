@@ -1,0 +1,70 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.a4c.config.location
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+
+  org.alien4cloud.automation.a4c.config.location.nodes.SimpleLocationConfigurator:
+    derived_from: org.alien4cloud.automation.a4c.config.pub.nodes.LocationConfigurator
+    # abstract: true
+    description: |
+      Configure a location for an A4C orchestrator
+    properties:
+      name:
+        type: string
+        required: true
+        default: MyLocation
+      type:
+        type: string
+        required: true
+        default: byon
+        constraints:
+          - valid_values: [ "amazon", "byon" ]
+    attributes:
+      locationId: { get_operation_output: [ SELF, Standard, create, locationId ] }
+    # requirements:
+    #   - orchestrator:
+    #       capability: org.alien4cloud.automation.a4c.config.pub.capabilities.OrchestratorConfigurator
+    #       relationship: org.alien4cloud.automation.a4c.config.pub.relationships.LocationHostedOnOrchestrator
+    #       occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          # create the location
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: create_location.yml
+            location_name: { get_property: [SELF, name] }
+            location_type: { get_property: [SELF, type] }
+            orchestratorId: { get_attribute: [HOST, orchestratorId] }
+            alien_url: { get_attribute: [HOST, alien_url] }
+            alien_user: { get_attribute: [HOST, alien_user] }
+            alien_password: { get_attribute: [HOST, alien_password] }
+          implementation: playbook/playbook.ansible
+
+
+# relationship_types:
+#   # org.alien4cloud.automation.a4c.config.orch.pub.relationships.ConnectsToA4C:
+#   #   derived_from: tosca.relationships.ConnectsTo
+#   #   valid_target_types: [ org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi ]
+#   #   interfaces:
+#   #     Configure:
+#   #       pre_configure_source:
+#   #         inputs:
+#   #           ANSIBLE_VERBOSE: false
+#   #           PLAYBOOK_ENTRY: connect_a4c.yml
+#   #           alien_user: { get_property: [TARGET, rest, user] }
+#   #           alien_password: { get_property: [TARGET, rest, password] }
+#   #           alien_url: { concat: [get_property: [TARGET, rest, protocol], "://", get_attribute: [TARGET, public_ip_address], ":", get_property: [TARGET, rest, port]] }
+#   #         implementation: playbook/playbook.ansible
+#   org.alien4cloud.automation.a4c.config.orch.pub.relationships.LocationHostedOnOrchestrator:
+#     derived_from: tosca.relationships.HostedOn

@@ -1,0 +1,11 @@
+---
+
+- name: download jolokia-jvm-1.3.6-agent.jar
+  get_url:
+    url: http://search.maven.org/remotecontent?filepath=org/jolokia/jolokia-jvm/1.3.6/jolokia-jvm-1.3.6-agent.jar
+    dest: /opt/alien4cloud/alien4cloud/jolokia-jvm-1.3.6-agent.jar
+    mode: 0444
+
+- copy:
+    content: "export JAVA_EXT_OPTIONS=\"$JAVA_EXT_OPTIONS -javaagent:/opt/alien4cloud/alien4cloud/jolokia-jvm-1.3.6-agent.jar=host=localhost,port={{ jolokia_port }}\""
+    dest: "/etc/alien4cloud/env/jolokia.sh"

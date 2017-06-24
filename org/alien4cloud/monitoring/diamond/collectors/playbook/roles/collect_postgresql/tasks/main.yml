@@ -1,0 +1,10 @@
+---
+
+- name: pip psycopg2
+  pip: name=psycopg2
+
+- name: Create config file for Postgresql collector
+  template:
+    src: PostgresqlCollector.conf.j2
+    dest: "{{collectors_conf_path}}/PostgresqlCollector.conf"
+    force: yes

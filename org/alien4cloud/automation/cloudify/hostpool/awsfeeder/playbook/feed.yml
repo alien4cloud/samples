@@ -4,6 +4,11 @@
   name: Create EC2 instance & feed Hostpool with them
   become: true
 
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
   roles:
     - setup
     - { role: get_att, attribute_name: 'hostpool_url' }

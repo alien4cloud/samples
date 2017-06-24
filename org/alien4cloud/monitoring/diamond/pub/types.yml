@@ -1,0 +1,42 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.monitoring.diamond.pub
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.monitoring.diamond.pub.nodes.DiamondAgent:
+    derived_from: org.alien4cloud.monitoring.pub.nodes.MonitoringAgent
+    abstract: true
+    description: A Diamond Agent.
+    metadata:
+      icon: /images/diamond.png
+    capabilities:
+      collector_container:
+        type: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+        occurrences: [ 0, UNBOUNDED ]
+
+  org.alien4cloud.monitoring.diamond.pub.nodes.DiamondCollector:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    description: A Diamond Collector.
+    metadata:
+      icon: /images/collector.png
+    requirements:
+      - diamond:
+          capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+          relationship: org.alien4cloud.monitoring.diamond.pub.relationships.DiamondCollectorHostedOnAgent
+          occurrences: [1, 1]
+
+capability_types:
+  org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer:
+    derived_from: tosca.capabilities.Container
+
+relationship_types:
+  org.alien4cloud.monitoring.diamond.pub.relationships.DiamondCollectorHostedOnAgent:
+    derived_from: tosca.relationships.HostedOn

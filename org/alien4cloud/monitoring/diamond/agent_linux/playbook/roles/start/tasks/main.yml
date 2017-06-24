@@ -1,0 +1,6 @@
+---
+
+- name: Start Diamond service
+  service:
+    name: diamond
+    state: started

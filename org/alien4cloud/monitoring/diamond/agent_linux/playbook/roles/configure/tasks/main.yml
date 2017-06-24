@@ -1,0 +1,107 @@
+---
+# Read graphite_server_host from 'registry'
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGraphite/inputs/graphite_host"
+  register: graphite_host_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGraphite/inputs/graphite_host"
+  register: graphite_host_content
+  when: graphite_host_file.stat.exists
+- set_fact:
+    graphite_server_host: "{{ graphite_host_content.stdout_lines[0] }}"
+  when: graphite_host_file.stat.exists and graphite_host_content.stdout_lines|length > 0
+
+# Read graphite_server_port from 'registry'
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGraphite/inputs/graphite_port"
+  register: graphite_port_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGraphite/inputs/graphite_port"
+  register: graphite_port_content
+  when: graphite_port_file.stat.exists
+- set_fact:
+    graphite_server_port: "{{ graphite_port_content.stdout_lines[0] }}"
+  when: graphite_port_file.stat.exists and graphite_port_content.stdout_lines|length > 0
+
+# Read grafana_url from 'registry'
+- name: Check registry file exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGrafana/inputs/grafana_url"
+  register: registry_file
+- name: Read registry file
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGrafana/inputs/grafana_url"
+  register: registry_content
+  when: registry_file.stat.exists
+- set_fact:
+    grafana_url: "{{ registry_content.stdout_lines[0] }}"
+  when: registry_file.stat.exists and registry_content.stdout_lines|length > 0
+
+# Read grafana_user from 'registry'
+- name: Check registry file exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGrafana/inputs/grafana_user"
+  register: registry_file
+- name: Read registry file
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGrafana/inputs/grafana_user"
+  register: registry_content
+  when: registry_file.stat.exists
+- set_fact:
+    grafana_user: "{{ registry_content.stdout_lines[0] }}"
+  when: registry_file.stat.exists and registry_content.stdout_lines|length > 0
+
+# Read grafana_password from 'registry'
+- name: Check registry file exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGrafana/inputs/grafana_password"
+  register: registry_file
+- name: Read registry file
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connectsToGrafana/inputs/grafana_password"
+  register: registry_content
+  when: registry_file.stat.exists
+- set_fact:
+    grafana_password: "{{ registry_content.stdout_lines[0] }}"
+  when: registry_file.stat.exists and registry_content.stdout_lines|length > 0
+
+# Create Diamond configuration file
+- file: path=/etc/diamond state=directory mode=0755
+- file: path=/var/log/diamond state=directory mode=0755
+- file: path=/etc/ansible_diamond/collectors state=directory mode=0755
+- name: Create Diamond configuration file
+  template: src=diamond.conf.j2 dest=/etc/diamond/diamond.conf force=yes
+
+# Create Diamond service
+- name: Create configuration file for Diamond service
+  copy:
+    src: diamond.service
+    dest: /usr/lib/systemd/system/diamond.service
+    owner: root
+    group: root
+    mode: 0644
+  register: diamond_conf
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Create configuration file for Diamond service
+  copy:
+    src: diamond.service
+    dest: /etc/systemd/system/diamond.service
+    owner: root
+    group: root
+    mode: 0644
+  register: diamond_conf
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Enable service
+  command: systemctl enable diamond.service
+
+- name: Systemd Reload Daemon
+  command: systemctl daemon-reload
+
+- name: "Define /tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/dashboards as destination to store dashboards"
+  set_fact:
+    dashboard_dir: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/dashboards"
+- name: "Ensure directory {{ dashboard_dir }} exists"
+  file:
+    path: "{{ dashboard_dir }}"
+    state: directory
+- name: "Create grafana dashboard for compute in {{ dashboard_dir }}/{{ INSTANCE }}.dashboard"
+  template:
+    src: dashboard.json.j2
+    dest: "{{ dashboard_dir }}/{{ INSTANCE }}.dashboard"
+    force: yes

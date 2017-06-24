@@ -1,0 +1,7 @@
+---
+
+# Stop Diamond service
+- name: Stop Diamond service
+  service:
+    name: diamond
+    state: stopped

@@ -1,0 +1,144 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.monitoring.diamond.agent_linux
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.monitoring.diamond.agent_linux.nodes.DiamondLinuxAgent:
+    description: |
+      Deploy a Diamond Agent on linux.
+    derived_from: org.alien4cloud.monitoring.diamond.pub.nodes.DiamondAgent
+    properties:
+      # FIXME: find a way to get fro grafana endpoint
+      # we should do stuff with grafite & grafana in pre_configure_source and register the datasource_name
+      # then do stuff with collector in post_configure_source (and use the registered datasource_name)
+      datasource_name:
+        type: string
+        description: |
+          The datasource that connects grafana to graphite.
+          We need it to prepare grafana dashboards.
+        required: true
+        default: Graphite_DS
+      collectors_path:
+        type: string
+        description: The path where the collector sources are (read only).
+        required: true
+        default: /opt/ansible_diamond/env/share/diamond/collectors
+      collectors_conf_path:
+        type: string
+        description: The path where the collector configuration are (read only).
+        required: true
+        default: /etc/ansible_diamond/collectors
+    attributes:
+      dashboard_dir: { get_operation_output: [ SELF, Standard, create, dashboard_dir ] }
+      grafana_url: { get_operation_output: [ SELF, Standard, configure, grafana_url ] }
+      grafana_user: { get_operation_output: [ SELF, Standard, configure, grafana_user ] }
+      grafana_password: { get_operation_output: [ SELF, Standard, configure, grafana_password ] }
+      grafana_dashboads_urls: { get_operation_output: [ SELF, Standard, start, grafana_dashboads_urls ] }
+    requirements:
+      - data_endpoint:
+          capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
+          relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGraphite
+          occurrences: [0, 1]
+      - grafana:
+          capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
+          relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGrafana
+          occurrences: [0, 1]
+      - host:
+          # limit to linux host
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: create.yml
+            collectors_conf_path: { get_property: [SELF, collectors_conf_path] }
+          implementation: playbook/playbook.ansible
+        configure:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: configure.yml
+            datasource_name: { get_property: [SELF, datasource_name] }
+          implementation: playbook/playbook.ansible
+        start:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: start.yml
+            dashboard_dir: { get_attribute: [ SELF, dashboard_dir ] }
+            grafana_url: { get_attribute: [ SELF, grafana_url ] }
+            grafana_user: { get_attribute: [ SELF, grafana_user ] }
+            grafana_password: { get_attribute: [ SELF, grafana_password ] }
+          implementation: playbook/playbook.ansible
+        stop:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: stop.yml
+          implementation: playbook/playbook.ansible
+        delete:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: delete.yml
+            dashboard_dir: { get_attribute: [ SELF, dashboard_dir ] }
+            grafana_url: { get_attribute: [ SELF, grafana_url ] }
+            grafana_user: { get_attribute: [ SELF, grafana_user ] }
+            grafana_password: { get_attribute: [ SELF, grafana_password ] }
+          implementation: playbook/playbook.ansible
+
+relationship_types:
+  org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGraphite:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: connects_to_graphite.yml
+            graphite_host: { get_attribute: [TARGET, data_endpoint, ip_address] }
+            graphite_port: { get_attribute: [TARGET, data_endpoint, port]}
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGrafana:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: connects_to_grafana.yml
+            grafana_url: { concat: [ get_attribute: [TARGET, http_endpoint, protocol], "://", get_attribute: [TARGET, http_endpoint, ip_address], ":", get_attribute: [TARGET, http_endpoint, port]] }
+            grafana_user: { get_attribute: [TARGET, http_endpoint, user] }
+            grafana_password: { get_attribute: [TARGET, http_endpoint, password] }
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondCollectorHostedOnAgent:
+    derived_from: org.alien4cloud.monitoring.diamond.pub.relationships.DiamondCollectorHostedOnAgent
+    interfaces:
+      Configure:
+        # When a collector is added, we must restart the agent and publish dashboards
+        add_source:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: collector_added.yml
+            dashboard_dir: { get_attribute: [ TARGET, dashboard_dir ] }
+            grafana_url: { get_attribute: [ TARGET, grafana_url ] }
+            grafana_user: { get_attribute: [ TARGET, grafana_user ] }
+            grafana_password: { get_attribute: [ TARGET, grafana_password ] }
+          implementation: playbook/playbook.ansible

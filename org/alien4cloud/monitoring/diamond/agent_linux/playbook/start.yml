@@ -1,0 +1,13 @@
+---
+- hosts: all
+  name: Start Diamond Agent and publish dashboards onto Grafana
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - start
+    - create_dashboards

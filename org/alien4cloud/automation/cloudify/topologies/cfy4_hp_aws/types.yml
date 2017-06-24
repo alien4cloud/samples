@@ -6,7 +6,7 @@ metadata:
   template_author: alien4cloud
 
 description: >
-  A Cloudify 4 manager configured for AWS (with Ansible) and a Hostpool.
+  A monitored Cloudify 4 manager configured for AWS (with Ansible) and a Hostpool.
   Also embed a HostpoolFeeder that can instanciate EC2 instances and feed the hostpool.
   The workflow has been changed to ensure the hostpool is installed at the end of the deploy (to avoid issue with cfy bootstrap that needs port 8080).
   Instances are shutdown at uninstall workflow (but you can also use custom command to operate).
@@ -15,20 +15,26 @@ description: >
 imports:
   - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.collectors:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
   description: >
-    A Cloudify 4 manager configured for AWS (with Ansible) and a Hostpool.
+    A monitored Cloudify 4 manager configured for AWS (with Ansible) and a Hostpool.
     Also embed a HostpoolFeeder that can instanciate EC2 instances and feed the hostpool.
     The workflow has been changed to ensure the hostpool is installed at the end of the deploy (to avoid issue with cfy bootstrap that needs port 8080).
     Instances are shutdown at uninstall workflow (but you can also use custom command to operate).
@@ -77,6 +83,7 @@ topology_template:
     node_type: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService
     capabilities:
       cloudify_api_v3: [ CloudifyManager, cloudify_api_v3 ]
+      cloudify_hostpool: [ HostPool, cloudify_hostpool ]
   node_templates:
     CloudifyManager:
       type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyManager
@@ -88,7 +95,7 @@ topology_template:
         component_version: "4.0.1-ga"
       requirements:
         - host:
-            node: CfyCompute
+            node: _CfyCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
       capabilities:
@@ -147,14 +154,14 @@ topology_template:
         component_version: "2.0.1.0"
       requirements:
         - host:
-            node: CfyCompute
+            node: _CfyCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     HostPool:
       type: org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPool
       requirements:
         - host:
-            node: CfyCompute
+            node: _CfyCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
       capabilities:
@@ -187,15 +194,15 @@ topology_template:
             capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
             relationship: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool
         - host:
-            node: CfyCompute
+            node: _CfyCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-    CfyCompute:
+    _CfyCompute:
       type: tosca.nodes.Compute
       capabilities:
         host:
           properties:
-            num_cpus: 4
+            num_cpus: 2
             mem_size: "4 GIB"
         os:
           properties:
@@ -213,6 +220,62 @@ topology_template:
             protocol: tcp
             network_name: PRIVATE
             initiator: source
+    GrafanaService:
+      type: org.alien4cloud.monitoring.pub.nodes.GrafanaService
+      capabilities:
+        http_endpoint:
+          properties:
+            user: admin
+            password: admin
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    GraphiteService:
+      type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        http_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    dmdCfy:
+      type: org.alien4cloud.monitoring.diamond.agent_linux.nodes.DiamondLinuxAgent
+      properties:
+        datasource_name: "Graphite_DS"
+        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
+        collectors_conf_path: "/etc/ansible_diamond/collectors"
+      requirements:
+        - data_endpoint:
+            node: GraphiteService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGraphite
+        - host:
+            node: _CfyCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - grafana:
+            node: GrafanaService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGrafana
+    CloudifyCollector:
+      type: org.alien4cloud.monitoring.diamond.collectors.nodes.CloudifyCollector
+      requirements:
+        - collect_cloudify:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyMonitorEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondCloudifyCollector
+        - diamond:
+            node: dmdCfy
+            capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondCollectorHostedOnAgent
   outputs:
     CloudifyManager_manager_url:
       value: { get_attribute: [ CloudifyManager, manager_url ] }
@@ -220,13 +283,14 @@ topology_template:
     install:
       steps:
         Compute_install:
-          node: CfyCompute
+          node: _CfyCompute
           activity:
             delegate: install
           on-success:
             - CloudifyAwsConfiguration_initial
             - CloudifyManager_started
             - CloudifyManager_configuring
+            - DiamondLinuxAgent_initial
             - HostPool_initial
             - AWSHostpoolFeeder_initial
             - CloudifyManager_initial
@@ -295,6 +359,7 @@ topology_template:
             - CloudifyAwsConfiguration_initial
             - HostPool_initial
             - Ansible4CloudifyManager_initial
+            - CloudifyCollector_configuring
         CloudifyAwsConfiguration_initial:
           node: CloudifyAwsConfiguration
           activity:
@@ -530,10 +595,140 @@ topology_template:
           node: AWSHostpoolFeeder
           activity:
             set_state: started
+        DiamondLinuxAgent_initial:
+          node: dmdCfy
+          activity:
+            set_state: initial
+          on-success:
+            - DiamondLinuxAgent_creating
+        DiamondLinuxAgent_creating:
+          node: dmdCfy
+          activity:
+            set_state: creating
+          on-success:
+            - create_DiamondLinuxAgent
+        create_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - DiamondLinuxAgent_created
+        DiamondLinuxAgent_created:
+          node: dmdCfy
+          activity:
+            set_state: created
+          on-success:
+            - DiamondLinuxAgent_configuring
+        DiamondLinuxAgent_configuring:
+          node: dmdCfy
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_DiamondLinuxAgent
+        configure_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - DiamondLinuxAgent_configured
+        DiamondLinuxAgent_configured:
+          node: dmdCfy
+          activity:
+            set_state: configured
+          on-success:
+            - DiamondLinuxAgent_starting
+        DiamondLinuxAgent_starting:
+          node: dmdCfy
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        start_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: dmdCfy
+          activity:
+            set_state: started
+          on-success:
+            - CloudifyManager_configuring
+            - CloudifyCollector_initial
+            - CloudifyManager_initial
+            - Ansible4CloudifyManager_initial
+        GrafanaService_install:
+          node: GrafanaService
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+        GraphiteService_install:
+          node: GraphiteService
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+        CloudifyCollector_initial:
+          node: CloudifyCollector
+          activity:
+            set_state: initial
+          on-success:
+            - CloudifyCollector_creating
+        CloudifyCollector_creating:
+          node: CloudifyCollector
+          activity:
+            set_state: creating
+          on-success:
+            - CloudifyCollector_created
+        CloudifyCollector_created:
+          node: CloudifyCollector
+          activity:
+            set_state: created
+          on-success:
+            - CloudifyManager_configuring
+            - CloudifyCollector_configuring
+        CloudifyCollector_configuring:
+          node: CloudifyCollector
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_CloudifyCollector
+        configure_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - CloudifyCollector_configured
+        CloudifyCollector_configured:
+          node: CloudifyCollector
+          activity:
+            set_state: configured
+          on-success:
+            - CloudifyCollector_starting
+        CloudifyCollector_starting:
+          node: CloudifyCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_CloudifyCollector
+        start_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CloudifyCollector_started
+        CloudifyCollector_started:
+          node: CloudifyCollector
+          activity:
+            set_state: started
+          on-success:
+            - Ansible4CloudifyManager_initial
     uninstall:
       steps:
         Compute_uninstall:
-          node: CfyCompute
+          node: _CfyCompute
           activity:
             delegate: uninstall
         CloudifyManager_stopping:
@@ -572,6 +767,8 @@ topology_template:
             set_state: deleted
           on-success:
             - Compute_uninstall
+            - CloudifyCollector_deleting
+            - DiamondLinuxAgent_stopping
         CloudifyAwsConfiguration_stopping:
           node: CloudifyAwsConfiguration
           activity:
@@ -607,6 +804,7 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
+            - DiamondLinuxAgent_stopping
             - CloudifyManager_stopping
         Ansible4CloudifyManager_stopping:
           node: Ansible4CloudifyManager
@@ -720,6 +918,89 @@ topology_template:
           on-success:
             - Compute_uninstall
             - HostPool_stopping
+        DiamondLinuxAgent_stopping:
+          node: dmdCfy
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        DiamondLinuxAgent_stopped:
+          node: dmdCfy
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_deleting
+        DiamondLinuxAgent_deleting:
+          node: dmdCfy
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_DiamondLinuxAgent
+        delete_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - DiamondLinuxAgent_deleted
+        DiamondLinuxAgent_deleted:
+          node: dmdCfy
+          activity:
+            set_state: deleted
+          on-success:
+            - GraphiteService_uninstall
+            - Compute_uninstall
+            - GrafanaService_uninstall
+        GrafanaService_uninstall:
+          node: GrafanaService
+          activity:
+            delegate: uninstall
+        GraphiteService_uninstall:
+          node: GraphiteService
+          activity:
+            delegate: uninstall
+        CloudifyCollector_stopping:
+          node: CloudifyCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_CloudifyCollector
+        stop_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - CloudifyCollector_stopped
+        CloudifyCollector_stopped:
+          node: CloudifyCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyCollector_deleting
+            - CloudifyManager_stopping
+        CloudifyCollector_deleting:
+          node: CloudifyCollector
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_CloudifyCollector
+        delete_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - CloudifyCollector_deleted
+        CloudifyCollector_deleted:
+          node: CloudifyCollector
+          activity:
+            set_state: deleted
+          on-success:
+            - DiamondLinuxAgent_stopping
     start:
       steps:
         Ansible4CloudifyManager_started:
@@ -731,7 +1012,9 @@ topology_template:
           activity:
             set_state: started
           on-success:
+            - CloudifyCollector_starting
             - CloudifyAwsConfiguration_starting
+            - HostPool_starting
         CloudifyManager_starting:
           node: CloudifyManager
           activity:
@@ -773,7 +1056,7 @@ topology_template:
           on-success:
             - CloudifyManager_started
         CFY_Compute_start:
-          node: CfyCompute
+          node: _CfyCompute
           activity:
             delegate: start
           on-success:
@@ -781,6 +1064,7 @@ topology_template:
             - CloudifyManager_starting
             - Ansible4CloudifyManager_starting
             - HostPool_starting
+            - DiamondLinuxAgent_starting
         HostPool_starting:
           node: HostPool
           activity:
@@ -813,6 +1097,54 @@ topology_template:
             - AWSHostpoolFeeder_started
         AWSHostpoolFeeder_started:
           node: AWSHostpoolFeeder
+          activity:
+            set_state: started
+        DiamondLinuxAgent_starting:
+          node: dmdCfy
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        start_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: dmdCfy
+          activity:
+            set_state: started
+          on-success:
+            - CloudifyManager_starting
+            - CloudifyCollector_starting
+            - HostPool_starting
+        GrafanaService_start:
+          node: GrafanaService
+          activity:
+            delegate: start
+          on-success:
+            - DiamondLinuxAgent_starting
+        GraphiteService_start:
+          node: GraphiteService
+          activity:
+            delegate: start
+          on-success:
+            - DiamondLinuxAgent_starting
+        CloudifyCollector_starting:
+          node: CloudifyCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_CloudifyCollector
+        start_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CloudifyCollector_started
+        CloudifyCollector_started:
+          node: CloudifyCollector
           activity:
             set_state: started
     stop:
@@ -860,7 +1192,7 @@ topology_template:
           on-success:
             - stop_CloudifyManager
         CFY_Compute_stop:
-          node: CfyCompute
+          node: _CfyCompute
           activity:
             delegate: stop
         CloudifyManager_stopped:
@@ -868,7 +1200,9 @@ topology_template:
           activity:
             set_state: stopped
           on-success:
+            - DiamondLinuxAgent_stopping
             - CFY_Compute_stop
+            - AWSHostpoolFeeder_stopping
         CloudifyAwsConfiguration_stopped:
           node: CloudifyAwsConfiguration
           activity:
@@ -892,6 +1226,7 @@ topology_template:
           activity:
             set_state: stopped
           on-success:
+            - CloudifyAwsConfiguration_stopping
             - CFY_Compute_stop
         AWSHostpoolFeeder_stopping:
           node: AWSHostpoolFeeder
@@ -910,4 +1245,51 @@ topology_template:
           activity:
             set_state: stopped
           on-success:
+            - DiamondLinuxAgent_stopping
             - CFY_Compute_stop
+        DiamondLinuxAgent_stopping:
+          node: dmdCfy
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        DiamondLinuxAgent_stopped:
+          node: dmdCfy
+          activity:
+            set_state: stopped
+          on-success:
+            - GraphiteService_stop
+            - CFY_Compute_stop
+            - GrafanaService_stop
+        GrafanaService_stop:
+          node: GrafanaService
+          activity:
+            delegate: stop
+        GraphiteService_stop:
+          node: GraphiteService
+          activity:
+            delegate: stop
+        CloudifyCollector_stopping:
+          node: CloudifyCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_CloudifyCollector
+        stop_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - CloudifyCollector_stopped
+        CloudifyCollector_stopped:
+          node: CloudifyCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_stopping

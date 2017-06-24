@@ -1,0 +1,1355 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.a4c.topologies.a4c_mon
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: >
+  A monitored A4C configured with repositories, samples.
+  Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
+
+imports:
+  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.collectors:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.repository:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+
+topology_template:
+  description: >
+    A monitored A4C configured with repositories, samples.
+    Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
+
+  input_artifacts:
+    alien_dist:
+        type: tosca.artifacts.File
+    resources_file_artifact:
+        type: tosca.artifacts.File
+  substitution_mappings:
+    node_type: org.alien4cloud.automation.a4c.pub.nodes.Alien4CloudService
+    capabilities:
+      rest: [ Alien4Cloud, rest ]
+  node_templates:
+    GraphiteService:
+      type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        http_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    OracleJDK:
+      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
+      properties:
+        java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
+        java_home: "/opt/java"
+        component_version: "1.8.0-131-b11"
+      requirements:
+        - host:
+            node: _A4cCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    GrafanaService:
+      type: org.alien4cloud.monitoring.pub.nodes.GrafanaService
+      capabilities:
+        http_endpoint:
+          properties:
+            user: admin
+            password: admin
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Alien4Cloud:
+      type: org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud
+      properties:
+        context_root: "/"
+        component_version: "1.4.0-SNAPSHOT"
+        data_dir: "/opt/alien4cloud/data"
+      requirements:
+        - java:
+            node: OracleJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
+      capabilities:
+        jolokia:
+          properties:
+            port: 8778
+        http:
+          properties:
+            port: 9200
+            protocol: http
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        rest:
+          properties:
+            user: admin
+            password: admin
+            port: 8080
+            protocol: http
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+      artifacts:
+        alien_dist:
+          file: { get_input_artifact: alien_dist }
+          type: tosca.artifacts.File
+    _A4cCompute:
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: ubuntu
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    dmdA4c:
+      type: org.alien4cloud.monitoring.diamond.agent_linux.nodes.DiamondLinuxAgent
+      properties:
+        datasource_name: "Graphite_DS"
+        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
+        collectors_conf_path: "/etc/ansible_diamond/collectors"
+      requirements:
+        - data_endpoint:
+            node: GraphiteService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGraphite
+        - grafana:
+            node: GrafanaService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGrafana
+        - host:
+            node: _A4cCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    A4CCollector:
+      type: org.alien4cloud.monitoring.diamond.collectors.nodes.A4CCollector
+      requirements:
+        - diamond:
+            node: dmdA4c
+            capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondCollectorHostedOnAgent
+        - collec_jolokia:
+            node: Alien4Cloud
+            capability: org.alien4cloud.automation.a4c.pub.capabilities.JolokiaA4CEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondA4CCollector
+    ElasticSearchCollector:
+      type: org.alien4cloud.monitoring.diamond.collectors.nodes.ElasticSearchCollector
+      requirements:
+        - diamond:
+            node: dmdA4c
+            capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondCollectorHostedOnAgent
+        - collec_elasticsearch:
+            node: ElasticSearch
+            capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
+            relationship: org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondCollectElasticSearch
+    ElasticSearch:
+      type: org.alien4cloud.storage.elasticsearch.ubuntu.nodes.ElasticSearch
+      properties:
+        component_version: "1.7.0"
+        elasticsearch_url: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.0.deb"
+        cluster_name: escluster
+      requirements:
+        - java:
+            node: OracleJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
+      capabilities:
+        elasticsearch:
+          properties:
+            port: 9300
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        http:
+          properties:
+            port: 9200
+            protocol: http
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    FCRepositories:
+      type: org.alien4cloud.automation.a4c.config.repository.nodes.ArtifactRepositoriesConfigurator
+      requirements:
+        - host:
+            node: Alien4Cloud
+            capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
+            relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+      artifacts:
+        resources_file_artifact:
+          file: { get_input_artifact: resources_file_artifact }
+          type: tosca.artifacts.File
+    AddSamplesTypes:
+      type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
+      properties:
+        repositoryUrl: "https://github.com/alien4cloud/tosca-normative-types.git"
+        branchId: master
+      requirements:
+        - dependency:
+            node: FCRepositories
+            capability: tosca.capabilities.Node
+            relationship: tosca.relationships.DependsOn
+        - host:
+            node: Alien4Cloud
+            capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
+            relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+  outputs:
+    Alien4Cloud_alien_url:
+      value: { get_attribute: [ Alien4Cloud, alien_url ] }
+  workflows:
+    install:
+      steps:
+        DiamondLinuxAgent_created:
+          node: dmdA4c
+          activity:
+            set_state: created
+          on-success:
+            - DiamondLinuxAgent_configuring
+        Alien4Cloud_started:
+          node: Alien4Cloud
+          activity:
+            set_state: started
+          on-success:
+            - ArtifactRepositoriesConfigurator_initial
+            - A4CCollector_configuring
+            - AddCsarFromGit_initial
+        OracleJDK_starting:
+          node: OracleJDK
+          activity:
+            set_state: starting
+          on-success:
+            - start_OracleJDK
+        start_DiamondLinuxAgent:
+          node: dmdA4c
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        OracleJDK_creating:
+          node: OracleJDK
+          activity:
+            set_state: creating
+          on-success:
+            - create_OracleJDK
+        OracleJDK_configuring:
+          node: OracleJDK
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_OracleJDK
+        DiamondLinuxAgent_started:
+          node: dmdA4c
+          activity:
+            set_state: started
+          on-success:
+            - ElasticSearchCollector_initial
+            - Alien4Cloud_configuring
+            - OracleJDK_initial
+            - A4CCollector_initial
+        DiamondLinuxAgent_configuring:
+          node: dmdA4c
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_DiamondLinuxAgent
+        Alien4Cloud_created:
+          node: Alien4Cloud
+          activity:
+            set_state: created
+          on-success:
+            - Alien4Cloud_configuring
+            - A4CCollector_initial
+        create_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - OracleJDK_created
+        GraphiteService_install:
+          node: GraphiteService
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+        OracleJDK_created:
+          node: OracleJDK
+          activity:
+            set_state: created
+          on-success:
+            - OracleJDK_configuring
+        start_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - OracleJDK_started
+        DiamondLinuxAgent_configured:
+          node: dmdA4c
+          activity:
+            set_state: configured
+          on-success:
+            - DiamondLinuxAgent_starting
+        create_DiamondLinuxAgent:
+          node: dmdA4c
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - DiamondLinuxAgent_created
+        cA4Cc_install:
+          node: _A4cCompute
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+            - OracleJDK_initial
+        GrafanaService_install:
+          node: GrafanaService
+          activity:
+            delegate: install
+          on-success:
+            - DiamondLinuxAgent_initial
+        Alien4Cloud_starting:
+          node: Alien4Cloud
+          activity:
+            set_state: starting
+          on-success:
+            - start_Alien4Cloud
+        Alien4Cloud_creating:
+          node: Alien4Cloud
+          activity:
+            set_state: creating
+          on-success:
+            - create_Alien4Cloud
+        DiamondLinuxAgent_creating:
+          node: dmdA4c
+          activity:
+            set_state: creating
+          on-success:
+            - create_DiamondLinuxAgent
+        create_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - Alien4Cloud_created
+        DiamondLinuxAgent_starting:
+          node: dmdA4c
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        OracleJDK_configured:
+          node: OracleJDK
+          activity:
+            set_state: configured
+          on-success:
+            - OracleJDK_starting
+        configure_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - Alien4Cloud_configured
+        Alien4Cloud_configured:
+          node: Alien4Cloud
+          activity:
+            set_state: configured
+          on-success:
+            - Alien4Cloud_starting
+        Alien4Cloud_configuring:
+          node: Alien4Cloud
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_Alien4Cloud
+        start_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Alien4Cloud_started
+        Alien4Cloud_initial:
+          node: Alien4Cloud
+          activity:
+            set_state: initial
+          on-success:
+            - Alien4Cloud_creating
+        DiamondLinuxAgent_initial:
+          node: dmdA4c
+          activity:
+            set_state: initial
+          on-success:
+            - DiamondLinuxAgent_creating
+        OracleJDK_initial:
+          node: OracleJDK
+          activity:
+            set_state: initial
+          on-success:
+            - OracleJDK_creating
+        configure_DiamondLinuxAgent:
+          node: dmdA4c
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - DiamondLinuxAgent_configured
+        configure_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - OracleJDK_configured
+        OracleJDK_started:
+          node: OracleJDK
+          activity:
+            set_state: started
+          on-success:
+            - Alien4Cloud_initial
+            - ElasticSearch_initial
+        A4CCollector_initial:
+          node: A4CCollector
+          activity:
+            set_state: initial
+          on-success:
+            - A4CCollector_creating
+        A4CCollector_creating:
+          node: A4CCollector
+          activity:
+            set_state: creating
+          on-success:
+            - A4CCollector_created
+        A4CCollector_created:
+          node: A4CCollector
+          activity:
+            set_state: created
+          on-success:
+            - ElasticSearchCollector_initial
+            - A4CCollector_configuring
+            - ElasticSearch_initial
+            - Alien4Cloud_configuring
+        A4CCollector_configuring:
+          node: A4CCollector
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_A4CCollector
+        configure_A4CCollector:
+          node: A4CCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - A4CCollector_configured
+        A4CCollector_configured:
+          node: A4CCollector
+          activity:
+            set_state: configured
+          on-success:
+            - A4CCollector_starting
+        A4CCollector_starting:
+          node: A4CCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_A4CCollector
+        start_A4CCollector:
+          node: A4CCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - A4CCollector_started
+        A4CCollector_started:
+          node: A4CCollector
+          activity:
+            set_state: started
+          on-success:
+            - ArtifactRepositoriesConfigurator_initial
+        ElasticSearchCollector_initial:
+          node: ElasticSearchCollector
+          activity:
+            set_state: initial
+          on-success:
+            - ElasticSearchCollector_creating
+        ElasticSearchCollector_creating:
+          node: ElasticSearchCollector
+          activity:
+            set_state: creating
+          on-success:
+            - ElasticSearchCollector_created
+        ElasticSearchCollector_created:
+          node: ElasticSearchCollector
+          activity:
+            set_state: created
+          on-success:
+            - ElasticSearchCollector_configuring
+            - ElasticSearch_configuring
+        ElasticSearchCollector_configuring:
+          node: ElasticSearchCollector
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_ElasticSearchCollector
+        configure_ElasticSearchCollector:
+          node: ElasticSearchCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - ElasticSearchCollector_configured
+        ElasticSearchCollector_configured:
+          node: ElasticSearchCollector
+          activity:
+            set_state: configured
+          on-success:
+            - ElasticSearchCollector_starting
+        ElasticSearchCollector_starting:
+          node: ElasticSearchCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_ElasticSearchCollector
+        start_ElasticSearchCollector:
+          node: ElasticSearchCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ElasticSearchCollector_started
+        ElasticSearchCollector_started:
+          node: ElasticSearchCollector
+          activity:
+            set_state: started
+          on-success:
+            - A4CCollector_configuring
+            - Alien4Cloud_configuring
+        ElasticSearch_initial:
+          node: ElasticSearch
+          activity:
+            set_state: initial
+          on-success:
+            - ElasticSearch_creating
+        ElasticSearch_creating:
+          node: ElasticSearch
+          activity:
+            set_state: creating
+          on-success:
+            - create_ElasticSearch
+        create_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - ElasticSearch_created
+        ElasticSearch_created:
+          node: ElasticSearch
+          activity:
+            set_state: created
+          on-success:
+            - ElasticSearchCollector_initial
+            - ElasticSearch_configuring
+        ElasticSearch_configuring:
+          node: ElasticSearch
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_ElasticSearch
+        configure_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - ElasticSearch_configured
+        ElasticSearch_configured:
+          node: ElasticSearch
+          activity:
+            set_state: configured
+          on-success:
+            - ElasticSearch_starting
+        ElasticSearch_starting:
+          node: ElasticSearch
+          activity:
+            set_state: starting
+          on-success:
+            - start_ElasticSearch
+        start_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ElasticSearch_started
+        ElasticSearch_started:
+          node: ElasticSearch
+          activity:
+            set_state: started
+          on-success:
+            - ElasticSearchCollector_configuring
+        ArtifactRepositoriesConfigurator_initial:
+          node: FCRepositories
+          activity:
+            set_state: initial
+          on-success:
+            - ArtifactRepositoriesConfigurator_creating
+        ArtifactRepositoriesConfigurator_creating:
+          node: FCRepositories
+          activity:
+            set_state: creating
+          on-success:
+            - ArtifactRepositoriesConfigurator_created
+        ArtifactRepositoriesConfigurator_created:
+          node: FCRepositories
+          activity:
+            set_state: created
+          on-success:
+            - ArtifactRepositoriesConfigurator_configuring
+            - AddCsarFromGit_initial
+        ArtifactRepositoriesConfigurator_configuring:
+          node: FCRepositories
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_ArtifactRepositoriesConfigurator
+        configure_ArtifactRepositoriesConfigurator:
+          node: FCRepositories
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - ArtifactRepositoriesConfigurator_configured
+        ArtifactRepositoriesConfigurator_configured:
+          node: FCRepositories
+          activity:
+            set_state: configured
+          on-success:
+            - ArtifactRepositoriesConfigurator_starting
+        ArtifactRepositoriesConfigurator_starting:
+          node: FCRepositories
+          activity:
+            set_state: starting
+          on-success:
+            - start_ArtifactRepositoriesConfigurator
+        start_ArtifactRepositoriesConfigurator:
+          node: FCRepositories
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ArtifactRepositoriesConfigurator_started
+        ArtifactRepositoriesConfigurator_started:
+          node: FCRepositories
+          activity:
+            set_state: started
+          on-success:
+            - AddCsarFromGit_configuring
+        AddCsarFromGit_initial:
+          node: AddSamplesTypes
+          activity:
+            set_state: initial
+          on-success:
+            - AddCsarFromGit_creating
+        AddCsarFromGit_creating:
+          node: AddSamplesTypes
+          activity:
+            set_state: creating
+          on-success:
+            - AddCsarFromGit_created
+        AddCsarFromGit_created:
+          node: AddSamplesTypes
+          activity:
+            set_state: created
+          on-success:
+            - AddCsarFromGit_configuring
+            - ArtifactRepositoriesConfigurator_configuring
+        AddCsarFromGit_configuring:
+          node: AddSamplesTypes
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_AddCsarFromGit
+        configure_AddCsarFromGit:
+          node: AddSamplesTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - AddCsarFromGit_configured
+        AddCsarFromGit_configured:
+          node: AddSamplesTypes
+          activity:
+            set_state: configured
+          on-success:
+            - AddCsarFromGit_starting
+        AddCsarFromGit_starting:
+          node: AddSamplesTypes
+          activity:
+            set_state: starting
+          on-success:
+            - start_AddCsarFromGit
+        start_AddCsarFromGit:
+          node: AddSamplesTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AddCsarFromGit_started
+        AddCsarFromGit_started:
+          node: AddSamplesTypes
+          activity:
+            set_state: started
+    uninstall:
+      steps:
+        stop_ElasticSearchCollector:
+          node: ElasticSearchCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ElasticSearchCollector_stopped
+        Alien4Cloud_stopping:
+          node: Alien4Cloud
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Alien4Cloud
+        OracleJDK_deleted:
+          node: OracleJDK
+          activity:
+            set_state: deleted
+          on-success:
+            - _A4cCompute_uninstall
+            - dmdA4c_stopping
+        stop_dmdA4c:
+          node: dmdA4c
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - dmdA4c_stopped
+        ElasticSearchCollector_deleting:
+          node: ElasticSearchCollector
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_ElasticSearchCollector
+        ElasticSearchCollector_deleted:
+          node: ElasticSearchCollector
+          activity:
+            set_state: deleted
+          on-success:
+            - dmdA4c_stopping
+        A4CCollector_deleting:
+          node: A4CCollector
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_A4CCollector
+        delete_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - Alien4Cloud_deleted
+        OracleJDK_stopped:
+          node: OracleJDK
+          activity:
+            set_state: stopped
+          on-success:
+            - OracleJDK_deleting
+        GraphiteService_uninstall:
+          node: GraphiteService
+          activity:
+            delegate: uninstall
+        OracleJDK_stopping:
+          node: OracleJDK
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_OracleJDK
+        dmdA4c_deleted:
+          node: dmdA4c
+          activity:
+            set_state: deleted
+          on-success:
+            - GraphiteService_uninstall
+            - _A4cCompute_uninstall
+            - GrafanaService_uninstall
+        stop_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Alien4Cloud_stopped
+        stop_A4CCollector:
+          node: A4CCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - A4CCollector_stopped
+        dmdA4c_deleting:
+          node: dmdA4c
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_dmdA4c
+        Alien4Cloud_stopped:
+          node: Alien4Cloud
+          activity:
+            set_state: stopped
+          on-success:
+            - Alien4Cloud_deleting
+        ElasticSearchCollector_stopping:
+          node: ElasticSearchCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ElasticSearchCollector
+        OracleJDK_deleting:
+          node: OracleJDK
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_OracleJDK
+        Alien4Cloud_deleting:
+          node: Alien4Cloud
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_Alien4Cloud
+        dmdA4c_stopped:
+          node: dmdA4c
+          activity:
+            set_state: stopped
+          on-success:
+            - dmdA4c_deleting
+        delete_ElasticSearchCollector:
+          node: ElasticSearchCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - ElasticSearchCollector_deleted
+        delete_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - OracleJDK_deleted
+        Alien4Cloud_deleted:
+          node: Alien4Cloud
+          activity:
+            set_state: deleted
+          on-success:
+            - OracleJDK_stopping
+        A4CCollector_stopped:
+          node: A4CCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - Alien4Cloud_stopping
+            - A4CCollector_deleting
+        ElasticSearchCollector_stopped:
+          node: ElasticSearchCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - ElasticSearch_stopping
+            - ElasticSearchCollector_deleting
+        delete_A4CCollector:
+          node: A4CCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - A4CCollector_deleted
+        dmdA4c_stopping:
+          node: dmdA4c
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_dmdA4c
+        stop_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - OracleJDK_stopped
+        _A4cCompute_uninstall:
+          node: _A4cCompute
+          activity:
+            delegate: uninstall
+        GrafanaService_uninstall:
+          node: GrafanaService
+          activity:
+            delegate: uninstall
+        A4CCollector_stopping:
+          node: A4CCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_A4CCollector
+        delete_dmdA4c:
+          node: dmdA4c
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - dmdA4c_deleted
+        A4CCollector_deleted:
+          node: A4CCollector
+          activity:
+            set_state: deleted
+          on-success:
+            - dmdA4c_stopping
+        ElasticSearch_stopping:
+          node: ElasticSearch
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ElasticSearch
+        stop_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ElasticSearch_stopped
+        ElasticSearch_stopped:
+          node: ElasticSearch
+          activity:
+            set_state: stopped
+          on-success:
+            - ElasticSearch_deleting
+        ElasticSearch_deleting:
+          node: ElasticSearch
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_ElasticSearch
+        delete_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - ElasticSearch_deleted
+        ElasticSearch_deleted:
+          node: ElasticSearch
+          activity:
+            set_state: deleted
+          on-success:
+            - OracleJDK_stopping
+        ArtifactRepositoriesConfigurator_stopping:
+          node: FCRepositories
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ArtifactRepositoriesConfigurator
+        stop_ArtifactRepositoriesConfigurator:
+          node: FCRepositories
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ArtifactRepositoriesConfigurator_stopped
+        ArtifactRepositoriesConfigurator_stopped:
+          node: FCRepositories
+          activity:
+            set_state: stopped
+          on-success:
+            - ArtifactRepositoriesConfigurator_deleting
+        ArtifactRepositoriesConfigurator_deleting:
+          node: FCRepositories
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_ArtifactRepositoriesConfigurator
+        delete_ArtifactRepositoriesConfigurator:
+          node: FCRepositories
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - ArtifactRepositoriesConfigurator_deleted
+        ArtifactRepositoriesConfigurator_deleted:
+          node: FCRepositories
+          activity:
+            set_state: deleted
+          on-success:
+            - Alien4Cloud_stopping
+        AddCsarFromGit_stopping:
+          node: AddSamplesTypes
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AddCsarFromGit
+        stop_AddCsarFromGit:
+          node: AddSamplesTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AddCsarFromGit_stopped
+        AddCsarFromGit_stopped:
+          node: AddSamplesTypes
+          activity:
+            set_state: stopped
+          on-success:
+            - AddCsarFromGit_deleting
+        AddCsarFromGit_deleting:
+          node: AddSamplesTypes
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_AddCsarFromGit
+        delete_AddCsarFromGit:
+          node: AddSamplesTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - AddCsarFromGit_deleted
+        AddCsarFromGit_deleted:
+          node: AddSamplesTypes
+          activity:
+            set_state: deleted
+          on-success:
+            - Alien4Cloud_stopping
+    start:
+      steps:
+        Compute_start:
+          node: _A4cCompute
+          activity:
+            delegate: start
+          on-success:
+            - OracleJDK_starting
+            - DiamondLinuxAgent_starting
+        DiamondLinuxAgent_starting:
+          node: dmdA4c
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        start_DiamondLinuxAgent:
+          node: dmdA4c
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: dmdA4c
+          activity:
+            set_state: started
+          on-success:
+            - OracleJDK_starting
+            - A4CCollector_starting
+            - ElasticSearchCollector_starting
+        GraphiteService_start:
+          node: GraphiteService
+          activity:
+            delegate: start
+          on-success:
+            - DiamondLinuxAgent_starting
+        GrafanaService_start:
+          node: GrafanaService
+          activity:
+            delegate: start
+          on-success:
+            - DiamondLinuxAgent_starting
+        Alien4Cloud_starting:
+          node: Alien4Cloud
+          activity:
+            set_state: starting
+          on-success:
+            - start_Alien4Cloud
+        start_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Alien4Cloud_started
+        Alien4Cloud_started:
+          node: Alien4Cloud
+          activity:
+            set_state: started
+          on-success:
+            - AddCsarFromGit_starting
+            - A4CCollector_starting
+            - ArtifactRepositoriesConfigurator_starting
+        OracleJDK_starting:
+          node: OracleJDK
+          activity:
+            set_state: starting
+          on-success:
+            - start_OracleJDK
+        start_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - OracleJDK_started
+        OracleJDK_started:
+          node: OracleJDK
+          activity:
+            set_state: started
+          on-success:
+            - Alien4Cloud_starting
+            - ElasticSearch_starting
+        A4CCollector_starting:
+          node: A4CCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_A4CCollector
+        start_A4CCollector:
+          node: A4CCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - A4CCollector_started
+        A4CCollector_started:
+          node: A4CCollector
+          activity:
+            set_state: started
+        ElasticSearchCollector_starting:
+          node: ElasticSearchCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_ElasticSearchCollector
+        start_ElasticSearchCollector:
+          node: ElasticSearchCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ElasticSearchCollector_started
+        ElasticSearchCollector_started:
+          node: ElasticSearchCollector
+          activity:
+            set_state: started
+        ElasticSearch_starting:
+          node: ElasticSearch
+          activity:
+            set_state: starting
+          on-success:
+            - start_ElasticSearch
+        start_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ElasticSearch_started
+        ElasticSearch_started:
+          node: ElasticSearch
+          activity:
+            set_state: started
+          on-success:
+            - ElasticSearchCollector_starting
+        ArtifactRepositoriesConfigurator_starting:
+          node: FCRepositories
+          activity:
+            set_state: starting
+          on-success:
+            - start_ArtifactRepositoriesConfigurator
+        start_ArtifactRepositoriesConfigurator:
+          node: FCRepositories
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ArtifactRepositoriesConfigurator_started
+        ArtifactRepositoriesConfigurator_started:
+          node: FCRepositories
+          activity:
+            set_state: started
+          on-success:
+            - AddCsarFromGit_starting
+        AddCsarFromGit_starting:
+          node: AddSamplesTypes
+          activity:
+            set_state: starting
+          on-success:
+            - start_AddCsarFromGit
+        start_AddCsarFromGit:
+          node: AddSamplesTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AddCsarFromGit_started
+        AddCsarFromGit_started:
+          node: AddSamplesTypes
+          activity:
+            set_state: started
+    stop:
+      steps:
+        Compute_stop:
+          node: _A4cCompute
+          activity:
+            delegate: stop
+        DiamondLinuxAgent_stopping:
+          node: dmdA4c
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: dmdA4c
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        DiamondLinuxAgent_stopped:
+          node: dmdA4c
+          activity:
+            set_state: stopped
+          on-success:
+            - GraphiteService_stop
+            - GrafanaService_stop
+            - Compute_stop
+        GraphiteService_stop:
+          node: GraphiteService
+          activity:
+            delegate: stop
+        GrafanaService_stop:
+          node: GrafanaService
+          activity:
+            delegate: stop
+        Alien4Cloud_stopping:
+          node: Alien4Cloud
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_Alien4Cloud
+        stop_Alien4Cloud:
+          node: Alien4Cloud
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - Alien4Cloud_stopped
+        Alien4Cloud_stopped:
+          node: Alien4Cloud
+          activity:
+            set_state: stopped
+          on-success:
+            - OracleJDK_stopping
+        OracleJDK_stopping:
+          node: OracleJDK
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_OracleJDK
+        stop_OracleJDK:
+          node: OracleJDK
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - OracleJDK_stopped
+        OracleJDK_stopped:
+          node: OracleJDK
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_stopping
+            - Compute_stop
+        A4CCollector_stopping:
+          node: A4CCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_A4CCollector
+        stop_A4CCollector:
+          node: A4CCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - A4CCollector_stopped
+        A4CCollector_stopped:
+          node: A4CCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_stopping
+        ElasticSearchCollector_stopping:
+          node: ElasticSearchCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ElasticSearchCollector
+        stop_ElasticSearchCollector:
+          node: ElasticSearchCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ElasticSearchCollector_stopped
+        ElasticSearchCollector_stopped:
+          node: ElasticSearchCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_stopping
+        ElasticSearch_stopping:
+          node: ElasticSearch
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ElasticSearch
+        stop_ElasticSearch:
+          node: ElasticSearch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ElasticSearch_stopped
+        ElasticSearch_stopped:
+          node: ElasticSearch
+          activity:
+            set_state: stopped
+          on-success:
+            - OracleJDK_stopping
+        ArtifactRepositoriesConfigurator_stopping:
+          node: FCRepositories
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ArtifactRepositoriesConfigurator
+        stop_ArtifactRepositoriesConfigurator:
+          node: FCRepositories
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ArtifactRepositoriesConfigurator_stopped
+        ArtifactRepositoriesConfigurator_stopped:
+          node: FCRepositories
+          activity:
+            set_state: stopped
+          on-success:
+            - Alien4Cloud_stopping
+        AddCsarFromGit_stopping:
+          node: AddSamplesTypes
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AddCsarFromGit
+        stop_AddCsarFromGit:
+          node: AddSamplesTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AddCsarFromGit_stopped
+        AddCsarFromGit_stopped:
+          node: AddSamplesTypes
+          activity:
+            set_state: stopped
+          on-success:
+            - Alien4Cloud_stopping

@@ -29,6 +29,7 @@ imports:
   - org.alien4cloud.automation.a4c.config.pub:1.4.0-SNAPSHOT
 
 topology_template:
+
   description: >
     A ready to use A4C configured with repositories, an orchesrator configured and started and an AWS location configured with default sample resources, anonther one connected to a hostpool (byon location).
     Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
@@ -54,29 +55,6 @@ topology_template:
     resources_file_artifact:
         type: tosca.artifacts.File
   node_templates:
-    UbuntuNano:
-      type: tosca.nodes.Compute
-      capabilities:
-        host:
-          properties:
-            num_cpus: 1
-            mem_size: "512 MIB"
-        os:
-          properties:
-            architecture: "x86_64"
-            type: linux
-            distribution: ubuntu
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
-        endpoint:
-          properties:
-            secure: true
-            protocol: tcp
-            network_name: PRIVATE
-            initiator: source
     OracleJDK:
       type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
       properties:
@@ -85,7 +63,7 @@ topology_template:
         component_version: "1.8.0-131-b11"
       requirements:
         - host:
-            node: UbuntuNano
+            node: A4cCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
     Alien4Cloud:
@@ -227,11 +205,34 @@ topology_template:
             node: Alien4Cloud
             capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
             relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+    A4cCompute:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            mem_size: "512 MIB"
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: ubuntu
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
   workflows:
     install:
       steps:
         UbuntuNano_install:
-          node: UbuntuNano
+          node: A4cCompute
           activity:
             delegate: install
           on-success:
@@ -709,7 +710,7 @@ topology_template:
     uninstall:
       steps:
         UbuntuNano_uninstall:
-          node: UbuntuNano
+          node: A4cCompute
           activity:
             delegate: uninstall
         OracleJDK_stopping:
@@ -1014,7 +1015,7 @@ topology_template:
     start:
       steps:
         UbuntuNano_start:
-          node: UbuntuNano
+          node: A4cCompute
           activity:
             delegate: start
           on-success:
@@ -1174,7 +1175,7 @@ topology_template:
     stop:
       steps:
         UbuntuNano_stop:
-          node: UbuntuNano
+          node: A4cCompute
           activity:
             delegate: stop
         OracleJDK_stopping:

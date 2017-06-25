@@ -12,6 +12,7 @@ imports:
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.monitoring.diamond.collectors.nodes.ElasticSearchCollector:
@@ -72,11 +73,23 @@ node_types:
           occurrences: [1, 1]
   org.alien4cloud.monitoring.diamond.collectors.nodes.CloudifyCollector:
     derived_from: org.alien4cloud.monitoring.diamond.pub.nodes.DiamondCollector
-    description: Collect A4C JVM metrics.
+    description: Collects cloudify manager indicators eg. mgmtworker count ...
     requirements:
       - collect_cloudify:
           capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyMonitorEndpoint
           relationship: org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondCloudifyCollector
+          occurrences: [0, 1]
+      - diamond:
+          capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+          relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondCollectorHostedOnAgent
+          occurrences: [1, 1]
+  org.alien4cloud.monitoring.diamond.collectors.nodes.CloudifyHostpoolCollector:
+    derived_from: org.alien4cloud.monitoring.diamond.pub.nodes.DiamondCollector
+    description: Collects indicator concerning hostpool eg. (allocated) instances count.
+    requirements:
+      - cloudify_hostpool:
+          capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
+          relationship: org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondCloudifyHostpoolCollector
           occurrences: [0, 1]
       - diamond:
           capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
@@ -162,22 +175,55 @@ relationship_types:
             alien_data_dir: { get_property: [TARGET, data_dir] }
             jolokia_port: { get_property: [TARGET, jolokia, port] }
           implementation: playbook/playbook.ansible
+  # TODO: TOSCA refactor in CustomCollector
   org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondCloudifyCollector:
     derived_from: tosca.relationships.ConnectsTo
     valid_target_types: [ org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyMonitorEndpoint ]
+    properties:
+      collector_name:
+        type: string
+        default: CloudifyCollector
     interfaces:
       Configure:
         pre_configure_source:
           inputs:
             ANSIBLE_VERBOSE: false
-            PLAYBOOK_ENTRY: collect_cloudify.yml
+            PLAYBOOK_ENTRY: collect_custom.yml
             datasource_name: { get_attribute: [SOURCE, datasource_name] }
             collectors_conf_path: { get_attribute: [SOURCE, collectors_conf_path] }
             dashboard_dir: { get_attribute: [SOURCE, dashboard_dir] }
+            collector_name: { get_property: [SELF, collector_name] }
           implementation: playbook/playbook.ansible
         pre_configure_target:
           inputs:
             ANSIBLE_VERBOSE: false
-            PLAYBOOK_ENTRY: install_cloudify_collector.yml
+            PLAYBOOK_ENTRY: install_custom_collector.yml
             collectors_path: { get_attribute: [SOURCE, collectors_path] }
+            collector_name: { get_property: [SELF, collector_name] }
+          implementation: playbook/playbook.ansible
+  org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondCloudifyHostpoolCollector:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi ]
+    properties:
+      collector_name:
+        type: string
+        default: CloudifyHostpoolCollector
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: collect_custom.yml
+            datasource_name: { get_attribute: [SOURCE, datasource_name] }
+            collectors_conf_path: { get_attribute: [SOURCE, collectors_conf_path] }
+            dashboard_dir: { get_attribute: [SOURCE, dashboard_dir] }
+            collector_name: { get_property: [SELF, collector_name] }
+          implementation: playbook/playbook.ansible
+        pre_configure_target:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: install_custom_collector.yml
+            collectors_path: { get_attribute: [SOURCE, collectors_path] }
+            collector_name: { get_property: [SELF, collector_name] }
+            hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, cloudify_hostpool, ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
           implementation: playbook/playbook.ansible

@@ -1,0 +1,8 @@
+---
+- hosts: all
+  name: Create services in A4C
+  become: true
+
+  roles:
+    - setup
+    - create_services

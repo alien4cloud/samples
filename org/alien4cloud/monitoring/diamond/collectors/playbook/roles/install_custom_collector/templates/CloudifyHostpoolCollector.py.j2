@@ -1,0 +1,44 @@
+# coding=utf-8
+
+import diamond.collector
+import os
+import tempfile
+
+class CloudifyHostpoolCollector(diamond.collector.Collector):
+
+    def proc_count(self, cmd):
+        filename = tempfile.mktemp()
+        os.system(cmd + " > " + filename)
+        count = open(filename).read().strip()
+        os.remove(filename)
+        return int(count)
+
+    def get_default_config_help(self):
+        config_help = super(CloudifyHostpoolCollector, self).get_default_config_help()
+        config_help.update({
+        })
+        return config_help
+
+    def get_default_config(self):
+        """
+        Returns the default collector settings
+        """
+        config = super(CloudifyHostpoolCollector, self).get_default_config()
+        config.update({
+            'path': 'cloudify'
+        })
+        return config
+
+    def collect(self):
+
+        metric_name = "hostpool.total.count"
+        metric_value = self.proc_count("curl -sf {{hostpool_url}}/hosts | python -m json.tool | grep alive | wc -l")
+        self.publish(metric_name, metric_value)
+
+        metric_name = "hostpool.available.count"
+        metric_value = self.proc_count("curl -sf {{hostpool_url}}/hosts | python -m json.tool | grep allocated | grep false | wc -l")
+        self.publish(metric_name, metric_value)
+
+        metric_name = "hostpool.allocated.count"
+        metric_value = self.proc_count("curl -sf {{hostpool_url}}/hosts | python -m json.tool | grep allocated | grep true | wc -l")
+        self.publish(metric_name, metric_value)

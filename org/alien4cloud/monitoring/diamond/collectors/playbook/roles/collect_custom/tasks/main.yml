@@ -1,0 +1,12 @@
+---
+- name: "Create config file for custom collector <{{ collector_name }}>"
+  template:
+    src: CustomCollector.conf.j2
+    dest: "{{collectors_conf_path}}/{{ collector_name }}.conf"
+    force: yes
+
+- name: "Create grafana dashboard for custom collector <{{ collector_name }}> in {{ dashboard_dir }}/{{ TARGET_INSTANCE }}.dashboard"
+  template:
+    src: "dashboard_{{ collector_name }}.json.j2"
+    dest: "{{ dashboard_dir }}/{{ TARGET_INSTANCE }}-{{ collector_name }}.dashboard"
+    force: yes

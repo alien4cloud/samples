@@ -1,0 +1,14 @@
+---
+- name: "Preparing directory {{ collectors_path }}/{{ collector_name }} to install custom collector {{ collector_name }}"
+  set_fact:
+    collector_dir: "{{ collectors_path }}/{{ collector_name }}"
+- name: "Ensure directory {{ collector_dir }} exists"
+  file:
+    path: "{{ collector_dir }}"
+    state: directory
+
+- name: "Install python script for custom collector {{ collector_name }}"
+  template:
+    src: "{{ collector_name }}.py.j2"
+    dest: "{{ collector_dir }}/{{ collector_name }}.py"
+    force: yes

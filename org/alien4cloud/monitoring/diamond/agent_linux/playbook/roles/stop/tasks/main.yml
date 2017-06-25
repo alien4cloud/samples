@@ -1,5 +1,7 @@
 ---
 
+# TODO: ensure service is started !
+
 # Stop Diamond service
 - name: Stop Diamond service
   service:

@@ -6,38 +6,45 @@ metadata:
   template_author: alien4cloud
 
 description: >
-  A monitored A4C configured with repositories, samples.
+  A monitored A4C configured with repositories, samples, connected to a Cloudify4 manager through service.
   Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
 
 imports:
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orch.aws_location:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.collectors:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.collectors:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.repository:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.location:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.repository:1.4.0-SNAPSHOT
 
 topology_template:
   description: >
-    A monitored A4C configured with repositories, samples.
+    A monitored A4C configured with repositories, samples, connected to a Cloudify4 manager through service.
     Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
 
   input_artifacts:
     alien_dist:
         type: tosca.artifacts.File
-    resources_file_artifact:
+    resources_repositories:
+        type: tosca.artifacts.File
+    resources_location:
         type: tosca.artifacts.File
   substitution_mappings:
     node_type: org.alien4cloud.automation.a4c.pub.nodes.Alien4CloudService
@@ -211,7 +218,7 @@ topology_template:
             relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
       artifacts:
         resources_file_artifact:
-          file: { get_input_artifact: resources_file_artifact }
+          file: { get_input_artifact: resources_repositories }
           type: tosca.artifacts.File
     AddSamplesTypes:
       type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
@@ -223,6 +230,61 @@ topology_template:
             node: FCRepositories
             capability: tosca.capabilities.Node
             relationship: tosca.relationships.DependsOn
+        - host:
+            node: Alien4Cloud
+            capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
+            relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+        - dependency:
+            node: AddExtendedTypes
+            capability: tosca.capabilities.Node
+            relationship: tosca.relationships.DependsOn
+    CfyOrchestratorConfigurator:
+      type: org.alien4cloud.automation.a4c.config.orchestrator.cfy.nodes.CfyOrchestratorConfigurator
+      properties:
+        disableDiamondMonitorAgent: true
+        name: MyOrchestrator
+        discriminator: YourInitials
+        pluginId: "alien-cloudify-4-orchestrator-premium"
+        pluginBean: "cloudify-orchestrator"
+      requirements:
+        - cfy:
+            node: CloudifyManagerService
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
+            relationship: org.alien4cloud.automation.a4c.config.orchestrator.cfy.relationships.ConnectsToCfy
+        - host:
+            node: Alien4Cloud
+            capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
+            relationship: org.alien4cloud.automation.a4c.pub.relationships.AlienConfiguratorHostedOnAlien
+    OnDemandLocationResourcesConfigurator:
+      type: org.alien4cloud.automation.a4c.config.location_resources.on_demand.nodes.OnDemandLocationResourcesConfigurator
+      properties:
+        name: MyLocation
+        type: byon
+      requirements:
+        - orchestrator:
+            node: CfyOrchestratorConfigurator
+            capability: org.alien4cloud.automation.a4c.config.pub.capabilities.OrchestratorConfigurator
+            relationship: org.alien4cloud.automation.a4c.config.pub.relationships.LocationHostedOnOrchestrator
+      artifacts:
+        resources_file_artifact:
+          file: { get_input_artifact: resources_location }
+          type: tosca.artifacts.File
+    CloudifyManagerService:
+      type: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService
+      capabilities:
+        cloudify_api_v3:
+          properties:
+            protocol: https
+            port: 443
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    AddExtendedTypes:
+      type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
+      properties:
+        repositoryUrl: "https://github.com/alien4cloud/alien4cloud-extended-types"
+        branchId: master
+      requirements:
         - host:
             node: Alien4Cloud
             capability: org.alien4cloud.automation.a4c.pub.capabilities.AlienConfigContainer
@@ -245,7 +307,9 @@ topology_template:
             set_state: started
           on-success:
             - ArtifactRepositoriesConfigurator_initial
+            - CfyOrchestratorConfigurator_initial
             - A4CCollector_configuring
+            - AddCsarFromGit_initial_1
             - AddCsarFromGit_initial
         OracleJDK_starting:
           node: OracleJDK
@@ -496,6 +560,7 @@ topology_template:
             set_state: started
           on-success:
             - ArtifactRepositoriesConfigurator_initial
+            - CfyOrchestratorConfigurator_initial
         ElasticSearchCollector_initial:
           node: ElasticSearchCollector
           activity:
@@ -668,6 +733,7 @@ topology_template:
             set_state: started
           on-success:
             - AddCsarFromGit_configuring
+            - AddCsarFromGit_initial_1
         AddCsarFromGit_initial:
           node: AddSamplesTypes
           activity:
@@ -686,7 +752,9 @@ topology_template:
             set_state: created
           on-success:
             - AddCsarFromGit_configuring
+            - AddCsarFromGit_configuring_1
             - ArtifactRepositoriesConfigurator_configuring
+            - AddCsarFromGit_initial_1
         AddCsarFromGit_configuring:
           node: AddSamplesTypes
           activity:
@@ -721,6 +789,180 @@ topology_template:
           node: AddSamplesTypes
           activity:
             set_state: started
+        CfyOrchestratorConfigurator_initial:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: initial
+          on-success:
+            - CfyOrchestratorConfigurator_creating
+        CfyOrchestratorConfigurator_creating:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: creating
+          on-success:
+            - CfyOrchestratorConfigurator_created
+        CfyOrchestratorConfigurator_created:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: created
+          on-success:
+            - CfyOrchestratorConfigurator_configuring
+        CfyOrchestratorConfigurator_configuring:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_CfyOrchestratorConfigurator
+        configure_CfyOrchestratorConfigurator:
+          node: CfyOrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - CfyOrchestratorConfigurator_configured
+        CfyOrchestratorConfigurator_configured:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: configured
+          on-success:
+            - CfyOrchestratorConfigurator_starting
+        CfyOrchestratorConfigurator_starting:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: starting
+          on-success:
+            - start_CfyOrchestratorConfigurator
+        start_CfyOrchestratorConfigurator:
+          node: CfyOrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CfyOrchestratorConfigurator_started
+        CfyOrchestratorConfigurator_started:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: started
+          on-success:
+            - OnDemandLocationResourcesConfigurator_initial
+        OnDemandLocationResourcesConfigurator_initial:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: initial
+          on-success:
+            - OnDemandLocationResourcesConfigurator_creating
+        OnDemandLocationResourcesConfigurator_creating:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: creating
+          on-success:
+            - create_OnDemandLocationResourcesConfigurator
+        create_OnDemandLocationResourcesConfigurator:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - OnDemandLocationResourcesConfigurator_created
+        OnDemandLocationResourcesConfigurator_created:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: created
+          on-success:
+            - OnDemandLocationResourcesConfigurator_configuring
+        OnDemandLocationResourcesConfigurator_configuring:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_OnDemandLocationResourcesConfigurator
+        configure_OnDemandLocationResourcesConfigurator:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - OnDemandLocationResourcesConfigurator_configured
+        OnDemandLocationResourcesConfigurator_configured:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: configured
+          on-success:
+            - OnDemandLocationResourcesConfigurator_starting
+        OnDemandLocationResourcesConfigurator_starting:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: starting
+          on-success:
+            - start_OnDemandLocationResourcesConfigurator
+        start_OnDemandLocationResourcesConfigurator:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - OnDemandLocationResourcesConfigurator_started
+        OnDemandLocationResourcesConfigurator_started:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: started
+          on-success:
+            - ArtifactRepositoriesConfigurator_initial
+        CloudifyManagerService_install:
+          node: CloudifyManagerService
+          activity:
+            delegate: install
+          on-success:
+            - CfyOrchestratorConfigurator_initial
+        AddCsarFromGit_initial_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: initial
+          on-success:
+            - AddCsarFromGit_creating_1
+        AddCsarFromGit_creating_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: creating
+          on-success:
+            - AddCsarFromGit_created_1
+        AddCsarFromGit_created_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: created
+          on-success:
+            - AddCsarFromGit_configuring_1
+        AddCsarFromGit_configuring_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_AddCsarFromGit_1
+        configure_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - AddCsarFromGit_configured_1
+        AddCsarFromGit_configured_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: configured
+          on-success:
+            - AddCsarFromGit_starting_1
+        AddCsarFromGit_starting_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: starting
+          on-success:
+            - start_AddCsarFromGit_1
+        start_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AddCsarFromGit_started_1
+        AddCsarFromGit_started_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: started
+          on-success:
+            - AddCsarFromGit_configuring
     uninstall:
       steps:
         stop_ElasticSearchCollector:
@@ -862,6 +1104,7 @@ topology_template:
             set_state: deleted
           on-success:
             - OracleJDK_stopping
+            - ElasticSearch_stopping
         A4CCollector_stopped:
           node: A4CCollector
           activity:
@@ -1028,6 +1271,119 @@ topology_template:
             set_state: deleted
           on-success:
             - Alien4Cloud_stopping
+        CfyOrchestratorConfigurator_stopping:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_CfyOrchestratorConfigurator
+        stop_CfyOrchestratorConfigurator:
+          node: CfyOrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - CfyOrchestratorConfigurator_stopped
+        CfyOrchestratorConfigurator_stopped:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: stopped
+          on-success:
+            - CfyOrchestratorConfigurator_deleting
+        CfyOrchestratorConfigurator_deleting:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_CfyOrchestratorConfigurator
+        delete_CfyOrchestratorConfigurator:
+          node: CfyOrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - CfyOrchestratorConfigurator_deleted
+        CfyOrchestratorConfigurator_deleted:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: deleted
+          on-success:
+            - Alien4Cloud_stopping
+            - CloudifyManagerService_uninstall
+        OnDemandLocationResourcesConfigurator_stopping:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_OnDemandLocationResourcesConfigurator
+        stop_OnDemandLocationResourcesConfigurator:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - OnDemandLocationResourcesConfigurator_stopped
+        OnDemandLocationResourcesConfigurator_stopped:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: stopped
+          on-success:
+            - OnDemandLocationResourcesConfigurator_deleting
+        OnDemandLocationResourcesConfigurator_deleting:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_OnDemandLocationResourcesConfigurator
+        delete_OnDemandLocationResourcesConfigurator:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - OnDemandLocationResourcesConfigurator_deleted
+        OnDemandLocationResourcesConfigurator_deleted:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: deleted
+          on-success:
+            - CfyOrchestratorConfigurator_stopping
+        CloudifyManagerService_uninstall:
+          node: CloudifyManagerService
+          activity:
+            delegate: uninstall
+        AddCsarFromGit_stopping_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AddCsarFromGit_1
+        stop_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AddCsarFromGit_stopped_1
+        AddCsarFromGit_stopped_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: stopped
+          on-success:
+            - AddCsarFromGit_deleting_1
+        AddCsarFromGit_deleting_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_AddCsarFromGit_1
+        delete_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - AddCsarFromGit_deleted_1
+        AddCsarFromGit_deleted_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: deleted
+          on-success:
+            - Alien4Cloud_stopping
     start:
       steps:
         Compute_start:
@@ -1086,7 +1442,9 @@ topology_template:
           activity:
             set_state: started
           on-success:
+            - CfyOrchestratorConfigurator_starting
             - AddCsarFromGit_starting
+            - AddCsarFromGit_starting_1
             - A4CCollector_starting
             - ArtifactRepositoriesConfigurator_starting
         OracleJDK_starting:
@@ -1192,6 +1550,64 @@ topology_template:
           node: AddSamplesTypes
           activity:
             set_state: started
+        CfyOrchestratorConfigurator_starting:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: starting
+          on-success:
+            - start_CfyOrchestratorConfigurator
+        start_CfyOrchestratorConfigurator:
+          node: CfyOrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CfyOrchestratorConfigurator_started
+        CfyOrchestratorConfigurator_started:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: started
+          on-success:
+            - OnDemandLocationResourcesConfigurator_starting
+        OnDemandLocationResourcesConfigurator_starting:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: starting
+          on-success:
+            - start_OnDemandLocationResourcesConfigurator
+        start_OnDemandLocationResourcesConfigurator:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - OnDemandLocationResourcesConfigurator_started
+        OnDemandLocationResourcesConfigurator_started:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: started
+        CloudifyManagerService_start:
+          node: CloudifyManagerService
+          activity:
+            delegate: start
+          on-success:
+            - CfyOrchestratorConfigurator_starting
+        AddCsarFromGit_starting_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: starting
+          on-success:
+            - start_AddCsarFromGit_1
+        start_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AddCsarFromGit_started_1
+        AddCsarFromGit_started_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: started
+          on-success:
+            - AddCsarFromGit_starting
     stop:
       steps:
         Compute_stop:
@@ -1349,6 +1765,65 @@ topology_template:
             - AddCsarFromGit_stopped
         AddCsarFromGit_stopped:
           node: AddSamplesTypes
+          activity:
+            set_state: stopped
+          on-success:
+            - Alien4Cloud_stopping
+        CfyOrchestratorConfigurator_stopping:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_CfyOrchestratorConfigurator
+        stop_CfyOrchestratorConfigurator:
+          node: CfyOrchestratorConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - CfyOrchestratorConfigurator_stopped
+        CfyOrchestratorConfigurator_stopped:
+          node: CfyOrchestratorConfigurator
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyManagerService_stop
+            - Alien4Cloud_stopping
+        OnDemandLocationResourcesConfigurator_stopping:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_OnDemandLocationResourcesConfigurator
+        stop_OnDemandLocationResourcesConfigurator:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - OnDemandLocationResourcesConfigurator_stopped
+        OnDemandLocationResourcesConfigurator_stopped:
+          node: OnDemandLocationResourcesConfigurator
+          activity:
+            set_state: stopped
+          on-success:
+            - CfyOrchestratorConfigurator_stopping
+        CloudifyManagerService_stop:
+          node: CloudifyManagerService
+          activity:
+            delegate: stop
+        AddCsarFromGit_stopping_1:
+          node: AddExtendedTypes
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AddCsarFromGit_1
+        stop_AddCsarFromGit_1:
+          node: AddExtendedTypes
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AddCsarFromGit_stopped_1
+        AddCsarFromGit_stopped_1:
+          node: AddExtendedTypes
           activity:
             set_state: stopped
           on-success:

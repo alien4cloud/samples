@@ -88,9 +88,41 @@
 - debug:
     var: identifiedResourcesMap
 
+- name: Build an easilly iterable array of dicts containing resourceId, capabilityName, propertyName & propertyValue
+  set_fact:
+    propertyValuesPerCapability: |
+      {% set result = [] -%}
+      {% for key in identifiedResourcesMap.keys() -%}
+        {% set nodeInstance = identifiedResourcesMap[key]['nodeInstance'] -%}
+        {% if 'capabilities' in nodeInstance -%}
+          {% for capabilityKey in nodeInstance['capabilities'].keys() -%}
+            {% if 'properties' in nodeInstance['capabilities'][capabilityKey] -%}
+              {% for propertyKey in nodeInstance['capabilities'][capabilityKey]['properties'].keys() -%}
+                {% set ignored = result.extend([{'resourceId': key, 'capabilityName': capabilityKey, 'propertyName': propertyKey, 'propertyValue': nodeInstance['capabilities'][capabilityKey]['properties'][propertyKey]}]) -%}
+              {%- endfor %}
+            {%- endif %}
+          {%- endfor %}
+        {%- endif %}
+      {%- endfor %}
+      {{ result }}
+
+- name: Configure services resource capabilities properties
+  uri:
+    url: "{{ alien_url }}/rest/latest/services/{{item['resourceId']}}"
+    method: PATCH
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      nodeInstance:
+        capabilities: "{\"{{item['capabilityName']}}\": { \"properties\" : {\"{{item['propertyName']}}\": \"{{item['propertyValue']}}\"}}}"
+    body_format: json
+    status_code: 200
+  register: result
+  with_items: "{{propertyValuesPerCapability}}"
+
 - name: Build an easilly iterable array of dicts containing resourceId, attributeName & attributeValue
   set_fact:
-    propertyValuesPerResource: |
+    attributeValuesPerResource: |
       {% set result = [] -%}
       {% for key in identifiedResourcesMap.keys() -%}
         {% set nodeInstance = identifiedResourcesMap[key]['nodeInstance'] -%}
@@ -103,12 +135,12 @@
       {{ result }}
 
 - debug:
-    var: propertyValuesPerResource
+    var: attributeValuesPerResource
 
 # PATCH http://localhost:9999/rest/latest/services/4e75b383-ca56-485f-a27a-6ced573fbef1
 #{"nodeInstance":{"attributeValues":{"capabilities.data_endpoint.toto":"tata"}}}
 
-- name: Path service
+- name: Path service to set attributes
   uri:
     url: "{{ alien_url }}/rest/latest/services/{{item['resourceId']}}"
     method: PATCH
@@ -120,7 +152,21 @@
     body_format: json
     status_code: 200
   register: result
-  with_items: "{{propertyValuesPerResource}}"
+  with_items: "{{attributeValuesPerResource}}"
 
 
-# TODO: setup security for all locations
+- name: Path service to allow locations
+  uri:
+    url: "{{ alien_url }}/rest/latest/services/{{item[0]}}"
+    method: PATCH
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      locationIds: "[\"{{item[1]}}\"]"
+    body_format: json
+    status_code: 200
+  register: result
+  with_nested:
+    - "{{resourceIds}}"
+    - "{{locationIds}}"
+  when: locationIds is defined

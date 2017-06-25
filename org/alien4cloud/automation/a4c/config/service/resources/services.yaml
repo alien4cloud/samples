@@ -21,6 +21,8 @@ services:
     nodeInstance:
       attributeValues:
         # we use a list here because "state: started" must be the last operation
+        - grafana_url: http://52.49.215.225:3000
+        - capabilities.http_endpoint.protocol: http
         - capabilities.http_endpoint.ip_address: 172.31.15.18
         - capabilities.http_endpoint.port: 3000
         - capabilities.http_endpoint.user: admin
@@ -33,8 +35,14 @@ services:
     version: "1.4.0-SNAPSHOT"
     # TODO: setup security for all locations
     nodeInstance:
+      capabilities:
+        cloudify_api_v3:
+          properties:
+            admin_username: admin
+            admin_password: admin
       attributeValues:
         # we use a list here because "state: started" must be the last operation
+        - manager_url: https://52.50.174.124:443
         - capabilities.cloudify_api_v3.protocol: https
         - capabilities.cloudify_api_v3.ip_address: 172.31.41.251
         - capabilities.cloudify_api_v3.port: 443

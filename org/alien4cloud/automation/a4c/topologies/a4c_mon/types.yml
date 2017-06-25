@@ -9,6 +9,7 @@ description: >
   A monitored A4C configured with repositories, samples, connected to a Cloudify4 manager through service.
   Has been tested on a Ubuntu ami-47a23a30 (t2.medium).
 
+
 imports:
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
@@ -242,7 +243,7 @@ topology_template:
       type: org.alien4cloud.automation.a4c.config.orchestrator.cfy.nodes.CfyOrchestratorConfigurator
       properties:
         disableDiamondMonitorAgent: true
-        name: MyOrchestrator
+        name: CloudifyManager
         discriminator: YourInitials
         pluginId: "alien-cloudify-4-orchestrator-premium"
         pluginBean: "cloudify-orchestrator"
@@ -258,8 +259,8 @@ topology_template:
     OnDemandLocationResourcesConfigurator:
       type: org.alien4cloud.automation.a4c.config.location_resources.on_demand.nodes.OnDemandLocationResourcesConfigurator
       properties:
-        name: MyLocation
-        type: byon
+        name: "AWS_EC2"
+        type: amazon
       requirements:
         - orchestrator:
             node: CfyOrchestratorConfigurator

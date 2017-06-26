@@ -1,0 +1,12 @@
+---
+- hosts: all
+  name: Diamond install Cloudify collector
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - install_cloudify_collector

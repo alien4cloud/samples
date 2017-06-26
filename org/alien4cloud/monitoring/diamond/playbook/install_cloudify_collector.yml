@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Diamond install Cloudify collector
-  become: true
-
-  roles:
-    - install_cloudify_collector

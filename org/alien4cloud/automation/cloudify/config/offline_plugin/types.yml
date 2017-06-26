@@ -9,8 +9,8 @@ imports:
   - alien-base-types:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
 
 node_types:
 
@@ -41,7 +41,7 @@ node_types:
       Standard:
         create:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: create.yml
             document_root: { get_property: [HOST, document_root] }
             offline_ip: { get_attribute: [HOST, ip_address] }
@@ -57,7 +57,7 @@ relationship_types:
       Configure:
         add_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: connect_cfy.yml
             plugin_archive_url: { get_property: [SOURCE, plugin_archive_url] }
             cfy_user: { get_property: [TARGET, cloudify_api_v3, admin_username] }
@@ -71,7 +71,7 @@ relationship_types:
       Configure:
         add_target:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: connect_a4c.yml
             # offline_plugin_url: { get_attribute: [SOURCE, offline_plugin_url] }
             alien_user: { get_property: [TARGET, rest, user] }

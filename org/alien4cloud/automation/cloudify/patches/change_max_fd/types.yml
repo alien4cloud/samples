@@ -27,7 +27,7 @@ node_types:
       Standard:
         create:
           inputs:
-            ANSIBLE_VERBOSE: true
+            ANSIBLE_VERBOSE: false
             PLAYBOOK_ENTRY: create.yml
             max_file: { get_property: [SELF, max_file]}
           implementation: playbook/playbook.ansible

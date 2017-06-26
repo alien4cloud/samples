@@ -1,0 +1,20 @@
+---
+
+- set_fact:
+    file_dir: "/tmp/a4cPlaybookRegistry/{{ SOURCE_NODE }}/{{ SOURCE_INSTANCE }}/connectsToGrafana/inputs"
+
+- file:
+    path: "{{ file_dir }}"
+    state: directory
+
+- name: "Echo <{{ grafana_url }}> into {{ file_dir }}/grafana_url"
+  shell: "echo '{{ grafana_url }}' > {{ file_dir }}/grafana_url"
+  when: grafana_url is defined
+  
+- name: "Echo <{{ grafana_user }}> into {{ file_dir }}/grafana_user"
+  shell: "echo '{{ grafana_user }}' > {{ file_dir }}/grafana_user"
+  when: grafana_user is defined
+
+- name: "Echo <{{ grafana_password }}> into {{ file_dir }}/grafana_password"
+  shell: "echo '{{ grafana_password }}' > {{ file_dir }}/grafana_password"
+  when: grafana_password is defined

@@ -1,0 +1,13 @@
+---
+- hosts: all
+  name: Delete Diamond Agent
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - delete_dashboards
+    - delete

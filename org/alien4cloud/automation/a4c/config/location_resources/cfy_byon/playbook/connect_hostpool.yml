@@ -1,0 +1,13 @@
+---
+- hosts: all
+  name: Connect to hostpool
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - setup
+    - connect_hostpool

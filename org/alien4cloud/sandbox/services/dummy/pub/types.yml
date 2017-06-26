@@ -16,6 +16,13 @@ node_types:
     derived_from: tosca.nodes.SoftwareComponent
     description: A dummy service that do nothing.
     abstract: true
+    properties:
+      my_service_property_1:
+        type: string
+        required: true
+      my_service_property_2:
+        type: string
+        required: true
     attributes:
       # To be defined in connect op
       host_uname:

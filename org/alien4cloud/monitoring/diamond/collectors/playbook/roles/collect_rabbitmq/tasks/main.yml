@@ -1,0 +1,13 @@
+---
+
+- name: Create config file for RabbitMQ collector
+  template:
+    src: RabbitMQCollector.conf.j2
+    dest: "{{collectors_conf_path}}/RabbitMQCollector.conf"
+    force: yes
+
+- name: "Create grafana dashboard for RabbitMQ in {{ dashboard_dir }}/{{ TARGET_INSTANCE }}-RabbitMQ.dashboard"
+  template:
+    src: dashboard.json.j2
+    dest: "{{ dashboard_dir }}/{{ TARGET_INSTANCE }}-RabbitMQ.dashboard"
+    force: yes

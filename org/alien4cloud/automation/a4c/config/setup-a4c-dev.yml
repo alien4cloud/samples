@@ -1,0 +1,75 @@
+---
+- hosts: localhost
+  name: Setup an typical A4C from a totally empty one (usefull for an Alien developer).
+  become: false
+
+  # vars_prompt:
+  #   - name: "fc_username"
+  #     prompt: "what is your username in fc orgranization ?"
+  #   - name: "fc_password"
+  #     prompt: "what is your username in fc orgranization ?"
+
+  roles:
+    - { role: 'plugin/playbook/roles/upload_plugin',
+        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-premium-logs/target/alien4cloud-premium-logs-1.4.0-SNAPSHOT.zip'
+      }
+    - { role: 'plugin/playbook/roles/upload_plugin',
+        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-premium-repository-plugins/alien4cloud-maven-repository-plugin/target/alien4cloud-maven-repository-plugin-1.4.0-SNAPSHOT.zip'
+      }
+    - { role: repository/playbook/roles/create_repositories,
+        resources_file_artifact: 'repository/resources/repositories.yaml',
+      }
+    - { role: csar/playbook/roles/start,
+        repositoryUrl: 'https://github.com/alien4cloud/tosca-normative-types',
+        repositoryUsername: '',
+        repositoryPassword: '',
+        branchId: 'master',
+        subPath: ''
+      }
+    - { role: csar/playbook/roles/start,
+        repositoryUrl: 'https://github.com/alien4cloud/alien4cloud-extended-types',
+        repositoryUsername: '',
+        repositoryPassword: '',
+        branchId: 'master',
+        subPath: ''
+      }
+    - { role: csar/playbook/roles/start,
+        repositoryUrl: 'https://github.com/alien4cloud/samples',
+        repositoryUsername: '',
+        repositoryPassword: '',
+        branchId: 'master',
+        subPath: 'org/alien4cloud'
+      }
+    - { role: 'plugin/playbook/roles/upload_plugin',
+        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-cloudify3-provider-premium/target/alien4cloud-cloudify4-provider-premium-1.4.0-SNAPSHOT.zip'
+      }
+    - { role: orchestrator/cfy/playbook/roles/create_orchestrator,
+        name: 'Cloudify4',
+        pluginId: 'alien-cloudify-4-orchestrator-premium',
+        pluginBean: 'cloudify-orchestrator',
+        disableDiamondMonitorAgent: 'true'
+      }
+    - { role: 'location/playbook/roles/create_location',
+        location_name: 'AWS',
+        location_type: 'amazon'
+      }
+    - { role: 'location_resources/on_demand/playbook/roles/create_location_resources',
+        resources_file_artifact: 'location_resources/on_demand/resources/aws_resources.yaml'
+      }
+    - { role: orchestrator/cfy/playbook/roles/create_orchestrator,
+        name: 'Cloudify4-BYON',
+        pluginId: 'alien-cloudify-4-orchestrator-premium',
+        pluginBean: 'cloudify-orchestrator',
+        disableDiamondMonitorAgent: 'true'
+      }
+    - { role: 'location/playbook/roles/create_location',
+        location_name: 'BYON',
+        location_type: 'byon'
+      }
+    - { role: 'location_resources/cfy_byon/playbook/roles/create_byon_location_resource',
+        resourceType: 'alien.cloudify.byon.nodes.LinuxCompute',
+        resourceName: 'MyByonOnDemandResource',
+        resourceArchiveName: 'cloudify-byon-types',
+        resourceArchiveVersion: '1.4.0',
+        resourceAgentInstallMethod: 'none'
+      }

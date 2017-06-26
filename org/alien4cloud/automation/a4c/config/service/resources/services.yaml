@@ -1,0 +1,70 @@
+
+services:
+  - nodeType: "org.alien4cloud.monitoring.pub.nodes.GraphiteService"
+    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    name: GraphiteAsAService
+    version: "1.4.0-SNAPSHOT"
+    # TODO: setup security for all locations
+    nodeInstance:
+      attributeValues:
+        # we use a list here because "state: started" must be the last operation
+        - capabilities.data_endpoint.protocol: http
+        - capabilities.data_endpoint.ip_address: 172.31.15.18
+        - capabilities.data_endpoint.port: 2003
+        - state: started
+
+  - nodeType: "org.alien4cloud.monitoring.pub.nodes.GrafanaService"
+    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    name: GrafanaAsAService
+    version: "1.4.0-SNAPSHOT"
+    # TODO: setup security for all locations
+    nodeInstance:
+      attributeValues:
+        # we use a list here because "state: started" must be the last operation
+        - grafana_url: http://52.49.215.225:3000
+        - capabilities.http_endpoint.protocol: http
+        - capabilities.http_endpoint.ip_address: 172.31.15.18
+        - capabilities.http_endpoint.port: 3000
+        - capabilities.http_endpoint.user: admin
+        - capabilities.http_endpoint.password: admin
+        - state: started
+
+  - nodeType: "org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService"
+    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    name: Cloudify4ManagerAsAService
+    version: "1.4.0-SNAPSHOT"
+    # TODO: setup security for all locations
+    nodeInstance:
+      capabilities:
+        cloudify_api_v3:
+          properties:
+            admin_username: admin
+            admin_password: admin
+      attributeValues:
+        # we use a list here because "state: started" must be the last operation
+        - manager_url: https://52.50.174.124:443
+        - capabilities.cloudify_api_v3.protocol: https
+        - capabilities.cloudify_api_v3.ip_address: 172.31.41.251
+        - capabilities.cloudify_api_v3.port: 443
+        - capabilities.cloudify_api_v3.admin_username: admin
+        - capabilities.cloudify_api_v3.admin_password: admin
+        - state: started
+
+  - nodeType: "org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService"
+    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    name: HostpoolAsAService
+    version: "1.4.0-SNAPSHOT"
+    # TODO: setup security for all locations
+    nodeInstance:
+      capabilities:
+        cloudify_hostpool:
+          properties:
+            port: 8080
+            protocol: http
+      attributeValues:
+        # we use a list here because "state: started" must be the last operation
+        - hostpool_url: https://52.50.174.124:8080
+        - capabilities.cloudify_hostpool.protocol: http
+        - capabilities.cloudify_hostpool.ip_address: 172.31.41.251
+        - capabilities.cloudify_hostpool.port: 8080
+        - state: started

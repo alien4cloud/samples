@@ -1,0 +1,177 @@
+---
+
+# read cfy_url from cfy connection
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_cfy/inputs/cfy_url"
+  register: cfy_url_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_cfy/inputs/cfy_url"
+  register: cfy_url_content
+  when: cfy_url_file.stat.exists
+- set_fact:
+    cfy_url: "{{ cfy_url_content.stdout_lines[0] }}"
+  when: cfy_url_file.stat.exists and cfy_url_content.stdout_lines|length > 0
+
+# read cfy_user from cfy connection
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_cfy/inputs/cfy_user"
+  register: cfy_user_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_cfy/inputs/cfy_user"
+  register: cfy_user_content
+  when: cfy_user_file.stat.exists
+- set_fact:
+    cfy_user: "{{ cfy_user_content.stdout_lines[0] }}"
+  when: cfy_user_file.stat.exists and cfy_user_content.stdout_lines|length > 0
+
+# read cfy_password from cfy connection
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_cfy/inputs/cfy_password"
+  register: cfy_password_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_cfy/inputs/cfy_password"
+  register: cfy_password_content
+  when: cfy_password_file.stat.exists
+- set_fact:
+    cfy_password: "{{ cfy_password_content.stdout_lines[0] }}"
+  when: cfy_password_file.stat.exists and cfy_password_content.stdout_lines|length > 0
+
+- set_fact:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+
+- name: "Login onto A4C using {{url}}"
+  uri:
+    url: "{{url}}"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- set_fact:
+    url: "{{ alien_url }}/rest/latest/orchestrators"
+
+- name: "Create Orchestrator using {{url}}"
+  uri:
+    url: "{{url}}"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      name: "{{ name }}"
+      pluginId: "{{ pluginId }}"
+      pluginBean: "{{ pluginBean }}"
+    body_format: json
+    status_code: 201
+  register: result
+
+- set_fact:
+    content: "{{ result.content }}"
+
+- set_fact:
+    orchestratorId: "{{ content.data }}"
+
+- name: Get orchestrator configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
+    method: GET
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    status_code: 200
+  register: result
+
+- debug:
+    var: result.json
+
+- set_fact:
+    content: "{{ result.content }}"
+- set_fact:
+    orchestratorConfiguration: "{{ content.data.configuration }}"
+
+- set_fact:
+    tmp: '{ "url": "{{ cfy_url }}" }'
+- set_fact:
+    orchestratorConfiguration: "{{ orchestratorConfiguration | combine(tmp) }}"
+
+- set_fact:
+    tmp: '{ "userName": "{{ cfy_user  }}" }'
+- set_fact:
+    orchestratorConfiguration: "{{ orchestratorConfiguration | combine(tmp) }}"
+
+- set_fact:
+    tmp: '{ "password": "{{ cfy_password }}" }'
+- set_fact:
+    orchestratorConfiguration: "{{ orchestratorConfiguration | combine(tmp) }}"
+
+- set_fact:
+    tmp: '{ "disableSSLVerification": "true" }'
+- set_fact:
+    # when var as no replacement we need to transform it to JSON object
+    tmp: "{{ tmp | from_json }}"
+- set_fact:
+    orchestratorConfiguration: "{{ orchestratorConfiguration | combine(tmp) }}"
+
+- set_fact:
+    tmp: '{ "disableDiamondMonitorAgent": "{{ disableDiamondMonitorAgent }}" }'
+- set_fact:
+    orchestratorConfiguration: "{{ orchestratorConfiguration | combine(tmp) }}"
+
+- name: Update orchestrator configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
+    method: PUT
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    body: "{{ orchestratorConfiguration }}"
+    body_format: json
+    status_code: 200
+  register: result
+
+- name: Update orchestrator deployment name pattern
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}"
+    method: PUT
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    body:
+      deploymentNamePattern: "('{{ discriminator }}-' + application.name + '-' + environment.name).replaceAll('[^\\w\\-_]', '_')"
+    body_format: json
+    status_code: 200
+  register: result
+
+- name: Activate orchestrator
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/instance"
+    method: POST
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+
+- name: Wait for orchestrator to be started
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}"
+    method: GET
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    status_code: 200
+  register: result
+  until: result.json.data.state == "CONNECTED"
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- set_fact:
+    orchestrator_state: "{{ result.json.data.state }}"
+
+- debug:
+    msg: "Orchestrator {{ result.json.data.id }} is in state {{ orchestrator_state }}"
+
+- fail:
+    msg: "The orchestrator # {{ cfy_user }}:{{ cfy_password }}@{{ cfy_url }} is not connected ({{ orchestrator_state }}), something went wrong !"
+  when: orchestrator_state != "CONNECTED"

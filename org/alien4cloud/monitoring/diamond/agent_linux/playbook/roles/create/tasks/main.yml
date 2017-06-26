@@ -1,0 +1,108 @@
+---
+
+# Init folder
+- file: path=/opt/ansible_diamond state=directory mode=0755
+
+# Install system dependencies (Centos Redhat)
+- name: Install system dependencies
+  yum: pkg={{ item }} state=present
+  with_items:
+    - gcc
+    - python-devel
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+# Install system dependencies (Ubuntu)
+- name: Preprare apt cache
+  apt:
+    update_cache: yes
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install system dependencies (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - gcc
+    - python-dev
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install system dependencies
+  apt: name={{item}} state=installed
+  with_items:
+    - gcc
+    - python-dev
+    - systemd
+  when: ansible_distribution == 'Ubuntu'
+
+# Install pip
+- name: Download get-pip.py
+  get_url:
+    url: "https://bootstrap.pypa.io/get-pip.py"
+    dest: /tmp/get-pip.py
+
+- name: Check python-pip exists
+  stat: path=/usr/bin/pip
+  register: pip_cmd
+
+- name: Install python-pip
+  command: python /tmp/get-pip.py
+  when: not pip_cmd.stat.exists
+
+- name: Save install python-pip state
+  file:
+    path: /opt/ansible_diamond/.python-pip-state
+    state: touch
+  when: not pip_cmd.stat.exists
+
+# Install virtualenv
+- name: Check virtualenv exists
+  stat: path=/usr/bin/virtualenv
+  register: virtualenv_cmd
+
+- name: Install virtualenv
+  command: pip install virtualenv
+  when: not virtualenv_cmd.stat.exists
+
+- name: Save install virtualenv state
+  file:
+    path: /opt/ansible_diamond/.virtualenv-state
+    state: touch
+  when: not virtualenv_cmd.stat.exists
+
+# Create virtualenv
+- name: Check Diamond virtualenv
+  stat: path=/opt/ansible_diamond/env
+  register: diamond_env
+
+- name: Create Diamond virtualenv
+  command: virtualenv /opt/ansible_diamond/env
+  when: not diamond_env.stat.exists
+
+# Install Diamond
+- name: Check Diamond exists
+  stat: path=/opt/ansible_diamond/env/bin/diamond
+  register: diamond
+
+- name: Install Diamond
+  command: /opt/ansible_diamond/env/bin/pip install diamond
+  when: not diamond.stat.exists
+
+# create directory for collector config
+- name: "Ensure directory <{{collectors_conf_path}}> exists for collectors configs"
+  file:
+    path: "{{collectors_conf_path}}"
+    state: directory
+    mode: 0755
+
+# create directory for dashboards
+# collector will generate their specific dashboard here
+- set_fact:
+    dashboard_dir: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/dashboards"
+
+- name: "Ensure directory <{{ dashboard_dir }}> exists"
+  file:
+    path: "{{ dashboard_dir }}"
+    state: directory

@@ -1,0 +1,34 @@
+---
+
+- name: "Check if file <{{ dashboard_dir }}/slugIds.registry> exists"
+  stat:
+    path: "{{ dashboard_dir }}/slugIds.registry"
+  register: registry_file
+
+- name: "Slurp {{ dashboard_dir }}/slugIds.registry file"
+  slurp:
+    src: "{{ dashboard_dir }}/slugIds.registry"
+  register: slugIds__registry_slurped
+  when: registry_file.stat.exists
+
+- set_fact:
+    slugIds: "{{ slugIds__registry_slurped['content'] | b64decode | from_json}}"
+  when: registry_file.stat.exists
+
+- debug:
+    var: slugIds
+  when: slugIds is defined
+
+- name: "Delete dashboards using url {{ grafana_url }}/api/dashboards/db/{{item}}"
+  uri:
+    url: "{{ grafana_url }}/api/dashboards/db/{{item}}"
+    method: DELETE
+    HEADER_Content-Type: application/json
+    force_basic_auth: yes
+    user: "{{ grafana_user }}"
+    password: "{{ grafana_password }}"
+    status_code: 200
+  ignore_errors: yes
+  register: result
+  with_items: "{{slugIds}}"
+  when: grafana_url is defined and slugIds is defined

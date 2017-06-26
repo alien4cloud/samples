@@ -6,22 +6,19 @@ metadata:
   template_author: alien4cloud
 
 description: |
-  Graphite As a Service : a Grafana that connects to a Graphite as a backend.
-  Can be used to expose a monitoring service.
-  Tested on a Centos ami-4c4b003b (t2.medium).
-  - ALIEN-2409: I can't expose Graphite.capabilities.http_endpoint if
-    Graphite.capabilities.data_endpoint is already exposed !
+  A Grafana front end behind a Graphite backend for monitoring.
+  Tested on a Centos ami-4c4b003b (t2.small).
 
 imports:
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
-  - cloudify3-common-types:1.4.0
   - org.alien4cloud.monitoring.grafana:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
@@ -29,51 +26,31 @@ imports:
   - org.alien4cloud.monitoring.graphite:1.4.0-SNAPSHOT
 
 topology_template:
+  description: |
+    A Grafana front end behind a Graphite backend for monitoring.
+    Tested on a Centos ami-4c4b003b (t2.small).
+
   substitution_mappings:
     node_type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
     capabilities:
       http_endpoint: [ Grafana, http_endpoint ]
       data_endpoint: [ Graphite, data_endpoint ]
   node_templates:
-    xGrafanaCompute:
-      type: tosca.nodes.Compute
-      requirements:
-        - network:
-            node: PublicNetwork
-            capability: tosca.capabilities.Connectivity
-            relationship: tosca.relationships.Network
-      capabilities:
-        os:
-          properties:
-            architecture: "x86_64"
-            type: linux
-            distribution: centos
-        scalable:
-          properties:
-            min_instances: 1
-            max_instances: 1
-            default_instances: 1
-        endpoint:
-          properties:
-            secure: true
-            protocol: tcp
-            network_name: PRIVATE
-            initiator: source
     Grafana:
       type: org.alien4cloud.monitoring.grafana.nodes.Grafana
       properties:
         component_version: "4.1.2"
       requirements:
-        - host:
-            node: xGrafanaCompute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
         - graphite:
             node: Graphite
             capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteHttpEndpoint
             relationship: org.alien4cloud.monitoring.grafana.relationships.GrafanaConnectToGraphite
             properties:
               datasource_name: "Graphite_DS"
+        - host:
+            node: _MonitoringCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
       capabilities:
         http_endpoint:
           properties:
@@ -84,35 +61,13 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
-    PublicNetwork:
-      type: alien.nodes.PublicNetwork
-      properties:
-        ip_version: 4
-    DiamondGrafana:
-      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
-      properties:
-        datasource_name: "Graphite_DS"
-        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
-      requirements:
-        - host:
-            node: xGrafanaCompute
-            capability: tosca.capabilities.Container
-            relationship: tosca.relationships.HostedOn
-        - grafana:
-            node: Grafana
-            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGrafana
-        - data_endpoint:
-            node: Graphite
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
     Graphite:
       type: org.alien4cloud.monitoring.graphite.nodes.Graphite
       properties:
         component_version: "1.0.0"
       requirements:
         - host:
-            node: xGrafanaCompute
+            node: _MonitoringCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
       capabilities:
@@ -130,82 +85,66 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+    _MonitoringCompute:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            mem_size: "2 GIB"
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: centos
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    dmdMonitoring:
+      type: org.alien4cloud.monitoring.diamond.agent_linux.nodes.DiamondLinuxAgent
+      properties:
+        datasource_name: "Graphite_DS"
+        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
+        collectors_conf_path: "/etc/ansible_diamond/collectors"
+      requirements:
+        - data_endpoint:
+            node: Graphite
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGraphite
+        - host:
+            node: _MonitoringCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - grafana:
+            node: Grafana
+            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGrafana
   outputs:
     Grafana_grafana_url:
       value: { get_attribute: [ Grafana, grafana_url ] }
+    Graphite_graphite_url:
+      value: { get_attribute: [ Graphite, graphite_url ] }
   workflows:
     install:
       steps:
         MonitoringCompute_install:
-          node: xGrafanaCompute
+          node: _MonitoringCompute
           activity:
             delegate: install
           on-success:
             - DiamondLinuxAgent_initial
             - Graphite_initial
-            - Grafana_initial
-            - DiamondLinuxAgent_configuring
-        DiamondLinuxAgent_initial:
-          node: DiamondGrafana
-          activity:
-            set_state: initial
-          on-success:
-            - DiamondLinuxAgent_creating
-        DiamondLinuxAgent_creating:
-          node: DiamondGrafana
-          activity:
-            set_state: creating
-          on-success:
-            - create_DiamondLinuxAgent
-        create_DiamondLinuxAgent:
-          node: DiamondGrafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - DiamondLinuxAgent_created
-        DiamondLinuxAgent_created:
-          node: DiamondGrafana
-          activity:
-            set_state: created
-          on-success:
             - Graphite_configuring
             - Grafana_initial
             - Grafana_configuring
-            - DiamondLinuxAgent_configuring
-        DiamondLinuxAgent_configuring:
-          node: DiamondGrafana
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_DiamondLinuxAgent
-        configure_DiamondLinuxAgent:
-          node: DiamondGrafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - DiamondLinuxAgent_configured
-        DiamondLinuxAgent_configured:
-          node: DiamondGrafana
-          activity:
-            set_state: configured
-          on-success:
-            - DiamondLinuxAgent_starting
-        DiamondLinuxAgent_starting:
-          node: DiamondGrafana
-          activity:
-            set_state: starting
-          on-success:
-            - start_DiamondLinuxAgent
-        start_DiamondLinuxAgent:
-          node: DiamondGrafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - DiamondLinuxAgent_started
-        DiamondLinuxAgent_started:
-          node: DiamondGrafana
-          activity:
-            set_state: started
         Grafana_initial:
           node: Grafana
           activity:
@@ -267,10 +206,6 @@ topology_template:
             set_state: started
           on-success:
             - DiamondLinuxAgent_configuring
-        PublicNetwork_install:
-          node: PublicNetwork
-          activity:
-            delegate: install
         Graphite_initial:
           node: Graphite
           activity:
@@ -295,6 +230,7 @@ topology_template:
             set_state: created
           on-success:
             - Graphite_configuring
+            - Grafana_initial
         Graphite_configuring:
           node: Graphite
           activity:
@@ -332,51 +268,73 @@ topology_template:
           on-success:
             - Grafana_configuring
             - DiamondLinuxAgent_configuring
+        DiamondLinuxAgent_initial:
+          node: dmdMonitoring
+          activity:
+            set_state: initial
+          on-success:
+            - DiamondLinuxAgent_creating
+        DiamondLinuxAgent_creating:
+          node: dmdMonitoring
+          activity:
+            set_state: creating
+          on-success:
+            - create_DiamondLinuxAgent
+        create_DiamondLinuxAgent:
+          node: dmdMonitoring
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - DiamondLinuxAgent_created
+        DiamondLinuxAgent_created:
+          node: dmdMonitoring
+          activity:
+            set_state: created
+          on-success:
+            - Graphite_initial
+            - Graphite_configuring
+            - Grafana_configuring
+            - DiamondLinuxAgent_configuring
+        DiamondLinuxAgent_configuring:
+          node: dmdMonitoring
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_DiamondLinuxAgent
+        configure_DiamondLinuxAgent:
+          node: dmdMonitoring
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - DiamondLinuxAgent_configured
+        DiamondLinuxAgent_configured:
+          node: dmdMonitoring
+          activity:
+            set_state: configured
+          on-success:
+            - DiamondLinuxAgent_starting
+        DiamondLinuxAgent_starting:
+          node: dmdMonitoring
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        start_DiamondLinuxAgent:
+          node: dmdMonitoring
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: dmdMonitoring
+          activity:
+            set_state: started
     uninstall:
       steps:
         MonitoringCompute_uninstall:
-          node: xGrafanaCompute
+          node: _MonitoringCompute
           activity:
             delegate: uninstall
-        DiamondLinuxAgent_stopping:
-          node: DiamondGrafana
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_DiamondLinuxAgent
-        stop_DiamondLinuxAgent:
-          node: DiamondGrafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - DiamondLinuxAgent_stopped
-        DiamondLinuxAgent_stopped:
-          node: DiamondGrafana
-          activity:
-            set_state: stopped
-          on-success:
-            - DiamondLinuxAgent_deleting
-            - Graphite_stopping
-            - Grafana_stopping
-            - MonitoringCompute_uninstall
-        DiamondLinuxAgent_deleting:
-          node: DiamondGrafana
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_DiamondLinuxAgent
-        delete_DiamondLinuxAgent:
-          node: DiamondGrafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - DiamondLinuxAgent_deleted
-        DiamondLinuxAgent_deleted:
-          node: DiamondGrafana
-          activity:
-            set_state: deleted
-          on-success:
-            - MonitoringCompute_uninstall
         Grafana_stopping:
           node: Grafana
           activity:
@@ -413,11 +371,8 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
+            - Graphite_stopping
             - MonitoringCompute_uninstall
-        PublicNetwork_uninstall:
-          node: PublicNetwork
-          activity:
-            delegate: uninstall
         Graphite_stopping:
           node: Graphite
           activity:
@@ -453,33 +408,56 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
+            - DiamondLinuxAgent_deleting
+            - MonitoringCompute_uninstall
+        DiamondLinuxAgent_stopping:
+          node: dmdMonitoring
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: dmdMonitoring
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        DiamondLinuxAgent_stopped:
+          node: dmdMonitoring
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_deleting
+            - Graphite_stopping
+            - Grafana_stopping
+        DiamondLinuxAgent_deleting:
+          node: dmdMonitoring
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_DiamondLinuxAgent
+        delete_DiamondLinuxAgent:
+          node: dmdMonitoring
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - DiamondLinuxAgent_deleted
+        DiamondLinuxAgent_deleted:
+          node: dmdMonitoring
+          activity:
+            set_state: deleted
+          on-success:
             - MonitoringCompute_uninstall
     start:
       steps:
         MonitoringCompute_start:
-          node: xGrafanaCompute
+          node: _MonitoringCompute
           activity:
             delegate: start
           on-success:
             - Graphite_starting
             - Grafana_starting
             - DiamondLinuxAgent_starting
-        start_DiamondLinuxAgent:
-          node: DiamondGrafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - DiamondLinuxAgent_started
-        DiamondLinuxAgent_starting:
-          node: DiamondGrafana
-          activity:
-            set_state: starting
-          on-success:
-            - start_DiamondLinuxAgent
-        DiamondLinuxAgent_started:
-          node: DiamondGrafana
-          activity:
-            set_state: started
         Grafana_starting:
           node: Grafana
           activity:
@@ -498,10 +476,6 @@ topology_template:
             set_state: started
           on-success:
             - DiamondLinuxAgent_starting
-        PublicNetwork_start:
-          node: PublicNetwork
-          activity:
-            delegate: start
         Graphite_starting:
           node: Graphite
           activity:
@@ -521,30 +495,28 @@ topology_template:
           on-success:
             - Grafana_starting
             - DiamondLinuxAgent_starting
+        DiamondLinuxAgent_starting:
+          node: dmdMonitoring
+          activity:
+            set_state: starting
+          on-success:
+            - start_DiamondLinuxAgent
+        start_DiamondLinuxAgent:
+          node: dmdMonitoring
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: dmdMonitoring
+          activity:
+            set_state: started
     stop:
       steps:
-        DiamondLinuxAgent_stopping:
-          node: DiamondGrafana
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_DiamondLinuxAgent
-        stop_DiamondLinuxAgent:
-          node: DiamondGrafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - DiamondLinuxAgent_stopped
         MonitoringCompute_stop:
-          node: xGrafanaCompute
+          node: _MonitoringCompute
           activity:
             delegate: stop
-        DiamondLinuxAgent_stopped:
-          node: DiamondGrafana
-          activity:
-            set_state: stopped
-          on-success:
-            - MonitoringCompute_stop
         Grafana_stopping:
           node: Grafana
           activity:
@@ -562,12 +534,7 @@ topology_template:
           activity:
             set_state: stopped
           on-success:
-            - DiamondLinuxAgent_stopping
             - MonitoringCompute_stop
-        PublicNetwork_stop:
-          node: PublicNetwork
-          activity:
-            delegate: stop
         Graphite_stopping:
           node: Graphite
           activity:
@@ -585,4 +552,24 @@ topology_template:
           activity:
             set_state: stopped
           on-success:
+            - MonitoringCompute_stop
+            - Grafana_stopping
+        DiamondLinuxAgent_stopping:
+          node: dmdMonitoring
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: dmdMonitoring
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        DiamondLinuxAgent_stopped:
+          node: dmdMonitoring
+          activity:
+            set_state: stopped
+          on-success:
+            - Graphite_stopping
             - MonitoringCompute_stop

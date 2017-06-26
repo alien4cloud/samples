@@ -1,0 +1,20 @@
+{
+"NODE": "DiamondLinuxAgent",
+"SOURCE_NODE": "dmdCfy",
+"INSTANCE": "dmdCfy_gmo0xd",
+"SOURCE_INSTANCE": "dmdCfy",
+"TARGET_INSTANCE": "HP_2uoqt7",
+"TARGET_NODE": "HP",
+"graphite_host": "172.31.41.23",
+"graphite_port": "2003",
+"grafana_url": "http://52.211.133.219:3000",
+"grafana_user": "admin",
+"grafana_password": "admin",
+"datasource_name": "Graphite_DS",
+"collectors_path": "/opt/ansible_diamond/env/share/diamond/collectors",
+"collectors_conf_path": "/etc/ansible_diamond/collectors",
+"collector_name": "CloudifyHostpoolCollector",
+"hostpool_url": "http://172.31.34.232:8080",
+"dashboard_dir": "/tmp/a4cPlaybookRegistry/dmdCfy/dmdCfy_gmo0xd/dashboards",
+
+"EOF": "" }

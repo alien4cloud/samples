@@ -16,6 +16,15 @@ node_types:
   org.alien4cloud.sandbox.services.dummy.implem.nodes.DummyImplem:
     derived_from: org.alien4cloud.sandbox.services.dummy.pub.nodes.DummyService
     description: A dummy service implem that do nothing
+    properties:
+      my_service_property_1:
+        type: string
+        required: true
+        default: "A simple value"
+      my_service_property_2:
+        type: string
+        required: true
+        default: "/a/path/to/something"
     attributes:
       # To be defined in connect op
       host_uname: { get_operation_output: [ SELF, Standard, create, HOST_UNAME ] }

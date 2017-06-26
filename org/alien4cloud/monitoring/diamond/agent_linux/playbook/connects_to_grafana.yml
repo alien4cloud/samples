@@ -1,0 +1,12 @@
+---
+- hosts: all
+  name: Diamond connects to Grafana
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - connects_to_grafana

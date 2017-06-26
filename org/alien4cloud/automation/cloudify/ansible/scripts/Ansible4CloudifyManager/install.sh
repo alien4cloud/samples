@@ -16,7 +16,18 @@ sudo pip install cffi --upgrade
 sudo pip install ansible==2.0.1.0
 sudo pip install --upgrade setuptools
 
-sudo bash -c "mkdir /etc/ansible && echo '[defaults]' > /etc/ansible/ansible.cfg && echo 'callback_whitelist = tree' >> /etc/ansible/ansible.cfg"
+cat <<EOF > /tmp/ansible.cfg
+[defaults]
+callback_whitelist = tree
+
+[ssh_connection]
+pipelining = True
+ssh_args = -o ControlMaster=auto -o ControlPersist=600s
+retries = 10
+EOF
+
+sudo mkdir /etc/ansible
+sudo mv /tmp/ansible.cfg /etc/ansible/ansible.cfg
 
 cat <<EOF > /tmp/tree.py.patch
 @@ -19,6 +19,7 @@

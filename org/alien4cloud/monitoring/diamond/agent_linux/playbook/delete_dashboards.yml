@@ -1,0 +1,12 @@
+---
+- hosts: all
+  name: Delete Grafana dashboards 
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - delete_dashboards

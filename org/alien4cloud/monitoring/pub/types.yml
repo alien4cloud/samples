@@ -23,11 +23,11 @@ node_types:
       An agent that collects metrics and store them into a MetricsBackend
     metadata:
       icon: /images/metrics.png
-    requirements:
-      - data_endpoint:
-          capability: org.alien4cloud.monitoring.pub.capabilities.MetricsDataEndpoint
-          relationship: org.alien4cloud.monitoring.pub.relationships.MonitoringAgentConnectToMetricsBackend
-          occurrences: [0, 1]
+    # requirements:
+    #   - data_endpoint:
+    #       capability: org.alien4cloud.monitoring.pub.capabilities.MetricsDataEndpoint
+    #       relationship: org.alien4cloud.monitoring.pub.relationships.MonitoringAgentConnectToMetricsBackend
+    #       occurrences: [0, 1]
 
   org.alien4cloud.monitoring.pub.nodes.MetricsBackend:
     derived_from: tosca.nodes.SoftwareComponent
@@ -43,6 +43,7 @@ node_types:
 
   org.alien4cloud.monitoring.pub.nodes.GraphiteService:
     derived_from: org.alien4cloud.monitoring.pub.nodes.MetricsBackend
+    # derived_from: tosca.nodes.SoftwareComponent
     abstract: true
     metadata:
       icon: /images/graphite.png
@@ -55,7 +56,8 @@ node_types:
         occurrences: [0, UNBOUNDED]
 
   org.alien4cloud.monitoring.pub.nodes.MonitoringService:
-    derived_from: tosca.nodes.SoftwareComponent
+    derived_from: org.alien4cloud.monitoring.pub.nodes.MetricsBackend
+    # derived_from: tosca.nodes.SoftwareComponent
     abstract: true
     metadata:
       icon: /images/metrics.png
@@ -63,25 +65,11 @@ node_types:
       data_endpoint:
         type: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
         occurrences: [0, UNBOUNDED]
+        description: Data endpoint to collec data.
       http_endpoint:
-        type: org.alien4cloud.monitoring.pub.capabilities.GraphiteHttpEndpoint
+        type: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
         occurrences: [0, UNBOUNDED]
-    requirements:
-      - collec_elasticsearch:
-          capability: org.alien4cloud.storage.elasticsearch.pub.capabilities.ElasticSearchRestAPI
-          occurrences: [0, 1]
-      - collec_jolokia:
-          capability: org.alien4cloud.lang.java.jmx.jolokia.capabilities.JolokiaEndpoint
-          occurrences: [0, 1]
-      - collec_rabbitmq:
-          capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
-          occurrences: [0, 1]
-      - collec_postgresql:
-          capability: org.alien4cloud.db.postgresql.pub.PostgresqlEndpoint
-          occurrences: [0, 1]
-      - collect_cloudify:
-          capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyMonitorEndpoint
-          occurrences: [0, 1]
+        description: Grafana endpoint for dashboard publication.
 
   org.alien4cloud.monitoring.pub.nodes.GrafanaService:
     derived_from: tosca.nodes.SoftwareComponent
@@ -93,16 +81,6 @@ node_types:
         type: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
         occurrences: [0, UNBOUNDED]
         description: UI endpoint
-
-  # FIXME: Unusable since we can't connect with 2 relationships between 2 nodes
-  # org.alien4cloud.monitoring.pub.nodes.GraphiteGrafanaService:
-  #   abstract: true
-  #   derived_from: org.alien4cloud.monitoring.pub.nodes.GraphiteService
-  #   capabilities:
-  #     http_endpoint:
-  #       type: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
-  #       occurrences: [0, UNBOUNDED]
-  #       description: UI endpoint
 
 capability_types:
   org.alien4cloud.monitoring.pub.capabilities.MetricsDataEndpoint:
@@ -126,9 +104,9 @@ capability_types:
     derived_from: tosca.capabilities.Endpoint
     description: Graphite UI endpoint
 
-relationship_types:
-
-  org.alien4cloud.monitoring.pub.relationships.MonitoringAgentConnectToMetricsBackend:
-    derived_from: tosca.relationships.ConnectsTo
-    abstract: true
-    valid_target_types: [ org.alien4cloud.monitoring.pub.nodes.MetricsBackend ]
+# relationship_types:
+#
+#   org.alien4cloud.monitoring.pub.relationships.MonitoringAgentConnectToMetricsBackend:
+#     derived_from: tosca.relationships.ConnectsTo
+#     abstract: true
+#     valid_target_types: [ org.alien4cloud.monitoring.pub.nodes.MetricsBackend ]

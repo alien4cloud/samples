@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Diamond Collect RabbitMQ
-  become: true
-
-  roles:
-    - collect_rabbitmq

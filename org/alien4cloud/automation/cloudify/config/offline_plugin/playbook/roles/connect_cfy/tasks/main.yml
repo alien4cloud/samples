@@ -17,6 +17,7 @@
     return_content: yes
     HEADER_Tenant: "default_tenant"
     status_code: 201
+  ignore_errors: yes
   register: result
 
 - debug:

@@ -1,0 +1,12 @@
+---
+- hosts: all
+  name: Diamond CollectElasticSearch
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - collect_elasticsearch

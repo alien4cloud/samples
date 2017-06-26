@@ -1,0 +1,77 @@
+---
+
+- name: Ensure httplib2 is present
+  pip:
+    name: httplib2
+    state: present
+
+- debug:
+    var: grafana_url
+
+- name: "Get files in {{ dashboard_dir }}"
+  shell: "ls {{ dashboard_dir }}/*.dashboard"
+  register: dashboards
+  when: grafana_url is defined
+
+- name: Slurp dashboard files
+  slurp:
+    src: "{{item}}"
+  with_items: "{{ dashboards.stdout_lines }}"
+  register: dashboards_slurped
+  when: grafana_url is defined
+
+# - debug:
+#     var: dashboards_slurped
+#   when: dashboards_slurped is defined
+
+- name: "Upload dashboards to Grafana using url {{ grafana_url }}/api/dashboards/db"
+  uri:
+    url: "{{ grafana_url }}/api/dashboards/db"
+    method: POST
+    HEADER_Content-Type: application/json
+    force_basic_auth: yes
+    user: "{{ grafana_user }}"
+    password: "{{ grafana_password }}"
+    body: "{\"dashboard\": {{ item['content'] | b64decode | from_json}}, \"overwrite\": true}"
+    body_format: json
+    return_content: yes
+    status_code: 200
+  ignore_errors: yes
+  register: result
+  with_items: "{{dashboards_slurped.results}}"
+  when: grafana_url is defined
+
+# - debug:
+#     msg: "Grafana slug is : {{ item['json']['slug'] }}"
+#   with_items: "{{result.results}}"
+#   when: result is defined
+- set_fact:
+    slugIds: []
+
+- set_fact:
+    # slugId: "{{ item['json']['slug'] }}"
+    slugIds: "{{ slugIds }}  + ['{{item['json']['slug']}}']"
+  with_items: "{{result.results}}"
+  # with_indexed_items: "{{result.results}}"
+  when: result is defined
+
+- debug:
+    var: slugIds
+  when: slugIds is defined
+
+- name: "Save the generated slugIds for deletion in <{{ dashboard_dir }}/slugIds.registry>"
+  copy:
+    content: "{{ slugIds }}"
+    dest: "{{dashboard_dir}}/slugIds.registry"
+  when: slugIds is defined
+
+- set_fact:
+    grafana_dashboads_urls: []
+- set_fact:
+    grafana_dashboads_urls: "{{grafana_dashboads_urls}}  + ['{{grafana_url}}/dashboard/db/{{item}}']"
+  with_items: "{{slugIds}}"
+  when: slugIds is defined
+
+- debug:
+    var: grafana_dashboads_urls
+  when: grafana_dashboads_urls is defined

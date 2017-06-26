@@ -1,0 +1,14 @@
+---
+- hosts: all
+  name: A collector has been added
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - stop
+    - start
+    - create_dashboards

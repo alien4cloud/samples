@@ -1,0 +1,172 @@
+---
+
+- set_fact:
+    file_dir: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/resources"
+
+- name: "Ensure <{{ file_dir }}> exists"
+  file:
+    path: "{{ file_dir }}"
+    state: directory
+
+- name: "Upload artifact {{resources_file_artifact}} on remote in {{ file_dir }}/resources.yaml"
+  copy:
+    src: "{{resources_file_artifact}}"
+    dest: "{{ file_dir }}/resources.yaml"
+
+- name: "Stat {{ file_dir }}/resources.yaml"
+  stat: path="{{ file_dir }}/resources.yaml"
+  register: resources_file
+
+- name: Slurp resources files
+  slurp:
+    src: "{{ file_dir }}/resources.yaml"
+  register: resources_slurped
+  when: resources_file.stat.exists
+
+- set_fact:
+    resources_yaml: "{{resources_slurped['content'] | b64decode | from_yaml}}"
+- debug:
+    var: resources_yaml
+
+- set_fact:
+    resources: "{{resources_yaml['services']}}"
+- debug:
+    var: resources
+
+- debug:
+    msg: "{{item}}"
+  with_items: "{{resources}}"
+
+- name: login
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: Create services
+  uri:
+    url: "{{ alien_url }}/rest/latest/services"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      nodeType: "{{ item['nodeType'] }}"
+      nodeTypeVersion: "{{ item['nodeTypeVersion'] }}"
+      name: "{{ item['name'] }}"
+      version: "{{ item['version'] }}"
+    body_format: json
+    status_code: 201
+  register: result
+  with_items: "{{resources}}"
+
+- debug:
+    var: result
+
+# TODO: get id and patch services with attribute values
+
+- set_fact:
+    resourceIds: []
+- name: Populate resourceIds
+  set_fact:
+    resourceIds: "{{ resourceIds }}  + ['{{item['json']['data']}}']"
+  with_items: "{{result['results']}}"
+
+# Build a map with resourceId as key and resource config as entry
+- set_fact:
+    identifiedResourcesMap: {}
+- set_fact:
+    identifiedResourcesMap: "{{identifiedResourcesMap |combine({item.1: resources[item.0]})}}"
+  with_indexed_items: "{{resourceIds}}"
+
+- debug:
+    var: identifiedResourcesMap
+
+- name: Build an easilly iterable array of dicts containing resourceId, capabilityName, propertyName & propertyValue
+  set_fact:
+    propertyValuesPerCapability: |
+      {% set result = [] -%}
+      {% for key in identifiedResourcesMap.keys() -%}
+        {% set nodeInstance = identifiedResourcesMap[key]['nodeInstance'] -%}
+        {% if 'capabilities' in nodeInstance -%}
+          {% for capabilityKey in nodeInstance['capabilities'].keys() -%}
+            {% if 'properties' in nodeInstance['capabilities'][capabilityKey] -%}
+              {% for propertyKey in nodeInstance['capabilities'][capabilityKey]['properties'].keys() -%}
+                {% set ignored = result.extend([{'resourceId': key, 'capabilityName': capabilityKey, 'propertyName': propertyKey, 'propertyValue': nodeInstance['capabilities'][capabilityKey]['properties'][propertyKey]}]) -%}
+              {%- endfor %}
+            {%- endif %}
+          {%- endfor %}
+        {%- endif %}
+      {%- endfor %}
+      {{ result }}
+
+- name: Configure services resource capabilities properties
+  uri:
+    url: "{{ alien_url }}/rest/latest/services/{{item['resourceId']}}"
+    method: PATCH
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      nodeInstance:
+        capabilities: "{\"{{item['capabilityName']}}\": { \"properties\" : {\"{{item['propertyName']}}\": \"{{item['propertyValue']}}\"}}}"
+    body_format: json
+    status_code: 200
+  register: result
+  with_items: "{{propertyValuesPerCapability}}"
+
+- name: Build an easilly iterable array of dicts containing resourceId, attributeName & attributeValue
+  set_fact:
+    attributeValuesPerResource: |
+      {% set result = [] -%}
+      {% for key in identifiedResourcesMap.keys() -%}
+        {% set nodeInstance = identifiedResourcesMap[key]['nodeInstance'] -%}
+        {% if 'attributeValues' in nodeInstance -%}
+          {% for attribute in nodeInstance['attributeValues'] -%}
+            {% set ignored = result.extend([{'resourceId': key, 'attribute': attribute}]) -%}
+          {%- endfor %}
+        {%- endif %}
+      {%- endfor %}
+      {{ result }}
+
+- debug:
+    var: attributeValuesPerResource
+
+# PATCH http://localhost:9999/rest/latest/services/4e75b383-ca56-485f-a27a-6ced573fbef1
+#{"nodeInstance":{"attributeValues":{"capabilities.data_endpoint.toto":"tata"}}}
+
+- name: Path service to set attributes
+  uri:
+    url: "{{ alien_url }}/rest/latest/services/{{item['resourceId']}}"
+    method: PATCH
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      nodeInstance:
+        attributeValues: "{{item['attribute']}}"
+    body_format: json
+    status_code: 200
+  register: result
+  with_items: "{{attributeValuesPerResource}}"
+
+
+- name: Path service to allow locations
+  uri:
+    url: "{{ alien_url }}/rest/latest/services/{{item[0]}}"
+    method: PATCH
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      locationIds: "[\"{{item[1]}}\"]"
+    body_format: json
+    status_code: 200
+  register: result
+  with_nested:
+    - "{{resourceIds}}"
+    - "{{locationIds}}"
+  when: locationIds is defined

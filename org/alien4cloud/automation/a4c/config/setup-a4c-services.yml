@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  name: Setup an typical A4C from a totally empty one (usefull for an Alien developer).
+  become: false
+
+  # vars_prompt:
+  #   - name: "fc_username"
+  #     prompt: "what is your username in fc orgranization ?"
+  #   - name: "fc_password"
+  #     prompt: "what is your username in fc orgranization ?"
+
+  roles:
+    - { role: service/playbook/roles/create_services,
+        resources_file_artifact: 'service/resources/services.yaml',
+      }

@@ -19,7 +19,7 @@ topology_template:
     duration:
       type: integer
       required: true
-      default: 60
+      default: 30
       description: |
         The total duration for all operations (create, configure, start) in seconds.
         Each one is pondered in implementation.

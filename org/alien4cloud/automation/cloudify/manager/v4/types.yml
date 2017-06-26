@@ -36,19 +36,11 @@ node_types:
         type: string
         required: true
         description: Default ssh user for agents.
-      # admin_username:
-      #   type: string
-      #   required: true
-      #   description: Administration account username.
-      # admin_password:
-      #   type: string
-      #   required: true
-      #   description: Administration account password.
       component_version:
         type: version
         default: 4.0.1-ga
         constraints:
-          - valid_values: [ "4.0.1-ga" ]
+          - valid_values: [ "4.0.1-ga", "4.1.0" ]
     attributes:
       manager_url: { concat: ["https://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v3, port]] }
     capabilities:
@@ -94,10 +86,12 @@ node_types:
       Standard:
         create:
             inputs:
+              CFY_VERSION: { get_property: [SELF, component_version] }
               SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
             implementation: scripts/install.sh
         configure:
           inputs:
+            CFY_VERSION: { get_property: [SELF, component_version] }
             SSH_USER: { get_property: [SELF, ssh_user] }
             SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
             AGENTS_USER: { get_property: [SELF, agents_user] }

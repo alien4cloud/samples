@@ -18,7 +18,13 @@ echo "admin_password: $ADMIN_PASSWORD" >> "$HOME_DIR/inputs.yml"
 echo "public_ip: $PUBLIC_IP" >> "$HOME_DIR/inputs.yml"
 echo "private_ip: $PRIVATE_IP" >> "$HOME_DIR/inputs.yml"
 echo "ssl_enabled: true" >> "$HOME_DIR/inputs.yml"
-echo "manager_resources_package: http://repository.cloudifysource.org/cloudify/4.0.1/sp-release/cloudify-manager-resources_4.0.1-sp.tar.gz" >> "$HOME_DIR/inputs.yml"
+
+if [ $CFY_VERSION = "4.1.0" ] ; then
+  echo "manager_resources_package: http://gigaspaces-repository-eu.s3.amazonaws.com/cloudify/4.1.0/ga-release/cloudify-manager-resources_4.1.0-ga.tar.gz" >> "$HOME_DIR/inputs.yml"
+else
+  echo "manager_resources_package: http://repository.cloudifysource.org/cloudify/4.0.1/sp-release/cloudify-manager-resources_4.0.1-sp.tar.gz" >> "$HOME_DIR/inputs.yml"
+fi
+
 
 sudo mv "$HOME_DIR/inputs.yml" /opt/cfy/cloudify-manager-blueprints/inputs.yml
 

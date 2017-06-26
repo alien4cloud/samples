@@ -5,8 +5,7 @@
 echo "Bootstraping manager node"
 
 cd /opt/cfy/cloudify-manager-blueprints
-sudo cfy bootstrap simple-manager-blueprint.yaml -i inputs.yml > /tmp/cfy_bootstrap.log 2>&1
-cat /tmp/cfy_bootstrap.log
+sudo cfy bootstrap simple-manager-blueprint.yaml -i inputs.yml
 
 echo "Setting ssl option"
 

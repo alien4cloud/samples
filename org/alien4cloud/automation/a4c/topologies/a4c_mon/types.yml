@@ -224,7 +224,7 @@ topology_template:
     AddSamplesTypes:
       type: org.alien4cloud.automation.a4c.config.csar.nodes.AddCsarFromGit
       properties:
-        repositoryUrl: "https://github.com/alien4cloud/tosca-normative-types.git"
+        repositoryUrl: "https://github.com/alien4cloud/samples"
         branchId: master
       requirements:
         - dependency:

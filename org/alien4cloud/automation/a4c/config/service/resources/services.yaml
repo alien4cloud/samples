@@ -49,3 +49,22 @@ services:
         - capabilities.cloudify_api_v3.admin_username: admin
         - capabilities.cloudify_api_v3.admin_password: admin
         - state: started
+
+  - nodeType: "org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService"
+    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    name: HostpoolAsAService
+    version: "1.4.0-SNAPSHOT"
+    # TODO: setup security for all locations
+    nodeInstance:
+      capabilities:
+        cloudify_hostpool:
+          properties:
+            port: 8080
+            protocol: http
+      attributeValues:
+        # we use a list here because "state: started" must be the last operation
+        - hostpool_url: https://52.50.174.124:8080
+        - capabilities.cloudify_hostpool.protocol: http
+        - capabilities.cloudify_hostpool.ip_address: 172.31.41.251
+        - capabilities.cloudify_hostpool.port: 8080
+        - state: started

@@ -6,30 +6,40 @@ metadata:
   template_author: alien4cloud
 
 description: >
-  CFY4 patched and monitored, with AWS configuration, Ansible.
-  The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
-
+  CFY4 patched and monitored, with AWS configuration, Ansible, a Hostpool and a AWSHostpoolFeeder.
+  The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts) and to ensure the Hostpool is installed after manager's bootstrap.
+  Has been tested on a Centos ami-4c4b003b (m4.large). Load tests are generally ran using a c4.4xlarge
 
 imports:
+  - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.patches.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.patches.change_max_fd:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
   - org.alien4cloud.automation.cloudify.patches.amqp_client:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.collectors:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
 
 topology_template:
+  description: >
+    CFY4 patched and monitored, with AWS configuration, Ansible, a Hostpool and a AWSHostpoolFeeder.
+    The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts) and to ensure the Hostpool is installed after manager's bootstrap.
+    Has been tested on a Centos ami-4c4b003b (m4.large). Load tests are generally ran using a c4.4xlarge
+
   inputs:
     aws_region:
       type: string
@@ -53,10 +63,15 @@ topology_template:
       required: true
       default: "sg-cffd98b6"
       description: "Comma separated list of security groups to use for agents."
-    component_version:
-      type: version
-      required: false
-      description: "The optional software component’s version."
+    instance_name:
+      type: string
+      required: true
+      default: HostpoolInstance
+      description: "The AWS instance name"
+    aws_key_content:
+      type: string
+      required: true
+      description: "The AWS key"
   input_artifacts:
     key_file:
         type: tosca.artifacts.File
@@ -64,6 +79,7 @@ topology_template:
     node_type: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService
     capabilities:
       cloudify_api_v3: [ CloudifyManager, cloudify_api_v3 ]
+      cloudify_hostpool: [ HostPool, cloudify_hostpool ]
   node_templates:
     CloudifyManager:
       type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyManager
@@ -75,7 +91,7 @@ topology_template:
         component_version: "4.0.1-ga"
       requirements:
         - host:
-            node: CfyCompute
+            node: _CfyCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
       capabilities:
@@ -116,22 +132,6 @@ topology_template:
         key_file:
           file: { get_input_artifact: key_file }
           type: tosca.artifacts.File
-    ChangeMaxMgmtWorkerPatch:
-      type: org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker.nodes.ChangeMaxMgmtWorkerPatch
-      properties:
-        mgmt_worker_count: 100
-      requirements:
-        - cfy_manager:
-            node: CloudifyManager
-            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
-            relationship: tosca.relationships.HostedOn
-    AmqpClientPatch:
-      type: org.alien4cloud.automation.cloudify.patches.amqp_client.nodes.AmqpClientPatch
-      requirements:
-        - cfy_manager:
-            node: CloudifyManager
-            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
-            relationship: tosca.relationships.HostedOn
     CloudifyAwsConfiguration:
       type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyAwsConfiguration
       properties:
@@ -150,63 +150,55 @@ topology_template:
         component_version: "2.0.1.0"
       requirements:
         - host:
-            node: CfyCompute
+            node: _CfyCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-    GraphiteService:
-      type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
-      capabilities:
-        data_endpoint:
-          properties:
-            protocol: tcp
-            secure: false
-            network_name: PRIVATE
-            initiator: source
-        http_endpoint:
-          properties:
-            protocol: tcp
-            secure: false
-            network_name: PRIVATE
-            initiator: source
-    GrafanaService:
-      type: org.alien4cloud.monitoring.pub.nodes.GrafanaService
-      capabilities:
-        http_endpoint:
-          properties:
-            user: admin
-            password: admin
-            protocol: tcp
-            secure: false
-            network_name: PRIVATE
-            initiator: source
-    DiamondCfyCompute:
-      type: org.alien4cloud.monitoring.diamond.nodes.DiamondLinuxAgent
-      properties:
-        datasource_name: "Graphite_DS"
-        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
+    HostPool:
+      type: org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPool
       requirements:
-        - data_endpoint:
-            node: GraphiteService
-            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGraphite
-        - grafana:
-            node: GrafanaService
-            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondLinuxAgentConnectsToGrafana
-        - collect_cloudify:
-            node: CloudifyManager
-            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyMonitorEndpoint
-            relationship: org.alien4cloud.monitoring.diamond.relationships.DiamondCloudifyCollector
         - host:
-            node: CfyCompute
+            node: _CfyCompute
             capability: tosca.capabilities.Container
             relationship: tosca.relationships.HostedOn
-    CfyCompute:
+      capabilities:
+        cloudify_hostpool:
+          properties:
+            protocol: http
+            port: 8080
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    AWSHostpoolFeeder:
+      type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
+      properties:
+        aws_access_key: { get_input: aws_access_key }
+        aws_secret_key: { get_input: aws_secret_key }
+        key_name: { get_input: aws_keypair_name }
+        key_content: { get_input: aws_key_content }
+        region: "eu-west-1"
+        instance_groups: { get_input: agent_security_groups }
+        instance_username: ubuntu
+        instance_type: "t2.nano"
+        instance_image: "ami-47a23a30"
+        instance_count: 0
+        host_per_instance: 1
+        instance_name: { get_input: instance_name }
+        instance_os: linux
+      requirements:
+        - hostpool:
+            node: HostPool
+            capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
+            relationship: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool
+        - host:
+            node: _CfyCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    _CfyCompute:
       type: tosca.nodes.Compute
       capabilities:
         host:
           properties:
-            num_cpus: 4
+            num_cpus: 2
             mem_size: "4 GIB"
         os:
           properties:
@@ -224,10 +216,108 @@ topology_template:
             protocol: tcp
             network_name: PRIVATE
             initiator: source
+    GrafanaService:
+      type: org.alien4cloud.monitoring.pub.nodes.GrafanaService
+      capabilities:
+        http_endpoint:
+          properties:
+            user: admin
+            password: admin
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    GraphiteService:
+      type: org.alien4cloud.monitoring.pub.nodes.GraphiteService
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        http_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    dmdCfy:
+      type: org.alien4cloud.monitoring.diamond.agent_linux.nodes.DiamondLinuxAgent
+      properties:
+        datasource_name: "Graphite_DS"
+        collectors_path: "/opt/ansible_diamond/env/share/diamond/collectors"
+        collectors_conf_path: "/etc/ansible_diamond/collectors"
+      requirements:
+        - data_endpoint:
+            node: GraphiteService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GraphiteDataEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGraphite
+        - host:
+            node: _CfyCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - grafana:
+            node: GrafanaService
+            capability: org.alien4cloud.monitoring.pub.capabilities.GrafanaHttpEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondLinuxAgentConnectsToGrafana
+    CloudifyCollector:
+      type: org.alien4cloud.monitoring.diamond.collectors.nodes.CloudifyCollector
+      requirements:
+        - collect_cloudify:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyMonitorEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondCloudifyCollector
+            properties:
+              collector_name: CloudifyCollector
+        - diamond:
+            node: dmdCfy
+            capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondCollectorHostedOnAgent
+    RabbitmqCollector:
+      type: org.alien4cloud.monitoring.diamond.collectors.nodes.RabbitmqCollector
+      requirements:
+        - collec_rabbitmq:
+            node: CloudifyManager
+            capability: org.alien4cloud.messaging.rabbitmq.pub.capabilities.RabbitMQManagementEndpoint
+            relationship: org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondRabbitmqCollector
+        - diamond:
+            node: dmdCfy
+            capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondCollectorHostedOnAgent
+    CloudifyHostpoolCollector:
+      type: org.alien4cloud.monitoring.diamond.collectors.nodes.CloudifyHostpoolCollector
+      requirements:
+        - diamond:
+            node: dmdCfy
+            capability: org.alien4cloud.monitoring.diamond.pub.capabilities.DiamondCollectorContainer
+            relationship: org.alien4cloud.monitoring.diamond.agent_linux.relationships.DiamondCollectorHostedOnAgent
+        - cloudify_hostpool:
+            node: HostPool
+            capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
+            relationship: org.alien4cloud.monitoring.diamond.collectors.relationships.DiamondCloudifyHostpoolCollector
+            properties:
+              collector_name: CloudifyHostpoolCollector
+    AmqpClientPatch:
+      type: org.alien4cloud.automation.cloudify.patches.amqp_client.nodes.AmqpClientPatch
+      requirements:
+        - cfy_manager:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+            relationship: tosca.relationships.HostedOn
     ChangeMaxFd:
       type: org.alien4cloud.automation.cloudify.patches.change_max_fd.nodes.ChangeMaxFd
       properties:
         max_file: 500000
+      requirements:
+        - cfy_manager:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+            relationship: tosca.relationships.HostedOn
+    ChangeMaxMgmtWorkerPatch:
+      type: org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker.nodes.ChangeMaxMgmtWorkerPatch
+      properties:
+        mgmt_worker_count: 500
       requirements:
         - cfy_manager:
             node: CloudifyManager
@@ -239,131 +329,429 @@ topology_template:
   workflows:
     install:
       steps:
-        Compute_install:
-          node: CfyCompute
-          activity:
-            delegate: install
-          on-success:
-            - DiamondLinuxAgent_initial
-            - CloudifyManager_initial
-            - Ansible4CloudifyManager_initial
-        DiamondLinuxAgent_initial:
-          node: DiamondCfyCompute
-          activity:
-            set_state: initial
-          on-success:
-            - DiamondLinuxAgent_creating
-        DiamondLinuxAgent_creating:
-          node: DiamondCfyCompute
-          activity:
-            set_state: creating
-          on-success:
-            - create_DiamondLinuxAgent
-        create_DiamondLinuxAgent:
-          node: DiamondCfyCompute
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - DiamondLinuxAgent_created
-        DiamondLinuxAgent_created:
-          node: DiamondCfyCompute
-          activity:
-            set_state: created
-          on-success:
-            - CloudifyManager_started
-            - CloudifyManager_configuring
-            - DiamondLinuxAgent_configuring
-        DiamondLinuxAgent_configuring:
-          node: DiamondCfyCompute
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_DiamondLinuxAgent
-        configure_DiamondLinuxAgent:
-          node: DiamondCfyCompute
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - DiamondLinuxAgent_configured
-        DiamondLinuxAgent_configured:
-          node: DiamondCfyCompute
+        Ansible4CloudifyManager_configured:
+          node: Ansible4CloudifyManager
           activity:
             set_state: configured
           on-success:
-            - DiamondLinuxAgent_starting
-        DiamondLinuxAgent_starting:
-          node: DiamondCfyCompute
-          activity:
-            set_state: starting
-          on-success:
-            - start_DiamondLinuxAgent
-        start_DiamondLinuxAgent:
-          node: DiamondCfyCompute
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - DiamondLinuxAgent_started
-        DiamondLinuxAgent_started:
-          node: DiamondCfyCompute
-          activity:
-            set_state: started
-          on-success:
-            - CloudifyAwsConfiguration_initial
-        CloudifyManager_initial:
-          node: CloudifyManager
+            - Ansible4CloudifyManager_starting
+        CloudifyAwsConfiguration_initial:
+          node: CloudifyAwsConfiguration
           activity:
             set_state: initial
           on-success:
-            - CloudifyManager_creating
-        CloudifyManager_creating:
-          node: CloudifyManager
-          activity:
-            set_state: creating
-          on-success:
-            - create_CloudifyManager
-        create_CloudifyManager:
-          node: CloudifyManager
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - CloudifyManager_created
-        CloudifyManager_created:
-          node: CloudifyManager
+            - CloudifyAwsConfiguration_creating
+        AWSHostpoolFeeder_created:
+          node: AWSHostpoolFeeder
           activity:
             set_state: created
           on-success:
-            - CloudifyManager_configuring
-            - DiamondLinuxAgent_initial
+            - HostPool_configuring
+            - HostPool_initial
+            - AWSHostpoolFeeder_configuring
+        dmdCfy_created:
+          node: dmdCfy
+          activity:
+            set_state: created
+          on-success:
+            - dmdCfy_configuring
+        create_CloudifyAwsConfiguration:
+          node: CloudifyAwsConfiguration
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - CloudifyAwsConfiguration_created
+        RabbitmqCollector_configured:
+          node: RabbitmqCollector
+          activity:
+            set_state: configured
+          on-success:
+            - RabbitmqCollector_starting
+        start_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - HostPool_started
+        CloudifyHostpoolCollector_initial:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: initial
+          on-success:
+            - CloudifyHostpoolCollector_creating
         CloudifyManager_configuring:
           node: CloudifyManager
           activity:
             set_state: configuring
           on-success:
             - configure_CloudifyManager
-        configure_CloudifyManager:
-          node: CloudifyManager
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - CloudifyManager_configured
-        CloudifyManager_configured:
-          node: CloudifyManager
-          activity:
-            set_state: configured
-          on-success:
-            - CloudifyManager_starting
         CloudifyManager_starting:
           node: CloudifyManager
           activity:
             set_state: starting
           on-success:
             - start_CloudifyManager
+        create_CloudifyManager:
+          node: CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - CloudifyManager_created
+        CloudifyHostpoolCollector_started:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: started
+          on-success:
+            - Ansible4CloudifyManager_initial
+        dmdCfy_starting:
+          node: dmdCfy
+          activity:
+            set_state: starting
+          on-success:
+            - start_dmdCfy
+        configure_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - HostPool_configured
+        RabbitmqCollector_creating:
+          node: RabbitmqCollector
+          activity:
+            set_state: creating
+          on-success:
+            - RabbitmqCollector_created
+        Ansible4CloudifyManager_configuring:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_Ansible4CloudifyManager
+        HostPool_creating:
+          node: HostPool
+          activity:
+            set_state: creating
+          on-success:
+            - create_HostPool
+        HostPool_starting:
+          node: HostPool
+          activity:
+            set_state: starting
+          on-success:
+            - start_HostPool
+        CloudifyAwsConfiguration_started:
+          node: CloudifyAwsConfiguration
+          activity:
+            set_state: started
+          on-success:
+            - CloudifyCollector_configuring
+        RabbitmqCollector_starting:
+          node: RabbitmqCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_RabbitmqCollector
+        CloudifyAwsConfiguration_configuring:
+          node: CloudifyAwsConfiguration
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_CloudifyAwsConfiguration
+        AWSHostpoolFeeder_initial:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: initial
+          on-success:
+            - AWSHostpoolFeeder_creating
+        CloudifyAwsConfiguration_created:
+          node: CloudifyAwsConfiguration
+          activity:
+            set_state: created
+          on-success:
+            - CloudifyAwsConfiguration_configuring
+        CloudifyHostpoolCollector_created:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: created
+          on-success:
+            - HostPool_configuring
+            - CloudifyHostpoolCollector_configuring
+        CloudifyManager_configured:
+          node: CloudifyManager
+          activity:
+            set_state: configured
+          on-success:
+            - CloudifyManager_starting
+        AWSHostpoolFeeder_started:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: started
+          on-success:
+            - CloudifyHostpoolCollector_configuring
+        CloudifyManager_created:
+          node: CloudifyManager
+          activity:
+            set_state: created
+          on-success:
+            - CloudifyManager_configuring
+            - RabbitmqCollector_initial
+        CloudifyCollector_creating:
+          node: CloudifyCollector
+          activity:
+            set_state: creating
+          on-success:
+            - CloudifyCollector_created
+        CloudifyCollector_starting:
+          node: CloudifyCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_CloudifyCollector
+        start_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - Ansible4CloudifyManager_started
+        start_CloudifyAwsConfiguration:
+          node: CloudifyAwsConfiguration
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CloudifyAwsConfiguration_started
+        CloudifyAwsConfiguration_creating:
+          node: CloudifyAwsConfiguration
+          activity:
+            set_state: creating
+          on-success:
+            - create_CloudifyAwsConfiguration
+        CloudifyAwsConfiguration_starting:
+          node: CloudifyAwsConfiguration
+          activity:
+            set_state: starting
+          on-success:
+            - start_CloudifyAwsConfiguration
+        GraphiteService_install:
+          node: GraphiteService
+          activity:
+            delegate: install
+          on-success:
+            - dmdCfy_initial
+        RabbitmqCollector_created:
+          node: RabbitmqCollector
+          activity:
+            set_state: created
+          on-success:
+            - CloudifyManager_configuring
+            - RabbitmqCollector_configuring
+            - CloudifyCollector_initial
+        HostPool_initial:
+          node: HostPool
+          activity:
+            set_state: initial
+          on-success:
+            - HostPool_creating
+        start_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AWSHostpoolFeeder_started
+        CloudifyAwsConfiguration_configured:
+          node: CloudifyAwsConfiguration
+          activity:
+            set_state: configured
+          on-success:
+            - CloudifyAwsConfiguration_starting
+        AWSHostpoolFeeder_configuring:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_AWSHostpoolFeeder
+        start_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CloudifyCollector_started
+        start_RabbitmqCollector:
+          node: RabbitmqCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - RabbitmqCollector_started
+        start_CloudifyHostpoolCollector:
+          node: CloudifyHostpoolCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CloudifyHostpoolCollector_started
+        CloudifyCollector_created:
+          node: CloudifyCollector
+          activity:
+            set_state: created
+          on-success:
+            - CloudifyManager_configuring
+            - CloudifyCollector_configuring
+        Ansible4CloudifyManager_started:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: started
+          on-success:
+            - AmqpClientPatch_initial
+            - ChangeMaxMgmtWorkerPatch_initial
+            - ChangeMaxFd_initial
+        HostPool_created:
+          node: HostPool
+          activity:
+            set_state: created
+          on-success:
+            - CloudifyHostpoolCollector_initial
+            - HostPool_configuring
+        Ansible4CloudifyManager_created:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: created
+          on-success:
+            - Ansible4CloudifyManager_configuring
+        CloudifyCollector_started:
+          node: CloudifyCollector
+          activity:
+            set_state: started
+          on-success:
+            - RabbitmqCollector_configuring
+        AWSHostpoolFeeder_starting:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: starting
+          on-success:
+            - start_AWSHostpoolFeeder
+        CloudifyHostpoolCollector_creating:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: creating
+          on-success:
+            - CloudifyHostpoolCollector_created
+        configure_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - Ansible4CloudifyManager_configured
+        AWSHostpoolFeeder_configured:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: configured
+          on-success:
+            - AWSHostpoolFeeder_starting
+        CloudifyCollector_initial:
+          node: CloudifyCollector
+          activity:
+            set_state: initial
+          on-success:
+            - CloudifyCollector_creating
+        RabbitmqCollector_initial:
+          node: RabbitmqCollector
+          activity:
+            set_state: initial
+          on-success:
+            - RabbitmqCollector_creating
+        Ansible4CloudifyManager_starting:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: starting
+          on-success:
+            - start_Ansible4CloudifyManager
+        Ansible4CloudifyManager_initial:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: initial
+          on-success:
+            - Ansible4CloudifyManager_creating
+        HostPool_started:
+          node: HostPool
+          activity:
+            set_state: started
+          on-success:
+            - AWSHostpoolFeeder_configuring
+            - CloudifyHostpoolCollector_configuring
+        GrafanaService_install:
+          node: GrafanaService
+          activity:
+            delegate: install
+          on-success:
+            - dmdCfy_initial
+        _CfyCompute_install:
+          node: _CfyCompute
+          activity:
+            delegate: install
+          on-success:
+            - HostPool_initial
+            - AWSHostpoolFeeder_initial
+            - dmdCfy_initial
+            - CloudifyManager_initial
+            - Ansible4CloudifyManager_initial
+        CloudifyHostpoolCollector_starting:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_CloudifyHostpoolCollector
+        configure_CloudifyAwsConfiguration:
+          node: CloudifyAwsConfiguration
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - CloudifyAwsConfiguration_configured
+        HostPool_configuring:
+          node: HostPool
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_HostPool
+        HostPool_configured:
+          node: HostPool
+          activity:
+            set_state: configured
+          on-success:
+            - HostPool_starting
+        AWSHostpoolFeeder_creating:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: creating
+          on-success:
+            - AWSHostpoolFeeder_created
         start_CloudifyManager:
           node: CloudifyManager
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on-success:
             - CloudifyManager_started
+        create_Ansible4CloudifyManager:
+          node: Ansible4CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - Ansible4CloudifyManager_created
+        CloudifyCollector_configuring:
+          node: CloudifyCollector
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_CloudifyCollector
+        CloudifyHostpoolCollector_configured:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: configured
+          on-success:
+            - CloudifyHostpoolCollector_starting
+        configure_CloudifyManager:
+          node: CloudifyManager
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - CloudifyManager_configured
         CloudifyManager_started:
           node: CloudifyManager
           activity:
@@ -372,68 +760,132 @@ topology_template:
             - CloudifyAwsConfiguration_initial
             - AmqpClientPatch_initial
             - ChangeMaxMgmtWorkerPatch_initial
-            - Ansible4CloudifyManager_initial
+            - RabbitmqCollector_configuring
             - ChangeMaxFd_initial
-        CloudifyAwsConfiguration_initial:
-          node: CloudifyAwsConfiguration
-          activity:
-            set_state: initial
-          on-success:
-            - CloudifyAwsConfiguration_creating
-        CloudifyAwsConfiguration_creating:
-          node: CloudifyAwsConfiguration
-          activity:
-            set_state: creating
-          on-success:
-            - create_CloudifyAwsConfiguration
-        create_CloudifyAwsConfiguration:
-          node: CloudifyAwsConfiguration
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - CloudifyAwsConfiguration_created
-        CloudifyAwsConfiguration_created:
-          node: CloudifyAwsConfiguration
-          activity:
-            set_state: created
-          on-success:
-            - CloudifyAwsConfiguration_configuring
-        CloudifyAwsConfiguration_configuring:
-          node: CloudifyAwsConfiguration
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_CloudifyAwsConfiguration
-        configure_CloudifyAwsConfiguration:
-          node: CloudifyAwsConfiguration
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - CloudifyAwsConfiguration_configured
-        CloudifyAwsConfiguration_configured:
-          node: CloudifyAwsConfiguration
+            - CloudifyCollector_configuring
+        dmdCfy_configured:
+          node: dmdCfy
           activity:
             set_state: configured
           on-success:
-            - CloudifyAwsConfiguration_starting
-        CloudifyAwsConfiguration_starting:
-          node: CloudifyAwsConfiguration
+            - dmdCfy_starting
+        configure_dmdCfy:
+          node: dmdCfy
           activity:
-            set_state: starting
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
           on-success:
-            - start_CloudifyAwsConfiguration
-        start_CloudifyAwsConfiguration:
-          node: CloudifyAwsConfiguration
+            - dmdCfy_configured
+        configure_CloudifyCollector:
+          node: CloudifyCollector
           activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
           on-success:
-            - CloudifyAwsConfiguration_started
-        CloudifyAwsConfiguration_started:
-          node: CloudifyAwsConfiguration
+            - CloudifyCollector_configured
+        configure_CloudifyHostpoolCollector:
+          node: CloudifyHostpoolCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - CloudifyHostpoolCollector_configured
+        create_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - HostPool_created
+        CloudifyCollector_configured:
+          node: CloudifyCollector
+          activity:
+            set_state: configured
+          on-success:
+            - CloudifyCollector_starting
+        RabbitmqCollector_configuring:
+          node: RabbitmqCollector
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_RabbitmqCollector
+        CloudifyManager_initial:
+          node: CloudifyManager
+          activity:
+            set_state: initial
+          on-success:
+            - CloudifyManager_creating
+        Ansible4CloudifyManager_creating:
+          node: Ansible4CloudifyManager
+          activity:
+            set_state: creating
+          on-success:
+            - create_Ansible4CloudifyManager
+        CloudifyHostpoolCollector_configuring:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_CloudifyHostpoolCollector
+        create_dmdCfy:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - dmdCfy_created
+        dmdCfy_configuring:
+          node: dmdCfy
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_dmdCfy
+        dmdCfy_creating:
+          node: dmdCfy
+          activity:
+            set_state: creating
+          on-success:
+            - create_dmdCfy
+        CloudifyManager_creating:
+          node: CloudifyManager
+          activity:
+            set_state: creating
+          on-success:
+            - create_CloudifyManager
+        configure_RabbitmqCollector:
+          node: RabbitmqCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - RabbitmqCollector_configured
+        dmdCfy_initial:
+          node: dmdCfy
+          activity:
+            set_state: initial
+          on-success:
+            - dmdCfy_creating
+        RabbitmqCollector_started:
+          node: RabbitmqCollector
           activity:
             set_state: started
           on-success:
-            - ChangeMaxMgmtWorkerPatch_initial
+            - AWSHostpoolFeeder_initial
+        configure_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - AWSHostpoolFeeder_configured
+        start_dmdCfy:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - dmdCfy_started
+        dmdCfy_started:
+          node: dmdCfy
+          activity:
+            set_state: started
+          on-success:
+            - CloudifyHostpoolCollector_initial
+            - CloudifyCollector_initial
+            - RabbitmqCollector_initial
+            - CloudifyManager_initial
         AmqpClientPatch_initial:
           node: AmqpClientPatch
           activity:
@@ -494,139 +946,6 @@ topology_template:
             set_state: started
           on-success:
             - ChangeMaxFd_initial
-        ChangeMaxMgmtWorkerPatch_initial:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: initial
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_creating
-        ChangeMaxMgmtWorkerPatch_creating:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: creating
-          on-success:
-            - create_ChangeMaxMgmtWorkerPatch
-        create_ChangeMaxMgmtWorkerPatch:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_created
-        ChangeMaxMgmtWorkerPatch_created:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: created
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_configuring
-        ChangeMaxMgmtWorkerPatch_configuring:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_ChangeMaxMgmtWorkerPatch
-        configure_ChangeMaxMgmtWorkerPatch:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_configured
-        ChangeMaxMgmtWorkerPatch_configured:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: configured
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_starting
-        ChangeMaxMgmtWorkerPatch_starting:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: starting
-          on-success:
-            - start_ChangeMaxMgmtWorkerPatch
-        start_ChangeMaxMgmtWorkerPatch:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_started
-        ChangeMaxMgmtWorkerPatch_started:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: started
-          on-success:
-            - AmqpClientPatch_initial
-        Ansible4CloudifyManager_initial:
-          node: Ansible4CloudifyManager
-          activity:
-            set_state: initial
-          on-success:
-            - Ansible4CloudifyManager_creating
-        Ansible4CloudifyManager_creating:
-          node: Ansible4CloudifyManager
-          activity:
-            set_state: creating
-          on-success:
-            - create_Ansible4CloudifyManager
-        create_Ansible4CloudifyManager:
-          node: Ansible4CloudifyManager
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
-            - Ansible4CloudifyManager_created
-        Ansible4CloudifyManager_created:
-          node: Ansible4CloudifyManager
-          activity:
-            set_state: created
-          on-success:
-            - Ansible4CloudifyManager_configuring
-        Ansible4CloudifyManager_configuring:
-          node: Ansible4CloudifyManager
-          activity:
-            set_state: configuring
-          on-success:
-            - configure_Ansible4CloudifyManager
-        configure_Ansible4CloudifyManager:
-          node: Ansible4CloudifyManager
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
-            - Ansible4CloudifyManager_configured
-        Ansible4CloudifyManager_configured:
-          node: Ansible4CloudifyManager
-          activity:
-            set_state: configured
-          on-success:
-            - Ansible4CloudifyManager_starting
-        Ansible4CloudifyManager_starting:
-          node: Ansible4CloudifyManager
-          activity:
-            set_state: starting
-          on-success:
-            - start_Ansible4CloudifyManager
-        start_Ansible4CloudifyManager:
-          node: Ansible4CloudifyManager
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - Ansible4CloudifyManager_started
-        Ansible4CloudifyManager_started:
-          node: Ansible4CloudifyManager
-          activity:
-            set_state: started
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_initial
-            - DiamondLinuxAgent_configuring
-        GraphiteService_install:
-          node: GraphiteService
-          activity:
-            delegate: install
-          on-success:
-            - DiamondLinuxAgent_initial
-        GrafanaService_install:
-          node: GrafanaService
-          activity:
-            delegate: install
-          on-success:
-            - DiamondLinuxAgent_initial
         ChangeMaxFd_initial:
           node: ChangeMaxFd
           activity:
@@ -685,50 +1004,72 @@ topology_template:
           node: ChangeMaxFd
           activity:
             set_state: started
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_initial
+        ChangeMaxMgmtWorkerPatch_initial:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: initial
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_creating
+        ChangeMaxMgmtWorkerPatch_creating:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: creating
+          on-success:
+            - create_ChangeMaxMgmtWorkerPatch
+        create_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_created
+        ChangeMaxMgmtWorkerPatch_created:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: created
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_configuring
+        ChangeMaxMgmtWorkerPatch_configuring:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: configuring
+          on-success:
+            - configure_ChangeMaxMgmtWorkerPatch
+        configure_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_configured
+        ChangeMaxMgmtWorkerPatch_configured:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: configured
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_starting
+        ChangeMaxMgmtWorkerPatch_starting:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: starting
+          on-success:
+            - start_ChangeMaxMgmtWorkerPatch
+        start_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_started
+        ChangeMaxMgmtWorkerPatch_started:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: started
     uninstall:
       steps:
         Compute_uninstall:
-          node: CfyCompute
+          node: _CfyCompute
           activity:
             delegate: uninstall
-        DiamondLinuxAgent_stopping:
-          node: DiamondCfyCompute
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_DiamondLinuxAgent
-        stop_DiamondLinuxAgent:
-          node: DiamondCfyCompute
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - DiamondLinuxAgent_stopped
-        DiamondLinuxAgent_stopped:
-          node: DiamondCfyCompute
-          activity:
-            set_state: stopped
-          on-success:
-            - DiamondLinuxAgent_deleting
-        DiamondLinuxAgent_deleting:
-          node: DiamondCfyCompute
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_DiamondLinuxAgent
-        delete_DiamondLinuxAgent:
-          node: DiamondCfyCompute
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - DiamondLinuxAgent_deleted
-        DiamondLinuxAgent_deleted:
-          node: DiamondCfyCompute
-          activity:
-            set_state: deleted
-          on-success:
-            - GraphiteService_uninstall
-            - Compute_uninstall
-            - GrafanaService_uninstall
         CloudifyManager_stopping:
           node: CloudifyManager
           activity:
@@ -765,6 +1106,7 @@ topology_template:
             set_state: deleted
           on-success:
             - Compute_uninstall
+            - CloudifyCollector_deleting
             - DiamondLinuxAgent_stopping
         CloudifyAwsConfiguration_stopping:
           node: CloudifyAwsConfiguration
@@ -801,80 +1143,7 @@ topology_template:
           activity:
             set_state: deleted
           on-success:
-            - AmqpClientPatch_stopping
-            - CloudifyManager_stopping
-        AmqpClientPatch_stopping:
-          node: AmqpClientPatch
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_AmqpClientPatch
-        stop_AmqpClientPatch:
-          node: AmqpClientPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - AmqpClientPatch_stopped
-        AmqpClientPatch_stopped:
-          node: AmqpClientPatch
-          activity:
-            set_state: stopped
-          on-success:
-            - AmqpClientPatch_deleting
-        AmqpClientPatch_deleting:
-          node: AmqpClientPatch
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_AmqpClientPatch
-        delete_AmqpClientPatch:
-          node: AmqpClientPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - AmqpClientPatch_deleted
-        AmqpClientPatch_deleted:
-          node: AmqpClientPatch
-          activity:
-            set_state: deleted
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_stopping
-            - CloudifyManager_stopping
-        ChangeMaxMgmtWorkerPatch_stopping:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_ChangeMaxMgmtWorkerPatch
-        stop_ChangeMaxMgmtWorkerPatch:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_stopped
-        ChangeMaxMgmtWorkerPatch_stopped:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: stopped
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_deleting
-        ChangeMaxMgmtWorkerPatch_deleting:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: deleting
-          on-success:
-            - delete_ChangeMaxMgmtWorkerPatch
-        delete_ChangeMaxMgmtWorkerPatch:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_deleted
-        ChangeMaxMgmtWorkerPatch_deleted:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: deleted
-          on-success:
+            - DiamondLinuxAgent_stopping
             - CloudifyManager_stopping
         Ansible4CloudifyManager_stopping:
           node: Ansible4CloudifyManager
@@ -913,14 +1182,274 @@ topology_template:
           on-success:
             - Compute_uninstall
             - CloudifyAwsConfiguration_stopping
-        GraphiteService_uninstall:
-          node: GraphiteService
+        HostPool_stopping:
+          node: HostPool
           activity:
-            delegate: uninstall
+            set_state: stopping
+          on-success:
+            - stop_HostPool
+        stop_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - HostPool_stopped
+        HostPool_stopped:
+          node: HostPool
+          activity:
+            set_state: stopped
+          on-success:
+            - HostPool_deleting
+        HostPool_deleting:
+          node: HostPool
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_HostPool
+        delete_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - HostPool_deleted
+        HostPool_deleted:
+          node: HostPool
+          activity:
+            set_state: deleted
+          on-success:
+            - Compute_uninstall
+            - Ansible4CloudifyManager_stopping
+        AWSHostpoolFeeder_stopping:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AWSHostpoolFeeder
+        stop_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AWSHostpoolFeeder_stopped
+        AWSHostpoolFeeder_stopped:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: stopped
+          on-success:
+            - HostPool_stopping
+            - AWSHostpoolFeeder_deleting
+        AWSHostpoolFeeder_deleting:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_AWSHostpoolFeeder
+        delete_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - AWSHostpoolFeeder_deleted
+        AWSHostpoolFeeder_deleted:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: deleted
+          on-success:
+            - Compute_uninstall
+            - HostPool_stopping
+        DiamondLinuxAgent_stopping:
+          node: dmdCfy
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
+        DiamondLinuxAgent_stopped:
+          node: dmdCfy
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_deleting
+        DiamondLinuxAgent_deleting:
+          node: dmdCfy
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_DiamondLinuxAgent
+        delete_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - DiamondLinuxAgent_deleted
+        DiamondLinuxAgent_deleted:
+          node: dmdCfy
+          activity:
+            set_state: deleted
+          on-success:
+            - GraphiteService_uninstall
+            - Compute_uninstall
+            - GrafanaService_uninstall
         GrafanaService_uninstall:
           node: GrafanaService
           activity:
             delegate: uninstall
+        GraphiteService_uninstall:
+          node: GraphiteService
+          activity:
+            delegate: uninstall
+        CloudifyCollector_stopping:
+          node: CloudifyCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_CloudifyCollector
+        stop_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - CloudifyCollector_stopped
+        CloudifyCollector_stopped:
+          node: CloudifyCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyCollector_deleting
+            - CloudifyManager_stopping
+        CloudifyCollector_deleting:
+          node: CloudifyCollector
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_CloudifyCollector
+        delete_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - CloudifyCollector_deleted
+        CloudifyCollector_deleted:
+          node: CloudifyCollector
+          activity:
+            set_state: deleted
+          on-success:
+            - DiamondLinuxAgent_stopping
+        RabbitmqCollector_stopping:
+          node: RabbitmqCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_RabbitmqCollector
+        stop_RabbitmqCollector:
+          node: RabbitmqCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - RabbitmqCollector_stopped
+        RabbitmqCollector_stopped:
+          node: RabbitmqCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - RabbitmqCollector_deleting
+            - CloudifyManager_stopping
+        RabbitmqCollector_deleting:
+          node: RabbitmqCollector
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_RabbitmqCollector
+        delete_RabbitmqCollector:
+          node: RabbitmqCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - RabbitmqCollector_deleted
+        RabbitmqCollector_deleted:
+          node: RabbitmqCollector
+          activity:
+            set_state: deleted
+          on-success:
+            - DiamondLinuxAgent_stopping
+        CloudifyHostpoolCollector_stopping:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_CloudifyHostpoolCollector
+        stop_CloudifyHostpoolCollector:
+          node: CloudifyHostpoolCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - CloudifyHostpoolCollector_stopped
+        CloudifyHostpoolCollector_stopped:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - HostPool_stopping
+            - CloudifyHostpoolCollector_deleting
+        CloudifyHostpoolCollector_deleting:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_CloudifyHostpoolCollector
+        delete_CloudifyHostpoolCollector:
+          node: CloudifyHostpoolCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - CloudifyHostpoolCollector_deleted
+        CloudifyHostpoolCollector_deleted:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: deleted
+          on-success:
+            - DiamondLinuxAgent_stopping
+        AmqpClientPatch_stopping:
+          node: AmqpClientPatch
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AmqpClientPatch
+        stop_AmqpClientPatch:
+          node: AmqpClientPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AmqpClientPatch_stopped
+        AmqpClientPatch_stopped:
+          node: AmqpClientPatch
+          activity:
+            set_state: stopped
+          on-success:
+            - AmqpClientPatch_deleting
+        AmqpClientPatch_deleting:
+          node: AmqpClientPatch
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_AmqpClientPatch
+        delete_AmqpClientPatch:
+          node: AmqpClientPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - AmqpClientPatch_deleted
+        AmqpClientPatch_deleted:
+          node: AmqpClientPatch
+          activity:
+            set_state: deleted
+          on-success:
+            - CloudifyManager_stopping
         ChangeMaxFd_stopping:
           node: ChangeMaxFd
           activity:
@@ -957,6 +1486,42 @@ topology_template:
             set_state: deleted
           on-success:
             - CloudifyManager_stopping
+        ChangeMaxMgmtWorkerPatch_stopping:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ChangeMaxMgmtWorkerPatch
+        stop_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_stopped
+        ChangeMaxMgmtWorkerPatch_stopped:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: stopped
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_deleting
+        ChangeMaxMgmtWorkerPatch_deleting:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: deleting
+          on-success:
+            - delete_ChangeMaxMgmtWorkerPatch
+        delete_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_deleted
+        ChangeMaxMgmtWorkerPatch_deleted:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: deleted
+          on-success:
+            - CloudifyManager_stopping
     start:
       steps:
         Ansible4CloudifyManager_started:
@@ -968,28 +1533,19 @@ topology_template:
           activity:
             set_state: started
           on-success:
+            - RabbitmqCollector_starting
+            - CloudifyCollector_starting
             - ChangeMaxMgmtWorkerPatch_starting
-            - AmqpClientPatch_starting
             - CloudifyAwsConfiguration_starting
+            - HostPool_starting
+            - AmqpClientPatch_starting
             - ChangeMaxFd_starting
-        start_AmqpClientPatch:
-          node: AmqpClientPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - AmqpClientPatch_started
         CloudifyManager_starting:
           node: CloudifyManager
           activity:
             set_state: starting
           on-success:
             - start_CloudifyManager
-        start_DiamondLinuxAgent:
-          node: DiamondCfyCompute
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - DiamondLinuxAgent_started
         start_Ansible4CloudifyManager:
           node: Ansible4CloudifyManager
           activity:
@@ -1002,28 +1558,12 @@ topology_template:
             set_state: starting
           on-success:
             - start_Ansible4CloudifyManager
-        start_ChangeMaxMgmtWorkerPatch:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_started
         start_CloudifyAwsConfiguration:
           node: CloudifyAwsConfiguration
           activity:
             call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on-success:
             - CloudifyAwsConfiguration_started
-        AmqpClientPatch_starting:
-          node: AmqpClientPatch
-          activity:
-            set_state: starting
-          on-success:
-            - start_AmqpClientPatch
-        DiamondLinuxAgent_started:
-          node: DiamondCfyCompute
-          activity:
-            set_state: started
         CloudifyAwsConfiguration_starting:
           node: CloudifyAwsConfiguration
           activity:
@@ -1034,16 +1574,6 @@ topology_template:
           node: CloudifyAwsConfiguration
           activity:
             set_state: started
-        ChangeMaxMgmtWorkerPatch_starting:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: starting
-          on-success:
-            - start_ChangeMaxMgmtWorkerPatch
-        AmqpClientPatch_started:
-          node: AmqpClientPatch
-          activity:
-            set_state: started
         start_CloudifyManager:
           node: CloudifyManager
           activity:
@@ -1051,35 +1581,148 @@ topology_template:
           on-success:
             - CloudifyManager_started
         CFY_Compute_start:
-          node: CfyCompute
+          node: _CfyCompute
           activity:
             delegate: start
           on-success:
+            - AWSHostpoolFeeder_starting
             - CloudifyManager_starting
             - Ansible4CloudifyManager_starting
+            - HostPool_starting
             - DiamondLinuxAgent_starting
+        HostPool_starting:
+          node: HostPool
+          activity:
+            set_state: starting
+          on-success:
+            - start_HostPool
+        start_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - HostPool_started
+        HostPool_started:
+          node: HostPool
+          activity:
+            set_state: started
+          on-success:
+            - CloudifyHostpoolCollector_starting
+            - AWSHostpoolFeeder_starting
+        AWSHostpoolFeeder_starting:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: starting
+          on-success:
+            - start_AWSHostpoolFeeder
+        start_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AWSHostpoolFeeder_started
+        AWSHostpoolFeeder_started:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: started
         DiamondLinuxAgent_starting:
-          node: DiamondCfyCompute
+          node: dmdCfy
           activity:
             set_state: starting
           on-success:
             - start_DiamondLinuxAgent
-        ChangeMaxMgmtWorkerPatch_started:
-          node: ChangeMaxMgmtWorkerPatch
+        start_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - DiamondLinuxAgent_started
+        DiamondLinuxAgent_started:
+          node: dmdCfy
           activity:
             set_state: started
-        GraphiteService_start:
-          node: GraphiteService
-          activity:
-            delegate: start
           on-success:
-            - DiamondLinuxAgent_starting
+            - RabbitmqCollector_starting
+            - CloudifyHostpoolCollector_starting
+            - CloudifyManager_starting
+            - CloudifyCollector_starting
+            - HostPool_starting
         GrafanaService_start:
           node: GrafanaService
           activity:
             delegate: start
           on-success:
             - DiamondLinuxAgent_starting
+        GraphiteService_start:
+          node: GraphiteService
+          activity:
+            delegate: start
+          on-success:
+            - DiamondLinuxAgent_starting
+        CloudifyCollector_starting:
+          node: CloudifyCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_CloudifyCollector
+        start_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CloudifyCollector_started
+        CloudifyCollector_started:
+          node: CloudifyCollector
+          activity:
+            set_state: started
+        RabbitmqCollector_starting:
+          node: RabbitmqCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_RabbitmqCollector
+        start_RabbitmqCollector:
+          node: RabbitmqCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - RabbitmqCollector_started
+        RabbitmqCollector_started:
+          node: RabbitmqCollector
+          activity:
+            set_state: started
+        CloudifyHostpoolCollector_starting:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: starting
+          on-success:
+            - start_CloudifyHostpoolCollector
+        start_CloudifyHostpoolCollector:
+          node: CloudifyHostpoolCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - CloudifyHostpoolCollector_started
+        CloudifyHostpoolCollector_started:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: started
+        AmqpClientPatch_starting:
+          node: AmqpClientPatch
+          activity:
+            set_state: starting
+          on-success:
+            - start_AmqpClientPatch
+        start_AmqpClientPatch:
+          node: AmqpClientPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - AmqpClientPatch_started
+        AmqpClientPatch_started:
+          node: AmqpClientPatch
+          activity:
+            set_state: started
         ChangeMaxFd_starting:
           node: ChangeMaxFd
           activity:
@@ -1096,26 +1739,30 @@ topology_template:
           node: ChangeMaxFd
           activity:
             set_state: started
+        ChangeMaxMgmtWorkerPatch_starting:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: starting
+          on-success:
+            - start_ChangeMaxMgmtWorkerPatch
+        start_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_started
+        ChangeMaxMgmtWorkerPatch_started:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: started
     stop:
       steps:
-        DiamondLinuxAgent_stopping:
-          node: DiamondCfyCompute
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_DiamondLinuxAgent
         CloudifyAwsConfiguration_stopping:
           node: CloudifyAwsConfiguration
           activity:
             set_state: stopping
           on-success:
             - stop_CloudifyAwsConfiguration
-        ChangeMaxMgmtWorkerPatch_stopping:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_ChangeMaxMgmtWorkerPatch
         stop_CloudifyAwsConfiguration:
           node: CloudifyAwsConfiguration
           activity:
@@ -1128,12 +1775,6 @@ topology_template:
             call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on-success:
             - Ansible4CloudifyManager_stopped
-        AmqpClientPatch_stopping:
-          node: AmqpClientPatch
-          activity:
-            set_state: stopping
-          on-success:
-            - stop_AmqpClientPatch
         Ansible4CloudifyManager_stopped:
           node: Ansible4CloudifyManager
           activity:
@@ -1152,38 +1793,14 @@ topology_template:
             call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on-success:
             - CloudifyManager_stopped
-        ChangeMaxMgmtWorkerPatch_stopped:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            set_state: stopped
-          on-success:
-            - CloudifyManager_stopping
         CloudifyManager_stopping:
           node: CloudifyManager
           activity:
             set_state: stopping
           on-success:
             - stop_CloudifyManager
-        AmqpClientPatch_stopped:
-          node: AmqpClientPatch
-          activity:
-            set_state: stopped
-          on-success:
-            - CloudifyManager_stopping
-        stop_AmqpClientPatch:
-          node: AmqpClientPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - AmqpClientPatch_stopped
-        stop_DiamondLinuxAgent:
-          node: DiamondCfyCompute
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - DiamondLinuxAgent_stopped
         CFY_Compute_stop:
-          node: CfyCompute
+          node: _CfyCompute
           activity:
             delegate: stop
         CloudifyManager_stopped:
@@ -1191,35 +1808,153 @@ topology_template:
           activity:
             set_state: stopped
           on-success:
+            - DiamondLinuxAgent_stopping
             - CFY_Compute_stop
-        stop_ChangeMaxMgmtWorkerPatch:
-          node: ChangeMaxMgmtWorkerPatch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
-            - ChangeMaxMgmtWorkerPatch_stopped
+            - AWSHostpoolFeeder_stopping
         CloudifyAwsConfiguration_stopped:
           node: CloudifyAwsConfiguration
           activity:
             set_state: stopped
           on-success:
             - CloudifyManager_stopping
+        HostPool_stopping:
+          node: HostPool
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_HostPool
+        stop_HostPool:
+          node: HostPool
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - HostPool_stopped
+        HostPool_stopped:
+          node: HostPool
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyAwsConfiguration_stopping
+            - CFY_Compute_stop
+        AWSHostpoolFeeder_stopping:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AWSHostpoolFeeder
+        stop_AWSHostpoolFeeder:
+          node: AWSHostpoolFeeder
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AWSHostpoolFeeder_stopped
+        AWSHostpoolFeeder_stopped:
+          node: AWSHostpoolFeeder
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_stopping
+            - CFY_Compute_stop
+        DiamondLinuxAgent_stopping:
+          node: dmdCfy
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_DiamondLinuxAgent
+        stop_DiamondLinuxAgent:
+          node: dmdCfy
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - DiamondLinuxAgent_stopped
         DiamondLinuxAgent_stopped:
-          node: DiamondCfyCompute
+          node: dmdCfy
           activity:
             set_state: stopped
           on-success:
             - GraphiteService_stop
             - CFY_Compute_stop
             - GrafanaService_stop
-        GraphiteService_stop:
-          node: GraphiteService
-          activity:
-            delegate: stop
         GrafanaService_stop:
           node: GrafanaService
           activity:
             delegate: stop
+        GraphiteService_stop:
+          node: GraphiteService
+          activity:
+            delegate: stop
+        CloudifyCollector_stopping:
+          node: CloudifyCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_CloudifyCollector
+        stop_CloudifyCollector:
+          node: CloudifyCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - CloudifyCollector_stopped
+        CloudifyCollector_stopped:
+          node: CloudifyCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_stopping
+        RabbitmqCollector_stopping:
+          node: RabbitmqCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_RabbitmqCollector
+        stop_RabbitmqCollector:
+          node: RabbitmqCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - RabbitmqCollector_stopped
+        RabbitmqCollector_stopped:
+          node: RabbitmqCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_stopping
+        CloudifyHostpoolCollector_stopping:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_CloudifyHostpoolCollector
+        stop_CloudifyHostpoolCollector:
+          node: CloudifyHostpoolCollector
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - CloudifyHostpoolCollector_stopped
+        CloudifyHostpoolCollector_stopped:
+          node: CloudifyHostpoolCollector
+          activity:
+            set_state: stopped
+          on-success:
+            - DiamondLinuxAgent_stopping
+        AmqpClientPatch_stopping:
+          node: AmqpClientPatch
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_AmqpClientPatch
+        stop_AmqpClientPatch:
+          node: AmqpClientPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - AmqpClientPatch_stopped
+        AmqpClientPatch_stopped:
+          node: AmqpClientPatch
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyManager_stopping
         ChangeMaxFd_stopping:
           node: ChangeMaxFd
           activity:
@@ -1234,6 +1969,24 @@ topology_template:
             - ChangeMaxFd_stopped
         ChangeMaxFd_stopped:
           node: ChangeMaxFd
+          activity:
+            set_state: stopped
+          on-success:
+            - CloudifyManager_stopping
+        ChangeMaxMgmtWorkerPatch_stopping:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            set_state: stopping
+          on-success:
+            - stop_ChangeMaxMgmtWorkerPatch
+        stop_ChangeMaxMgmtWorkerPatch:
+          node: ChangeMaxMgmtWorkerPatch
+          activity:
+            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on-success:
+            - ChangeMaxMgmtWorkerPatch_stopped
+        ChangeMaxMgmtWorkerPatch_stopped:
+          node: ChangeMaxMgmtWorkerPatch
           activity:
             set_state: stopped
           on-success:

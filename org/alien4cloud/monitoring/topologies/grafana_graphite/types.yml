@@ -88,6 +88,10 @@ topology_template:
     _MonitoringCompute:
       type: tosca.nodes.Compute
       capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            mem_size: "2 GIB"
         os:
           properties:
             architecture: "x86_64"

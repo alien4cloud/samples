@@ -56,6 +56,8 @@ topology_template:
         type: tosca.artifacts.File
     resources_location:
         type: tosca.artifacts.File
+    hostpool_service_archive:
+        type: tosca.artifacts.File
   substitution_mappings:
     node_type: org.alien4cloud.automation.a4c.pub.nodes.Alien4CloudService
     capabilities:
@@ -293,9 +295,9 @@ topology_template:
             capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
             relationship: org.alien4cloud.automation.cloudify.config.offline_plugin.relationships.ConnectsToCfy
       capabilities:
-        app_endpoint:
-          properties:
-            protocol: tcp
+        app_endpoint:  input_artifacts:
+    hostpool_service_archive:
+        type: tosca.artifacts.Filep
             secure: false
             network_name: PRIVATE
             initiator: source
@@ -332,6 +334,10 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+      artifacts:
+        archive:
+          file: { get_input_artifact: hostpool_service_archive }
+          type: tosca.artifacts.File
     ByonLocationResourcesConfigurator:
       type: org.alien4cloud.automation.a4c.config.location_resources.cfy_byon.nodes.ByonLocationResourcesConfigurator
       properties:

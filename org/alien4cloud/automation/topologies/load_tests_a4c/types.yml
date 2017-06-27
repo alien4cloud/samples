@@ -27,7 +27,7 @@ imports:
   - org.alien4cloud.automation.a4c.config.location:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orchestrator.cfy:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
   - alien-base-types:1.4.0-SNAPSHOT

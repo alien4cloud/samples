@@ -21,9 +21,9 @@ imports:
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.location_resources.cfy_byon:1.4.1-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orch.cfy:1.4.1-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orchestrator.cfy:1.4.1-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orch.aws_location:1.4.1-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.location_resources.on_demand:1.4.1-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.repository:1.4.1-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT

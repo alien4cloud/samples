@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloud.automation.a4c.config.orch.aws_location
+  template_name: org.alien4cloud.automation.a4c.config.location_resources.on_demand
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 

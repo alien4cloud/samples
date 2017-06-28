@@ -1,0 +1,32 @@
+autoconfigured:
+  properties:
+    cloudify_agent:
+      user: ubuntu
+
+resourceTypes:
+    # some Ubuntus images
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "Ubuntu.14.04"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        image_id: ami-ed82e39e
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu
+            version: 14.04
+
+    - resourceType: "alien.cloudify.aws.nodes.InstanceType"
+      resourceName: "t2.micro"
+      archiveName: "cloudify-amazon-types"
+      archiveVersion: "1.4.0"
+      properties:
+        instance_type: t2.micro
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            mem_size: 1 GIB

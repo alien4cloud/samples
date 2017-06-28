@@ -1,0 +1,78 @@
+---
+
+- debug: msg="{{ operation }}"
+
+# generate a UUID to name data file
+- set_fact:
+    data_file_name: "/tmp/data{{ 9999999999999999999999 | random | to_uuid }}.txt"
+  run_once: yes
+
+# the template will generate a file containing log_length words
+- name: Copy log template data file
+  template: src=data.txt.j2 dest="{{ data_file_name }}"
+
+- name: extract words from data file
+  command: /bin/cat "{{ data_file_name }}"
+  register: data
+  no_log: True
+
+# finally log a message containing the line read from the file
+- debug: msg="{{ data.stdout_lines[0] }}"
+
+- set_fact:
+    actual_log_length: "{{ (data.stdout_lines[0].split(' ') | length) }}"
+  run_once: yes
+
+# - set_fact:
+#     duration: "200"
+#
+# - set_fact:
+#     weight: "50"
+#
+# - set_fact:
+#     variation: "20"
+
+
+- name: "Duration of operation in sec"
+  set_fact:
+    sleep_time: "{{ ((weight|int/100)*(duration|int))|round }}"
+
+- name: "Can't manage sleep_time < 3s"
+  set_fact:
+    sleep_time: "3"
+  when: "{{ sleep_time|int < 3 }}"
+
+- name: "Minimum duration"
+  set_fact:
+    sleep_min: "{{ (sleep_time|int)-((variation|int/100)*(sleep_time|int)) }}"
+
+- name: Calculate variation is sec
+  set_fact:
+    sleep_varation: "{{ (((variation|int/100)*(sleep_time|int))*2)|round }}"
+
+- name: Randomize variation
+  set_fact:
+    sleep_varation: "{{ sleep_varation|int|random }}"
+
+- name: Add variation to min
+  set_fact:
+    sleep_time: "{{ (sleep_min|int)+(sleep_varation|int) }}"
+
+
+
+- set_fact:
+    sleep_timeout: "{{ sleep_time|int * 2 }}"
+  run_once: yes
+
+- name: "Simulate long running op ({{ sleep_time }} sec), wait for up to {{ sleep_timeout }} sec, poll every 5 sec"
+  command: "/bin/sleep {{ sleep_time }}"
+  async: "{{ sleep_timeout }}"
+  poll: 5
+  when: sleep_time > 0
+
+#- pause:
+#    seconds: "{{ sleep_time_in_seconds }}"
+
+- debug: msg="Sleeped {{ sleep_time }} seconds"
+
+- file: path="{{ data_file_name }}" state=absent

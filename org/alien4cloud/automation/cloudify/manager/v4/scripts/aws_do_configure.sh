@@ -28,6 +28,11 @@ if [ ! -d /etc/cloudify/aws_plugin ]; then
   sudo mkdir /etc/cloudify/aws_plugin
 fi
 
-sudo /opt/manager/env/bin/python ${python_script} -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl config -c "$HOME_DIR/cfy_config_aws.yml" -i "aws"
+if [ $CFY_VERSION = "4.0.1-ga" ] ; then
+  PYTHON_ENV=/opt/manager/env
+else 
+  PYTHON_ENV=/opt/cfy/embedded
+fi
+sudo $PYTHON_ENV/bin/python ${python_script} -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl config -c "$HOME_DIR/cfy_config_aws.yml" -i "aws"
 
 echo "AWS configured"

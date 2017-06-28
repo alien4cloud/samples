@@ -85,10 +85,10 @@ node_types:
     interfaces:
       Standard:
         create:
-            inputs:
-              CFY_VERSION: { get_property: [SELF, component_version] }
-              SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
-            implementation: scripts/install.sh
+          inputs:
+            CFY_VERSION: { get_property: [SELF, component_version] }
+            SSH_KEY_FILENAME: { get_property: [SELF, ssh_key_filename] }
+          implementation: scripts/install.sh
         configure:
           inputs:
             CFY_VERSION: { get_property: [SELF, component_version] }
@@ -103,6 +103,7 @@ node_types:
           implementation: scripts/configure.sh
         start:
           inputs:
+            CFY_VERSION: { get_property: [SELF, component_version] }
             PUBLIC_IP: { get_attribute: [HOST, public_ip_address] }
             ADMIN_USERNAME: { get_property: [SELF, cloudify_api_v3, admin_username] }
             ADMIN_PASSWORD: { get_property: [SELF, cloudify_api_v3, admin_password] }
@@ -197,6 +198,7 @@ node_types:
           implementation: scripts/aws_init_conf_file.sh
         start:
           inputs:
+            CFY_VERSION: { get_property: [HOST, component_version] }
             SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
             KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
             ADMIN_USERNAME: { get_property: [HOST, cloudify_api_v3, admin_username] }
@@ -240,6 +242,7 @@ node_types:
           implementation: scripts/azure_init_conf_file.sh
         start:
           inputs:
+            CFY_VERSION: { get_property: [HOST, component_version] }
             SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
             KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
             ADMIN_USERNAME: { get_property: [HOST, cloudify_api_v3, admin_username] }
@@ -314,6 +317,7 @@ node_types:
           implementation: scripts/openstack_init_conf_file.sh
         start:
           inputs:
+            CFY_VERSION: { get_property: [HOST, component_version] }
             SSH_KEY_FILENAME: { get_property: [HOST, ssh_key_filename] }
             KEYPAIR_NAME: { get_property: [HOST, keypair_name] }
             ADMIN_USERNAME: { get_property: [HOST, cloudify_api_v3, admin_username] }

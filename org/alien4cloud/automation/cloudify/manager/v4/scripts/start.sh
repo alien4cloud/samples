@@ -9,17 +9,24 @@ sudo cfy bootstrap simple-manager-blueprint.yaml -i inputs.yml
 
 echo "Setting ssl option"
 
-# modify a file so we can access the manager via the webui
-sudo -E /opt/manager/env/bin/python ${ssl_ui_conf_python_script}
-sudo systemctl restart cloudify-stage
+if [ $CFY_VERSION = "4.0.1-ga" ] ; then
+  PYTHON_ENV=/opt/manager/env
+  # modify a file so we can access the manager via the webui
+  sudo -E $PYTHON_ENV/bin/python ${ssl_ui_conf_python_script}
+  sudo systemctl restart cloudify-stage
+else
+  PYTHON_ENV=/opt/cfy/embedded
+fi
 
 echo "Manager node has been bootstraped"
 
 # Eventually configure cluster
 if [ $MAX_INSTANCES -gt 1 ]; then
   echo "Cluster mode enabled, configuring cluster mode"
-  sudo -E /opt/manager/env/bin/python ${cluster_python_script}
-  sudo chown cfyuser:cfyuser /opt/mgmtworker/env/plugins
+  sudo -E $PYTHON_ENV/bin/python ${cluster_python_script}
+  if [ -d "/opt/mgmtworker/env/plugins" ] ; then
+    sudo chown cfyuser:cfyuser /opt/mgmtworker/env/plugins
+  fi
   echo "Cluster mode configured"
 fi
 

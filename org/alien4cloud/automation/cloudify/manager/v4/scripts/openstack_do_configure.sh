@@ -30,6 +30,11 @@ if [ ! -d /etc/cloudify/openstack_plugin ]; then
   sudo mkdir /etc/cloudify/openstack_plugin
 fi
 
-sudo /opt/manager/env/bin/python ${python_script} -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl config -c "$HOME_DIR/cfy_config_openstack.yml" -i "openstack"
+if [ $CFY_VERSION = "4.0.1-ga" ] ; then
+  PYTHON_ENV=/opt/manager/env
+else 
+  PYTHON_ENV=/opt/cfy/embedded
+fi
+sudo $PYTHON_ENV/bin/python ${python_script} -u $ADMIN_USERNAME -p $ADMIN_PASSWORD --ssl config -c "$HOME_DIR/cfy_config_openstack.yml" -i "openstack"
 
 echo "Openstack configured"

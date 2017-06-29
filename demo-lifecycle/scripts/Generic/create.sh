@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # loop until the php scripts are available
-result=$(wget --timeout=30 -qO- http://a4c_registry/echo.php)
+result=$(wget --timeout=30 -t 3 -qO- http://a4c_registry/echo.php)
 while [ "$result" != "OK" ]; do
   sleep 5
   result=$(wget -qO- http://a4c_registry/echo.php)

@@ -1,9 +1,8 @@
 tosca_definitions_version: alien_dsl_1_2_0
 
-metadata:
-  template_name: org.alien4cloud.mock.ansible
-  template_version: 1.3.4-SNAPSHOT
-  template_author: alien4cloud
+template_name: org.alien4cloud.mock.ansible
+template_version: 1.3.4-SNAPSHOT
+template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN12
@@ -80,11 +79,11 @@ node_types:
         occurrences: [0, unbounded]
     requirements:
       - host:
-          capability: tosca.capabilities.Container
+          type: tosca.capabilities.Container
           relationship: org.alien4cloud.mock.ansible.relationships.AnsibleComponentHostedOnHost
           occurrences: [1,1]
       - mock_endpoint:
-          capability: org.alien4cloud.mock.ansible.capabilities.AnsibleComponentEndpoint
+          type: org.alien4cloud.mock.ansible.capabilities.AnsibleComponentEndpoint
           relationship: org.alien4cloud.mock.ansible.relationships.AnsibleComponentConnectToComponent
           occurrences: [0, unbounded]
     interfaces:

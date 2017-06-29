@@ -63,7 +63,6 @@ node_types:
             DB_PASSWORD: { get_property: [SELF, password] }
           implementation: scripts/configure_postgresql.sh          
         start:
-          inputs:
           implementation: scripts/start_postgresql.sh
 
 

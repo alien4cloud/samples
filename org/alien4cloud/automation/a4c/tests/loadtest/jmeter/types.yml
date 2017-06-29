@@ -9,6 +9,8 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN14
   - alien-base-types:1.4.0-SNAPSHOT
   - org.alien4cloud.mock.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
 
 description: >
   Mock types for A4C load tests.
@@ -22,13 +24,13 @@ node_types:
     properties:
       rampup:
         type: string
-        desciption: A CSV list of user count for rampup (ex: 10,20,50,100)
+        description: A CSV list of user count for rampup (ex: 10,20,50,100)
         default: 10,20,30,40,50
         required: true
       test_name_prefix:
         type: string
-        desciption: >
-          A prefixe for naming the test. Will be used with the launch date and the user count when executing the test.
+        description: >
+          A prefix for naming the test. Will be used with the launch date and the user count when executing the test.
           The test name is used to name result and log files and application in target A4C so just use Word chars please.
         default: LoadTest
         required: true
@@ -80,9 +82,10 @@ node_types:
           implementation: playbook/playbook.ansible
         stop:
           # kill the java process
+          inputs:
             ANSIBLE_VERBOSE: true
             PLAYBOOK_ENTRY: operation.yml
-            operation: "start AnsibleMockHost"
+            operation: "stop AnsibleMockHost"
             duration: { get_property: [ SELF, duration ] }
             variation: { get_property: [ SELF, variation ] }
             weight: 20

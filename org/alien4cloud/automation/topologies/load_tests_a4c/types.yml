@@ -295,12 +295,10 @@ topology_template:
             capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
             relationship: org.alien4cloud.automation.cloudify.config.offline_plugin.relationships.ConnectsToCfy
       capabilities:
-        app_endpoint:  input_artifacts:
-    hostpool_service_archive:
-        type: tosca.artifacts.Filep
-            secure: false
-            network_name: PRIVATE
-            initiator: source
+        app_endpoint:
+          secure: false
+          network_name: PRIVATE
+          initiator: source
     Apache:
       type: org.alien4cloud.nodes.Apache
       properties:

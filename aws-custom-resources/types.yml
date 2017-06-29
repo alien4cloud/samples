@@ -152,14 +152,14 @@ node_types:
         required: true
         description: Password for the master DB instance user.
         constraints:
-          - min_length : 8
+          - min_length: 8
         default: petclinic
       allocated-storage:
         type: integer
         required: true
         description: Amount of storage to be initially allocated for the DB instance, in gigabytes.
         constraints:
-          - greater_than : 4
+          - greater_than: 4
         default: 5
       security_group_ids:
         type: string

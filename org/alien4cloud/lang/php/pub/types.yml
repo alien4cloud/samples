@@ -1,0 +1,16 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.lang.php.pub
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Public interface types for PHP support.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+capability_types:
+  org.alien4cloud.lang.php.pub.capabilities.Runtime:
+    derived_from: tosca.capabilities.Root
+    description: Provide a PHP runtime.

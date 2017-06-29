@@ -4,7 +4,7 @@
 RPM_URL="http://repository.cloudifysource.org/cloudify/4.0.1/sp-release/cloudify-4.0.1~sp.el6.x86_64.rpm"
 
 if [ $CFY_VERSION = "4.1.0" ] ; then
-  RPM_URL="http://gigaspaces-repository-eu.s3.amazonaws.com/cloudify/4.1.0/ga-release/cloudify-4.1.0~ga.el6.x86_64.rpm"
+  RPM_URL="http://repository.cloudifysource.org/cloudify/4.1.0/rc-release/cloudify-4.1.0~rc1.el6.x86_64.rpm"
 fi
 
 sudo timedatectl set-timezone UTC

@@ -107,8 +107,6 @@ topology_template:
       capabilities:
         app_endpoint:
           properties:
-            protocol: { get_property: [HOST, data_endpoint, protocol] }
-            port: { get_property: [HOST, data_endpoint, port] }
             secure: false
             url_path: pets
             network_name: PRIVATE

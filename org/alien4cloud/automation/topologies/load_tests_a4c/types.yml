@@ -40,6 +40,7 @@ imports:
   - org.alien4cloud.automation.a4c.config.location_resources.cfy_byon:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - apache-type:1.4.0-SNAPSHOT
 
 topology_template:
   description: >

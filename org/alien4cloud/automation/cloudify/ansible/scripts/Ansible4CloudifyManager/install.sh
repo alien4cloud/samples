@@ -8,7 +8,7 @@ fi
 sudo yum -y install python-cffi
 sudo yum -y install gcc
 sudo yum -y install python-devel
-sudo yum -y install openssl-devel
+sudo yum -y install libffi-devel 
 sudo yum -y install openssl-devel
 sudo yum -y install python-setuptools python-setuptools-devel
 sudo easy_install pip

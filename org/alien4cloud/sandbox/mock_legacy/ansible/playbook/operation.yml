@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: AnsibleMock
-  become: true
- 
-  roles:
-    - operation

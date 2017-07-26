@@ -26,6 +26,6 @@ if [ ! -d "/etc/apache2/conf.d" ]; then
   PROXY_BALANCER_CONF_FILE=/etc/apache2/conf-enabled/proxy-balancer.conf
 fi
 
-sudo echo -e "<Proxy balancer://mycluster>\n</Proxy>\nProxyPass / balancer://mycluster/" | sudo tee $PROXY_BALANCER_CONF_FILE
+sudo echo -e "<Proxy balancer://mycluster>\n</Proxy>" | sudo tee $PROXY_BALANCER_CONF_FILE
 
 sudo sed -i 's/Deny from all/Allow from all/g' /etc/apache2/mods-enabled/proxy.conf

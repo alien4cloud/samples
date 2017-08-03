@@ -19,12 +19,14 @@ echo "public_ip: $PUBLIC_IP" >> "$HOME_DIR/inputs.yml"
 echo "private_ip: $PRIVATE_IP" >> "$HOME_DIR/inputs.yml"
 echo "ssl_enabled: true" >> "$HOME_DIR/inputs.yml"
 
-if [ $CFY_VERSION = "4.1.0" ] ; then
-  echo "manager_resources_package: http://repository.cloudifysource.org/cloudify/4.1.0/rc2-release/cloudify-enterprise-manager-resources-4.1rc2.gz" >> "$HOME_DIR/inputs.yml"
-else
-  echo "manager_resources_package: http://repository.cloudifysource.org/cloudify/4.0.1/sp-release/cloudify-manager-resources_4.0.1-sp.tar.gz" >> "$HOME_DIR/inputs.yml"
-fi
 
+if [ $CFY_VERSION = "4.0.1-ga" ] ; then
+  echo "manager_resources_package: http://repository.cloudifysource.org/cloudify/4.1.0/rc2-release/cloudify-enterprise-manager-resources-4.1rc2.gz" >> "$HOME_DIR/inputs.yml"
+elif [ $CFY_VERSION = "4.1.0" ] ; then
+  echo "manager_resources_package: http://repository.cloudifysource.org/cloudify/4.0.1/sp-release/cloudify-manager-resources_4.0.1-sp.tar.gz" >> "$HOME_DIR/inputs.yml"
+else
+  echo "manager_resources_package: http://repository.cloudifysource.org/cloudify/4.1.1/ga-release/cloudify-manager-resources_4.1.1-ga.tar.gz" >> "$HOME_DIR/inputs.yml"
+fi
 
 sudo mv "$HOME_DIR/inputs.yml" /opt/cfy/cloudify-manager-blueprints/inputs.yml
 

@@ -1,13 +1,16 @@
 #!/bin/bash
 
 # Let's pick the right download url based on the selected version.
-RPM_URL="http://repository.cloudifysource.org/cloudify/4.0.1/sp-release/cloudify-4.0.1~sp.el6.x86_64.rpm"
 
-if [ $CFY_VERSION = "4.1.0" ] ; then
+if [ $CFY_VERSION = "4.0.1-ga" ] ; then
+  RPM_URL="http://repository.cloudifysource.org/cloudify/4.0.1/sp-release/cloudify-4.0.1~sp.el6.x86_64.rpm"
+  sudo timedatectl set-timezone UTC
+elif [ $CFY_VERSION = "4.1.0" ] ; then
   RPM_URL="http://repository.cloudifysource.org/cloudify/4.1.0/rc2-release/cloudify-enterprise-cli-4.1rc2.rpm"
   sudo timedatectl set-timezone Europe/Paris
 else
-  sudo timedatectl set-timezone UTC
+  RPM_URL="http://repository.cloudifysource.org/cloudify/4.1.1/ga-release/cloudify-enterprise-cli-4.1.1ga.rpm "
+  sudo timedatectl set-timezone Europe/Paris
 fi
 
 echo "Download cloudify rpm package from $RPM_URL"

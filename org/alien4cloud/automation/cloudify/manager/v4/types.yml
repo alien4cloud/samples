@@ -38,9 +38,9 @@ node_types:
         description: Default ssh user for agents.
       component_version:
         type: version
-        default: 4.0.1-ga
+        default: 4.1.1
         constraints:
-          - valid_values: [ "4.0.1-ga", "4.1.0" ]
+          - valid_values: [ "4.0.1-ga", "4.1.0", "4.1.1" ]
     attributes:
       manager_url: { concat: ["https://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, cloudify_api_v3, port]] }
     capabilities:

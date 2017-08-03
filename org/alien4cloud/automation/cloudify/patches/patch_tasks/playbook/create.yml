@@ -1,0 +1,9 @@
+---
+
+- hosts: all
+  name: Patch the tasks.py of the mgmtworker
+  become: true
+
+  roles:
+    - create
+

@@ -1,0 +1,21 @@
+---
+
+- name: Backup file tasks.py 
+  copy:
+    remote_src: True
+    src:  /opt/mgmtworker/env/lib/python2.7/site-packages/script_runner/tasks.py
+    dest:  /opt/mgmtworker/env/lib/python2.7/site-packages/script_runner/tasks.py.default
+
+- name: Copy file tasks.py
+  copy:
+    src: tasks.py
+    dest: /opt/mgmtworker/env/lib/python2.7/site-packages/script_runner/tasks.py
+    force: True
+    owner: cfyuser
+    group: cfyuser
+    mode: 0644
+
+- name: Remove file tasks.pyc
+  file:
+    path: /opt/mgmtworker/env/lib/python2.7/site-packages/script_runner/tasks.pyc
+    state: absent

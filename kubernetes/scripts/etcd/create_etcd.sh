@@ -4,8 +4,12 @@ if [ -z "$LOCAL_IP" ] ; then
   LOCAL_IP=$(hostname --ip-address)
 fi
 
-if [ -z "$ETCD_VERSION" ] ; then
-  ETCD_VERSION=2.2.1
+if [ -z "$ETCD_DOCKER_TAG" ] ; then
+  ETCD_DOCKER_TAG=$ETCD_VERSION
+fi
+
+if [ -z "$ETCD_DOCKER_IMAGE" ] ; then
+  ETCD_DOCKER_IMAGE="gcr.io/google_containers/etcd-amd64"
 fi
 
 
@@ -36,9 +40,9 @@ function execute_and_wait {
 
 echo "Running the etcd container"
 
-sudo docker -H unix:///var/run/docker-bootstrap.sock pull gcr.io/google_containers/etcd-amd64:${ETCD_VERSION}
+sudo docker -H unix:///var/run/docker-bootstrap.sock pull ${ETCD_DOCKER_IMAGE}:${ETCD_DOCKER_TAG}
 
-container_id=$(sudo docker -H unix:///var/run/docker-bootstrap.sock run -d --net=host gcr.io/google_containers/etcd-amd64:${ETCD_VERSION} /usr/local/bin/etcd --listen-client-urls=http://127.0.0.1:4001,http://${LOCAL_IP}:4001 --advertise-client-urls=http://${LOCAL_IP}:4001 --data-dir=/var/etcd/data)
+container_id=$(sudo docker -H unix:///var/run/docker-bootstrap.sock run -d --net=host ${ETCD_DOCKER_IMAGE}:${ETCD_DOCKER_TAG} /usr/local/bin/etcd --listen-client-urls=http://127.0.0.1:4001,http://${LOCAL_IP}:4001 --advertise-client-urls=http://${LOCAL_IP}:4001 --data-dir=/var/etcd/data)
 
 execute_and_wait "pgrep -f '/usr/local/bin/etcd'"
 execute_and_wait "sudo docker -H unix:///var/run/docker-bootstrap.sock exec $container_id etcdctl --version"

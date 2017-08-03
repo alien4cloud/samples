@@ -10,8 +10,12 @@ else
 fi
 
 # Args
-if [ -z "$FLANNEL_VERSION" ] ; then
-  FLANNEL_VERSION=0.5.5
+if [ -z "$FLANNEL_DOCKER_IMAGE" ] ; then
+  FLANNEL_DOCKER_IMAGE="quay.io/coreos/flannel"
+fi
+
+if [ -z "$FLANNEL_DOCKER_TAG" ] ; then
+  FLANNEL_DOCKER_TAG=$FLANNEL_VERSION
 fi
 
 if [ -z "$FLANNEL_IFACE" ] ; then
@@ -52,10 +56,10 @@ function execute_and_wait {
 sudo service docker stop
 
 # Pull image
-sudo docker -H unix:///var/run/docker-bootstrap.sock pull quay.io/coreos/flannel:${FLANNEL_VERSION}
+sudo docker -H unix:///var/run/docker-bootstrap.sock pull ${FLANNEL_DOCKER_IMAGE}:${FLANNEL_DOCKER_TAG}
 
 # Run container
-container_id=$(sudo docker -H unix:///var/run/docker-bootstrap.sock run -d --net=host --privileged -v /dev/net:/dev/net quay.io/coreos/flannel:${FLANNEL_VERSION} /opt/bin/flanneld --ip-masq=${FLANNEL_IPMASQ} --etcd-endpoints=http://${ETCD_IP}:4001 --iface=${FLANNEL_IFACE})
+container_id=$(sudo docker -H unix:///var/run/docker-bootstrap.sock run -d --net=host --privileged -v /dev/net:/dev/net ${FLANNEL_DOCKER_IMAGE}:${FLANNEL_DOCKER_TAG} /opt/bin/flanneld --ip-masq=${FLANNEL_IPMASQ} --etcd-endpoints=http://${ETCD_IP}:4001 --iface=${FLANNEL_IFACE})
 
 
 # Retrieve flannel configuration
@@ -71,7 +75,7 @@ cp /etc/default/docker /tmp/docker
 for var in $flannel_output ; do
   echo $var | tee -a /tmp/docker
 done
-echo 'DOCKER_OPTS="--bip=${FLANNEL_SUBNET} --mtu=${FLANNEL_MTU}"' | tee -a /tmp/docker
+echo 'DOCKER_OPTS="${DOCKER_OPTS} --bip=${FLANNEL_SUBNET} --mtu=${FLANNEL_MTU}"' | tee -a /tmp/docker
 sudo mv /tmp/docker /etc/default/docker
 
 sudo service docker start

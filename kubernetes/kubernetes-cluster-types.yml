@@ -35,6 +35,14 @@ node_types:
       component_version:
         type: version
         default: 2.2.1
+      docker_image:
+        type: string
+        default: gcr.io/google_containers/etcd-amd64
+      docker_tag:
+        type: string
+        description: >
+          If null, use the component_version as tag
+        required: false
     capabilities:
       - etcd: org.alien4cloud.capabilities.kubernetes.ETCD
     requirements:
@@ -49,6 +57,8 @@ node_types:
           implementation: scripts/etcd/create_etcd.sh
           inputs:
             LOCAL_IP: { get_attribute: [HOST, ip_address] }
+            ETCD_DOCKER_IMAGE: { get_property: [SELF, docker_image] }
+            ETCD_DOCKER_TAG: { get_property: [SELF, docker_tag] }
             ETCD_VERSION: { get_property: [SELF, component_version] }
 
   org.alien4cloud.nodes.kubernetes.Flannel:
@@ -64,6 +74,14 @@ node_types:
       ip_mask:
         type: boolean
         default: true
+      docker_image:
+        type: string
+        default: quay.io/coreos/flannel
+      docker_tag:
+        type: string
+        description: >
+          If null, use the component_version as tag
+        required: false
     capabilities:
       - flannel:
           type: org.alien4cloud.capabilities.flannel.Connectivity
@@ -84,6 +102,8 @@ node_types:
           implementation: scripts/flannel/start_flannel.sh
           inputs:
             # ETCD_IP: { get_attribute: [SELF, etcd, target_ip_address] }
+            FLANNEL_DOCKER_IMAGE: { get_property: [SELF, docker_image] }
+            FLANNEL_DOCKER_TAG: { get_property: [SELF, docker_tag] }
             FLANNEL_VERSION: { get_property: [SELF, component_version] }
             FLANNEL_IFACE: { get_property: [SELF, flannel, interface] }
             FLANNEL_IPMASQ: { get_property: [SELF, ip_mask] }
@@ -98,6 +118,14 @@ node_types:
       component_version:
         type: version
         default: 1.2.1
+      docker_image:
+        type: string
+        default: gcr.io/google_containers/hyperkube-amd64
+      docker_tag:
+        type: string
+        description: >
+          If null, use the component_version as tag
+        required: false
     requirements:
       - host:
           capability: org.alien4cloud.capabilities.DockerHost
@@ -128,6 +156,8 @@ node_types:
           implementation: scripts/kubernetes/master/start_master.sh
           inputs:
             MASTER_IP: { get_attribute: [HOST, ip_address] }
+            K8S_DOCKER_IMAGE: { get_property: [SELF, docker_image] }
+            K8S_DOCKER_TAG: { get_property: [SELF, docker_tag] }
             K8S_VERSION: { get_property: [SELF, component_version] }
             DNS_DOMAIN: { get_property: [SELF, dns_domain] }
             FLANNEL_IFACE: { get_property: [SELF, flannel, interface] }
@@ -237,6 +267,9 @@ node_types:
           relationship: tosca.relationships.DependsOn
           occurrences: [0, 1]
     properties:
+      kube_url:
+        type: string
+        default: https://storage.googleapis.com/kubernetes-release/release/v1.5.3/bin/linux/amd64/kubectl
       component_version:
         type: version
         default: 1.5.3
@@ -245,6 +278,7 @@ node_types:
         create:
           implementation: scripts/kubernetes/kubectl/kubectl.sh
           inputs:
+            KUBECTL_URL: { get_property: [SELF, kube_url] }
             KUBECTL_VERSION: { get_property: [SELF, component_version] }
 
 
@@ -272,6 +306,7 @@ node_types:
           implementation: scripts/kubernetes/node/start_node.sh
           inputs:
             # MASTER_IP: { get_attribute: [SELF, join_master, target_ip_address] }
+            K8S_DOCKER_IMAGE: { get_property: [SELF, docker_image] }
             K8S_VERSION: { get_property: [SELF, component_version] }
             DNS_DOMAIN: { get_property: [SELF, join_master, dns_domain] }
             FLANNEL_IFACE: { get_property: [SELF, flannel, interface] }

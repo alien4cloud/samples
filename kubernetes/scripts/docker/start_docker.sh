@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash -x
 
 set -e
 
@@ -24,5 +24,11 @@ function execute_and_wait {
   echo $cmd_output
 }
 
-sudo sh -c 'docker daemon -H unix:///var/run/docker-bootstrap.sock -p /var/run/docker-bootstrap.pid --iptables=false --ip-masq=false --bridge=none --graph=/var/lib/docker-bootstrap 2> /var/log/docker-bootstrap.log 1> /dev/null &'
+if [ $(which dockerd) ] ; then
+  # $DOCKER_INSECURE_OPTS is set in docker_configure.sh.
+  # It fill the variable and save it to /etc/default/docker
+  sudo sh -c ". /etc/default/docker && dockerd -H unix:///var/run/docker-bootstrap.sock \$DOCKER_INSECURE_OPTS -p /var/run/docker-bootstrap.pid --iptables=false --ip-masq=false --bridge=none --graph=/var/lib/docker-bootstrap 2> /var/log/docker-bootstrap.log 1> /dev/null &"
+else
+  sudo sh -c ". /etc/default/docker && docker daemon -H unix:///var/run/docker-bootstrap.sock \$DOCKER_INSECURE_OPTS -p /var/run/docker-bootstrap.pid --iptables=false --ip-masq=false --bridge=none --graph=/var/lib/docker-bootstrap 2> /var/log/docker-bootstrap.log 1> /dev/null &"
+fi
 execute_and_wait "sudo pgrep -f 'docker daemon -H unix:///var/run/docker-bootstrap.sock'"

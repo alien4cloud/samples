@@ -1,0 +1,78 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: tomcat-war-service-topology
+  template_version: 1.4.0-SNAPSHOT
+  template_author: Fastconnect
+
+description: "A topology to install an web app on Tomcat and uses an existing load balancer"
+
+imports:
+  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - tomcat-war-types:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    War:
+      type: org.alien4cloud.nodes.War
+      requirements:
+        - host:
+            node: Tomcat
+            capability: org.alien4cloud.capabilities.WarContainer
+            relationship: org.alien4cloud.relationships.WarHostedOnTomcat
+      capabilities:
+        app_endpoint:
+          properties:
+            protocol: { get_property: [HOST, data_endpoint, protocol] }
+            port: { get_property: [HOST, data_endpoint, port] }
+            secure: false
+            url_path: hello
+            network_name: PRIVATE
+            initiator: source
+    Tomcat:
+      type: org.alien4cloud.nodes.Tomcat
+      properties:
+        tomcat_home: "/opt/tomcat"
+        download_url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.39/bin/apache-tomcat-8.0.39.tar.gz"
+        component_version: "8.0.39"
+      requirements:
+        - host:
+            node: Java
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
+
+    WebServer:
+      type: tosca.nodes.Compute
+
+    Java:
+      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
+      properties:
+        java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
+        java_home: "/opt/java"
+        component_version: "1.8.0-131-b11"
+      requirements:
+        - host:
+            node: WebServer
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    LoadBalancer:
+      type: tosca.nodes.LoadBalancer
+      requirements:
+        - application:
+            node: War
+            capability: tosca.capabilities.Endpoint
+            relationship: tosca.relationships.RoutesTo
+      capabilities:
+        client:
+          properties:
+            network_name: PUBLIC
+            protocol: tcp
+            secure: false
+            initiator: source
+  outputs:
+    Tomcat_server_url:
+      value: { get_attribute: [ Tomcat, server_url ] }
+    War_application_url:
+      value: { get_attribute: [ War, application_url ] }

@@ -24,14 +24,32 @@ data_types:
         required: false
 
 node_types:
-  org.alien4cloud.aws.EC2Instance:
+
+  org.alien4cloud.aws.cloudify.EC2Instance:
+    derived_from: org.alien4cloud.aws.EC2Instance
     description: |
       Launch an ec2 instance. Needs aws cli to be installed on the host (usually a 'manager' since this is a compute resource).
-    derived_from: tosca.nodes.Compute
+      Information about the key and the user is needed for cloudify manager to establish connection to the created compute
     properties:
       agent_config:
         type: org.alien4cloud.datatypes.AgentConfig
+
+  org.alien4cloud.aws.puccini.EC2Instance:
+    derived_from: org.alien4cloud.aws.EC2Instance
+    description: |
+      Launch an ec2 instance. Needs to use an image of micro manager with aws installed.
+      Information about the key and the user is needed for puccini to establish connection to the created compute
+    properties:
+      user:
+        type: string
         required: false
+      key_content:
+        type: string
+        required: false
+
+  org.alien4cloud.aws.EC2Instance:
+    derived_from: tosca.nodes.Compute
+    properties:
       aws_access_key_id:
         type: string
         required: true
@@ -54,6 +72,7 @@ node_types:
         type: string
     attributes:
       ip_address: { get_operation_output: [ SELF, Standard, start, IP_ADDRESS ] }
+      public_ip_address: { get_operation_output: [ SELF, Standard, start, PUBLIC_IP_ADDRESS ] }
       instance_id: { get_operation_output: [ SELF, Standard, start, INSTANCE_ID ] }
       #aws_resource_id: { get_operation_output: [ SELF, Standard, start, INSTANCE_ID ] }
       #placement: { get_operation_output: [ SELF, Standard, start, AVAILIBILITY_ZONE ] }
@@ -95,7 +114,7 @@ node_types:
     derived_from: org.alien4cloud.aws.AbstractMariaDB
     description: create mariaDB instance via aws rds. Needs aws cli to be installed on the host (usually a 'manager' since this is a compute resource).
     attributes:
-      endpoint_address: { concat: [{ get_operation_output: [SELF, Standard, start, ENDPOINT_ADDRESS]}, ":", get_property: [SELF, port]] }
+      endpoint_address: { concat: [get_operation_output: [SELF, Standard, start, ENDPOINT_ADDRESS], ":", get_property: [SELF, port]] }
       bdinstance_arn: { get_operation_output: [SELF, Standard, start, DBINSTANCE_ARN]}
     properties:
       aws_access_key_id:

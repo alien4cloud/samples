@@ -14,8 +14,10 @@ if [ -z $instance_id ]; then
 fi
 
 ip_address=$(aws ec2 describe-instances --instance-ids ${instance_id} --query 'Reservations[0].Instances[0].NetworkInterfaces[0].PrivateIpAddress' --output text)
+public_ip_address=$(aws ec2 describe-instances --instance-ids ${instance_id} --query 'Reservations[0].Instances[0].NetworkInterfaces[0].Association.PublicIp' --output text)
 
 export IP_ADDRESS="${ip_address}"
+export PUBLIC_IP_ADDRESS="${public_ip_address}"
 export INSTANCE_ID="${instance_id}"
 
 availibility_zone=$(aws ec2 describe-instances --instance-ids ${instance_id} --query 'Reservations[0].Instances[0].Placement.AvailabilityZone' --output text)

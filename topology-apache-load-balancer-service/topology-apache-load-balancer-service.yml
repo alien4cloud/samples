@@ -1,0 +1,49 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: apache-lb-service-topology
+  template_version: 1.4.0-SNAPSHOT
+  template_author: Fastconnect
+
+description: "A topology to expose an apache load balancer as a service"
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - apache-load-balancer-type:1.4.0-SNAPSHOT
+
+topology_template:
+  substitution_mappings:
+    node_type: tosca.nodes.LoadBalancer
+    requirements:
+      application: [ ApacheLoadBalancer, application, org.alien4cloud.relationships.RoutesToApacheLoadBalancerService ]
+  node_templates:
+    ApacheLoadBalancer:
+      type: org.alien4cloud.nodes.ApacheLoadBalancer
+      properties:
+        component_version: 2
+      requirements:
+        - host:
+            node: ApacheLoadBalancerHost
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+
+    ApacheLoadBalancerHost:
+      type: tosca.nodes.Compute
+      requirements:
+        - network:
+            node: Network
+            capability: tosca.capabilities.Connectivity
+            relationship: tosca.relationships.Network
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: ubuntu
+    Network:
+      type: tosca.nodes.Network
+      properties:
+        ip_version: 4
+  outputs:
+    load_balancer_url:
+      value: { get_attribute: [ ApacheLoadBalancer, load_balancer_url ] }

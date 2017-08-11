@@ -22,6 +22,12 @@ echo "Installing cloudify CLI"
 
 sudo rpm -i ~/cfy.rpm
 
+# Patch the CLI
+if [ $CFY_VERSION = "4.1.1" ] ; then
+  sudo mv /opt/cfy/cloudify-manager-blueprints/components/utils.py /opt/cfy/cloudify-manager-blueprints/components/utils.py.default
+  sudo cp $cli_utils_script /opt/cfy/cloudify-manager-blueprints/components/utils.py
+fi
+
 HOME_DIR=~
 mkdir "$HOME_DIR/cfy_keys"
 cp ${key_file} "$HOME_DIR/cfy_keys/$SSH_KEY_FILENAME"

@@ -124,6 +124,10 @@ node_types:
           file: scripts/conf_ip.py
           type: tosca.artifacts.File
           description: This artifact is the python script that configure the cluster. It should not be overriden.
+      - cli_utils_script:
+          file: scripts/cli/utils.py
+          type: tosca.artifacts.File
+          description: This artifact is a patch to workaround issue with certificate.
 
   org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifySSHKey:
     derived_from: tosca.nodes.Root

@@ -1,0 +1,72 @@
+---
+
+# read hostpool_url from hostpool connection
+- name: Check relationship inputs exists
+  stat: path="/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_hostpool/inputs/hostpool_url"
+  register: hostpool_url_file
+- name: read relationship inputs
+  command: /bin/cat "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/connect_hostpool/inputs/hostpool_url"
+  register: hostpool_url_content
+  when: hostpool_url_file.stat.exists
+- set_fact:
+    hostpool_url: "{{ hostpool_url_content.stdout_lines[0] }}"
+  when: hostpool_url_file.stat.exists and hostpool_url_content.stdout_lines|length > 0
+
+- name: login
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: Create on-demand location resource
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      resourceType: "{{ resourceType }}"
+      resourceName: "{{ resourceName }}"
+      archiveName: "{{ resourceArchiveName }}"
+      archiveVersion: "{{ resourceArchiveVersion }}"
+      id: "{{ resourceType  }}:{{ resourceArchiveVersion }}"
+    body_format: json
+    status_code: 200
+  register: result
+
+- set_fact:
+    resourceId: "{{ result.json.data.resourceTemplate.id }}"
+
+- name: Configure on-demand location resource
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/{{ resourceId }}/template/properties"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      propertyName: "host_pool_service_endpoint"
+      propertyValue: "{{ hostpool_url }}"
+    body_format: json
+    status_code: 200
+  register: result
+
+- name: Configure on-demand location resource
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/{{ resourceId }}/template/properties"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      propertyName: "agent_config"
+      propertyValue:
+        install_method: "{{ resourceAgentInstallMethod }}"
+    body_format: json
+    status_code: 200
+  register: result

@@ -1,0 +1,84 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.a4c.config.location_resources.cfy_byon_v1-3-4
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - alien-base-types:1.4.0
+  - org.alien4cloud.automation.a4c.config.location:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+
+  org.alien4cloud.automation.a4c.config.location_resources.cfy_byon_v1-3-4.nodes.ByonLocationResourcesConfigurator:
+    description: |
+      Configure a BYON location for A4C 1.3.4 with a single on-demand resource
+    derived_from: org.alien4cloud.automation.a4c.config.location.nodes.SimpleLocationConfigurator
+    properties:
+      type:
+        type: string
+        required: true
+        default: byon
+        constraints:
+          - valid_values: [ "byon" ]
+      resourceType:
+        type: string
+        required: true
+        default: alien.cloudify.byon.nodes.LinuxCompute
+      resourceName:
+        type: string
+        required: true
+        default: MyResource
+      resourceArchiveName:
+        type: string
+        required: true
+        default: cloudify-byon-types
+      resourceArchiveVersion:
+        type: string
+        required: true
+        default: 1.4.0
+      resourceAgentInstallMethod:
+        type: string
+        required: true
+        default: none
+    requirements:
+      - hostpool:
+          capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
+          relationship: org.alien4cloud.automation.a4c.config.location_resources.cfy_byon_v1-3-4.LocationConnectsToHostpool
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        start:
+          # create the location on demand resources
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: create_byon_location_resource.yml
+            orchestratorId: { get_attribute: [HOST, orchestratorId] }
+            locationId: { get_attribute: [SELF, locationId] }
+            alien_url: { get_attribute: [HOST, alien_url] }
+            alien_user: { get_attribute: [HOST, alien_user] }
+            alien_password: { get_attribute: [HOST, alien_password] }
+            resourceType: { get_property: [SELF, resourceType] }
+            resourceName: { get_property: [SELF, resourceName] }
+            resourceArchiveName: { get_property: [SELF, resourceArchiveName] }
+            resourceArchiveVersion: { get_property: [SELF, resourceArchiveVersion] }
+            resourceAgentInstallMethod: { get_property: [SELF, resourceAgentInstallMethod] }
+          implementation: playbook/playbook.ansible
+
+relationship_types:
+
+  org.alien4cloud.automation.a4c.config.location_resources.cfy_byon_v1-3-4.LocationConnectsToHostpool:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [ org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: connect_hostpool.yml
+            hostpool_url: { concat: [get_property: [TARGET, cloudify_hostpool, protocol], "://", get_attribute: [TARGET, cloudify_hostpool, ip_address], ":", get_property: [TARGET, cloudify_hostpool, port]] }
+          implementation: playbook/playbook.ansible

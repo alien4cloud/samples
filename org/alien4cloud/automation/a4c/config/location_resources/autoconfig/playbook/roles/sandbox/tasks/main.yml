@@ -1,0 +1,174 @@
+---
+
+- set_fact:
+    my_array: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/resources/"
+
+- name: "Ensure <{{ file_dir }}> exists"
+  file:
+    path: "{{ file_dir }}"
+    state: directory
+
+- name: "Upload artifact {{resources_file_artifact}} on remote in {{ file_dir }}/resources.yaml"
+  copy:
+    src: "{{resources_file_artifact}}"
+    dest: "{{ file_dir }}/resources.yaml"
+
+- name: "Stat {{ file_dir }}/resources.yaml"
+  stat: path="{{ file_dir }}/resources.yaml"
+  register: resources_file
+
+- name: Slurp resources files
+  slurp:
+    src: "{{ file_dir }}/resources.yaml"
+  register: resources_slurped
+  when: resources_file.stat.exists
+
+- set_fact:
+    resources_yaml: "{{resources_slurped['content'] | b64decode | from_yaml}}"
+# - debug:
+#     var: resources_yaml
+
+- set_fact:
+    resources: "{{resources_yaml['resources']}}"
+# - debug:
+#     var: resources
+
+- debug:
+    msg: "{{item}}"
+  with_items: "{{resources}}"
+
+- name: "Login onto A4C using {{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: "Create on-demand location resource using {{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources"
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      resourceType: "{{ item['resourceType'] }}"
+      resourceName: "{{ item['resourceName'] }}"
+      archiveName: "{{ item['archiveName'] }}"
+      archiveVersion: "{{ item['archiveVersion'] }}"
+    body_format: json
+    status_code: 200
+  register: result
+  with_items: "{{resources}}"
+
+# - debug:
+#     var: result
+
+- set_fact:
+    resourceIds: []
+- name: Populate resourceIds
+  set_fact:
+    resourceIds: "{{ resourceIds }}  + ['{{item['json']['data']['resourceTemplate']['id']}}']"
+  with_items: "{{result['results']}}"
+# - debug:
+#     var: resourceIds
+
+# Build a map with resourceId as key and resource config as entry
+- set_fact:
+    identifiedResourcesMap: {}
+- set_fact:
+    identifiedResourcesMap: "{{identifiedResourcesMap |combine({item.1: resources[item.0]})}}"
+  with_indexed_items: "{{resourceIds}}"
+# - debug:
+#     var: identifiedResourcesMap
+
+- name: Build an easilly iterable array of dicts containing resourceId, propertyName & propertyValue
+  set_fact:
+    propertyValuesPerResource: |
+      {% set result = [] -%}
+      {% for key in identifiedResourcesMap.keys() -%}
+        {% set resource = identifiedResourcesMap[key] -%}
+        {% if 'properties' in resource -%}
+          {% for propertyKey in resource['properties'].keys() -%}
+            {% set ignored = result.extend([{'resourceId': key, 'propertyName': propertyKey, 'propertyValue': resource['properties'][propertyKey]}]) -%}
+          {%- endfor %}
+        {%- endif %}
+      {%- endfor %}
+      {{ result }}
+
+# - debug:
+#     var: propertyValuesPerResource
+
+- name: Configure on-demand location resource properties
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/{{item['resourceId']}}/template/properties"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      propertyName: "{{item['propertyName']}}"
+      propertyValue: "{{item['propertyValue']}}"
+    body_format: json
+    status_code: 200
+  register: result
+  with_items: "{{propertyValuesPerResource}}"
+
+- name: Build an easilly iterable array of dicts containing resourceId, capabilityName, propertyName & propertyValue
+  set_fact:
+    propertyValuesPerCapability: |
+      {% set result = [] -%}
+      {% for key in identifiedResourcesMap.keys() -%}
+        {% set resource = identifiedResourcesMap[key] -%}
+        {% if 'capabilities' in resource -%}
+          {% for capabilityKey in resource['capabilities'].keys() -%}
+            {% if 'properties' in resource['capabilities'][capabilityKey] -%}
+              {% for propertyKey in resource['capabilities'][capabilityKey]['properties'].keys() -%}
+                {% set ignored = result.extend([{'resourceId': key, 'capabilityName': capabilityKey, 'propertyName': propertyKey, 'propertyValue': resource['capabilities'][capabilityKey]['properties'][propertyKey]}]) -%}
+              {%- endfor %}
+            {%- endif %}
+          {%- endfor %}
+        {%- endif %}
+      {%- endfor %}
+      {{ result }}
+
+# - debug:
+#     var: propertyValuesPerCapability
+
+- name: Configure on-demand location resource capabilities properties
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/{{item['resourceId']}}/template/capabilities/{{item['capabilityName']}}/properties"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      propertyName: "{{item['propertyName']}}"
+      propertyValue: "{{item['propertyValue']}}"
+    body_format: json
+    status_code: 200
+  register: result
+  with_items: "{{propertyValuesPerCapability}}"
+
+# autoconfig
+- name: Match images with flavors
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/auto-configure"
+    method: GET
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    status_code: 200
+  register: idies
+
+# - debug:
+#     msg: "{{ item }}"
+#   with_items: "{{idies['json']['data']}}"
+# - set_fact:
+#     autoconfiguredIds: []
+# - name: Populate autoconfigured resourceIds
+#   set_fact:
+#     resourceIds: "{{ resourceIds }}  + ['{{item['json']['data']['resourceTemplate']['id']}}']"
+#   with_items: "{{result['results']}}"

@@ -1,0 +1,13 @@
+---
+- hosts: all
+  name: Add AWS on-demand resource on an orchestrator resource
+  become: true
+
+  # pre_tasks:
+  #   - name: Debug vars
+  #     debug:
+  #       msg: "{{ vars | to_json }}"
+
+  roles:
+    # - setup
+    - create_location_resources

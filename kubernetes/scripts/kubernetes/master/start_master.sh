@@ -25,7 +25,7 @@ fi
 # Functions
 function execute_and_wait {
   command=$1
-  max_retries=6
+  max_retries=30
   retries=0
   cmd_output=$(echo $command | sh)
   cmd_code=$?
@@ -62,5 +62,5 @@ LOCAL_IP=$(ifconfig $FLANNEL_IFACE | grep "inet addr" | sed 's/.*inet addr:\([0-
 
 sudo docker run --volume=/:/rootfs:ro --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:rw --volume=/var/lib/kubelet/:/var/lib/kubelet:rw --volume=/var/run:/var/run:rw --net=host --privileged=true --pid=host -d ${K8S_DOCKER_IMAGE}:${K8S_DOCKER_TAG} /hyperkube kubelet --allow-privileged=true --api-servers=http://localhost:8080 --v=2 --address=0.0.0.0 --enable-server --hostname-override=127.0.0.1 --config=/etc/kubernetes/manifests-multi --containerized --cluster-dns=18.1.0.1 --cluster-domain=$DNS_DOMAIN
 
-execute_and_wait "curl http://localhost:8080/version"
-execute_and_wait "curl http://localhost:8080/api/v1/nodes/127.0.0.1 | grep KubeletReady"
+execute_and_wait "sudo curl http://localhost:8080/version"
+execute_and_wait "sudo curl http://localhost:8080/api/v1/nodes/127.0.0.1 | grep KubeletReady"

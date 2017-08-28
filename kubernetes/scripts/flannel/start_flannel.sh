@@ -38,7 +38,7 @@ function execute_and_wait {
   cmd_output=$(echo $command | sh)
   cmd_code=$?
   while [ "$cmd_code" != "0" -a $retries -lt $max_retries ] ; do
-    echo "Executing $command. Wait and retry ($retries/$max_retries)"
+    #echo "Executing $command. Wait and retry ($retries/$max_retries)"
     sleep 5
     retries=$(($retries+1))
     cmd_output=$(echo $command | sh)

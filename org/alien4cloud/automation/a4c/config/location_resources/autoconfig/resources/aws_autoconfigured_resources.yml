@@ -2,6 +2,8 @@ autoconfigured:
   properties:
     cloudify_agent:
       user: ec2-user
+      
+# add some images and flavors
 
 resources:
     # Ubuntu images

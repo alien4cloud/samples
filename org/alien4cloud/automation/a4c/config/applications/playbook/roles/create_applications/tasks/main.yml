@@ -1,0 +1,70 @@
+---
+
+- set_fact:
+    file_dir: "/tmp/a4cPlaybookRegistry/{{ NODE }}/{{ INSTANCE }}/applications"
+
+- name: "Ensure <{{ file_dir }}> exists"
+  file:
+    path: "{{ file_dir }}"
+    state: directory
+
+- name: "Upload artifact {{resources_file_artifact}} on remote in {{ file_dir }}/applications.yaml"
+  copy:
+    src: "{{resources_file_artifact}}"
+    dest: "{{ file_dir }}/applications.yaml"
+
+- name: "Stat {{ file_dir }}/applications.yaml"
+  stat: path="{{ file_dir }}/applications.yaml"
+  register: applications_file
+
+- name: Slurp resources files
+  slurp:
+    src: "{{ file_dir }}/applications.yaml"
+  register: applications_slurped
+  when: applications_file.stat.exists
+
+- set_fact:
+    applications_yaml: "{{applications_slurped['content'] | b64decode | from_yaml}}"
+- debug:
+    var: applications_yaml
+
+- set_fact:
+    applications: "{{applications_yaml['applications']}}"
+- debug:
+    var: applications
+
+- debug:
+    msg: "{{item}}"
+  with_items: "{{applications}}"
+
+- name: "Login onto A4C using {{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: "Create applications using {{ alien_url }}/rest/latest/applications"
+  uri:
+    url: "{{ alien_url }}/rest/latest/applications"
+    method: POST
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      archiveName: "{{ item['archiveName'] }}"
+      description: "{{ item['description'] }}"
+      name: "{{ item['name'] }}"
+      topologyTemplateVersionId: "{{ item['topologyTemplateVersionId'] }}"
+    body_format: json
+    status_code: 201
+  register: result
+  with_items: "{{applications}}"
+
+- debug:
+    var: result

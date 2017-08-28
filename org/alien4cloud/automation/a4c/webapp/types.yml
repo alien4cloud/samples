@@ -112,6 +112,8 @@ node_types:
             TRUST_STORE_PATH: { get_property: [SELF, consul, trust_store_path] }
             KEYSTORE_PWD: { get_property: [SELF, consul, keystore_pwd] }
             SERVER_PROTOCOL: { get_property: [SELF, rest, protocol] }
+            ADMIN_USERNAME: { get_property: [SELF, rest, user] }
+            ADMIN_PASSWORD: { get_property: [SELF, rest, password] }
             CA_PASSPHRASE: { get_property: [SELF, ca_passphrase] }
           implementation: scripts/alien/config_alien.sh
         start:

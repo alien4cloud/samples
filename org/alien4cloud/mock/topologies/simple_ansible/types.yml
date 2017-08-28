@@ -12,7 +12,7 @@ imports:
   - org.alien4cloud.mock.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.mock.ansible:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0
 
 topology_template:
   inputs:

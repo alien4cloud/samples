@@ -1,0 +1,230 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.topologies.cfy411_aws
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: |
+  A Cloudify 4.1.1 manager configured for AWS (with Ansible) and a Hostpool.
+  Also embed a HostpoolFeeder that can instanciate EC2 instances and feed the hostpool.
+  Has been tested on a Centos ami-1f5dfe6c (t2.large).
+
+imports:
+  - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.mgmtworker.tasks-py:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0
+
+topology_template:
+  inputs:
+    aws_region:
+      type: string
+      required: true
+      default: "eu-west-1"
+      description: "The aws region to use to start aws instances."
+    aws_access_key:
+      type: string
+      required: true
+      description: "The aws access key of the account to use to start aws instances."
+    aws_secret_key:
+      type: string
+      required: true
+      description: "The aws secret key of the account to use to start aws instances."
+    aws_keypair_name:
+      type: string
+      required: false
+      description: "Optional name of the key as known by the iaas (in case of iaas key)."
+    agent_security_groups:
+      type: string
+      required: true
+      default: "sg-cffd98b6"
+      description: "Comma separated list of security groups to use for agents."
+    instance_name:
+      type: string
+      required: true
+      default: HostpoolInstance
+      description: "The AWS instance name"
+    aws_key_content:
+      type: string
+      required: true
+      description: "The AWS key"
+    component_version:
+      type: version
+      required: false
+      description: "The optional software component’s version."
+  input_artifacts:
+    key_file:
+        type: tosca.artifacts.File
+    hostpool_service_archive:
+        type: tosca.artifacts.File
+  substitution_mappings:
+    node_type: org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService
+    capabilities:
+      cloudify_api_v3: [ CloudifyManager, cloudify_api_v3 ]
+      cloudify_hostpool: [ HostPool, cloudify_hostpool ]
+  node_templates:
+    CloudifyManager:
+      type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyManager
+      properties:
+        ssh_user: "ec2-user"
+        ssh_key_filename: "aws-key.pem"
+        keypair_name: { get_input: aws_keypair_name }
+        agents_user: ubuntu
+        component_version: "4.1.1"
+      requirements:
+        - host:
+            node: _CfyCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        rabbitmq_management:
+          properties:
+            user: cloudify
+            password: c10udify
+            protocol: http
+            port: 15672
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        postgresql:
+          properties:
+            user: cloudify
+            password: cloudify
+            protocol: tcp
+            port: 5432
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        diamond_collector:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        cloudify_api_v3:
+          properties:
+            admin_username: admin
+            admin_password: admin
+            protocol: https
+            port: 443
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+      artifacts:
+        key_file:
+          file: { get_input_artifact: key_file }
+          type: tosca.artifacts.File
+    CloudifyAwsConfiguration:
+      type: org.alien4cloud.automation.cloudify.manager.v4.nodes.CloudifyAwsConfiguration
+      properties:
+        aws_access_key: { get_input: aws_access_key }
+        aws_secret_key: { get_input: aws_secret_key }
+        aws_region: { get_input: aws_region }
+        agent_security_groups: { get_input: agent_security_groups }
+      requirements:
+        - cfy_manager:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+            relationship: tosca.relationships.HostedOn
+    Ansible4CloudifyManager:
+      type: org.alien4cloud.automation.cloudify.ansible.nodes.Ansible4CloudifyManager
+      properties:
+        component_version: "2.0.1.0"
+      requirements:
+        - host:
+            node: _CfyCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    HostPool:
+      type: org.alien4cloud.automation.cloudify.hostpool.service.nodes.HostPool
+      properties:
+        homedir: "/opt/cloudify-hostpool-service"
+        user: cfyhostpool
+        group: cfyhostpool
+        data_path: "/opt/cloudify-hostpool-service-shared"
+      requirements:
+        - host:
+            node: _CfyCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        cloudify_hostpool:
+          properties:
+            protocol: http
+            port: 8080
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+      artifacts:
+        archive:
+          file: { get_input_artifact: hostpool_service_archive }
+          type: tosca.artifacts.File
+    AWSHostpoolFeeder:
+      type: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.nodes.AWSHostpoolFeeder
+      properties:
+        aws_access_key: { get_input: aws_access_key }
+        aws_secret_key: { get_input: aws_secret_key }
+        key_name: { get_input: aws_keypair_name }
+        key_content: { get_input: aws_key_content }
+        region: "eu-west-1"
+        instance_groups: { get_input: agent_security_groups }
+        instance_username: ubuntu
+        instance_type: "t2.nano"
+        instance_image: "ami-47a23a30"
+        instance_count: 0
+        host_per_instance: 1
+        instance_name: { get_input: instance_name }
+        instance_os: linux
+      requirements:
+        - hostpool:
+            node: HostPool
+            capability: org.alien4cloud.automation.cloudify.hostpool.pub.capabilities.HostPoolServiceApi
+            relationship: org.alien4cloud.automation.cloudify.hostpool.awsfeeder.relationships.HostpoolFeederConnectToHostpool
+        - host:
+            node: _CfyCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    _CfyCompute:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            num_cpus: 2
+            mem_size: "4 GIB"
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: centos
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    PatchMgmtworkTasksPy:
+      type: org.alien4cloud.automation.cloudify.patches.patch_mgmtworker.nodes.PatchMgmtworkTasksPy
+      requirements:
+        - cfy_manager:
+            node: CloudifyManager
+            capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyManagerContainer
+            relationship: tosca.relationships.HostedOn
+  outputs:
+    CloudifyManager_manager_url:
+      value: { get_attribute: [ CloudifyManager, manager_url ] }

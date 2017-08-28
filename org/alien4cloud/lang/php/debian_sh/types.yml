@@ -1,0 +1,44 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.lang.php.debian_sh
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: This archive contains debian installation of php.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.lang.php.pub:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.lang.php.debian_sh.nodes.PHP:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: PHP install through apt-get.
+    metadata:
+      icon: /images/php.png
+    properties:
+      component_version:
+        type: version
+        default: 5
+        constraints:
+          - equal: 5
+    capabilities:
+      runtime:
+        type: org.alien4cloud.lang.php.pub.capabilities.Runtime
+    requirements:
+      - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ debian, ubuntu, knoppix ] }
+    interfaces:
+      Standard:
+        create: scripts/install_php.sh

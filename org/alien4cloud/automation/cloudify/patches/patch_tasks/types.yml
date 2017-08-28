@@ -1,0 +1,28 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.cloudify.patches.mgmtworker.tasks-py
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Patch tasks.py
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:1.4.0
+  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.pub:1.4.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.automation.cloudify.patches.patch_mgmtworker.nodes.PatchMgmtworkTasksPy:
+    derived_from: org.alien4cloud.automation.cloudify.patches.pub.nodes.CloudifyPatch
+    description: |
+      Patch /opt/mgmtworker/env/lib/python2.7/site-packages/script_runner/tasks.py to fix the temporary folder deletion.
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: create.yml
+          implementation: playbook/playbook.ansible

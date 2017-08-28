@@ -12,7 +12,7 @@ imports:
   - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
 
 node_types:
-  org.alien4cloud.nodes.Apache:
+  org.alien4cloud.www.apache.linux_sh.Apache:
     derived_from: org.alien4cloud.www.apache.pub.nodes.Apache
     properties:
       component_version:

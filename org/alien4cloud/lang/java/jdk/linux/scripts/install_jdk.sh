@@ -35,7 +35,7 @@ download () {
     O_FLAG="-O"
     LINK_FLAG=""
   elif [ "$DOWNLOADER" = "curl" ];then
-    Q_FLAG="-ks"
+    Q_FLAG="-kLs"
     O_FLAG="-o"
     LINK_FLAG="-O"
   fi

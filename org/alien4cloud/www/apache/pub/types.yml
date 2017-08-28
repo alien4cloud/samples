@@ -16,8 +16,6 @@ node_types:
     description: >
       The TOSCA Apache Node Type represents an apache component
       that can be managed and run by a TOSCA Compute Node Type.
-    # capabilities:
-    #   host: org.alien4cloud.www.apache.pub.capabilities.ApacheContainer
     attributes:
       apache_url: { concat: [get_property: [SELF, data_endpoint, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, data_endpoint, port], "/"] }
     metadata:
@@ -38,9 +36,6 @@ node_types:
     description: >
       The TOSCA WebApplication node represents a software application that can be managed and run by a TOSCA WebServer node.
       Specific types of web applications such as Java, etc. could be derived from this type.
-    # capabilities:
-    #   app_endpoint:
-    #     type: tosca.capabilities.Endpoint
     requirements:
       - host:
           capability: tosca.capabilities.Container
@@ -62,5 +57,3 @@ capability_types:
         default: 80
         constraints:
           - in_range: [ 1, 65535 ]
-#   org.alien4cloud.www.apache.pub.capabilities.ApacheContainer:
-#       derived_from: tosca.capabilities.Container

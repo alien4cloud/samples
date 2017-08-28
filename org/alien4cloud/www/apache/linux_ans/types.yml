@@ -9,7 +9,7 @@ description: This archive contains an Apache webserver node installed through an
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0
   - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
 
 node_types:
@@ -35,7 +35,7 @@ node_types:
                   properties:
                     - type: { equal: linux }
                     - architecture: { equal: x86_64 }
-                    - distribution: { valid_values: [ "red hat", "centos", "rhel" ] }
+                    - distribution: { valid_values: [ "red hat", "centos", "rhel", "debian", "ubuntu" ] }
     interfaces:
       Standard:
         create:

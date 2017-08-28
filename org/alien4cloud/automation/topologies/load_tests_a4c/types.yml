@@ -30,7 +30,7 @@ imports:
   - org.alien4cloud.automation.a4c.config.orchestrator.cfy:1.4.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0-SNAPSHOT
+  - alien-base-types:1.4.0
   - org.alien4cloud.monitoring.diamond.collectors:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
@@ -40,6 +40,7 @@ imports:
   - org.alien4cloud.automation.a4c.config.location_resources.cfy_byon:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - apache-type:1.4.0-SNAPSHOT
 
 topology_template:
   description: >
@@ -295,12 +296,10 @@ topology_template:
             capability: org.alien4cloud.automation.cloudify.manager.pub.capabilities.CloudifyAPIv3
             relationship: org.alien4cloud.automation.cloudify.config.offline_plugin.relationships.ConnectsToCfy
       capabilities:
-        app_endpoint:  input_artifacts:
-    hostpool_service_archive:
-        type: tosca.artifacts.Filep
-            secure: false
-            network_name: PRIVATE
-            initiator: source
+        app_endpoint:
+          secure: false
+          network_name: PRIVATE
+          initiator: source
     Apache:
       type: org.alien4cloud.nodes.Apache
       properties:

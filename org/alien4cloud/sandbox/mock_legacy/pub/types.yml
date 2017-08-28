@@ -1,0 +1,108 @@
+tosca_definitions_version: alien_dsl_1_2_0
+
+template_name: org.alien4cloud.mock.pub
+template_version: 1.3.4-SNAPSHOT
+template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+
+description: >
+  Mock types for A4C load tests.
+
+node_types:
+
+  org.alien4cloud.mock.pub.nodes.AbstractMock:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      duration:
+        type: integer
+        description: |
+          The total duration for all operations (create, configure, start) in seconds.
+          Each one is pondered in implementation.
+        required: true
+        default: 120
+      variation:
+        type: integer
+        description: |
+          The variation percent.
+          20 means 20% of variation. Example, with an operation duration of 100s, if the
+          variation is 20%, the duration will be randomized between 80s and 120s.
+        required: true
+        default: 20
+        constraints:
+          - in_range: [ 1, 100 ]
+      log_length:
+        type: integer
+        default: 2000
+        description: |
+          Words count in the generated logs.
+
+  org.alien4cloud.mock.pub.nodes.AbstractMockHost:
+    description: |
+      A software component that hosts MockComponent.
+    abstract: true
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMock
+    # properties:
+    #   duration:
+    #     type: integer
+    #     required: true
+    #     default: 120
+    #   variation:
+    #     type: integer
+    #     required: true
+    #     default: 20
+    #   log_length:
+    #     type: integer
+    #     default: 2000
+    capabilities:
+      host:
+        type: tosca.capabilities.Container
+  org.alien4cloud.mock.pub.nodes.AbstractMockComponent:
+    description: |
+      A software component hosted on GenericHost and that can connect to many other Generic.
+    abstract: true
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMock
+    # properties:
+    #   duration:
+    #     type: integer
+    #     required: true
+    #     default: 120
+    #   variation:
+    #     type: integer
+    #     required: true
+    #     default: 20
+    #   log_length:
+    #     type: integer
+    #     default: 2000
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - host:
+          type: tosca.capabilities.Container
+          relationship: org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost
+          occurrences: [1,1]
+      - mock_endpoint:
+          type: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+          relationship: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
+          occurrences: [0, unbounded]
+
+relationship_types:
+
+  org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost:
+    derived_from: tosca.relationships.HostedOn
+    abstract: true
+    valid_target_types: [ org.alien4cloud.mock.pub.nodes.AbstractMockHost ]
+  org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent:
+    derived_from: tosca.relationships.ConnectsTo
+    abstract: true
+    valid_target_types: [ org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint ]
+
+capability_types:
+
+  org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint:
+    derived_from: tosca.capabilities.Root
+    abstract: true

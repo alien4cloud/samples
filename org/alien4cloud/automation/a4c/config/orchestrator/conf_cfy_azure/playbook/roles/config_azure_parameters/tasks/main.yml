@@ -1,0 +1,114 @@
+- name: Login onto A4C
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    validate_certs: no
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: Get orchestrator configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
+    method: GET
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    validate_certs: no
+    status_code: 200
+  register: result
+
+- set_fact:
+    configuration: "{{ result.json.data.configuration }}"
+
+- debug:
+    var: configuration
+
+- set_fact:
+    azure_configuration: "{{ configuration.locations.azure }}"
+
+- debug:
+    var: azure_configuration
+
+- set_fact:
+    new_azure_configuration: '{  "dsl": "cloudify_dsl_1_3",
+        "imports": [
+            "http://www.getcloudify.org/spec/cloudify/4.0/types.yaml",
+            "https://raw.githubusercontent.com/cloudify-cosmo/cloudify-azure-plugin/1.4.1/plugin.yaml",
+            "http://www.getcloudify.org/spec/diamond-plugin/1.3.5/plugin.yaml"
+        ],
+"resourceGroup" : "{{ resourceGroup }}", "virtualNetwork" : "{{ virtualNetwork }}", "subnet" : "{{ subnet }}" }'
+
+- debug:
+    var: new_azure_configuration
+
+- set_fact:
+    config_fragment: '{ "locations": { "azure": {{ new_azure_configuration }} } }'
+
+- debug:
+    var: config_fragment
+
+- set_fact:
+    configuration: "{{ configuration | combine(config_fragment) }}"
+
+- debug:
+    var: configuration
+
+- name: disable orchestrator before Update
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/instance"
+    method: DELETE
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    validate_certs: no
+    status_code: 200
+
+- name: Update orchestrator configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
+    method: PUT
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    body: "{{ configuration }}"
+    body_format: json
+    validate_certs: no
+    status_code: 200
+  register: result
+
+- name: Activate orchestrator
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/instance"
+    method: POST
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    validate_certs: no
+
+- name: Wait for orchestrator to be started
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}"
+    method: GET
+    return_content: yes
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    validate_certs: no
+    status_code: 200
+  register: result
+  until: result.json.data.state == "CONNECTED"
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- set_fact:
+    orchestrator_state: "{{ result.json.data.state }}"
+
+- debug:
+    msg: "Orchestrator {{ result.json.data.id }} is in state {{ orchestrator_state }}"
+
+- fail:
+    msg: "The orchestrator # {{ cfy_user }}:{{ cfy_password }}@{{ cfy_url }} is not connected ({{ orchestrator_state }}), something went wrong !"
+  when: orchestrator_state != "CONNECTED"

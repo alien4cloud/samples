@@ -1,0 +1,200 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: demo-service-operations
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+description: |
+  Integration test archive that used to check relationship operation when using a4c services features.
+
+node_types:
+
+  org.alien4cloud.nodes.demo.ServiceType:
+    abstract: true
+    description: |
+      Represent an abstract node that will represent a service.
+    derived_from:  tosca.nodes.SoftwareComponent
+    attributes:
+      create: { get_operation_output: [SELF, Standard, create, TYPE]}
+      configure: { get_operation_output: [SELF, Standard, configure, TYPE]}
+      start: { get_operation_output: [SELF, Standard, start, TYPE]}
+      stop: { get_operation_output: [SELF, Standard, stop, TYPE]}
+      delete: { get_operation_output: [SELF, Standard, delete, TYPE]}
+      capa_pre_configure_source: { get_attribute: [SELF, offer_service, pre_configure_source]}
+      capa_pre_configure_target: { get_attribute: [SELF, offer_service, pre_configure_target]}
+      capa_post_configure_source: { get_attribute: [SELF, offer_service, post_configure_source]}
+      capa_post_configure_target: { get_attribute: [SELF, offer_service, post_configure_target]}
+      capa_add_target: { get_attribute: [SELF, offer_service, add_target]}
+      capa_add_source: { get_attribute: [SELF, offer_service, add_source]}
+      capa_remove_target: { get_attribute: [SELF, offer_service, remove_target]}
+      capa_remove_source: { get_attribute: [SELF, offer_service, remove_source]}
+      req_pre_configure_source: { get_attribute: [SELF, need_service, pre_configure_source]}
+      req_pre_configure_target: { get_attribute: [SELF, need_service, pre_configure_target]}
+      req_post_configure_source: { get_attribute: [SELF, need_service, post_configure_source]}
+      req_post_configure_target: { get_attribute: [SELF, need_service, post_configure_target]}
+      req_add_target: { get_attribute: [SELF, need_service, add_target]}
+      req_add_source: { get_attribute: [SELF, need_service, add_source]}
+      req_remove_target: { get_attribute: [SELF, need_service, remove_target]}
+      req_remove_source: { get_attribute: [SELF, need_service, remove_source]}
+    capabilities:
+      offer_service:
+        type: org.alien4cloud.capabilities.demo.ServiceDemo
+        occurrences: [0, unbounded]
+    requirements:
+      - need_service:
+          capability: org.alien4cloud.capabilities.demo.ServiceDemo
+          relationship: org.alien4cloud.relationships.demo.ConnectsTo
+          occurrences: [0, unbounded]
+
+
+  org.alien4cloud.nodes.demo.ConcreteType:
+    description: |
+      Represent a concrete type that will be related to the service.
+    derived_from: org.alien4cloud.nodes.demo.ServiceType
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            OPERATION: create
+            IP_ADDR: { get_attribute: [SELF, ip_address] }
+          implementation: scripts/standard.sh
+        configure:
+          inputs:
+            OPERATION: configure
+            IP_ADDR: { get_attribute: [SELF, ip_address] }
+          implementation: scripts/standard.sh
+        start:
+          inputs:
+            OPERATION: start
+            IP_ADDR: { get_attribute: [SELF, ip_address] }
+          implementation: scripts/standard.sh
+        stop:
+          inputs:
+            OPERATION: stop
+            IP_ADDR: { get_attribute: [SELF, ip_address] }
+          implementation: scripts/standard.sh
+        delete:
+          inputs:
+            OPERATION: delete
+            IP_ADDR: { get_attribute: [SELF, ip_address] }
+          implementation: scripts/standard.sh
+
+
+relationship_types:
+  org.alien4cloud.relationships.demo.Relationship:
+    description: |
+      Defines common definitions for our test.
+    derived_from: tosca.relationships.ConnectsTo
+    abstract: true
+    valid_target_types: [ org.alien4cloud.capabilities.demo.ServiceDemo ]
+    attributes:
+      pre_configure_source: { get_operation_output: [SELF, configure, pre_configure_source, TYPE]}
+      pre_configure_target: { get_operation_output: [SELF, configure, pre_configure_target, TYPE]}
+      post_configure_source: { get_operation_output: [SELF, configure, post_configure_source, TYPE]}
+      post_configure_target: { get_operation_output: [SELF, configure, post_configure_target, TYPE]}
+      add_taregt: { get_operation_output: [SELF, configure, add_target, TYPE]}
+      add_source: { get_operation_output: [SELF, configure, add_source, TYPE]}
+      remove_target: { get_operation_output: [SELF, configure, remove_target, TYPE]}
+      remove_source: { get_operation_output: [SELF, configure, remove_source, TYPE]}
+
+  org.alien4cloud.relationships.demo.ConnectsTo:
+    description: |
+      This is the default relationship to use between 2 concrete nodes.
+    derived_from: org.alien4cloud.relationships.demo.Relationship
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:
+            OPERATION: pre_configure_source
+            RELATIONSHIP_TYPE: default
+          implementation: scripts/relationship.sh
+        pre_configure_target:
+          inputs:
+            OPERATION: pre_configure_target
+            RELATIONSHIP_TYPE: default
+          implementation: scripts/relationship.sh
+        post_configure_source:
+          inputs:
+            OPERATION: post_configure_source
+            RELATIONSHIP_TYPE: default
+          implementation: scripts/relationship.sh
+        post_configure_target:
+          inputs:
+            OPERATION: post_configure_target
+            RELATIONSHIP_TYPE: default
+          implementation: scripts/relationship.sh
+        add_target:
+          inputs:
+            OPERATION: add_target
+            RELATIONSHIP_TYPE: default
+          implementation: scripts/relationship.sh
+        add_source:
+          inputs:
+            OPERATION: add_source
+            RELATIONSHIP_TYPE: default
+          implementation: scripts/relationship.sh
+        remove_target:
+          inputs:
+            OPERATION: remove_target
+            RELATIONSHIP_TYPE: default
+          implementation: scripts/relationship.sh
+        remove_source:
+          inputs:
+            OPERATION: remove_source
+            RELATIONSHIP_TYPE: default
+          implementation: scripts/relationship.sh
+
+  org.alien4cloud.relationships.demo.OverridedConnectsTo:
+    description: |
+      This is the default relationship to use when connecting a concrete node to a service.
+    derived_from: org.alien4cloud.relationships.demo.Relationship
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:
+            OPERATION: pre_configure_source
+            RELATIONSHIP_TYPE: overrided
+          implementation: scripts/relationship.sh
+        pre_configure_target:
+          inputs:
+            OPERATION: pre_configure_target
+            RELATIONSHIP_TYPE: overrided
+          implementation: scripts/relationship.sh
+        post_configure_source:
+          inputs:
+            OPERATION: post_configure_source
+            RELATIONSHIP_TYPE: overrided
+          implementation: scripts/relationship.sh
+        post_configure_target:
+          inputs:
+            OPERATION: post_configure_target
+            RELATIONSHIP_TYPE: overrided
+          implementation: scripts/relationship.sh
+        add_target:
+          inputs:
+            OPERATION: add_target
+            RELATIONSHIP_TYPE: overrided
+          implementation: scripts/relationship.sh
+        add_source:
+          inputs:
+            OPERATION: add_source
+            RELATIONSHIP_TYPE: overrided
+          implementation: scripts/relationship.sh
+        remove_target:
+          inputs:
+            OPERATION: remove_target
+            RELATIONSHIP_TYPE: overrided
+          implementation: scripts/relationship.sh
+        remove_source:
+          inputs:
+            OPERATION: remove_source
+            RELATIONSHIP_TYPE: overrided
+          implementation: scripts/relationship.sh
+
+capability_types:
+  org.alien4cloud.capabilities.demo.ServiceDemo:
+    derived_from: tosca.capabilities.Root

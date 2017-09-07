@@ -18,28 +18,6 @@ node_types:
     description: |
       Represent an abstract node that will represent a service.
     derived_from:  tosca.nodes.SoftwareComponent
-    attributes:
-      create: { get_operation_output: [SELF, Standard, create, TYPE]}
-      configure: { get_operation_output: [SELF, Standard, configure, TYPE]}
-      start: { get_operation_output: [SELF, Standard, start, TYPE]}
-      stop: { get_operation_output: [SELF, Standard, stop, TYPE]}
-      delete: { get_operation_output: [SELF, Standard, delete, TYPE]}
-      capa_pre_configure_source: { get_attribute: [SELF, offer_service, pre_configure_source]}
-      capa_pre_configure_target: { get_attribute: [SELF, offer_service, pre_configure_target]}
-      capa_post_configure_source: { get_attribute: [SELF, offer_service, post_configure_source]}
-      capa_post_configure_target: { get_attribute: [SELF, offer_service, post_configure_target]}
-      capa_add_target: { get_attribute: [SELF, offer_service, add_target]}
-      capa_add_source: { get_attribute: [SELF, offer_service, add_source]}
-      capa_remove_target: { get_attribute: [SELF, offer_service, remove_target]}
-      capa_remove_source: { get_attribute: [SELF, offer_service, remove_source]}
-      req_pre_configure_source: { get_attribute: [SELF, need_service, pre_configure_source]}
-      req_pre_configure_target: { get_attribute: [SELF, need_service, pre_configure_target]}
-      req_post_configure_source: { get_attribute: [SELF, need_service, post_configure_source]}
-      req_post_configure_target: { get_attribute: [SELF, need_service, post_configure_target]}
-      req_add_target: { get_attribute: [SELF, need_service, add_target]}
-      req_add_source: { get_attribute: [SELF, need_service, add_source]}
-      req_remove_target: { get_attribute: [SELF, need_service, remove_target]}
-      req_remove_source: { get_attribute: [SELF, need_service, remove_source]}
     capabilities:
       offer_service:
         type: org.alien4cloud.capabilities.demo.ServiceDemo
@@ -91,15 +69,6 @@ relationship_types:
     derived_from: tosca.relationships.ConnectsTo
     abstract: true
     valid_target_types: [ org.alien4cloud.capabilities.demo.ServiceDemo ]
-    attributes:
-      pre_configure_source: { get_operation_output: [SELF, configure, pre_configure_source, TYPE]}
-      pre_configure_target: { get_operation_output: [SELF, configure, pre_configure_target, TYPE]}
-      post_configure_source: { get_operation_output: [SELF, configure, post_configure_source, TYPE]}
-      post_configure_target: { get_operation_output: [SELF, configure, post_configure_target, TYPE]}
-      add_taregt: { get_operation_output: [SELF, configure, add_target, TYPE]}
-      add_source: { get_operation_output: [SELF, configure, add_source, TYPE]}
-      remove_target: { get_operation_output: [SELF, configure, remove_target, TYPE]}
-      remove_source: { get_operation_output: [SELF, configure, remove_source, TYPE]}
 
   org.alien4cloud.relationships.demo.ConnectsTo:
     description: |

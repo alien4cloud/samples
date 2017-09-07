@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo ""
-echo "${RELATIONSHIP_TYPE}_${OPERATION}"
+echo "Executing relationship operation: ${RELATIONSHIP_TYPE}_${OPERATION}"
 echo ""
 env | sort
 

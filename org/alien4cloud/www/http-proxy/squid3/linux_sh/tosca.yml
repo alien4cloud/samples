@@ -1,0 +1,66 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.www.squid
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: |
+  Install Squid3, an HTTP proxy server.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.www.http-proxy.pub:1.4.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.www.http-proxy.squid3.linux_sh.Squid3:
+    derived_from: org.alien4cloud.www.http-proxy.pub.nodes.HttpProxy
+    description: |
+      This TOSCA type represents a Squid3 http proxy server.
+    attributes:
+      http_proxy: { concat: [get_property: [SELF, proxy_endpoint, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, proxy_endpoint, port], "/"] }
+    properties:
+      component_version:
+        type: version
+        default: 3.3.8
+        constraints:
+          - equal: 3.3.8
+      username:
+        type: string
+        default: squid
+      password:
+        type: string
+        default: squid
+    metadata:
+      icon: images/icon.jpg
+    requirements:
+      - host: # Overrides the parent host requirement to add a specific node_filter and add OS constraints as Impl is based on apt and so restricted to debian.
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [1, 1]
+          node_filter:
+            capabilities:
+              - tosca.capabilities.OperatingSystem:
+                  properties:
+                    - type: { equal: linux }
+                    - architecture: { equal: x86_64 }
+                    - distribution: { valid_values: [ "ubuntu", "debian" ] }
+    artifacts:
+      - squid_conf_file:
+          file: conf/squid.conf
+          type: tosca.artifacts.File
+          description: This is the configuration file of /etc/squid/squid.conf
+    interfaces:
+      Standard:
+        create: scripts/install_squid3.sh
+        configure: 
+          inputs: 
+            USERNAME: { get_property: [SELF, username] }
+            PASSWORD: { get_property: [SELF, password] }
+            HTTP_PORT: { get_property: [SELF, proxy_endpoint, port] }
+          implementation: scripts/configure_squid3.sh
+        start: scripts/start_squid3.sh
+        stop: scripts/stop_squid3.sh
+        delete: scripts/uninstall_squid3.sh

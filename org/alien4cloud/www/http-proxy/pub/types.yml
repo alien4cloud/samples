@@ -1,0 +1,37 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.www.http-proxy.pub
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+
+node_types:
+
+  org.alien4cloud.www.http-proxy.pub.nodes.HttpProxy:
+    derived_from: tosca.nodes.SoftwareComponent
+    abstract: true
+    description: >
+      The TOSCA Apache Node Type represents an apache component
+      that can be managed and run by a TOSCA Compute Node Type.
+    attributes:
+      apache_url: { concat: [get_property: [SELF, data_endpoint, protocol], "://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, data_endpoint, port], "/"] }
+    capabilities:
+      proxy_endpoint: org.alien4cloud.www.http-proxy.pub.capabilities.HttpProxyEndpoint
+
+capability_types:
+  org.alien4cloud.www.http-proxy.pub.capabilities.HttpProxyEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      protocol:
+        type: string
+        default: http
+      port:
+        type: integer
+        description: The port of the endpoint.
+        required: true
+        default: 3128
+        constraints:
+          - in_range: [ 1, 65535 ]

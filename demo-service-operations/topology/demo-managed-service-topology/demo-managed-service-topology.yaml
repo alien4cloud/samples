@@ -1,0 +1,42 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: demo-managed-service-topology
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: "A topology to deploy a managed service by alien4cloud"
+
+imports:
+  - demo-service-operations:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+
+topology_template:
+  substitution_mappings:
+    node_type: org.alien4cloud.nodes.demo.ServiceType
+    capabilities:
+      offer_service: [ ManagedService, offer_service, org.alien4cloud.relationships.demo.OverridedConnectsTo ]
+    requirements:
+      need_service: [ ManagedService, need_service, org.alien4cloud.relationships.demo.OverridedConnectsTo ]
+  node_templates:
+    ManagedService:
+      type: org.alien4cloud.nodes.demo.ConcreteType
+      requirements:
+        - host:
+            node: ManagedServiceCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    ManagedServiceCompute:
+      type: tosca.nodes.Compute
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source

@@ -1,0 +1,49 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: demo-service-op-topology
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: "A topology to test the relation's operations when using a service"
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - demo-service-operations:1.4.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    ServiceSource:
+      type: org.alien4cloud.nodes.demo.ServiceType
+      requirements:
+        - need_service:
+            node: ConcreteType
+            capability: org.alien4cloud.capabilities.demo.ServiceDemo
+            relationship: org.alien4cloud.relationships.demo.ConnectsTo
+    ServiceTarget:
+      type: org.alien4cloud.nodes.demo.ServiceType
+    ConcreteType:
+      type: org.alien4cloud.nodes.demo.ConcreteType
+      requirements:
+        - host:
+            node: ConcreteTypeCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+        - need_service:
+            node: ServiceTarget
+            capability: org.alien4cloud.capabilities.demo.ServiceDemo
+            relationship: org.alien4cloud.relationships.demo.ConnectsTo
+    ConcreteTypeCompute:
+      type: tosca.nodes.Compute
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source

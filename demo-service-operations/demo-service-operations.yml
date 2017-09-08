@@ -117,7 +117,7 @@ relationship_types:
             RELATIONSHIP_TYPE: default
           implementation: scripts/relationship.sh
 
-  org.alien4cloud.relationships.demo.OverridedConnectsTo:
+  org.alien4cloud.relationships.demo.OverriddenConnectsTo:
     description: |
       This is the default relationship to use when connecting a concrete node to a service.
     derived_from: org.alien4cloud.relationships.demo.Relationship
@@ -126,42 +126,42 @@ relationship_types:
         pre_configure_source:
           inputs:
             OPERATION: pre_configure_source
-            RELATIONSHIP_TYPE: overrided
+            RELATIONSHIP_TYPE: overridden
           implementation: scripts/relationship.sh
         pre_configure_target:
           inputs:
             OPERATION: pre_configure_target
-            RELATIONSHIP_TYPE: overrided
+            RELATIONSHIP_TYPE: overridden
           implementation: scripts/relationship.sh
         post_configure_source:
           inputs:
             OPERATION: post_configure_source
-            RELATIONSHIP_TYPE: overrided
+            RELATIONSHIP_TYPE: overridden
           implementation: scripts/relationship.sh
         post_configure_target:
           inputs:
             OPERATION: post_configure_target
-            RELATIONSHIP_TYPE: overrided
+            RELATIONSHIP_TYPE: overridden
           implementation: scripts/relationship.sh
         add_target:
           inputs:
             OPERATION: add_target
-            RELATIONSHIP_TYPE: overrided
+            RELATIONSHIP_TYPE: overridden
           implementation: scripts/relationship.sh
         add_source:
           inputs:
             OPERATION: add_source
-            RELATIONSHIP_TYPE: overrided
+            RELATIONSHIP_TYPE: overridden
           implementation: scripts/relationship.sh
         remove_target:
           inputs:
             OPERATION: remove_target
-            RELATIONSHIP_TYPE: overrided
+            RELATIONSHIP_TYPE: overridden
           implementation: scripts/relationship.sh
         remove_source:
           inputs:
             OPERATION: remove_source
-            RELATIONSHIP_TYPE: overrided
+            RELATIONSHIP_TYPE: overridden
           implementation: scripts/relationship.sh
 
 capability_types:

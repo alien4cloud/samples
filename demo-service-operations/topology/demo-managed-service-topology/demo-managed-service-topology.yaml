@@ -15,9 +15,9 @@ topology_template:
   substitution_mappings:
     node_type: org.alien4cloud.nodes.demo.ServiceType
     capabilities:
-      offer_service: [ ManagedService, offer_service, org.alien4cloud.relationships.demo.OverridedConnectsTo ]
+      offer_service: [ ManagedService, offer_service, org.alien4cloud.relationships.demo.OverriddenConnectsTo ]
     requirements:
-      need_service: [ ManagedService, need_service, org.alien4cloud.relationships.demo.OverridedConnectsTo ]
+      need_service: [ ManagedService, need_service, org.alien4cloud.relationships.demo.OverriddenConnectsTo ]
   node_templates:
     ManagedService:
       type: org.alien4cloud.nodes.demo.ConcreteType

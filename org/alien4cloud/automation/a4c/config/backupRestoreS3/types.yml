@@ -1,0 +1,95 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.a4c.config.BackupRestoreS3
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.cloud.amazon.cli.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+
+relationship_types:
+  org.alien4cloud.automation.a4c.config.backupRestoreS3.relationships.BackupRestoreS3DependsOnAwsCli:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [org.alien4cloud.cloud.amazon.cli.pub.capabilities.AwsCli]
+
+node_types:
+  org.alien4cloud.automation.a4c.config.backupRestoreS3.nodes.BackupRestoreS3:
+    derived_from: org.alien4cloud.automation.a4c.pub.nodes.AlienConfigurator
+    description: |
+      Backup and Restore alien4cloud.
+    requirements:
+      - aws_cli:
+          capability: org.alien4cloud.cloud.amazon.cli.pub.capabilities.AwsCli
+          occurrences: [1, 1]
+          relationship: org.alien4cloud.automation.a4c.config.backupRestoreS3.relationships.BackupRestoreS3DependsOnAwsCli
+
+    properties:
+      alien_init:
+        type: string
+        required: false
+      es_init:
+        type: string
+        required: false
+      aws_access_key:
+        type: string
+        required: true
+      aws_secret_key:
+        type: string
+        required: true
+      region:
+        type: string
+        required: true
+        default: eu-west-1
+      s3_url:
+        type: string
+        required: true
+        default: s3://a4c-demo
+
+    interfaces:
+      Standard:
+        configure:
+          inputs:
+            AWS_ACCESS_KEY: { get_property: [SELF, aws_access_key] }
+            AWS_SECRET_KEY: { get_property: [SELF, aws_secret_key] }
+            REGION: { get_property: [SELF, region] }
+          implementation: scripts/aws_credentials_config.sh
+        start:
+          inputs:
+            ALIEN_INIT_FILE: { get_property: [SELF, alien_init] }
+            ES_INIT_FILE: { get_property: [SELF, es_init] }
+            AWS_ACCESS_KEY: { get_property: [SELF, aws_access_key] }
+            AWS_SECRET_KEY: { get_property: [SELF, aws_secret_key] }
+            REGION: { get_property: [SELF, region] }
+            S3_URL: { get_property: [SELF, s3_url] }
+            DATA_DIR: { get_property: [HOST, data_dir] }
+          implementation: scripts/init.sh
+      backup:
+        execute:
+          inputs:
+            TAG_NAME:
+              required: true
+              type: string
+            AWS_ACCESS_KEY: { get_property: [SELF, aws_access_key] }
+            AWS_SECRET_KEY: { get_property: [SELF, aws_secret_key] }
+            REGION: { get_property: [SELF, region] }
+            S3_URL: { get_property: [SELF, s3_url] }
+            DATA_DIR: { get_property: [HOST, data_dir] }
+          implementation: scripts/backup.sh
+      restore:
+        execute:
+          inputs:
+            ALIEN_BACKUP_NAME:
+              required: true
+              type: string
+            ES_SNAPSHOT:
+              required: true
+              type: string
+            AWS_ACCESS_KEY: { get_property: [SELF, aws_access_key] }
+            AWS_SECRET_KEY: { get_property: [SELF, aws_secret_key] }
+            REGION: { get_property: [SELF, region] }
+            S3_URL: { get_property: [SELF, s3_url] }
+            DATA_DIR: { get_property: [HOST, data_dir] }
+          implementation: scripts/restore.sh

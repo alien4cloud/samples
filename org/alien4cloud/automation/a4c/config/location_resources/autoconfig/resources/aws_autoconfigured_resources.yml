@@ -1,0 +1,203 @@
+autoconfigured:
+  properties:
+    cloudify_agent:
+      user: ec2-user
+      
+# add some images and flavors
+
+resources:
+    # Ubuntu images
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "Ubuntu.14.04"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-ed82e39e
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu
+            version: 14.04
+
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "Ubuntu.16.04"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-71682a02
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu
+            version: 16.04
+
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "Ubuntu.12.04"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-4313c734
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: ubuntu
+            version: 12.04
+    # Centos images
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "Centos.7.0"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-7abd0209
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: centos
+            version: 7.0
+
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "Centos.6.8"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-c388d7a5
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: centos
+            version: 6.8
+
+    # RedHat images
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "RedHat.7"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-462b1320
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: redhat
+            version: 7
+
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "RedHat.6"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-cfc448bc
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: redhat
+            version: 6
+
+    # Windows images
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "WindowsServer.2012.R2"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-14d89a63
+      capabilities:
+        os:
+          properties:
+            type: windows
+            architecture: x86_64
+            distribution: windows server 2012
+            version: 2012
+
+    - resourceType: "alien.cloudify.aws.nodes.Image"
+      resourceName: "WindowsServer.2016"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      properties:
+        id: ami-c08f8da6
+      capabilities:
+        os:
+          properties:
+            type: windows
+            architecture: x86_64
+            distribution: windows server 2016
+            version: 2016
+    # Flavors
+    - resourceType: "alien.cloudify.aws.nodes.InstanceType"
+      resourceName: "t2.nano ($0.0063)"
+      archiveName: "cloudify-amazon-types"
+      archiveVersion: "1.4.0"
+      properties:
+        id: t2.nano
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            mem_size: 1 GIB
+
+    - resourceType: "alien.cloudify.aws.nodes.InstanceType"
+      resourceName: "t2.small ($0.025)"
+      archiveName: "cloudify-amazon-types"
+      archiveVersion: "1.4.0"
+      properties:
+        id: t2.small
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            mem_size: 2 GIB
+
+    - resourceType: "alien.cloudify.aws.nodes.InstanceType"
+      resourceName: "t2.medium ($0.05)"
+      archiveName: "cloudify-amazon-types"
+      archiveVersion: "1.4.0"
+      properties:
+        id: t2.medium
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            mem_size: 4 GIB
+
+    - resourceType: "alien.cloudify.aws.nodes.InstanceType"
+      resourceName: "t2.large ($0.101)"
+      archiveName: "cloudify-amazon-types"
+      archiveVersion: "1.4.0"
+      properties:
+        id: t2.large
+      capabilities:
+        host:
+          properties:
+            num_cpus: 2
+            mem_size: 8 GIB
+
+    - resourceType: "alien.cloudify.aws.nodes.InstanceType"
+      resourceName: "t2.xlarge ($0.202)"
+      archiveName: "cloudify-amazon-types"
+      archiveVersion: "1.4.0"
+      properties:
+        id: t2.xlarge
+      capabilities:
+        host:
+          properties:
+            num_cpus: 4
+            mem_size: 16 GIB
+
+      # Network
+    - resourceType: "alien.nodes.aws.PublicNetwork"
+      resourceName: "Public Network"
+      archiveName: cloudify-amazon-types
+      archiveVersion: 1.4.0
+      id: "alien.nodes.aws.PublicNetwork:1.4.0"

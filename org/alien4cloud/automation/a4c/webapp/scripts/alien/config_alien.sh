@@ -13,6 +13,9 @@ sudo sed -i -e "s@alien\: \(.*\)@alien\: ${DATA_DIR}@g" ${A4C_CONFIG}
 sudo sed -i -e "s/port\: \(.*\)/port\: $ALIEN_PORT/g" ${A4C_CONFIG}
 # set the alien protocol
 sudo sed -i -e "s/serverProtocol\: \(.*\)/serverProtocol\: $SERVER_PROTOCOL/g" ${A4C_CONFIG}
+# set the admin password
+sudo sed -i "s/password: admin/password: ${ADMIN_PASSWORD}/g" ${A4C_CONFIG}
+sudo sed -i "s/username: admin/username: ${ADMIN_USERNAME}/g" ${A4C_CONFIG}
 
 if [ "$SERVER_PROTOCOL" == "https" ]; then
   echo "Activating ssl endpoint for Alien webapp"
@@ -114,3 +117,9 @@ else
   echo "A4C is not connected to Consul, desactivate HA"
   sudo sed -i -e "s/ha_enabled\: \(.*\)/ha_enabled\: false/g" ${A4C_CONFIG}
 fi
+################## a4c service ###############################
+
+sudo bash -c "sed -e 's/\\\${APP_ARGS}/${APP_ARGS}/' $bin/alien.sh > /etc/init.d/alien"
+sudo chmod +x /etc/init.d/alien
+
+sudo update-rc.d alien defaults 95 10

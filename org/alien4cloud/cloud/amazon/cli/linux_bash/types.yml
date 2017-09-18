@@ -1,0 +1,40 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.cloud.amazon.cli.linux_bash
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.cloud.amazon.cli.pub:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.cloud.amazon.cli.linux_bash.nodes.AwsCli:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: |
+      install aws cli.
+    tags:
+      icon: /images/aws.png
+    properties:
+      access_key:
+        type: string
+        required: false
+      secret_key:
+        type: string
+        required: false
+      region:
+        type: string
+        default: eu-west-1
+    capabilities:
+      aws_cli:
+        type: org.alien4cloud.cloud.amazon.cli.pub.capabilities.AwsCli
+        occurrences: [0, UNBOUNDED]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            AWS_ACCESS_KEY_ID: { get_property: [SELF, access_key] }
+            AWS_SECRET_ACCESS_KEY: { get_property: [SELF, secret_key] }
+            AWS_REGION: { get_property: [SELF, region] }
+          implementation: scripts/install_aws_cli.sh

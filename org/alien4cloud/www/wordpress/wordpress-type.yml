@@ -1,0 +1,86 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloudorg.www.wordpress
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: Wordpress TOSCA node type to be hosted on an apache webserver.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloudorg.www.apache:1.4.0-SNAPSHOT
+  - mysql-type:1.4.0-SNAPSHOT
+  - php-type:1.4.0-SNAPSHOT
+
+node_types:
+  org.alien4cloud.www.wordpress.nodes.Wordpress:
+    derived_from: tosca.nodes.WebApplication
+    description: The TOSCA Wordpress Node Type represents a Wordpress CMS.
+    metadata:
+      icon: /images/wordpress.png
+    properties:
+      zip_url:
+        type: string
+        default: "https://wordpress.org/latest.zip"
+      context_root:
+        type: string
+        default: "/"
+    attributes:
+      max_user_number:
+        type: integer
+        default: 10
+        description: Max user number
+      wordpress_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [HOST, port], get_property: [SELF, context_root] ] }
+    requirements:
+      - host:
+          capability: org.alien4cloud.capabilities.ApacheContainer
+          relationship: org.alien4cloud.relationships.WordpressHostedOnApache
+      - database:
+          capability: org.alien4cloud.capabilities.MysqlDatabaseEndpoint
+          relationship: org.alien4cloud.relationships.WordpressConnectToMysql
+          occurrences: [1, 1]
+      - php:
+          capability: org.alien4cloud.capabilities.PHPModule
+          relationship: org.alien4cloud.relationships.WordpressConnectToPHP
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            WEBFILE_URL: { get_property: [SELF, zip_url] }
+          implementation: scripts/install_wordpress.sh
+
+relationship_types:
+  org.alien4cloud.relationships.WordpressHostedOnApache:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship use to describe that the website is deployed on the target Apache server.
+    valid_target_types: [ org.alien4cloud.capabilities.ApacheContainer ]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            CONTEXT_ROOT: { get_property: [SOURCE, context_root] }
+            DOC_ROOT: { get_property: [TARGET, document_root] }
+          implementation: scripts/config_wordpress.sh
+  org.alien4cloud.relationships.WordpressConnectToMysql:
+    derived_from: tosca.relationships.ConnectsTo
+    description: Relationship use to connect the Wordpress with a Mysql databse
+    valid_target_types: [ org.alien4cloud.capabilities.MysqlDatabaseEndpoint ]
+    interfaces:
+      Configure:
+          pre_configure_source:
+            inputs:
+              DB_IP: { get_attribute: [TARGET, ip_address] }
+              DB_PORT: { get_property: [TARGET, port] }
+              DB_NAME: { get_property: [TARGET, name] }
+              DB_USER: { get_property: [TARGET, db_user] }
+              DB_PASSWORD: { get_property: [TARGET, db_password] }
+            implementation: scripts/config_wordpress_for_mysql.sh
+  org.alien4cloud.relationships.WordpressConnectToPHP:
+    derived_from: tosca.relationships.ConnectsTo
+    description: Relationship use to install the Mysql module for PHP
+    valid_target_types: [ org.alien4cloud.capabilities.PHPModule ]
+    interfaces:
+      Configure:
+          pre_configure_source: scripts/install_php_module.sh

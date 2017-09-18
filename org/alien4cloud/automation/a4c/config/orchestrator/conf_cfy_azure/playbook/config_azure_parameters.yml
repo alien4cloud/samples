@@ -1,0 +1,8 @@
+---
+- hosts: all
+  name: Connect to cfy manager
+  become: true
+
+  roles:
+    #- setup
+    - config_azure_parameters

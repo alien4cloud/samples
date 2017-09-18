@@ -1,0 +1,40 @@
+autoconfigured:
+  properties:
+    user: azureuser
+    configuration:
+      pubkey_auth_only: "true"
+      public_keys:
+        - path: "/home/azureuser/.ssh/authorized_keys"
+          keyData: "your public key"
+resources:
+    # RedHat images
+    - resourceType: "alien.cloudify.azure.nodes.Image"
+      resourceName: "RedHat7.3"
+      archiveName: cloudify-azure-types
+      archiveVersion: 1.4.0
+      properties:
+        id:
+          publisher: RedHat
+          offer: RHEL
+          sku: "7.3"
+          version: latest
+
+      capabilities:
+        os:
+          properties:
+            type: linux
+            architecture: x86_64
+            distribution: redhat
+            version: 7.3
+    # Flavors
+    - resourceType: "alien.cloudify.azure.nodes.hardwareProfile"
+      resourceName: "Standard_A2"
+      archiveName: "cloudify-azure-types"
+      archiveVersion: "1.4.0"
+      properties:
+        id: Standard_A2
+      capabilities:
+        host:
+          properties:
+            num_cpus: 1
+            mem_size: 1 GIB

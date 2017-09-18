@@ -1,0 +1,37 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.automation.a4c.config.applications
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - alien-base-types:1.4.0
+  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+
+relationship_types:
+  org.alien4cloud.automation.a4c.config.applications.relationships.AddApplicationsDependsOnCsar:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [org.alien4cloud.automation.a4c.config.csar]
+
+node_types:
+  org.alien4cloud.automation.a4c.config.applications.nodes.AddApplications:
+    description: |
+      Create application using a template topology
+    derived_from: org.alien4cloud.automation.a4c.pub.nodes.AlienConfigurator
+
+    artifacts:
+      - resources_file_artifact:
+          type: tosca.artifacts.File
+
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            ANSIBLE_VERBOSE: false
+            PLAYBOOK_ENTRY: create_applications.yml
+            alien_url: { get_attribute: [HOST, alien_url] }
+            alien_user: { get_attribute: [HOST, alien_user] }
+            alien_password: { get_attribute: [HOST, alien_password] }
+          implementation: playbook/playbook.ansible

@@ -1,4 +1,4 @@
-# this folder is Deprecated, all components should be puhed to https://github.com/alien4cloud/csar-public-library/tree/develop/org/alien4cloud
+# this folder is Deprecated, all components should be pushed to https://github.com/alien4cloud/csar-public-library/tree/develop/org/alien4cloud
 
 - types.yml at root (for build compatibility)
 - name csar with the full path

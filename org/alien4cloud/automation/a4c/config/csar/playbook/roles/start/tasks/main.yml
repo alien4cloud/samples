@@ -32,6 +32,7 @@
     method: POST
     return_content: yes
     status_code: 302
+    validate_certs: no
     headers:
       Content-Type: "application/x-www-form-urlencoded"
   register: login
@@ -44,6 +45,7 @@
     url: "{{ alien_url }}/rest/latest/csarsgit"
     method: POST
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     body:
       repositoryUrl: "{{ repositoryUrl }}"
@@ -65,6 +67,7 @@
     url: "{{ alien_url }}/rest/latest/csarsgit/{{ repository_id }}"
     method: POST
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     timeout: 60
   register: result

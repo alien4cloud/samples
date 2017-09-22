@@ -4,6 +4,7 @@
     url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
     method: POST
     return_content: yes
+    validate_certs: no
     status_code: 302
     headers:
       Content-Type: "application/x-www-form-urlencoded"
@@ -17,6 +18,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations"
     method: POST
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     body:
       name: "{{ location_name }}"

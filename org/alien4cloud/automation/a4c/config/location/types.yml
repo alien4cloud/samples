@@ -28,7 +28,7 @@ node_types:
         required: true
         default: byon
         constraints:
-          - valid_values: [ "amazon", "byon" ]
+          - valid_values: [ "amazon", "byon", "azure" ]
     attributes:
       locationId: { get_operation_output: [ SELF, Standard, create, locationId ] }
     # requirements:

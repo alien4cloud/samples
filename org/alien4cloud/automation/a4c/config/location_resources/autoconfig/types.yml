@@ -13,7 +13,7 @@ imports:
 
 node_types:
 
-  org.alien4cloud.automation.a4c.config.location_resources.on_demand.nodes.ResourcesConfigurator:
+  org.alien4cloud.automation.a4c.config.location_resources.autoconfig.nodes.ResourcesConfigurator:
     description: |
       Configure a location for A4C, resources are fed using a resource yaml file
     derived_from: org.alien4cloud.automation.a4c.config.location.nodes.SimpleLocationConfigurator

@@ -44,6 +44,7 @@
     url: "{{url}}"
     method: POST
     return_content: yes
+    validate_certs: no
     status_code: 302
     headers:
       Content-Type: "application/x-www-form-urlencoded"
@@ -60,6 +61,7 @@
     url: "{{url}}"
     method: POST
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     body:
       name: "{{ name }}"
@@ -80,6 +82,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
     method: GET
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     status_code: 200
   register: result
@@ -125,6 +128,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
     method: PUT
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     HEADER_Content-Type: "application/json"
     body: "{{ orchestratorConfiguration }}"
@@ -137,6 +141,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}"
     method: PUT
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     HEADER_Content-Type: "application/json"
     body:
@@ -149,6 +154,7 @@
   uri:
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/instance"
     method: POST
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     HEADER_Content-Type: "application/json"
 
@@ -157,6 +163,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}"
     method: GET
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     HEADER_Content-Type: "application/json"
     status_code: 200

@@ -93,6 +93,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}"
     method: GET
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     HEADER_Content-Type: "application/json"
     validate_certs: no

@@ -43,6 +43,7 @@
     method: POST
     return_content: yes
     status_code: 302
+    validate_certs: no
     headers:
       Content-Type: "application/x-www-form-urlencoded"
   register: login
@@ -55,6 +56,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources"
     method: POST
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     body:
       resourceType: "{{ item['resourceType'] }}"
@@ -110,6 +112,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/{{item['resourceId']}}/template/properties"
     method: POST
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     body:
       propertyName: "{{item['propertyName']}}"
@@ -145,6 +148,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/{{item['resourceId']}}/template/capabilities/{{item['capabilityName']}}/properties"
     method: POST
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     body:
       propertyName: "{{item['propertyName']}}"
@@ -160,6 +164,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/auto-configure"
     method: GET
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     status_code: 200
   register: idies
@@ -215,6 +220,7 @@
     url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/locations/{{ locationId }}/resources/{{item['resourceId']}}/template/properties"
     method: POST
     return_content: yes
+    validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     body:
       propertyName: "{{item['propertyName']}}"

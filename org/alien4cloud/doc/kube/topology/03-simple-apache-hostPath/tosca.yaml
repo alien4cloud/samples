@@ -1,0 +1,59 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.topology.03-simple-apache-hostPath
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20SM4
+  - org.alien4cloud.doc.kube.containers:2.0.0-SNAPSHOT
+  - docker-types:2.0.0-SM4
+
+topology_template:
+  node_templates:
+    Container:
+      type: org.alien4cloud.extended.container.types.ContainerRuntime
+      requirements:
+        - hostedOnContainerDeploymentUnitHost:
+            type_requirement: host
+            node: Deployment
+            capability: tosca.capabilities.Container.Docker
+            relationship: tosca.relationships.HostedOn
+    Apache:
+      type: org.alien4cloud.doc.kube.containers.nodes.Apache
+      properties:
+        cpu_share: 1.0
+        mem_share: "128 MB"
+      requirements:
+        - hostedOnContainerRuntimeContainerHost:
+            type_requirement: host
+            node: Container
+            capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
+            relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        http_endpoint:
+          properties:
+            docker_bridge_port_mapping: 0
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Deployment:
+      type: org.alien4cloud.extended.container.types.ContainerDeploymentUnit
+    Volume:
+      type: org.alien4cloud.nodes.DockerExtVolume
+      requirements:
+        - mountDockerVolumeApacheAttach:
+            type_requirement: attachment
+            node: Apache
+            capability: org.alien4cloud.capabilities.DockerVolumeAttachment
+            relationship: org.alien4cloud.relationships.MountDockerVolume
+            properties:
+              container_path: "/usr/local/apache2/htdocs"
+        - hostedOnDeploymentHost:
+            type_requirement: host
+            node: Deployment
+            capability: tosca.capabilities.Container.Docker
+            relationship: tosca.relationships.HostedOn

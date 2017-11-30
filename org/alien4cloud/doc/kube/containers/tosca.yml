@@ -1,0 +1,145 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.containers
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20SM4
+  - docker-types:2.0.0-SM4
+
+repositories:
+  docker:
+    url: https://hub.docker.com/
+    type: http
+
+data_types:
+  org.alien4cloud.doc.kube.containers.datatypes.Nodecellar:
+    derived_from: tosca.datatypes.Root
+    properties:
+      dns:
+        type: string
+        required:  false
+      lxc-conf:
+        type: string
+        required: false
+
+node_types:
+
+  org.alien4cloud.doc.kube.containers.nodes.Apache:
+    derived_from: tosca.nodes.Container.Application.DockerContainer
+    capabilities:
+      http_endpoint:
+        type: org.alien4cloud.doc.kube.containers.capabilities.Http
+    interfaces:
+      Standard:
+        create:
+          implementation:
+            file: httpd:latest
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker
+
+  org.alien4cloud.doc.kube.containers.nodes.Nodecellar:
+    derived_from: tosca.nodes.Container.Application.DockerContainer
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "cd /nodecellar && nodejs server.js"
+      docker_options:
+        type: org.alien4cloud.doc.kube.containers.datatypes.Nodecellar
+        required: false
+      docker_env_vars:
+        type: map
+        description: Environment variables for the Docker container.
+        entry_schema:
+          type: string
+        default:
+          LOG_LEVEL:
+    requirements:
+      - mongo_db:
+          capability: tosca.capabilities.Endpoint.Database
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+    capabilities:
+      nodecellar_app:
+        type: org.alien4cloud.doc.kube.containers.capabilities.Nodecellar
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ENV_MONGO_HOST: { get_attribute: [TARGET, mongo_db, ip_address] }
+            ENV_MONGO_PORT: { get_attribute: [TARGET, mongo_db, port] } # use get_attribute to get the port mapping value ?
+            ENV_MONGO_API_VERSION: { get_property: [TARGET, mongo_db, api_version] } # Requirement TARGET
+            ENV_NODECELLAR_PORT: { get_property: [SELF, nodecellar_app, port] }
+          implementation:
+            file: afraisse/nodecellar:exp
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker
+
+  org.alien4cloud.doc.kube.containers.nodes.BusyboxBash:
+    derived_from: tosca.nodes.Container.Application.DockerContainer
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "echo 'Hello World'"
+    interfaces:
+      Standard:
+        create:
+          implementation:
+            file: blang/busybox-bash
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker
+
+  org.alien4cloud.doc.kube.containers.nodes.Mongo:
+    derived_from: tosca.nodes.Container.Application.DockerContainer
+    capabilities:
+      mongo_db:
+        type: org.alien4cloud.doc.kube.containers.capabilities.Mongo
+    interfaces:
+      Standard:
+        create:
+          implementation:
+            file: mongo:latest
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker
+
+capability_types:
+  org.alien4cloud.doc.kube.containers.capabilities.Mongo:
+    derived_from: tosca.capabilities.Endpoint.Database
+    description: >
+      Capability to connect to a Docker-supported Mongo database through bridge networking.
+    properties:
+      docker_bridge_port_mapping:
+        type: integer
+        description: Port used to bridge to the container's endpoint.
+        default: 0
+      port:
+        type: integer
+        default: 27017
+      api_version:
+        description: just another capability property for test purpose
+        type: string
+        default: v1
+
+  org.alien4cloud.doc.kube.containers.capabilities.Nodecellar:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      docker_bridge_port_mapping:
+        type: integer
+        description: Port used to bridge to the container's endpoint.
+        default: 0
+      port:
+        type: integer
+        default: 3000
+
+  org.alien4cloud.doc.kube.containers.capabilities.Http:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      docker_bridge_port_mapping:
+        type: integer
+        description: Port used to bridge to the container's endpoint.
+        default: 0
+      port:
+        type: integer
+        default: 80

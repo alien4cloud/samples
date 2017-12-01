@@ -1,0 +1,120 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.topology.06-nodecellar-mongo-antiaffinity
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+
+imports:
+  - alien-base-types:2.0.0-SM4
+  - tosca-normative-types:1.0.0-ALIEN20SM4
+  - org.alien4cloud.doc.kube.containers:2.0.0-SNAPSHOT
+  - docker-types:2.0.0-SM4
+
+topology_template:
+  node_templates:
+    Mongo:
+      type: org.alien4cloud.doc.kube.containers.nodes.Mongo
+      properties:
+        cpu_share: 0.3
+        mem_share: "128 MB"
+      requirements:
+        - hostedOnContainerRuntimeContainerHost:
+            type_requirement: host
+            node: MongoContainer
+            capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
+            relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        mongo_db:
+          properties:
+            docker_bridge_port_mapping: 0
+            port: 27017
+            api_version: v1
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    MongoDeployment:
+      metadata:
+        a4c_edit_x: 342
+        a4c_edit_y: "-83"
+      type: org.alien4cloud.extended.container.types.ContainerDeploymentUnit
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    MongoContainer:
+      metadata:
+        a4c_edit_x: 0
+        a4c_edit_y: 0
+      type: org.alien4cloud.extended.container.types.ContainerRuntime
+      requirements:
+        - hostedOnDeploymentHost:
+            type_requirement: host
+            node: MongoDeployment
+            capability: tosca.capabilities.Container.Docker
+            relationship: tosca.relationships.HostedOn
+    Nodecellar:
+      type: org.alien4cloud.doc.kube.containers.nodes.Nodecellar
+      properties:
+        docker_run_cmd: "cd /nodecellar && nodejs server.js"
+        docker_env_vars:
+          LOG_LEVEL: ""
+        cpu_share: 0.3
+        mem_share: "128 MB"
+      requirements:
+        - connectsToMongoMongo_db:
+            type_requirement: mongo_db
+            node: Mongo
+            capability: org.alien4cloud.doc.kube.containers.capabilities.Mongo
+            relationship: tosca.relationships.ConnectsTo
+        - hostedOnContainerRuntimeCelarContainerHost:
+            type_requirement: host
+            node: CellarContainer
+            capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
+            relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        nodecellar_app:
+          properties:
+            docker_bridge_port_mapping: 0
+            port: 3000
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    CellarDeployment:
+      metadata:
+        a4c_edit_x: 59
+        a4c_edit_y: "-148"
+      type: org.alien4cloud.extended.container.types.ContainerDeploymentUnit
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    CellarContainer:
+      type: org.alien4cloud.extended.container.types.ContainerRuntime
+      requirements:
+        - hostedOnDeploymentMongoHost:
+            type_requirement: host
+            node: CellarDeployment
+            capability: tosca.capabilities.Container.Docker
+            relationship: tosca.relationships.HostedOn
+  policies:
+    - AntiAffinity:
+        type: org.alien4cloud.policies.AntiAffinity
+        targets: [ CellarDeployment, MongoDeployment ]

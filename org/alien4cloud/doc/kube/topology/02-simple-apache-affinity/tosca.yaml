@@ -14,6 +14,12 @@ topology_template:
   node_templates:
     Container:
       type: org.alien4cloud.extended.container.types.ContainerRuntime
+      requirements:
+        - hostedOnDeploymentHost:
+            type_requirement: host
+            node: Deployment
+            capability: tosca.capabilities.Container.Docker
+            relationship: tosca.relationships.HostedOn
     Apache:
       type: org.alien4cloud.doc.kube.containers.nodes.Apache
       properties:
@@ -25,3 +31,19 @@ topology_template:
             node: Container
             capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
             relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        http_endpoint:
+          properties:
+            docker_bridge_port_mapping: 0
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Deployment:
+      type: org.alien4cloud.extended.container.types.ContainerDeploymentUnit
+
+  policies:
+    - Placement:
+        type: tosca.policies.Placement
+        targets: [ Deployment ]

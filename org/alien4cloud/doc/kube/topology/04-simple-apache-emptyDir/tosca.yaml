@@ -64,7 +64,7 @@ topology_template:
             relationship: org.alien4cloud.relationships.MountDockerVolume
             properties:
               container_path: "/tmp/emptyDir"
-    ContainerRuntime:
+    SidecarContainer:
       type: org.alien4cloud.extended.container.types.ContainerRuntime
       requirements:
         - hostedOnDeploymentHost:
@@ -81,6 +81,6 @@ topology_template:
       requirements:
         - hostedOnContainerRuntimeContainerRuntimeHost:
             type_requirement: host
-            node: ContainerRuntime
+            node: SidecarContainer
             capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
             relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime

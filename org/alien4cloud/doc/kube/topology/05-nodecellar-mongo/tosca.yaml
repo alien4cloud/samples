@@ -102,7 +102,7 @@ topology_template:
         scalable:
           properties:
             min_instances: 1
-            max_instances: 1
+            max_instances: 5
             default_instances: 1
     CellarContainer:
       type: org.alien4cloud.extended.container.types.ContainerRuntime

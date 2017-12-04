@@ -115,9 +115,6 @@ topology_template:
             capability: tosca.capabilities.Container.Docker
             relationship: tosca.relationships.HostedOn
   policies:
-    - AntiAffinity:
-        type: org.alien4cloud.policies.AntiAffinity
-        targets: [ CellarDeployment, MongoDeployment ]
     - AutoScale:
         type: tosca.policies.Scaling
         targets: [ CellarDeployment ]

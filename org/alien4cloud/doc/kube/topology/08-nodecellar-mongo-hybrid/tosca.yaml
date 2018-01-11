@@ -1,0 +1,107 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.topology.08-nodecellar-mongo-hybrid
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - mongo-types:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20SM4
+  - org.alien4cloud.doc.kube.containers:2.0.0-SNAPSHOT
+  - docker-types:2.0.0-SM4
+
+topology_template:
+  node_templates:
+    Nodecellar:
+      type: org.alien4cloud.nodes.Application.Docker.Nodecellar
+      properties:
+        docker_run_cmd: "cd /nodecellar && nodejs server.js"
+        docker_env_vars:
+          LOG_LEVEL: ""
+        cpu_share: 1.0
+        mem_share: "128 MB"
+      requirements:
+        - connectsToMongodEndpoint:
+            type_requirement: mongo_db
+            node: Mongod
+            capability: org.alien4cloud.capabilities.endpoint.Mongo
+            relationship: tosca.relationships.ConnectsTo
+        - hostedOnContainerRuntimeContainerRuntimeHost:
+            type_requirement: host
+            node: CellarContainer
+            capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
+            relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        nodecellar_app:
+          properties:
+            docker_bridge_port_mapping: 0
+            port: 3000
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    Mongod:
+      type: org.alien4cloud.nodes.Mongod
+      properties:
+        port: 27017
+      requirements:
+        - hostedOnComputeHost:
+            type_requirement: host
+            node: MongoCompute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        endpoint:
+          properties:
+            port: 27017
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    CellarDeployment:
+      metadata:
+        a4c_edit_x: "-17"
+        a4c_edit_y: "-35"
+      type: org.alien4cloud.extended.container.types.ContainerDeploymentUnit
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    CellarContainer:
+      type: org.alien4cloud.extended.container.types.ContainerRuntime
+      requirements:
+        - hostedOnContainerDeploymentUnitHost:
+            type_requirement: host
+            node: CellarDeployment
+            capability: tosca.capabilities.Container.Docker
+            relationship: tosca.relationships.HostedOn
+    MongoCompute:
+      metadata:
+        a4c_edit_x: 295
+        a4c_edit_y: "-32"
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: ubuntu
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source

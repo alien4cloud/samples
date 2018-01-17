@@ -1,4 +1,4 @@
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 template_name: postgresql-type
 template_version: 1.4.0-SNAPSHOT

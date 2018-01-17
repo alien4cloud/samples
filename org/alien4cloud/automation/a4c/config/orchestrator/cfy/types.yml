@@ -10,7 +10,7 @@ imports:
   - org.alien4cloud.automation.a4c.config.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 node_types:
 

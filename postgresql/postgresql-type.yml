@@ -5,7 +5,7 @@ template_version: 1.4.0-SNAPSHOT
 template_author: alien4cloud
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 description: PostgreSQL RDBMS installation on a specific mounted volume path. TODO use dependencies to volume to make it more TOSCA
 

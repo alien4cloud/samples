@@ -7,7 +7,7 @@ metadata:
 
 imports:
   - alien-base-types:1.4.0
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT

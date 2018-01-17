@@ -8,7 +8,7 @@ metadata:
 imports:
   - org.alien4cloud.sandbox.services.dummy.client:1.4.0-SNAPSHOT
   - org.alien4cloud.sandbox.services.dummy.pub:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 description: |
   3 clients that connect to the same remote service.

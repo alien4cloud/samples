@@ -11,7 +11,7 @@ imports:
   - mongo-types:1.4.0-SNAPSHOT
   - nodecellar-type:1.4.0-SNAPSHOT
   - nodejs-type:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 topology_template:
   description: A Javascript Sample Application with Node.js connecting to a MongoDB as a service

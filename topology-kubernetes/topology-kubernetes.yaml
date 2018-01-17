@@ -8,7 +8,7 @@ metadata:
 description: Topology to deploy a kubernetes cluster.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - kubernetes-cluster-types:1.4.0-SNAPSHOT
 
 topology_template:

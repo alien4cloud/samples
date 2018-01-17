@@ -8,7 +8,7 @@ metadata:
 description: Define contracts for HostPool
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 node_types:
 

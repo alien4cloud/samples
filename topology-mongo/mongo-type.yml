@@ -8,7 +8,7 @@ metadata:
 description: This template contains a topology to introduce a substituted type that is already hosted on compute.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - mongo-types:1.4.0-SNAPSHOT
 
 topology_template:

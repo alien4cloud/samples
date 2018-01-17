@@ -8,7 +8,7 @@ metadata:
 description: "A sample topology of a Petclinic application hosted on a Tomcat server and connected to a MySQL database."
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - petclinic-war-type:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
   - mysql-type:1.4.0-SNAPSHOT

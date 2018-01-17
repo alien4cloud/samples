@@ -17,7 +17,7 @@ imports:
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.patches.mgmtworker.tasks-py:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT

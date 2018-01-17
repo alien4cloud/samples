@@ -9,7 +9,7 @@ description: "A topology to deploy a managed service by alien4cloud"
 
 imports:
   - demo-service-operations:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 topology_template:
   substitution_mappings:

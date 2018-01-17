@@ -9,7 +9,7 @@ metadata:
 # cd playbook && rm -f playbook.ansible && zip -r playbook.ansible * && cd .. && rm -f stuff.zip && zip -r stuff.zip *
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - alien-base-types:1.4.0
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
 

@@ -8,7 +8,7 @@ metadata:
 description: "A topology to expose an apache load balancer as a service"
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - apache-load-balancer-type:1.4.0-SNAPSHOT
 
 topology_template:

@@ -14,7 +14,7 @@ imports:
   - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT

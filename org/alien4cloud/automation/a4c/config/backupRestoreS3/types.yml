@@ -8,7 +8,7 @@ metadata:
 imports:
   - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
   - org.alien4cloud.cloud.amazon.cli.pub:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 relationship_types:
   org.alien4cloud.automation.a4c.config.backupRestoreS3.relationships.BackupRestoreS3DependsOnAwsCli:

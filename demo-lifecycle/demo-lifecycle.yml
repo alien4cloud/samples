@@ -6,7 +6,7 @@ metadata:
   template_author: alien4cloud
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - apache-type:1.4.0-SNAPSHOT
   - php-type:1.4.0-SNAPSHOT
 

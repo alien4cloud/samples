@@ -13,7 +13,7 @@ description: >
 imports:
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
   - alien-base-types:1.4.0
 

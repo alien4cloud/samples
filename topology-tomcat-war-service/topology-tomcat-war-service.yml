@@ -9,7 +9,7 @@ description: "A topology to install an web app on Tomcat and uses an existing lo
 
 imports:
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - tomcat-war-types:1.4.0-SNAPSHOT
   - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
 

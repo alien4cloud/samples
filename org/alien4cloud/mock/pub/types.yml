@@ -6,7 +6,7 @@ metadata:
   template_author: alien4cloud
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 description: >
   Mock types for A4C load tests.

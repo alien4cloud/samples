@@ -10,7 +10,7 @@ description: A4C with remote replicated ElasticSearch + IT tests checkout, built
 imports:
   - elasticsearch-type:1.4.0-SNAPSHOT
   - alien-type:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
 
 topology_template:

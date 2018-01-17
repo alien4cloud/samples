@@ -8,7 +8,7 @@ metadata:
 description: This archive contains debian installation of php.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.lang.php.pub:1.4.0-SNAPSHOT
 
 node_types:

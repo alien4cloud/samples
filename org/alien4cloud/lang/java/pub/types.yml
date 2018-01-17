@@ -8,7 +8,7 @@ metadata:
 description: Public interface types for java support.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 node_types:
   org.alien4cloud.lang.java.pub.nodes.JavaSoftware:

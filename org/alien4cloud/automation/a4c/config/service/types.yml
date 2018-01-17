@@ -6,7 +6,7 @@ metadata:
   template_author: alien4cloud
 
 imports:
-  - alien-base-types:1.4.0
+  - alien-base-types:2.0.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.automation.a4c.pub:2.0.0-SNAPSHOT
 

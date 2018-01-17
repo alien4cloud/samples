@@ -9,7 +9,7 @@ description: Patch tasks.py
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - alien-base-types:1.4.0
+  - alien-base-types:2.0.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:2.0.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.patches.pub:2.0.0-SNAPSHOT
 

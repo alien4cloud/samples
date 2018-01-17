@@ -30,7 +30,7 @@ imports:
   - org.alien4cloud.automation.a4c.config.orchestrator.cfy:2.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond.pub:2.0.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
-  - alien-base-types:1.4.0
+  - alien-base-types:2.0.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond.collectors:2.0.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:2.0.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:2.0.0-SNAPSHOT

@@ -1,9 +1,9 @@
 
 services:
   - nodeType: "org.alien4cloud.monitoring.pub.nodes.GraphiteService"
-    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    nodeTypeVersion: "2.0.0-SNAPSHOT"
     name: GraphiteAsAService
-    version: "1.4.0-SNAPSHOT"
+    version: "2.0.0-SNAPSHOT"
     # TODO: setup security for all locations
     nodeInstance:
       attributeValues:
@@ -14,9 +14,9 @@ services:
         - state: started
 
   - nodeType: "org.alien4cloud.monitoring.pub.nodes.GrafanaService"
-    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    nodeTypeVersion: "2.0.0-SNAPSHOT"
     name: GrafanaAsAService
-    version: "1.4.0-SNAPSHOT"
+    version: "2.0.0-SNAPSHOT"
     # TODO: setup security for all locations
     nodeInstance:
       attributeValues:
@@ -30,9 +30,9 @@ services:
         - state: started
 
   - nodeType: "org.alien4cloud.automation.cloudify.manager.pub.nodes.CloudifyManagerService"
-    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    nodeTypeVersion: "2.0.0-SNAPSHOT"
     name: Cloudify4ManagerAsAService
-    version: "1.4.0-SNAPSHOT"
+    version: "2.0.0-SNAPSHOT"
     # TODO: setup security for all locations
     nodeInstance:
       capabilities:
@@ -51,9 +51,9 @@ services:
         - state: started
 
   - nodeType: "org.alien4cloud.automation.cloudify.hostpool.pub.nodes.HostPoolService"
-    nodeTypeVersion: "1.4.0-SNAPSHOT"
+    nodeTypeVersion: "2.0.0-SNAPSHOT"
     name: HostpoolAsAService
-    version: "1.4.0-SNAPSHOT"
+    version: "2.0.0-SNAPSHOT"
     # TODO: setup security for all locations
     nodeInstance:
       capabilities:

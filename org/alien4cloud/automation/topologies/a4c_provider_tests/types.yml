@@ -2,23 +2,23 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.automation.topologies.a4c_provider_tests
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.0.0-SNAPSHOT
   template_author: alient4cloud
 
 description: "Enclosing archive for topology Topology for alien4cloud provider tests"
 
 imports:
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.webapp:2.0.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.v4:2.0.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:2.0.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.0.0-SNAPSHOT
 
 repositories:
   fastconnect-staging:
@@ -153,7 +153,7 @@ topology_template:
       type: org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud
       properties:
         context_root: "/"
-        component_version: "1.4.0-SNAPSHOT"
+        component_version: "2.0.0-SNAPSHOT"
         data_dir: "/opt/alien4cloud/data"
       requirements:
         - java:
@@ -175,6 +175,6 @@ topology_template:
             port: 8778
       artifacts:
         alien_dist:
-          file: alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+          file: alien4cloud:alien4cloud-premium-dist:2.0.0-SNAPSHOT:dist@tar.gz
           type: tosca.artifacts.File
           repository: fastconnect-staging

@@ -2,4 +2,4 @@ applications:
     - archiveName: tonton
       description: "test app"
       name: "tonton"
-      topologyTemplateVersionId: "org.alien4cloud.mock.topologies.simple_ansible:1.4.0-SNAPSHOT"
+      topologyTemplateVersionId: "org.alien4cloud.mock.topologies.simple_ansible:2.0.0-SNAPSHOT"

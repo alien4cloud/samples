@@ -2,12 +2,12 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: tomcat-war-types
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.0.0-SNAPSHOT
   template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.0.0-SNAPSHOT
 
 description: Tomcat recipe, including war type and relationship.
 

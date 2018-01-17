@@ -2,16 +2,16 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: alien4cloud-longrun-topology
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.0.0-SNAPSHOT
   template_author: alien4cloud
 
 description: A4C with remote replicated ElasticSearch + IT tests checkout, built and launched
 
 imports:
-  - elasticsearch-type:1.4.0-SNAPSHOT
-  - alien-type:1.4.0-SNAPSHOT
+  - elasticsearch-type:2.0.0-SNAPSHOT
+  - alien-type:2.0.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.0.0-SNAPSHOT
 
 topology_template:
   node_templates:

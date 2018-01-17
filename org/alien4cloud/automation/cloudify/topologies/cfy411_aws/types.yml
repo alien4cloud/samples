@@ -2,7 +2,7 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.automation.cloudify.topologies.cfy411_aws
-  template_version: 0.1.0-SNAPSHOT
+  template_version: 2.0.0-SNAPSHOT
   template_author: admin
 
 description: |
@@ -11,19 +11,19 @@ description: |
   Has been tested on a Centos ami-1f5dfe6c (t2.large).
 
 imports:
-  - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.mgmtworker.tasks-py:1.4.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.service:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.v4:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.mgmtworker.tasks-py:2.0.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.ansible:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:2.0.0-SNAPSHOT
   - alien-base-types:1.4.0
 
 topology_template:

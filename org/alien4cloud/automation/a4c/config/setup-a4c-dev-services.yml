@@ -11,10 +11,10 @@
 
   roles:
     - { role: 'plugin/playbook/roles/upload_plugin',
-        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-premium-logs/target/alien4cloud-premium-logs-1.4.0-SNAPSHOT.zip'
+        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-premium-logs/target/alien4cloud-premium-logs-2.0.0-SNAPSHOT.zip'
       }
     - { role: 'plugin/playbook/roles/upload_plugin',
-        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-premium-repository-plugins/alien4cloud-maven-repository-plugin/target/alien4cloud-maven-repository-plugin-1.4.0-SNAPSHOT.zip'
+        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-premium-repository-plugins/alien4cloud-maven-repository-plugin/target/alien4cloud-maven-repository-plugin-2.0.0-SNAPSHOT.zip'
       }
     - { role: repository/playbook/roles/create_repositories,
         resources_file_artifact: 'repository/resources/repositories.yaml',
@@ -41,7 +41,7 @@
         subPath: 'org/alien4cloud'
       }
     - { role: 'plugin/playbook/roles/upload_plugin',
-        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-cloudify3-provider-premium/target/alien4cloud-cloudify4-provider-premium-1.4.0-SNAPSHOT.zip'
+        plugin_artifact: '/Users/xdegenne/checkout/alien4cloud-cloudify3-provider-premium/target/alien4cloud-cloudify4-provider-premium-2.0.0-SNAPSHOT.zip'
       }
     - { role: orchestrator/cfy/playbook/roles/create_orchestrator,
         name: 'Cloudify4',

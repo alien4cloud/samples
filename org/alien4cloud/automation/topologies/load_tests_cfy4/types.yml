@@ -2,7 +2,7 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.automation.topologies.load_tests_cfy4
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.0.0-SNAPSHOT
   template_author: alien4cloud
 
 description: >
@@ -11,28 +11,28 @@ description: >
   Has been tested on a Centos ami-4c4b003b (m4.large). Load tests are generally ran using a c4.4xlarge
 
 imports:
-  - org.alien4cloud.automation.cloudify.hostpool.service:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.change_max_fd:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.service:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:2.0.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.change_max_fd:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.v4:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:2.0.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.automation.cloudify.patches.amqp_client:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.amqp_client:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.change_max_mgmtworker:2.0.0-SNAPSHOT
   - alien-base-types:1.4.0
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.collectors:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.ansible:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.collectors:2.0.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:2.0.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.agent_linux:2.0.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.ansible:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:2.0.0-SNAPSHOT
 
 topology_template:
   description: >

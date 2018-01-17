@@ -2,15 +2,15 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.automation.a4c.webapp
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.0.0-SNAPSHOT
   template_author: alien4cloud
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.0.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:2.0.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud:
@@ -135,7 +135,7 @@ node_types:
           file: scripts/commons
           type: tosca.artifacts.File
       # - maven_artifact:
-      #     file: alien4cloud:alien4cloud-dist:1.4.0-SNAPSHOT@tar.gz
+      #     file: alien4cloud:alien4cloud-dist:2.0.0-SNAPSHOT@tar.gz
       #     repository: fastconnect_nexus_snapshot
       #     type: tosca.artifacts.File
       # - alien_dist:
@@ -143,7 +143,7 @@ node_types:
       #     repository: fastconnect_private_snapshot_http
       #     type: tosca.artifacts.File
       - alien_dist:
-          # file: alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+          # file: alien4cloud:alien4cloud-premium-dist:2.0.0-SNAPSHOT:dist@tar.gz
           # repository: fastconnect_nexus_private_snapshot
           type: tosca.artifacts.File
     attributes:

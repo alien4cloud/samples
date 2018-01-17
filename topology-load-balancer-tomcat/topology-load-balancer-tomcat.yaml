@@ -2,15 +2,15 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: war-apache-load-balanced-topology
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.0.0-SNAPSHOT
   template_author: alien4cloud
 
 description: Apache Load Balancer Topology
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - apache-load-balancer-type:1.4.0-SNAPSHOT
-  - tomcat-war-types:1.4.0-SNAPSHOT
+  - apache-load-balancer-type:2.0.0-SNAPSHOT
+  - tomcat-war-types:2.0.0-SNAPSHOT
   - alien-base-types:1.4.0
 
 topology_template:

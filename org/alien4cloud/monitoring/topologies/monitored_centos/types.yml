@@ -99,200 +99,200 @@ topology_template:
     install:
       steps:
         CentosMedium_install:
-          node: MonitoredCentosMedium
-          activity:
-            delegate: install
-          on-success:
+          target: MonitoredCentosMedium
+          activities:
+            - delegate: install
+          on_success:
             - DiamondLinuxAgent_initial
         DiamondLinuxAgent_initial:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: initial
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: initial
+          on_success:
             - DiamondLinuxAgent_creating
         DiamondLinuxAgent_creating:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: creating
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: creating
+          on_success:
             - create_DiamondLinuxAgent
         create_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on_success:
             - DiamondLinuxAgent_created
         DiamondLinuxAgent_created:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: created
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: created
+          on_success:
             - DiamondLinuxAgent_configuring
         DiamondLinuxAgent_configuring:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: configuring
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_DiamondLinuxAgent
         configure_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on_success:
             - DiamondLinuxAgent_configured
         DiamondLinuxAgent_configured:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: configured
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: configured
+          on_success:
             - DiamondLinuxAgent_starting
         DiamondLinuxAgent_starting:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: starting
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: starting
+          on_success:
             - start_DiamondLinuxAgent
         start_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - DiamondLinuxAgent_started
         DiamondLinuxAgent_started:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: started
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: started
         GrafanaService_install:
-          node: GrafanaService
-          activity:
-            delegate: install
-          on-success:
+          target: GrafanaService
+          activities:
+            - delegate: install
+          on_success:
             - DiamondLinuxAgent_initial
         GraphiteService_install:
-          node: GraphiteService
-          activity:
-            delegate: install
-          on-success:
+          target: GraphiteService
+          activities:
+            - delegate: install
+          on_success:
             - DiamondLinuxAgent_initial
     uninstall:
       steps:
         CentosMedium_uninstall:
-          node: MonitoredCentosMedium
-          activity:
-            delegate: uninstall
+          target: MonitoredCentosMedium
+          activities:
+            - delegate: uninstall
         DiamondLinuxAgent_stopping:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: stopping
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_DiamondLinuxAgent
         stop_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - DiamondLinuxAgent_stopped
         DiamondLinuxAgent_stopped:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: stopped
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: stopped
+          on_success:
             - DiamondLinuxAgent_deleting
         DiamondLinuxAgent_deleting:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: deleting
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_DiamondLinuxAgent
         delete_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on_success:
             - DiamondLinuxAgent_deleted
         DiamondLinuxAgent_deleted:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: deleted
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: deleted
+          on_success:
             - GraphiteService_uninstall
             - GrafanaService_uninstall
             - CentosMedium_uninstall
         GrafanaService_uninstall:
-          node: GrafanaService
-          activity:
-            delegate: uninstall
+          target: GrafanaService
+          activities:
+            - delegate: uninstall
         GraphiteService_uninstall:
-          node: GraphiteService
-          activity:
-            delegate: uninstall
+          target: GraphiteService
+          activities:
+            - delegate: uninstall
     start:
       steps:
         CentosMedium_start:
-          node: MonitoredCentosMedium
-          activity:
-            delegate: start
-          on-success:
+          target: MonitoredCentosMedium
+          activities:
+            - delegate: start
+          on_success:
             - DiamondLinuxAgent_starting
         DiamondLinuxAgent_starting:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: starting
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: starting
+          on_success:
             - start_DiamondLinuxAgent
         start_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - DiamondLinuxAgent_started
         DiamondLinuxAgent_started:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: started
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: started
         GrafanaService_start:
-          node: GrafanaService
-          activity:
-            delegate: start
-          on-success:
+          target: GrafanaService
+          activities:
+            - delegate: start
+          on_success:
             - DiamondLinuxAgent_starting
         GraphiteService_start:
-          node: GraphiteService
-          activity:
-            delegate: start
-          on-success:
+          target: GraphiteService
+          activities:
+            - delegate: start
+          on_success:
             - DiamondLinuxAgent_starting
     stop:
       steps:
         CentosMedium_stop:
-          node: MonitoredCentosMedium
-          activity:
-            delegate: stop
+          target: MonitoredCentosMedium
+          activities:
+            - delegate: stop
         DiamondLinuxAgent_stopping:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: stopping
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_DiamondLinuxAgent
         stop_DiamondLinuxAgent:
-          node: DiamondLinuxAgent
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - DiamondLinuxAgent_stopped
         DiamondLinuxAgent_stopped:
-          node: DiamondLinuxAgent
-          activity:
-            set_state: stopped
-          on-success:
+          target: DiamondLinuxAgent
+          activities:
+            - set_state: stopped
+          on_success:
             - GraphiteService_stop
             - CentosMedium_stop
             - GrafanaService_stop
         GrafanaService_stop:
-          node: GrafanaService
-          activity:
-            delegate: stop
+          target: GrafanaService
+          activities:
+            - delegate: stop
         GraphiteService_stop:
-          node: GraphiteService
-          activity:
-            delegate: stop
+          target: GraphiteService
+          activities:
+            - delegate: stop

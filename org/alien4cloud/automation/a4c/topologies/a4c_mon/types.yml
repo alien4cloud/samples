@@ -297,1535 +297,1535 @@ topology_template:
     install:
       steps:
         DiamondLinuxAgent_created:
-          node: dmdA4c
-          activity:
-            set_state: created
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: created
+          on_success:
             - DiamondLinuxAgent_configuring
         Alien4Cloud_started:
-          node: Alien4Cloud
-          activity:
-            set_state: started
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: started
+          on_success:
             - ArtifactRepositoriesConfigurator_initial
             - CfyOrchestratorConfigurator_initial
             - A4CCollector_configuring
             - AddCsarFromGit_initial_1
             - AddCsarFromGit_initial
         OracleJDK_starting:
-          node: OracleJDK
-          activity:
-            set_state: starting
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: starting
+          on_success:
             - start_OracleJDK
         start_DiamondLinuxAgent:
-          node: dmdA4c
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: dmdA4c
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - DiamondLinuxAgent_started
         OracleJDK_creating:
-          node: OracleJDK
-          activity:
-            set_state: creating
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: creating
+          on_success:
             - create_OracleJDK
         OracleJDK_configuring:
-          node: OracleJDK
-          activity:
-            set_state: configuring
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_OracleJDK
         DiamondLinuxAgent_started:
-          node: dmdA4c
-          activity:
-            set_state: started
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: started
+          on_success:
             - ElasticSearchCollector_initial
             - Alien4Cloud_configuring
             - OracleJDK_initial
             - A4CCollector_initial
         DiamondLinuxAgent_configuring:
-          node: dmdA4c
-          activity:
-            set_state: configuring
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_DiamondLinuxAgent
         Alien4Cloud_created:
-          node: Alien4Cloud
-          activity:
-            set_state: created
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: created
+          on_success:
             - Alien4Cloud_configuring
             - A4CCollector_initial
         create_OracleJDK:
-          node: OracleJDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: OracleJDK
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.create
+          on_success:
             - OracleJDK_created
         GraphiteService_install:
-          node: GraphiteService
-          activity:
-            delegate: install
-          on-success:
+          target: GraphiteService
+          activities:
+            - delegate: install
+          on_success:
             - DiamondLinuxAgent_initial
         OracleJDK_created:
-          node: OracleJDK
-          activity:
-            set_state: created
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: created
+          on_success:
             - OracleJDK_configuring
         start_OracleJDK:
-          node: OracleJDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: OracleJDK
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - OracleJDK_started
         DiamondLinuxAgent_configured:
-          node: dmdA4c
-          activity:
-            set_state: configured
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: configured
+          on_success:
             - DiamondLinuxAgent_starting
         create_DiamondLinuxAgent:
-          node: dmdA4c
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: dmdA4c
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.create
+          on_success:
             - DiamondLinuxAgent_created
         cA4Cc_install:
-          node: _A4cCompute
-          activity:
-            delegate: install
-          on-success:
+          target: _A4cCompute
+          activities:
+            - delegate: install
+          on_success:
             - DiamondLinuxAgent_initial
             - OracleJDK_initial
         GrafanaService_install:
-          node: GrafanaService
-          activity:
-            delegate: install
-          on-success:
+          target: GrafanaService
+          activities:
+            - delegate: install
+          on_success:
             - DiamondLinuxAgent_initial
         Alien4Cloud_starting:
-          node: Alien4Cloud
-          activity:
-            set_state: starting
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: starting
+          on_success:
             - start_Alien4Cloud
         Alien4Cloud_creating:
-          node: Alien4Cloud
-          activity:
-            set_state: creating
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: creating
+          on_success:
             - create_Alien4Cloud
         DiamondLinuxAgent_creating:
-          node: dmdA4c
-          activity:
-            set_state: creating
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: creating
+          on_success:
             - create_DiamondLinuxAgent
         create_Alien4Cloud:
-          node: Alien4Cloud
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.create
+          on_success:
             - Alien4Cloud_created
         DiamondLinuxAgent_starting:
-          node: dmdA4c
-          activity:
-            set_state: starting
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: starting
+          on_success:
             - start_DiamondLinuxAgent
         OracleJDK_configured:
-          node: OracleJDK
-          activity:
-            set_state: configured
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: configured
+          on_success:
             - OracleJDK_starting
         configure_Alien4Cloud:
-          node: Alien4Cloud
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - Alien4Cloud_configured
         Alien4Cloud_configured:
-          node: Alien4Cloud
-          activity:
-            set_state: configured
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: configured
+          on_success:
             - Alien4Cloud_starting
         Alien4Cloud_configuring:
-          node: Alien4Cloud
-          activity:
-            set_state: configuring
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_Alien4Cloud
         start_Alien4Cloud:
-          node: Alien4Cloud
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - Alien4Cloud_started
         Alien4Cloud_initial:
-          node: Alien4Cloud
-          activity:
-            set_state: initial
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: initial
+          on_success:
             - Alien4Cloud_creating
         DiamondLinuxAgent_initial:
-          node: dmdA4c
-          activity:
-            set_state: initial
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: initial
+          on_success:
             - DiamondLinuxAgent_creating
         OracleJDK_initial:
-          node: OracleJDK
-          activity:
-            set_state: initial
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: initial
+          on_success:
             - OracleJDK_creating
         configure_DiamondLinuxAgent:
-          node: dmdA4c
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: dmdA4c
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - DiamondLinuxAgent_configured
         configure_OracleJDK:
-          node: OracleJDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: OracleJDK
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - OracleJDK_configured
         OracleJDK_started:
-          node: OracleJDK
-          activity:
-            set_state: started
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: started
+          on_success:
             - Alien4Cloud_initial
             - ElasticSearch_initial
         A4CCollector_initial:
-          node: A4CCollector
-          activity:
-            set_state: initial
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: initial
+          on_success:
             - A4CCollector_creating
         A4CCollector_creating:
-          node: A4CCollector
-          activity:
-            set_state: creating
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: creating
+          on_success:
             - A4CCollector_created
         A4CCollector_created:
-          node: A4CCollector
-          activity:
-            set_state: created
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: created
+          on_success:
             - ElasticSearchCollector_initial
             - A4CCollector_configuring
             - ElasticSearch_initial
             - Alien4Cloud_configuring
         A4CCollector_configuring:
-          node: A4CCollector
-          activity:
-            set_state: configuring
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_A4CCollector
         configure_A4CCollector:
-          node: A4CCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: A4CCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - A4CCollector_configured
         A4CCollector_configured:
-          node: A4CCollector
-          activity:
-            set_state: configured
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: configured
+          on_success:
             - A4CCollector_starting
         A4CCollector_starting:
-          node: A4CCollector
-          activity:
-            set_state: starting
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: starting
+          on_success:
             - start_A4CCollector
         start_A4CCollector:
-          node: A4CCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: A4CCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - A4CCollector_started
         A4CCollector_started:
-          node: A4CCollector
-          activity:
-            set_state: started
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: started
+          on_success:
             - ArtifactRepositoriesConfigurator_initial
             - CfyOrchestratorConfigurator_initial
         ElasticSearchCollector_initial:
-          node: ElasticSearchCollector
-          activity:
-            set_state: initial
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: initial
+          on_success:
             - ElasticSearchCollector_creating
         ElasticSearchCollector_creating:
-          node: ElasticSearchCollector
-          activity:
-            set_state: creating
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: creating
+          on_success:
             - ElasticSearchCollector_created
         ElasticSearchCollector_created:
-          node: ElasticSearchCollector
-          activity:
-            set_state: created
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: created
+          on_success:
             - ElasticSearchCollector_configuring
             - ElasticSearch_configuring
         ElasticSearchCollector_configuring:
-          node: ElasticSearchCollector
-          activity:
-            set_state: configuring
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_ElasticSearchCollector
         configure_ElasticSearchCollector:
-          node: ElasticSearchCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - ElasticSearchCollector_configured
         ElasticSearchCollector_configured:
-          node: ElasticSearchCollector
-          activity:
-            set_state: configured
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: configured
+          on_success:
             - ElasticSearchCollector_starting
         ElasticSearchCollector_starting:
-          node: ElasticSearchCollector
-          activity:
-            set_state: starting
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: starting
+          on_success:
             - start_ElasticSearchCollector
         start_ElasticSearchCollector:
-          node: ElasticSearchCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - ElasticSearchCollector_started
         ElasticSearchCollector_started:
-          node: ElasticSearchCollector
-          activity:
-            set_state: started
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: started
+          on_success:
             - A4CCollector_configuring
             - Alien4Cloud_configuring
         ElasticSearch_initial:
-          node: ElasticSearch
-          activity:
-            set_state: initial
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: initial
+          on_success:
             - ElasticSearch_creating
         ElasticSearch_creating:
-          node: ElasticSearch
-          activity:
-            set_state: creating
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: creating
+          on_success:
             - create_ElasticSearch
         create_ElasticSearch:
-          node: ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: ElasticSearch
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.create
+          on_success:
             - ElasticSearch_created
         ElasticSearch_created:
-          node: ElasticSearch
-          activity:
-            set_state: created
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: created
+          on_success:
             - ElasticSearchCollector_initial
             - ElasticSearch_configuring
         ElasticSearch_configuring:
-          node: ElasticSearch
-          activity:
-            set_state: configuring
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_ElasticSearch
         configure_ElasticSearch:
-          node: ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: ElasticSearch
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - ElasticSearch_configured
         ElasticSearch_configured:
-          node: ElasticSearch
-          activity:
-            set_state: configured
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: configured
+          on_success:
             - ElasticSearch_starting
         ElasticSearch_starting:
-          node: ElasticSearch
-          activity:
-            set_state: starting
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: starting
+          on_success:
             - start_ElasticSearch
         start_ElasticSearch:
-          node: ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: ElasticSearch
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - ElasticSearch_started
         ElasticSearch_started:
-          node: ElasticSearch
-          activity:
-            set_state: started
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: started
+          on_success:
             - ElasticSearchCollector_configuring
         ArtifactRepositoriesConfigurator_initial:
-          node: FCRepositories
-          activity:
-            set_state: initial
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: initial
+          on_success:
             - ArtifactRepositoriesConfigurator_creating
         ArtifactRepositoriesConfigurator_creating:
-          node: FCRepositories
-          activity:
-            set_state: creating
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: creating
+          on_success:
             - ArtifactRepositoriesConfigurator_created
         ArtifactRepositoriesConfigurator_created:
-          node: FCRepositories
-          activity:
-            set_state: created
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: created
+          on_success:
             - ArtifactRepositoriesConfigurator_configuring
             - AddCsarFromGit_initial
         ArtifactRepositoriesConfigurator_configuring:
-          node: FCRepositories
-          activity:
-            set_state: configuring
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_ArtifactRepositoriesConfigurator
         configure_ArtifactRepositoriesConfigurator:
-          node: FCRepositories
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: FCRepositories
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - ArtifactRepositoriesConfigurator_configured
         ArtifactRepositoriesConfigurator_configured:
-          node: FCRepositories
-          activity:
-            set_state: configured
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: configured
+          on_success:
             - ArtifactRepositoriesConfigurator_starting
         ArtifactRepositoriesConfigurator_starting:
-          node: FCRepositories
-          activity:
-            set_state: starting
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: starting
+          on_success:
             - start_ArtifactRepositoriesConfigurator
         start_ArtifactRepositoriesConfigurator:
-          node: FCRepositories
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: FCRepositories
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - ArtifactRepositoriesConfigurator_started
         ArtifactRepositoriesConfigurator_started:
-          node: FCRepositories
-          activity:
-            set_state: started
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: started
+          on_success:
             - AddCsarFromGit_configuring
             - AddCsarFromGit_initial_1
         AddCsarFromGit_initial:
-          node: AddSamplesTypes
-          activity:
-            set_state: initial
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: initial
+          on_success:
             - AddCsarFromGit_creating
         AddCsarFromGit_creating:
-          node: AddSamplesTypes
-          activity:
-            set_state: creating
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: creating
+          on_success:
             - AddCsarFromGit_created
         AddCsarFromGit_created:
-          node: AddSamplesTypes
-          activity:
-            set_state: created
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: created
+          on_success:
             - AddCsarFromGit_configuring
             - AddCsarFromGit_configuring_1
             - ArtifactRepositoriesConfigurator_configuring
             - AddCsarFromGit_initial_1
         AddCsarFromGit_configuring:
-          node: AddSamplesTypes
-          activity:
-            set_state: configuring
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_AddCsarFromGit
         configure_AddCsarFromGit:
-          node: AddSamplesTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - AddCsarFromGit_configured
         AddCsarFromGit_configured:
-          node: AddSamplesTypes
-          activity:
-            set_state: configured
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: configured
+          on_success:
             - AddCsarFromGit_starting
         AddCsarFromGit_starting:
-          node: AddSamplesTypes
-          activity:
-            set_state: starting
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: starting
+          on_success:
             - start_AddCsarFromGit
         start_AddCsarFromGit:
-          node: AddSamplesTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - AddCsarFromGit_started
         AddCsarFromGit_started:
-          node: AddSamplesTypes
-          activity:
-            set_state: started
+          target: AddSamplesTypes
+          activities:
+            - set_state: started
         CfyOrchestratorConfigurator_initial:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: initial
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: initial
+          on_success:
             - CfyOrchestratorConfigurator_creating
         CfyOrchestratorConfigurator_creating:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: creating
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: creating
+          on_success:
             - CfyOrchestratorConfigurator_created
         CfyOrchestratorConfigurator_created:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: created
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: created
+          on_success:
             - CfyOrchestratorConfigurator_configuring
         CfyOrchestratorConfigurator_configuring:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: configuring
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_CfyOrchestratorConfigurator
         configure_CfyOrchestratorConfigurator:
-          node: CfyOrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - CfyOrchestratorConfigurator_configured
         CfyOrchestratorConfigurator_configured:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: configured
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: configured
+          on_success:
             - CfyOrchestratorConfigurator_starting
         CfyOrchestratorConfigurator_starting:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: starting
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: starting
+          on_success:
             - start_CfyOrchestratorConfigurator
         start_CfyOrchestratorConfigurator:
-          node: CfyOrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - CfyOrchestratorConfigurator_started
         CfyOrchestratorConfigurator_started:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: started
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: started
+          on_success:
             - OnDemandLocationResourcesConfigurator_initial
         OnDemandLocationResourcesConfigurator_initial:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: initial
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: initial
+          on_success:
             - OnDemandLocationResourcesConfigurator_creating
         OnDemandLocationResourcesConfigurator_creating:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: creating
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: creating
+          on_success:
             - create_OnDemandLocationResourcesConfigurator
         create_OnDemandLocationResourcesConfigurator:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.create
+          on_success:
             - OnDemandLocationResourcesConfigurator_created
         OnDemandLocationResourcesConfigurator_created:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: created
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: created
+          on_success:
             - OnDemandLocationResourcesConfigurator_configuring
         OnDemandLocationResourcesConfigurator_configuring:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: configuring
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_OnDemandLocationResourcesConfigurator
         configure_OnDemandLocationResourcesConfigurator:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - OnDemandLocationResourcesConfigurator_configured
         OnDemandLocationResourcesConfigurator_configured:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: configured
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: configured
+          on_success:
             - OnDemandLocationResourcesConfigurator_starting
         OnDemandLocationResourcesConfigurator_starting:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: starting
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: starting
+          on_success:
             - start_OnDemandLocationResourcesConfigurator
         start_OnDemandLocationResourcesConfigurator:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - OnDemandLocationResourcesConfigurator_started
         OnDemandLocationResourcesConfigurator_started:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: started
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: started
+          on_success:
             - ArtifactRepositoriesConfigurator_initial
         CloudifyManagerService_install:
-          node: CloudifyManagerService
-          activity:
-            delegate: install
-          on-success:
+          target: CloudifyManagerService
+          activities:
+            - delegate: install
+          on_success:
             - CfyOrchestratorConfigurator_initial
         AddCsarFromGit_initial_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: initial
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: initial
+          on_success:
             - AddCsarFromGit_creating_1
         AddCsarFromGit_creating_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: creating
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: creating
+          on_success:
             - AddCsarFromGit_created_1
         AddCsarFromGit_created_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: created
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: created
+          on_success:
             - AddCsarFromGit_configuring_1
         AddCsarFromGit_configuring_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: configuring
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_AddCsarFromGit_1
         configure_AddCsarFromGit_1:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.configure
+          on_success:
             - AddCsarFromGit_configured_1
         AddCsarFromGit_configured_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: configured
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: configured
+          on_success:
             - AddCsarFromGit_starting_1
         AddCsarFromGit_starting_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: starting
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: starting
+          on_success:
             - start_AddCsarFromGit_1
         start_AddCsarFromGit_1:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - AddCsarFromGit_started_1
         AddCsarFromGit_started_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: started
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: started
+          on_success:
             - AddCsarFromGit_configuring
     uninstall:
       steps:
         stop_ElasticSearchCollector:
-          node: ElasticSearchCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - ElasticSearchCollector_stopped
         Alien4Cloud_stopping:
-          node: Alien4Cloud
-          activity:
-            set_state: stopping
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_Alien4Cloud
         OracleJDK_deleted:
-          node: OracleJDK
-          activity:
-            set_state: deleted
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: deleted
+          on_success:
             - _A4cCompute_uninstall
             - dmdA4c_stopping
         stop_dmdA4c:
-          node: dmdA4c
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: dmdA4c
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - dmdA4c_stopped
         ElasticSearchCollector_deleting:
-          node: ElasticSearchCollector
-          activity:
-            set_state: deleting
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_ElasticSearchCollector
         ElasticSearchCollector_deleted:
-          node: ElasticSearchCollector
-          activity:
-            set_state: deleted
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: deleted
+          on_success:
             - dmdA4c_stopping
         A4CCollector_deleting:
-          node: A4CCollector
-          activity:
-            set_state: deleting
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_A4CCollector
         delete_Alien4Cloud:
-          node: Alien4Cloud
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - Alien4Cloud_deleted
         OracleJDK_stopped:
-          node: OracleJDK
-          activity:
-            set_state: stopped
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: stopped
+          on_success:
             - OracleJDK_deleting
         GraphiteService_uninstall:
-          node: GraphiteService
-          activity:
-            delegate: uninstall
+          target: GraphiteService
+          activities:
+            - delegate: uninstall
         OracleJDK_stopping:
-          node: OracleJDK
-          activity:
-            set_state: stopping
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_OracleJDK
         dmdA4c_deleted:
-          node: dmdA4c
-          activity:
-            set_state: deleted
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: deleted
+          on_success:
             - GraphiteService_uninstall
             - _A4cCompute_uninstall
             - GrafanaService_uninstall
         stop_Alien4Cloud:
-          node: Alien4Cloud
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - Alien4Cloud_stopped
         stop_A4CCollector:
-          node: A4CCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: A4CCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - A4CCollector_stopped
         dmdA4c_deleting:
-          node: dmdA4c
-          activity:
-            set_state: deleting
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_dmdA4c
         Alien4Cloud_stopped:
-          node: Alien4Cloud
-          activity:
-            set_state: stopped
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: stopped
+          on_success:
             - Alien4Cloud_deleting
         ElasticSearchCollector_stopping:
-          node: ElasticSearchCollector
-          activity:
-            set_state: stopping
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_ElasticSearchCollector
         OracleJDK_deleting:
-          node: OracleJDK
-          activity:
-            set_state: deleting
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_OracleJDK
         Alien4Cloud_deleting:
-          node: Alien4Cloud
-          activity:
-            set_state: deleting
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_Alien4Cloud
         dmdA4c_stopped:
-          node: dmdA4c
-          activity:
-            set_state: stopped
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: stopped
+          on_success:
             - dmdA4c_deleting
         delete_ElasticSearchCollector:
-          node: ElasticSearchCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - ElasticSearchCollector_deleted
         delete_OracleJDK:
-          node: OracleJDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: OracleJDK
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - OracleJDK_deleted
         Alien4Cloud_deleted:
-          node: Alien4Cloud
-          activity:
-            set_state: deleted
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: deleted
+          on_success:
             - OracleJDK_stopping
             - ElasticSearch_stopping
         A4CCollector_stopped:
-          node: A4CCollector
-          activity:
-            set_state: stopped
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: stopped
+          on_success:
             - Alien4Cloud_stopping
             - A4CCollector_deleting
         ElasticSearchCollector_stopped:
-          node: ElasticSearchCollector
-          activity:
-            set_state: stopped
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: stopped
+          on_success:
             - ElasticSearch_stopping
             - ElasticSearchCollector_deleting
         delete_A4CCollector:
-          node: A4CCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: A4CCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - A4CCollector_deleted
         dmdA4c_stopping:
-          node: dmdA4c
-          activity:
-            set_state: stopping
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_dmdA4c
         stop_OracleJDK:
-          node: OracleJDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: OracleJDK
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - OracleJDK_stopped
         _A4cCompute_uninstall:
-          node: _A4cCompute
-          activity:
-            delegate: uninstall
+          target: _A4cCompute
+          activities:
+            - delegate: uninstall
         GrafanaService_uninstall:
-          node: GrafanaService
-          activity:
-            delegate: uninstall
+          target: GrafanaService
+          activities:
+            - delegate: uninstall
         A4CCollector_stopping:
-          node: A4CCollector
-          activity:
-            set_state: stopping
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_A4CCollector
         delete_dmdA4c:
-          node: dmdA4c
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: dmdA4c
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - dmdA4c_deleted
         A4CCollector_deleted:
-          node: A4CCollector
-          activity:
-            set_state: deleted
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: deleted
+          on_success:
             - dmdA4c_stopping
         ElasticSearch_stopping:
-          node: ElasticSearch
-          activity:
-            set_state: stopping
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_ElasticSearch
         stop_ElasticSearch:
-          node: ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: ElasticSearch
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - ElasticSearch_stopped
         ElasticSearch_stopped:
-          node: ElasticSearch
-          activity:
-            set_state: stopped
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: stopped
+          on_success:
             - ElasticSearch_deleting
         ElasticSearch_deleting:
-          node: ElasticSearch
-          activity:
-            set_state: deleting
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_ElasticSearch
         delete_ElasticSearch:
-          node: ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: ElasticSearch
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - ElasticSearch_deleted
         ElasticSearch_deleted:
-          node: ElasticSearch
-          activity:
-            set_state: deleted
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: deleted
+          on_success:
             - OracleJDK_stopping
         ArtifactRepositoriesConfigurator_stopping:
-          node: FCRepositories
-          activity:
-            set_state: stopping
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_ArtifactRepositoriesConfigurator
         stop_ArtifactRepositoriesConfigurator:
-          node: FCRepositories
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: FCRepositories
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - ArtifactRepositoriesConfigurator_stopped
         ArtifactRepositoriesConfigurator_stopped:
-          node: FCRepositories
-          activity:
-            set_state: stopped
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: stopped
+          on_success:
             - ArtifactRepositoriesConfigurator_deleting
         ArtifactRepositoriesConfigurator_deleting:
-          node: FCRepositories
-          activity:
-            set_state: deleting
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_ArtifactRepositoriesConfigurator
         delete_ArtifactRepositoriesConfigurator:
-          node: FCRepositories
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: FCRepositories
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - ArtifactRepositoriesConfigurator_deleted
         ArtifactRepositoriesConfigurator_deleted:
-          node: FCRepositories
-          activity:
-            set_state: deleted
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: deleted
+          on_success:
             - Alien4Cloud_stopping
         AddCsarFromGit_stopping:
-          node: AddSamplesTypes
-          activity:
-            set_state: stopping
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_AddCsarFromGit
         stop_AddCsarFromGit:
-          node: AddSamplesTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - AddCsarFromGit_stopped
         AddCsarFromGit_stopped:
-          node: AddSamplesTypes
-          activity:
-            set_state: stopped
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: stopped
+          on_success:
             - AddCsarFromGit_deleting
         AddCsarFromGit_deleting:
-          node: AddSamplesTypes
-          activity:
-            set_state: deleting
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_AddCsarFromGit
         delete_AddCsarFromGit:
-          node: AddSamplesTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - AddCsarFromGit_deleted
         AddCsarFromGit_deleted:
-          node: AddSamplesTypes
-          activity:
-            set_state: deleted
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: deleted
+          on_success:
             - Alien4Cloud_stopping
         CfyOrchestratorConfigurator_stopping:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: stopping
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_CfyOrchestratorConfigurator
         stop_CfyOrchestratorConfigurator:
-          node: CfyOrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - CfyOrchestratorConfigurator_stopped
         CfyOrchestratorConfigurator_stopped:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: stopped
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: stopped
+          on_success:
             - CfyOrchestratorConfigurator_deleting
         CfyOrchestratorConfigurator_deleting:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: deleting
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_CfyOrchestratorConfigurator
         delete_CfyOrchestratorConfigurator:
-          node: CfyOrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - CfyOrchestratorConfigurator_deleted
         CfyOrchestratorConfigurator_deleted:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: deleted
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: deleted
+          on_success:
             - Alien4Cloud_stopping
             - CloudifyManagerService_uninstall
         OnDemandLocationResourcesConfigurator_stopping:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: stopping
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_OnDemandLocationResourcesConfigurator
         stop_OnDemandLocationResourcesConfigurator:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - OnDemandLocationResourcesConfigurator_stopped
         OnDemandLocationResourcesConfigurator_stopped:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: stopped
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: stopped
+          on_success:
             - OnDemandLocationResourcesConfigurator_deleting
         OnDemandLocationResourcesConfigurator_deleting:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: deleting
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_OnDemandLocationResourcesConfigurator
         delete_OnDemandLocationResourcesConfigurator:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - OnDemandLocationResourcesConfigurator_deleted
         OnDemandLocationResourcesConfigurator_deleted:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: deleted
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: deleted
+          on_success:
             - CfyOrchestratorConfigurator_stopping
         CloudifyManagerService_uninstall:
-          node: CloudifyManagerService
-          activity:
-            delegate: uninstall
+          target: CloudifyManagerService
+          activities:
+            - delegate: uninstall
         AddCsarFromGit_stopping_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: stopping
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_AddCsarFromGit_1
         stop_AddCsarFromGit_1:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - AddCsarFromGit_stopped_1
         AddCsarFromGit_stopped_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: stopped
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: stopped
+          on_success:
             - AddCsarFromGit_deleting_1
         AddCsarFromGit_deleting_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: deleting
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_AddCsarFromGit_1
         delete_AddCsarFromGit_1:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.delete
+          on_success:
             - AddCsarFromGit_deleted_1
         AddCsarFromGit_deleted_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: deleted
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: deleted
+          on_success:
             - Alien4Cloud_stopping
     start:
       steps:
         Compute_start:
-          node: _A4cCompute
-          activity:
-            delegate: start
-          on-success:
+          target: _A4cCompute
+          activities:
+            - delegate: start
+          on_success:
             - OracleJDK_starting
             - DiamondLinuxAgent_starting
         DiamondLinuxAgent_starting:
-          node: dmdA4c
-          activity:
-            set_state: starting
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: starting
+          on_success:
             - start_DiamondLinuxAgent
         start_DiamondLinuxAgent:
-          node: dmdA4c
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: dmdA4c
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - DiamondLinuxAgent_started
         DiamondLinuxAgent_started:
-          node: dmdA4c
-          activity:
-            set_state: started
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: started
+          on_success:
             - OracleJDK_starting
             - A4CCollector_starting
             - ElasticSearchCollector_starting
         GraphiteService_start:
-          node: GraphiteService
-          activity:
-            delegate: start
-          on-success:
+          target: GraphiteService
+          activities:
+            - delegate: start
+          on_success:
             - DiamondLinuxAgent_starting
         GrafanaService_start:
-          node: GrafanaService
-          activity:
-            delegate: start
-          on-success:
+          target: GrafanaService
+          activities:
+            - delegate: start
+          on_success:
             - DiamondLinuxAgent_starting
         Alien4Cloud_starting:
-          node: Alien4Cloud
-          activity:
-            set_state: starting
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: starting
+          on_success:
             - start_Alien4Cloud
         start_Alien4Cloud:
-          node: Alien4Cloud
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - Alien4Cloud_started
         Alien4Cloud_started:
-          node: Alien4Cloud
-          activity:
-            set_state: started
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: started
+          on_success:
             - CfyOrchestratorConfigurator_starting
             - AddCsarFromGit_starting
             - AddCsarFromGit_starting_1
             - A4CCollector_starting
             - ArtifactRepositoriesConfigurator_starting
         OracleJDK_starting:
-          node: OracleJDK
-          activity:
-            set_state: starting
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: starting
+          on_success:
             - start_OracleJDK
         start_OracleJDK:
-          node: OracleJDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: OracleJDK
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - OracleJDK_started
         OracleJDK_started:
-          node: OracleJDK
-          activity:
-            set_state: started
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: started
+          on_success:
             - Alien4Cloud_starting
             - ElasticSearch_starting
         A4CCollector_starting:
-          node: A4CCollector
-          activity:
-            set_state: starting
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: starting
+          on_success:
             - start_A4CCollector
         start_A4CCollector:
-          node: A4CCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: A4CCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - A4CCollector_started
         A4CCollector_started:
-          node: A4CCollector
-          activity:
-            set_state: started
+          target: A4CCollector
+          activities:
+            - set_state: started
         ElasticSearchCollector_starting:
-          node: ElasticSearchCollector
-          activity:
-            set_state: starting
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: starting
+          on_success:
             - start_ElasticSearchCollector
         start_ElasticSearchCollector:
-          node: ElasticSearchCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - ElasticSearchCollector_started
         ElasticSearchCollector_started:
-          node: ElasticSearchCollector
-          activity:
-            set_state: started
+          target: ElasticSearchCollector
+          activities:
+            - set_state: started
         ElasticSearch_starting:
-          node: ElasticSearch
-          activity:
-            set_state: starting
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: starting
+          on_success:
             - start_ElasticSearch
         start_ElasticSearch:
-          node: ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: ElasticSearch
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - ElasticSearch_started
         ElasticSearch_started:
-          node: ElasticSearch
-          activity:
-            set_state: started
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: started
+          on_success:
             - ElasticSearchCollector_starting
         ArtifactRepositoriesConfigurator_starting:
-          node: FCRepositories
-          activity:
-            set_state: starting
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: starting
+          on_success:
             - start_ArtifactRepositoriesConfigurator
         start_ArtifactRepositoriesConfigurator:
-          node: FCRepositories
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: FCRepositories
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - ArtifactRepositoriesConfigurator_started
         ArtifactRepositoriesConfigurator_started:
-          node: FCRepositories
-          activity:
-            set_state: started
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: started
+          on_success:
             - AddCsarFromGit_starting
         AddCsarFromGit_starting:
-          node: AddSamplesTypes
-          activity:
-            set_state: starting
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: starting
+          on_success:
             - start_AddCsarFromGit
         start_AddCsarFromGit:
-          node: AddSamplesTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - AddCsarFromGit_started
         AddCsarFromGit_started:
-          node: AddSamplesTypes
-          activity:
-            set_state: started
+          target: AddSamplesTypes
+          activities:
+            - set_state: started
         CfyOrchestratorConfigurator_starting:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: starting
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: starting
+          on_success:
             - start_CfyOrchestratorConfigurator
         start_CfyOrchestratorConfigurator:
-          node: CfyOrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - CfyOrchestratorConfigurator_started
         CfyOrchestratorConfigurator_started:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: started
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: started
+          on_success:
             - OnDemandLocationResourcesConfigurator_starting
         OnDemandLocationResourcesConfigurator_starting:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: starting
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: starting
+          on_success:
             - start_OnDemandLocationResourcesConfigurator
         start_OnDemandLocationResourcesConfigurator:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - OnDemandLocationResourcesConfigurator_started
         OnDemandLocationResourcesConfigurator_started:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: started
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: started
         CloudifyManagerService_start:
-          node: CloudifyManagerService
-          activity:
-            delegate: start
-          on-success:
+          target: CloudifyManagerService
+          activities:
+            - delegate: start
+          on_success:
             - CfyOrchestratorConfigurator_starting
         AddCsarFromGit_starting_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: starting
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: starting
+          on_success:
             - start_AddCsarFromGit_1
         start_AddCsarFromGit_1:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.start
+          on_success:
             - AddCsarFromGit_started_1
         AddCsarFromGit_started_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: started
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: started
+          on_success:
             - AddCsarFromGit_starting
     stop:
       steps:
         Compute_stop:
-          node: _A4cCompute
-          activity:
-            delegate: stop
+          target: _A4cCompute
+          activities:
+            - delegate: stop
         DiamondLinuxAgent_stopping:
-          node: dmdA4c
-          activity:
-            set_state: stopping
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_DiamondLinuxAgent
         stop_DiamondLinuxAgent:
-          node: dmdA4c
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: dmdA4c
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - DiamondLinuxAgent_stopped
         DiamondLinuxAgent_stopped:
-          node: dmdA4c
-          activity:
-            set_state: stopped
-          on-success:
+          target: dmdA4c
+          activities:
+            - set_state: stopped
+          on_success:
             - GraphiteService_stop
             - GrafanaService_stop
             - Compute_stop
         GraphiteService_stop:
-          node: GraphiteService
-          activity:
-            delegate: stop
+          target: GraphiteService
+          activities:
+            - delegate: stop
         GrafanaService_stop:
-          node: GrafanaService
-          activity:
-            delegate: stop
+          target: GrafanaService
+          activities:
+            - delegate: stop
         Alien4Cloud_stopping:
-          node: Alien4Cloud
-          activity:
-            set_state: stopping
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_Alien4Cloud
         stop_Alien4Cloud:
-          node: Alien4Cloud
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - Alien4Cloud_stopped
         Alien4Cloud_stopped:
-          node: Alien4Cloud
-          activity:
-            set_state: stopped
-          on-success:
+          target: Alien4Cloud
+          activities:
+            - set_state: stopped
+          on_success:
             - OracleJDK_stopping
         OracleJDK_stopping:
-          node: OracleJDK
-          activity:
-            set_state: stopping
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_OracleJDK
         stop_OracleJDK:
-          node: OracleJDK
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: OracleJDK
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - OracleJDK_stopped
         OracleJDK_stopped:
-          node: OracleJDK
-          activity:
-            set_state: stopped
-          on-success:
+          target: OracleJDK
+          activities:
+            - set_state: stopped
+          on_success:
             - DiamondLinuxAgent_stopping
             - Compute_stop
         A4CCollector_stopping:
-          node: A4CCollector
-          activity:
-            set_state: stopping
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_A4CCollector
         stop_A4CCollector:
-          node: A4CCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: A4CCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - A4CCollector_stopped
         A4CCollector_stopped:
-          node: A4CCollector
-          activity:
-            set_state: stopped
-          on-success:
+          target: A4CCollector
+          activities:
+            - set_state: stopped
+          on_success:
             - DiamondLinuxAgent_stopping
         ElasticSearchCollector_stopping:
-          node: ElasticSearchCollector
-          activity:
-            set_state: stopping
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_ElasticSearchCollector
         stop_ElasticSearchCollector:
-          node: ElasticSearchCollector
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - ElasticSearchCollector_stopped
         ElasticSearchCollector_stopped:
-          node: ElasticSearchCollector
-          activity:
-            set_state: stopped
-          on-success:
+          target: ElasticSearchCollector
+          activities:
+            - set_state: stopped
+          on_success:
             - DiamondLinuxAgent_stopping
         ElasticSearch_stopping:
-          node: ElasticSearch
-          activity:
-            set_state: stopping
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_ElasticSearch
         stop_ElasticSearch:
-          node: ElasticSearch
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: ElasticSearch
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - ElasticSearch_stopped
         ElasticSearch_stopped:
-          node: ElasticSearch
-          activity:
-            set_state: stopped
-          on-success:
+          target: ElasticSearch
+          activities:
+            - set_state: stopped
+          on_success:
             - OracleJDK_stopping
         ArtifactRepositoriesConfigurator_stopping:
-          node: FCRepositories
-          activity:
-            set_state: stopping
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_ArtifactRepositoriesConfigurator
         stop_ArtifactRepositoriesConfigurator:
-          node: FCRepositories
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: FCRepositories
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - ArtifactRepositoriesConfigurator_stopped
         ArtifactRepositoriesConfigurator_stopped:
-          node: FCRepositories
-          activity:
-            set_state: stopped
-          on-success:
+          target: FCRepositories
+          activities:
+            - set_state: stopped
+          on_success:
             - Alien4Cloud_stopping
         AddCsarFromGit_stopping:
-          node: AddSamplesTypes
-          activity:
-            set_state: stopping
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_AddCsarFromGit
         stop_AddCsarFromGit:
-          node: AddSamplesTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - AddCsarFromGit_stopped
         AddCsarFromGit_stopped:
-          node: AddSamplesTypes
-          activity:
-            set_state: stopped
-          on-success:
+          target: AddSamplesTypes
+          activities:
+            - set_state: stopped
+          on_success:
             - Alien4Cloud_stopping
         CfyOrchestratorConfigurator_stopping:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: stopping
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_CfyOrchestratorConfigurator
         stop_CfyOrchestratorConfigurator:
-          node: CfyOrchestratorConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - CfyOrchestratorConfigurator_stopped
         CfyOrchestratorConfigurator_stopped:
-          node: CfyOrchestratorConfigurator
-          activity:
-            set_state: stopped
-          on-success:
+          target: CfyOrchestratorConfigurator
+          activities:
+            - set_state: stopped
+          on_success:
             - CloudifyManagerService_stop
             - Alien4Cloud_stopping
         OnDemandLocationResourcesConfigurator_stopping:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: stopping
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_OnDemandLocationResourcesConfigurator
         stop_OnDemandLocationResourcesConfigurator:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - OnDemandLocationResourcesConfigurator_stopped
         OnDemandLocationResourcesConfigurator_stopped:
-          node: OnDemandLocationResourcesConfigurator
-          activity:
-            set_state: stopped
-          on-success:
+          target: OnDemandLocationResourcesConfigurator
+          activities:
+            - set_state: stopped
+          on_success:
             - CfyOrchestratorConfigurator_stopping
         CloudifyManagerService_stop:
-          node: CloudifyManagerService
-          activity:
-            delegate: stop
+          target: CloudifyManagerService
+          activities:
+            - delegate: stop
         AddCsarFromGit_stopping_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: stopping
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_AddCsarFromGit_1
         stop_AddCsarFromGit_1:
-          node: AddExtendedTypes
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - call_operation: tosca.interfaces.target.lifecycle.Standard.stop
+          on_success:
             - AddCsarFromGit_stopped_1
         AddCsarFromGit_stopped_1:
-          node: AddExtendedTypes
-          activity:
-            set_state: stopped
-          on-success:
+          target: AddExtendedTypes
+          activities:
+            - set_state: stopped
+          on_success:
             - Alien4Cloud_stopping

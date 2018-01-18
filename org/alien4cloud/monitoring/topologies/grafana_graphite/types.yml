@@ -136,440 +136,440 @@ topology_template:
     install:
       steps:
         MonitoringCompute_install:
-          node: _MonitoringCompute
-          activity:
-            delegate: install
-          on-success:
+          target: _MonitoringCompute
+          activities:
+            - delegate: install
+          on_success:
             - DiamondLinuxAgent_initial
             - Graphite_initial
             - Graphite_configuring
             - Grafana_initial
             - Grafana_configuring
         Grafana_initial:
-          node: Grafana
-          activity:
-            set_state: initial
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: initial
+          on_success:
             - Grafana_creating
         Grafana_creating:
-          node: Grafana
-          activity:
-            set_state: creating
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: creating
+          on_success:
             - create_Grafana
         create_Grafana:
-          node: Grafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: Grafana
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on_success:
             - Grafana_created
         Grafana_created:
-          node: Grafana
-          activity:
-            set_state: created
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: created
+          on_success:
             - Graphite_configuring
             - Grafana_configuring
         Grafana_configuring:
-          node: Grafana
-          activity:
-            set_state: configuring
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_Grafana
         configure_Grafana:
-          node: Grafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: Grafana
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on_success:
             - Grafana_configured
         Grafana_configured:
-          node: Grafana
-          activity:
-            set_state: configured
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: configured
+          on_success:
             - Grafana_starting
         Grafana_starting:
-          node: Grafana
-          activity:
-            set_state: starting
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: starting
+          on_success:
             - start_Grafana
         start_Grafana:
-          node: Grafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: Grafana
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - Grafana_started
         Grafana_started:
-          node: Grafana
-          activity:
-            set_state: started
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: started
+          on_success:
             - DiamondLinuxAgent_configuring
         Graphite_initial:
-          node: Graphite
-          activity:
-            set_state: initial
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: initial
+          on_success:
             - Graphite_creating
         Graphite_creating:
-          node: Graphite
-          activity:
-            set_state: creating
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: creating
+          on_success:
             - create_Graphite
         create_Graphite:
-          node: Graphite
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: Graphite
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on_success:
             - Graphite_created
         Graphite_created:
-          node: Graphite
-          activity:
-            set_state: created
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: created
+          on_success:
             - Graphite_configuring
             - Grafana_initial
         Graphite_configuring:
-          node: Graphite
-          activity:
-            set_state: configuring
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_Graphite
         configure_Graphite:
-          node: Graphite
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: Graphite
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on_success:
             - Graphite_configured
         Graphite_configured:
-          node: Graphite
-          activity:
-            set_state: configured
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: configured
+          on_success:
             - Graphite_starting
         Graphite_starting:
-          node: Graphite
-          activity:
-            set_state: starting
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: starting
+          on_success:
             - start_Graphite
         start_Graphite:
-          node: Graphite
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: Graphite
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - Graphite_started
         Graphite_started:
-          node: Graphite
-          activity:
-            set_state: started
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: started
+          on_success:
             - Grafana_configuring
             - DiamondLinuxAgent_configuring
         DiamondLinuxAgent_initial:
-          node: dmdMonitoring
-          activity:
-            set_state: initial
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: initial
+          on_success:
             - DiamondLinuxAgent_creating
         DiamondLinuxAgent_creating:
-          node: dmdMonitoring
-          activity:
-            set_state: creating
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: creating
+          on_success:
             - create_DiamondLinuxAgent
         create_DiamondLinuxAgent:
-          node: dmdMonitoring
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on_success:
             - DiamondLinuxAgent_created
         DiamondLinuxAgent_created:
-          node: dmdMonitoring
-          activity:
-            set_state: created
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: created
+          on_success:
             - Graphite_initial
             - Graphite_configuring
             - Grafana_configuring
             - DiamondLinuxAgent_configuring
         DiamondLinuxAgent_configuring:
-          node: dmdMonitoring
-          activity:
-            set_state: configuring
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_DiamondLinuxAgent
         configure_DiamondLinuxAgent:
-          node: dmdMonitoring
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on_success:
             - DiamondLinuxAgent_configured
         DiamondLinuxAgent_configured:
-          node: dmdMonitoring
-          activity:
-            set_state: configured
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: configured
+          on_success:
             - DiamondLinuxAgent_starting
         DiamondLinuxAgent_starting:
-          node: dmdMonitoring
-          activity:
-            set_state: starting
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: starting
+          on_success:
             - start_DiamondLinuxAgent
         start_DiamondLinuxAgent:
-          node: dmdMonitoring
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - DiamondLinuxAgent_started
         DiamondLinuxAgent_started:
-          node: dmdMonitoring
-          activity:
-            set_state: started
+          target: dmdMonitoring
+          activities:
+            - set_state: started
     uninstall:
       steps:
         MonitoringCompute_uninstall:
-          node: _MonitoringCompute
-          activity:
-            delegate: uninstall
+          target: _MonitoringCompute
+          activities:
+            - delegate: uninstall
         Grafana_stopping:
-          node: Grafana
-          activity:
-            set_state: stopping
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_Grafana
         stop_Grafana:
-          node: Grafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: Grafana
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - Grafana_stopped
         Grafana_stopped:
-          node: Grafana
-          activity:
-            set_state: stopped
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: stopped
+          on_success:
             - Graphite_stopping
             - Grafana_deleting
         Grafana_deleting:
-          node: Grafana
-          activity:
-            set_state: deleting
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_Grafana
         delete_Grafana:
-          node: Grafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: Grafana
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on_success:
             - Grafana_deleted
         Grafana_deleted:
-          node: Grafana
-          activity:
-            set_state: deleted
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: deleted
+          on_success:
             - Graphite_stopping
             - MonitoringCompute_uninstall
         Graphite_stopping:
-          node: Graphite
-          activity:
-            set_state: stopping
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_Graphite
         stop_Graphite:
-          node: Graphite
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: Graphite
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - Graphite_stopped
         Graphite_stopped:
-          node: Graphite
-          activity:
-            set_state: stopped
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: stopped
+          on_success:
             - Graphite_deleting
         Graphite_deleting:
-          node: Graphite
-          activity:
-            set_state: deleting
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_Graphite
         delete_Graphite:
-          node: Graphite
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: Graphite
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on_success:
             - Graphite_deleted
         Graphite_deleted:
-          node: Graphite
-          activity:
-            set_state: deleted
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: deleted
+          on_success:
             - DiamondLinuxAgent_deleting
             - MonitoringCompute_uninstall
         DiamondLinuxAgent_stopping:
-          node: dmdMonitoring
-          activity:
-            set_state: stopping
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_DiamondLinuxAgent
         stop_DiamondLinuxAgent:
-          node: dmdMonitoring
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - DiamondLinuxAgent_stopped
         DiamondLinuxAgent_stopped:
-          node: dmdMonitoring
-          activity:
-            set_state: stopped
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: stopped
+          on_success:
             - DiamondLinuxAgent_deleting
             - Graphite_stopping
             - Grafana_stopping
         DiamondLinuxAgent_deleting:
-          node: dmdMonitoring
-          activity:
-            set_state: deleting
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_DiamondLinuxAgent
         delete_DiamondLinuxAgent:
-          node: dmdMonitoring
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on_success:
             - DiamondLinuxAgent_deleted
         DiamondLinuxAgent_deleted:
-          node: dmdMonitoring
-          activity:
-            set_state: deleted
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: deleted
+          on_success:
             - MonitoringCompute_uninstall
     start:
       steps:
         MonitoringCompute_start:
-          node: _MonitoringCompute
-          activity:
-            delegate: start
-          on-success:
+          target: _MonitoringCompute
+          activities:
+            - delegate: start
+          on_success:
             - Graphite_starting
             - Grafana_starting
             - DiamondLinuxAgent_starting
         Grafana_starting:
-          node: Grafana
-          activity:
-            set_state: starting
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: starting
+          on_success:
             - start_Grafana
         start_Grafana:
-          node: Grafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: Grafana
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - Grafana_started
         Grafana_started:
-          node: Grafana
-          activity:
-            set_state: started
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: started
+          on_success:
             - DiamondLinuxAgent_starting
         Graphite_starting:
-          node: Graphite
-          activity:
-            set_state: starting
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: starting
+          on_success:
             - start_Graphite
         start_Graphite:
-          node: Graphite
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: Graphite
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - Graphite_started
         Graphite_started:
-          node: Graphite
-          activity:
-            set_state: started
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: started
+          on_success:
             - Grafana_starting
             - DiamondLinuxAgent_starting
         DiamondLinuxAgent_starting:
-          node: dmdMonitoring
-          activity:
-            set_state: starting
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: starting
+          on_success:
             - start_DiamondLinuxAgent
         start_DiamondLinuxAgent:
-          node: dmdMonitoring
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - DiamondLinuxAgent_started
         DiamondLinuxAgent_started:
-          node: dmdMonitoring
-          activity:
-            set_state: started
+          target: dmdMonitoring
+          activities:
+            - set_state: started
     stop:
       steps:
         MonitoringCompute_stop:
-          node: _MonitoringCompute
-          activity:
-            delegate: stop
+          target: _MonitoringCompute
+          activities:
+            - delegate: stop
         Grafana_stopping:
-          node: Grafana
-          activity:
-            set_state: stopping
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_Grafana
         stop_Grafana:
-          node: Grafana
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: Grafana
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - Grafana_stopped
         Grafana_stopped:
-          node: Grafana
-          activity:
-            set_state: stopped
-          on-success:
+          target: Grafana
+          activities:
+            - set_state: stopped
+          on_success:
             - MonitoringCompute_stop
         Graphite_stopping:
-          node: Graphite
-          activity:
-            set_state: stopping
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_Graphite
         stop_Graphite:
-          node: Graphite
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: Graphite
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - Graphite_stopped
         Graphite_stopped:
-          node: Graphite
-          activity:
-            set_state: stopped
-          on-success:
+          target: Graphite
+          activities:
+            - set_state: stopped
+          on_success:
             - MonitoringCompute_stop
             - Grafana_stopping
         DiamondLinuxAgent_stopping:
-          node: dmdMonitoring
-          activity:
-            set_state: stopping
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_DiamondLinuxAgent
         stop_DiamondLinuxAgent:
-          node: dmdMonitoring
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - DiamondLinuxAgent_stopped
         DiamondLinuxAgent_stopped:
-          node: dmdMonitoring
-          activity:
-            set_state: stopped
-          on-success:
+          target: dmdMonitoring
+          activities:
+            - set_state: stopped
+          on_success:
             - Graphite_stopping
             - MonitoringCompute_stop

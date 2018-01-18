@@ -133,288 +133,288 @@ topology_template:
     install:
       steps:
         Compute_install:
-          node: HostPoolCompute
-          activity:
-            delegate: install
-          on-success:
+          target: HostPoolCompute
+          activities:
+            - delegate: install
+          on_success:
             - HostPool_initial
             - AWSHostpoolFeeder_initial
         HostPool_initial:
-          node: HostPool
-          activity:
-            set_state: initial
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: initial
+          on_success:
             - HostPool_creating
         HostPool_creating:
-          node: HostPool
-          activity:
-            set_state: creating
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: creating
+          on_success:
             - create_HostPool
         create_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.create
-          on-success:
+          target: HostPool
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.create
+          on_success:
             - HostPool_created
         HostPool_created:
-          node: HostPool
-          activity:
-            set_state: created
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: created
+          on_success:
             - HostPool_configuring
             - AWSHostpoolFeeder_initial
         HostPool_configuring:
-          node: HostPool
-          activity:
-            set_state: configuring
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_HostPool
         configure_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: HostPool
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on_success:
             - HostPool_configured
         HostPool_configured:
-          node: HostPool
-          activity:
-            set_state: configured
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: configured
+          on_success:
             - HostPool_starting
         HostPool_starting:
-          node: HostPool
-          activity:
-            set_state: starting
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: starting
+          on_success:
             - start_HostPool
         start_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: HostPool
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - HostPool_started
         HostPool_started:
-          node: HostPool
-          activity:
-            set_state: started
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: started
+          on_success:
             - AWSHostpoolFeeder_configuring
         AWSHostpoolFeeder_initial:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: initial
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: initial
+          on_success:
             - AWSHostpoolFeeder_creating
         AWSHostpoolFeeder_creating:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: creating
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: creating
+          on_success:
             - AWSHostpoolFeeder_created
         AWSHostpoolFeeder_created:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: created
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: created
+          on_success:
             - HostPool_configuring
             - AWSHostpoolFeeder_configuring
         AWSHostpoolFeeder_configuring:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: configuring
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: configuring
+          on_success:
             - configure_AWSHostpoolFeeder
         configure_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.configure
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+          on_success:
             - AWSHostpoolFeeder_configured
         AWSHostpoolFeeder_configured:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: configured
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: configured
+          on_success:
             - AWSHostpoolFeeder_starting
         AWSHostpoolFeeder_starting:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: starting
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: starting
+          on_success:
             - start_AWSHostpoolFeeder
         start_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - AWSHostpoolFeeder_started
         AWSHostpoolFeeder_started:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: started
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: started
     uninstall:
       steps:
         Compute_uninstall:
-          node: HostPoolCompute
-          activity:
-            delegate: uninstall
+          target: HostPoolCompute
+          activities:
+            - delegate: uninstall
         HostPool_stopping:
-          node: HostPool
-          activity:
-            set_state: stopping
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_HostPool
         stop_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: HostPool
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - HostPool_stopped
         HostPool_stopped:
-          node: HostPool
-          activity:
-            set_state: stopped
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: stopped
+          on_success:
             - HostPool_deleting
         HostPool_deleting:
-          node: HostPool
-          activity:
-            set_state: deleting
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_HostPool
         delete_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: HostPool
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on_success:
             - HostPool_deleted
         HostPool_deleted:
-          node: HostPool
-          activity:
-            set_state: deleted
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: deleted
+          on_success:
             - Compute_uninstall
         AWSHostpoolFeeder_stopping:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: stopping
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_AWSHostpoolFeeder
         stop_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - AWSHostpoolFeeder_stopped
         AWSHostpoolFeeder_stopped:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: stopped
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: stopped
+          on_success:
             - HostPool_stopping
             - AWSHostpoolFeeder_deleting
         AWSHostpoolFeeder_deleting:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: deleting
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: deleting
+          on_success:
             - delete_AWSHostpoolFeeder
         delete_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.delete
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+          on_success:
             - AWSHostpoolFeeder_deleted
         AWSHostpoolFeeder_deleted:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: deleted
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: deleted
+          on_success:
             - Compute_uninstall
             - HostPool_stopping
     start:
       steps:
         CFY_Compute_start:
-          node: HostPoolCompute
-          activity:
-            delegate: start
-          on-success:
+          target: HostPoolCompute
+          activities:
+            - delegate: start
+          on_success:
             - AWSHostpoolFeeder_starting
             - HostPool_starting
         HostPool_starting:
-          node: HostPool
-          activity:
-            set_state: starting
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: starting
+          on_success:
             - start_HostPool
         start_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: HostPool
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - HostPool_started
         HostPool_started:
-          node: HostPool
-          activity:
-            set_state: started
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: started
+          on_success:
             - AWSHostpoolFeeder_starting
         AWSHostpoolFeeder_starting:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: starting
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: starting
+          on_success:
             - start_AWSHostpoolFeeder
         start_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.start
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
+          on_success:
             - AWSHostpoolFeeder_started
         AWSHostpoolFeeder_started:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: started
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: started
     stop:
       steps:
         CFY_Compute_stop:
-          node: HostPoolCompute
-          activity:
-            delegate: stop
+          target: HostPoolCompute
+          activities:
+            - delegate: stop
         HostPool_stopping:
-          node: HostPool
-          activity:
-            set_state: stopping
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_HostPool
         stop_HostPool:
-          node: HostPool
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: HostPool
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - HostPool_stopped
         HostPool_stopped:
-          node: HostPool
-          activity:
-            set_state: stopped
-          on-success:
+          target: HostPool
+          activities:
+            - set_state: stopped
+          on_success:
             - CFY_Compute_stop
         AWSHostpoolFeeder_stopping:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: stopping
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: stopping
+          on_success:
             - stop_AWSHostpoolFeeder
         stop_AWSHostpoolFeeder:
-          node: AWSHostpoolFeeder
-          activity:
-            call_operation: tosca.interfaces.node.lifecycle.Standard.stop
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+          on_success:
             - AWSHostpoolFeeder_stopped
         AWSHostpoolFeeder_stopped:
-          node: AWSHostpoolFeeder
-          activity:
-            set_state: stopped
-          on-success:
+          target: AWSHostpoolFeeder
+          activities:
+            - set_state: stopped
+          on_success:
             - CFY_Compute_stop

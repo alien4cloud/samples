@@ -152,7 +152,7 @@ topology_template:
         configure_AWSHostpoolFeeder:
           target: AWSHostpoolFeeder
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.configure
           on_success:
             - AWSHostpoolFeeder_configured
         AWSHostpoolFeeder_configured:
@@ -170,7 +170,7 @@ topology_template:
         start_AWSHostpoolFeeder:
           target: AWSHostpoolFeeder
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.start
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on_success:
             - AWSHostpoolFeeder_started
         AWSHostpoolFeeder_started:
@@ -192,7 +192,7 @@ topology_template:
         create_HostPool:
           target: HostPool
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.create
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.create
           on_success:
             - HostPool_created
         HostPool_created:
@@ -210,7 +210,7 @@ topology_template:
         configure_HostPool:
           target: HostPool
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.configure
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.configure
           on_success:
             - HostPool_configured
         HostPool_configured:
@@ -228,7 +228,7 @@ topology_template:
         start_HostPool:
           target: HostPool
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.start
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on_success:
             - HostPool_started
         HostPool_started:
@@ -252,7 +252,7 @@ topology_template:
         stop_AWSHostpoolFeeder:
           target: AWSHostpoolFeeder
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on_success:
             - AWSHostpoolFeeder_stopped
         AWSHostpoolFeeder_stopped:
@@ -271,7 +271,7 @@ topology_template:
         delete_AWSHostpoolFeeder:
           target: AWSHostpoolFeeder
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.delete
           on_success:
             - AWSHostpoolFeeder_deleted
         AWSHostpoolFeeder_deleted:
@@ -289,7 +289,7 @@ topology_template:
         stop_HostPool:
           target: HostPool
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on_success:
             - HostPool_stopped
         HostPool_stopped:
@@ -307,7 +307,7 @@ topology_template:
         delete_HostPool:
           target: HostPool
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.delete
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.delete
           on_success:
             - HostPool_deleted
         HostPool_deleted:
@@ -334,7 +334,7 @@ topology_template:
         start_AWSHostpoolFeeder:
           target: AWSHostpoolFeeder
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.start
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on_success:
             - AWSHostpoolFeeder_started
         AWSHostpoolFeeder_started:
@@ -350,7 +350,7 @@ topology_template:
         start_HostPool:
           target: HostPool
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.start
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.start
           on_success:
             - HostPool_started
         HostPool_started:
@@ -374,7 +374,7 @@ topology_template:
         stop_AWSHostpoolFeeder:
           target: AWSHostpoolFeeder
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on_success:
             - AWSHostpoolFeeder_stopped
         AWSHostpoolFeeder_stopped:
@@ -392,7 +392,7 @@ topology_template:
         stop_HostPool:
           target: HostPool
           activities:
-            target call_operation: tosca.interfaces.node.lifecycle.Standard.stop
+            - call_operation: tosca.interfaces.node.lifecycle.Standard.stop
           on_success:
             - HostPool_stopped
         HostPool_stopped:

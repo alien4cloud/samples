@@ -1,0 +1,44 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.demo.hdfs-repository
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  org.alien4cloud.demo.hdfs-repository.nodes.HdfsRepository:
+    derived_from: tosca.nodes.Root
+    description: a distributed repository to store files
+    metadata:
+      icon: /images/hdfs.jpeg
+    properties:
+      hdfs_url:
+        type: string
+      path:
+        type: string
+    attributes:
+      hdfs_folder_url: { get_operation_output: [ SELF, Standard, create, HDFS_FOLDER_URL ] }
+      hdfs_folder_path: { get_operation_output: [ SELF, Standard, create, HDFS_FOLDER_PATH ] }
+    capabilities:
+      hdfs_repository:
+        type: org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            HDFS_URL: { get_property: [SELF, hdfs_url] }
+            HDFS_PATH: { get_property: [SELF, path] }
+          implementation: scripts/create.sh
+        delete:
+          inputs:
+            HDFS_URL: { get_property: [SELF, hdfs_url] }
+            HDFS_PATH: { get_property: [SELF, path] }
+          implementation: scripts/delete.sh
+
+capability_types:
+  org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository:
+    derived_from: tosca.capabilities.Root

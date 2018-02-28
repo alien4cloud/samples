@@ -1,0 +1,112 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.demo.spark-jobs
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - alien-base-types:2.0.0-SNAPSHOT
+  - org.alien4cloud.demo.hdfs-repository:2.0.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.demo.spark-jobs.nodes.SparkApplication:
+    derived_from: org.alien4cloud.nodes.Job
+    metadata:
+      icon: /images/spark.png
+    properties:
+      spark_url:
+        type: string
+      hdfs_url:
+        type: string
+      default_input_file_url:
+        type: string
+        required: false
+      class_name:
+        type: string
+      memory:
+        type: integer
+      cores:
+        type: integer
+      app_args:
+        type: string
+    attributes:
+      input_file_url: { get_operation_output: [ SELF, Standard, configure, INPUT_FILE_URL ] }
+      output_file_url: { get_operation_output: [ SELF, Standard, configure, OUTPUT_FILE_URL ] }
+    artifacts:
+      - jar_file:
+          file: test.jar
+          type: tosca.artifacts.File
+    capabilities:
+      app_dependency:
+        type: org.alien4cloud.demo.spark-jobs.capabilities.SparkApplicationDependency
+    requirements:
+      - input_repository:
+          capability: org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository
+          relationship: org.alien4cloud.demo.spark-jobs.relationships.SparkApp2HdfsRepoInput
+          occurrences: [ 0, 1 ]
+      - output_repository:
+          capability: org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository
+          relationship: org.alien4cloud.demo.spark-jobs.relationships.SparkApp2HdfsRepoOutput
+          occurrences: [ 1, 1 ]
+      - app_dependency:
+          capability: org.alien4cloud.demo.spark-jobs.capabilities.SparkApplicationDependency
+          relationship: org.alien4cloud.demo.spark-jobs.relationships.SparkAppDependency
+          occurrences: [ 0, 1 ]
+    interfaces:
+      Standard:
+        configure:
+          inputs:
+            DEFAULT_INPUT_FILE_URL: { get_property: [SELF, default_input_file_url] }
+          implementation: scripts/configure.sh
+      tosca.interfaces.node.lifecycle.Runnable:
+        run:
+          inputs:
+            SPARK_URL: { get_property: [SELF, spark_url] }
+            HDFS_URL: { get_property: [SELF, hdfs_url] }
+            CLASS_NAME: { get_property: [SELF, class_name] }
+            MEMORY: { get_property: [SELF, memory] }
+            CORES: { get_property: [SELF, cores] }
+            INPUT_FILE_URL: { get_attribute: [SELF, input_file_url] }
+            OUTPUT_FILE_URL: { get_attribute: [SELF, output_file_url] }
+            APP_ARGS: { get_property: [SELF, app_args] }
+          implementation: scripts/run.sh
+
+capability_types:
+
+  org.alien4cloud.demo.spark-jobs.capabilities.SparkApplicationDependency:
+    derived_from: tosca.capabilities.Root
+
+relationship_types:
+
+  org.alien4cloud.demo.spark-jobs.relationships.SparkApp2HdfsRepoInput:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            HDFS_URL: { get_attribute: [TARGET, hdfs_folder_url] }
+            HDFS_PATH: { get_attribute: [TARGET, hdfs_folder_path] }
+            REL_TYPE: "Input"
+          implementation: scripts/io.sh
+  org.alien4cloud.demo.spark-jobs.relationships.SparkApp2HdfsRepoOutput:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            HDFS_URL: { get_attribute: [TARGET, hdfs_folder_url] }
+            HDFS_PATH: { get_attribute: [TARGET, hdfs_folder_path] }
+            REL_TYPE: "Output"
+          implementation: scripts/io.sh
+  org.alien4cloud.demo.spark-jobs.relationships.SparkAppDependency:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [org.alien4cloud.demo.spark-jobs.capabilities.SparkApplicationDependency]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          implementation: scripts/app_connect.sh

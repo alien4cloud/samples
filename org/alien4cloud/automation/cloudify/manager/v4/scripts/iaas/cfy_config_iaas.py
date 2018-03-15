@@ -238,7 +238,8 @@ def update_manager_context_for_openstack(cfy_client,
 
     name = cfy_client.manager.get_context()['name']
     context = cfy_client.manager.get_context()['context']
-    context['cloudify']['cloudify_agent']['agent_key_path'] = agent_pk_path
+    context['cloudify']['cloudify_agent']['key'] = agent_pk_path
+    # context['cloudify']['cloudify_agent']['agent_key_path'] = agent_pk_path
     context['cloudify']['cloudify_agent']['user'] = agent_user
 
     # add openstack config

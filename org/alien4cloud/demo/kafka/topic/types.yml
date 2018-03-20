@@ -1,0 +1,71 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.demo.kafka.topic
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.demo.kafka.pub:2.0.0-SNAPSHOT
+  - org.alien4cloud.demo.zookeeper.pub:2.0.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.demo.kafka.topic.nodes.KafkaTopic:
+    derived_from: tosca.nodes.Root
+    tags:
+      icon: /images/pipeline.png
+    properties:
+      topic_name:
+        type: string
+        required: false
+    attributes:
+      kafka_broker_endpoint: { get_operation_output: [ SELF, Standard, start, KAFKA_BROKER_ENDPOINT ] }
+      zookeeper_endpoint: { get_operation_output: [ SELF, Standard, start, ZOOKEEPER_ENDPOINT ] }
+      topic_name: { get_operation_output: [ SELF, Standard, start, TOPIC_NAME ] }
+    capabilities:
+      kafka_topic:
+        type: org.alien4cloud.demo.kafka.pub.capabilities.KafkaTopic
+    requirements:
+      - zookeeper:
+          capability: org.alien4cloud.demo.zookeeper.pub.capabilities.Zookeeper
+          relationship: org.alien4cloud.demo.kafka.topic.relationships.KafkaTopicConnectToZookeeper
+          occurrences: [ 1, 1 ]
+      - kafka_broker:
+          capability: org.alien4cloud.demo.kafka.pub.capabilities.KafkaBroker
+          relationship: org.alien4cloud.demo.kafka.topic.relationships.KafkaTopicConnectToBroker
+          occurrences: [ 1, 1 ]
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            TOPIC_NAME: { get_property: [SELF, topic_name] }
+          implementation: scripts/KafkaTopic/start.sh
+        delete:
+          inputs:
+            TOPIC_NAME: { get_attribute: [SELF, topic_name] }
+            ZOOKEEPER_ENDPOINT: { get_attribute: [SELF, zookeeper_endpoint] }
+          implementation: scripts/KafkaTopic/delete.sh
+
+relationship_types:
+
+  org.alien4cloud.demo.kafka.topic.relationships.KafkaTopicConnectToZookeeper:
+    derived_from: tosca.relationships.ConnectsTo
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ZOOKEEPER_IP: { get_attribute: [TARGET, zookeeper_endpoint, ip_address] }
+            ZOOKEEPER_PORT: { get_attribute: [TARGET, zookeeper_endpoint, port] }
+          implementation:  scripts/KafkaTopicConnectToZookeeper/pre_configure_source.sh
+
+  org.alien4cloud.demo.kafka.topic.relationships.KafkaTopicConnectToBroker:
+    derived_from: tosca.relationships.ConnectsTo
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            KAFKA_IP: { get_attribute: [TARGET, kafka_endpoint, ip_address] }
+            KAFKA_PORT: { get_attribute: [TARGET, kafka_endpoint, port] }
+          implementation:  scripts/KafkaTopicConnectToBroker/pre_configure_source.sh

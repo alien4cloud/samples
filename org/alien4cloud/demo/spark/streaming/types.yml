@@ -1,0 +1,182 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.demo.spark.streaming
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.demo.hdfs-repository:2.0.0-SNAPSHOT
+  - org.alien4cloud.demo.kafka.topic:2.0.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.demo.spark.streaming.nodes.SparkStreamingModule:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    metadata:
+      icon: /images/spark-streaming.png
+    properties:
+      spark_url:
+        type: string
+      hdfs_url:
+        type: string
+      class_name:
+        type: string
+      memory:
+        type: integer
+      cores:
+        type: integer
+      app_args:
+        type: string
+    artifacts:
+      - jar_file:
+          file: test.jar
+          type: tosca.artifacts.File
+    capabilities:
+      app_dependency:
+        type: org.alien4cloud.demo.spark.streaming.capabilities.SparkStreamingModuleDependency
+    requirements:
+      - app_dependency:
+          capability: org.alien4cloud.demo.spark.streaming.capabilities.SparkStreamingModuleDependency
+          relationship: org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleDependency
+          occurrences: [ 0, 1 ]
+    attributes:
+      spark_submission_id: { get_operation_output: [ SELF, Standard, start, SPARK_SUBMISSION_ID ] }
+    interfaces:
+      Standard:
+        configure:
+          implementation: scripts/SparkStreamingHDFSCollector/configure.sh
+        stop:
+          inputs:
+            SPARK_URL: { get_property: [SELF, spark_url] }
+            SPARK_SUBMISSION_ID: { get_attribute: [SELF, spark_submission_id] }
+          implementation: scripts/SparkStreamingModule/stop.sh
+        delete:
+          inputs:
+            HDFS_URL: { get_property: [SELF, hdfs_url] }
+          implementation: scripts/SparkStreamingModule/delete.sh
+
+  org.alien4cloud.demo.spark.streaming.nodes.SparkStreamingHDFSCollector:
+    derived_from: org.alien4cloud.demo.spark.streaming.nodes.SparkStreamingModule
+    attributes:
+      input_repository_url: { get_operation_output: [ SELF, Standard, configure, INPUT_REPOSITORY_URL ] }
+      output_kafka_broker_endpoint: { get_operation_output: [ SELF, Standard, configure, OUTPUT_KAFKA_BROKER_ENDPOINT ] }
+      output_topic_name: { get_operation_output: [ SELF, Standard, configure, OUTPUT_TOPIC_NAME ] }
+    requirements:
+      - input_repository:
+          capability: org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository
+          relationship: org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleHdfsRepoInput
+          occurrences: [ 1, 1 ]
+      - output_topic:
+          capability: org.alien4cloud.demo.kafka.pub.capabilities.KafkaTopic
+          relationship: org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleTopicOutput
+          occurrences: [ 1, 1 ]
+    interfaces:
+      Standard:
+        configure:
+          implementation: scripts/SparkStreamingHDFSCollector/configure.sh
+        start:
+          inputs:
+            SPARK_URL: { get_property: [SELF, spark_url] }
+            HDFS_URL: { get_property: [SELF, hdfs_url] }
+            CLASS_NAME: { get_property: [SELF, class_name] }
+            MEMORY: { get_property: [SELF, memory] }
+            CORES: { get_property: [SELF, cores] }
+            INPUT_REPOSITORY_URL: { get_attribute: [SELF, input_repository_url] }
+            OUTPUT_KAFKA_BROKER_ENDPOINT: { get_attribute: [SELF, output_kafka_broker_endpoint] }
+            OUTPUT_TOPIC_NAME: { get_attribute: [SELF, output_topic_name] }
+            APP_ARGS: { get_property: [SELF, app_args] }
+          implementation: scripts/SparkStreamingHDFSCollector/start.sh
+
+  org.alien4cloud.demo.spark.streaming.nodes.SparkStreamingHDFSWriter:
+    derived_from: org.alien4cloud.demo.spark.streaming.nodes.SparkStreamingModule
+    attributes:
+      output_repository_url: { get_operation_output: [ SELF, Standard, configure, OUTPUT_REPOSITORY_URL ] }
+      input_kafka_broker_endpoint: { get_operation_output: [ SELF, Standard, configure, INPUT_KAFKA_BROKER_ENDPOINT ] }
+      input_topic_name: { get_operation_output: [ SELF, Standard, configure, INPUT_TOPIC_NAME ] }
+    requirements:
+      - input_topic:
+          capability: org.alien4cloud.demo.kafka.pub.capabilities.KafkaTopic
+          relationship: org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleTopicInput
+          occurrences: [ 1, 1 ]
+      - output_repository:
+          capability: org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository
+          relationship: org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleHdfsRepoOutput
+          occurrences: [ 1, 1 ]
+    interfaces:
+      Standard:
+        configure:
+          implementation: scripts/SparkStreamingHDFSWriter/configure.sh
+        start:
+          inputs:
+            SPARK_URL: { get_property: [SELF, spark_url] }
+            HDFS_URL: { get_property: [SELF, hdfs_url] }
+            CLASS_NAME: { get_property: [SELF, class_name] }
+            MEMORY: { get_property: [SELF, memory] }
+            CORES: { get_property: [SELF, cores] }
+            OUTPUT_REPOSITORY_URL: { get_attribute: [SELF, output_repository_url] }
+            INPUT_KAFKA_BROKER_ENDPOINT: { get_attribute: [SELF, input_kafka_broker_endpoint] }
+            INPUT_TOPIC_NAME: { get_attribute: [SELF, input_topic_name] }
+            APP_ARGS: { get_property: [SELF, app_args] }
+          implementation: scripts/SparkStreamingHDFSWriter/start.sh
+
+capability_types:
+
+  org.alien4cloud.demo.spark.streaming.capabilities.SparkStreamingModuleDependency:
+    derived_from: tosca.capabilities.Root
+
+relationship_types:
+
+  org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleHdfsRepoInput:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            HDFS_URL: { get_attribute: [TARGET, hdfs_folder_url] }
+            HDFS_PATH: { get_attribute: [TARGET, hdfs_folder_path] }
+            REL_TYPE: "Input"
+          implementation: scripts/SparkStreamingModuleHdfsRepo_io.sh
+
+  org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleHdfsRepoOutput:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [org.alien4cloud.demo.hdfs-repository.capabilities.HdfsRepository]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            HDFS_URL: { get_attribute: [TARGET, hdfs_folder_url] }
+            HDFS_PATH: { get_attribute: [TARGET, hdfs_folder_path] }
+            REL_TYPE: "Output"
+          implementation: scripts/SparkStreamingModuleHdfsRepo_io.sh
+
+  org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleTopicInput:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [org.alien4cloud.demo.kafka.topic.nodes.KafkaTopic]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            KAFKA_BROKER_ENDPOINT: { get_attribute: [TARGET, kafka_broker_endpoint] }
+            TOPIC_NAME: { get_attribute: [TARGET, topic_name] }
+            REL_TYPE: "Input"
+          implementation: scripts/SparkStreamingModuleTopic_io.sh
+
+  org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleTopicOutput:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [org.alien4cloud.demo.kafka.topic.nodes.KafkaTopic]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            KAFKA_BROKER_ENDPOINT: { get_attribute: [TARGET, kafka_broker_endpoint] }
+            TOPIC_NAME: { get_attribute: [TARGET, topic_name] }
+            REL_TYPE: "Output"
+          implementation: scripts/SparkStreamingModuleTopic_io.sh
+
+  org.alien4cloud.demo.spark.streaming.relationships.SparkStreamingModuleDependency:
+    derived_from: tosca.relationships.DependsOn
+    valid_target_types: [org.alien4cloud.demo.spark.streaming.capabilities.SparkStreamingModuleDependency]

@@ -1,0 +1,35 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.demo.kafka.pub
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  org.alien4cloud.demo.kafka.pub.nodes.KafkaService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/kafka-logo-no-text.png
+    capabilities:
+      kafka_endpoint:
+        type: org.alien4cloud.demo.kafka.pub.capabilities.KafkaBroker
+
+capability_types:
+
+  org.alien4cloud.demo.kafka.pub.capabilities.KafkaBroker:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 9092
+        constraints:
+          - in_range: [ 1, 65535 ]
+
+  org.alien4cloud.demo.kafka.pub.capabilities.KafkaTopic:
+    derived_from: tosca.capabilities.Endpoint

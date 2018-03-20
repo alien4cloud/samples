@@ -1,0 +1,32 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.demo.zookeeper.pub
+  template_version: 2.0.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  org.alien4cloud.demo.zookeeper.pub.nodes.ZookeeperService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/ApacheZookeeper.png
+    capabilities:
+      zookeeper_endpoint:
+        type: org.alien4cloud.demo.zookeeper.pub.capabilities.Zookeeper
+
+capability_types:
+
+  org.alien4cloud.demo.zookeeper.pub.capabilities.Zookeeper:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 2181
+        constraints:
+          - in_range: [ 1, 65535 ]

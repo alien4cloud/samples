@@ -4,9 +4,11 @@
 # sudo ./cfy_configure_iaas.py -u admin -p ad1min --ssl config -c cfy_config_aws.yaml -i aws
 
 import argparse
-import yaml
+import grp
 import json
 import os
+import pwd
+import yaml
 
 from cloudify_rest_client import CloudifyClient
 from ConfigParser import ConfigParser
@@ -37,6 +39,8 @@ OPENSTACK_RESOURCES_TYPES = {'agents_keypair': 'keypair',
                              'router': 'router',
                              'subnet': 'subnet'}
 
+UID = pwd.getpwnam("cfyuser").pw_uid
+GID = grp.getgrnam("cfyuser").gr_gid
 
 def configure_manager(cfy_client, iaas, configuration_file=None):
     with open(configuration_file, 'r') as f:
@@ -91,6 +95,7 @@ def create_azure_config(path,
     with open(path, 'w+') as fh:
         config.write(fh)
 
+    os.chown(path, UID, GID)
     print "Created Azure configuration at {}".format(path)
 
 
@@ -152,6 +157,7 @@ def create_boto_config(path, aws_access_key_id, aws_secret_access_key, region):
     with open(path, 'w+') as fh:
         config.write(fh)
 
+    os.chown(path, UID, GID)
     print "Created boto configuration at {}".format(path)
 
 
@@ -228,6 +234,7 @@ def create_openstack_config(path,
     with open(path, 'w+') as fh:
         json.dump(openstack_config, fh)
 
+    os.chown(path, UID, GID)
     print "Created Openstack configuration at {}".format(path)
 
 

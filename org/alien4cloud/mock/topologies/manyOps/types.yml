@@ -1,0 +1,50 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: 1TinyMock
+  template_version: 0.1.0-SNAPSHOT
+  template_author: Gandalfe
+
+description: "This archive has been created with alien4cloud."
+
+imports:
+  - org.alien4cloud.mock.pub:1.4.3.2-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.mock.bash:1.4.3.2-SNAPSHOT
+
+description: Just 1 mock with few operation (just start & stop)
+
+topology_template:
+  node_templates:
+    BashMockHost_3:
+      type: org.alien4cloud.mock.bash.nodes.BashMockHost
+      properties:
+        duration: 10
+        variation: 20
+        log_length: 2000
+      requirements:
+        - mock_endpoint:
+            node: BashMockHost
+            capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+            relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+        - mock_endpoint:
+            node: BashMockHost_2
+            capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+            relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+    BashMockHost_2:
+      type: org.alien4cloud.mock.bash.nodes.BashMockHost
+      properties:
+        duration: 10
+        variation: 20
+        log_length: 2000
+      requirements:
+        - mock_endpoint:
+            node: BashMockHost
+            capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+            relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+    BashMockHost:
+      type: org.alien4cloud.mock.bash.nodes.BashMockHost
+      properties:
+        duration: 10
+        variation: 20
+        log_length: 2000

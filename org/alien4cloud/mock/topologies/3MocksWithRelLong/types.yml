@@ -1,0 +1,48 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: 3MockWithRelLong
+  template_version: 2.0.1-SNAPSHOT
+  template_author: Gandalfe
+
+description: "3 mocks with many relations: lot of concurrent operations & long duration of operations (30s)"
+
+imports:
+  - org.alien4cloud.mock.pub:2.0.1-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.mock.bash:2.0.1-SNAPSHOT
+
+topology_template:
+  node_templates:
+    A_Mock:
+      type: org.alien4cloud.mock.bash.nodes.BashMock
+      properties:
+        duration: 10
+        variation: 20
+        log_length: 2000
+      requirements:
+        - mock_endpoint:
+            node: B_Mock
+            capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+            relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+        - mock_endpoint:
+            node: C_Mock
+            capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+            relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+    B_Mock:
+      type: org.alien4cloud.mock.bash.nodes.BashMock
+      properties:
+        duration: 10
+        variation: 20
+        log_length: 2000
+      requirements:
+        - mock_endpoint:
+            node: C_Mock
+            capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+            relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+    C_Mock:
+      type: org.alien4cloud.mock.bash.nodes.BashMock
+      properties:
+        duration: 10
+        variation: 20
+        log_length: 2000

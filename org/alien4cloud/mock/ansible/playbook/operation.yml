@@ -1,7 +1,7 @@
 ---
-- hosts: all
+- hosts: localhost
   name: AnsibleMock
   become: true
- 
+
   roles:
     - operation

@@ -1,0 +1,37 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.jobs
+  template_version: 2.0.1-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.0.1-SNAPSHOT
+  - alien-base-types:2.0.0-SNAPSHOT
+
+description: >
+  Mock types with bash implementation.
+
+# TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
+node_types:
+
+  org.alien4cloud.mock.jobs.nodes.SimpleJobMock:
+    description: |
+      A mock job.
+    derived_from: org.alien4cloud.nodes.Job
+    properties:
+      duration:
+        type: integer
+        description: |
+          The total duration for all operations (create, configure, start) in seconds.
+          Each one is pondered in implementation.
+        required: true
+        default: 10
+    interfaces:
+      tosca.interfaces.node.lifecycle.Runnable:
+        run:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            operation: "run"
+          implementation: scripts/operation.sh

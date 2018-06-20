@@ -1,12 +1,12 @@
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.mock.pub
-  template_version: 1.4.0-SNAPSHOT
-  template_author: alien4cloud
+  template_version: 2.0.1-SNAPSHOT
+  template_author: Gandalfe
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 description: >
   Mock types for A4C load tests.
@@ -15,7 +15,7 @@ node_types:
 
   org.alien4cloud.mock.pub.nodes.AbstractMock:
     abstract: true
-    derived_from: tosca.nodes.SoftwareComponent
+    derived_from: tosca.nodes.Root
     properties:
       duration:
         type: integer
@@ -42,24 +42,26 @@ node_types:
 
   org.alien4cloud.mock.pub.nodes.AbstractMockHost:
     description: |
-      A software component that hosts MockComponent.
+      A mock that can be hosted and that can also host other mocks.
     abstract: true
     derived_from: org.alien4cloud.mock.pub.nodes.AbstractMock
-    # properties:
-    #   duration:
-    #     type: integer
-    #     required: true
-    #     default: 120
-    #   variation:
-    #     type: integer
-    #     required: true
-    #     default: 20
-    #   log_length:
-    #     type: integer
-    #     default: 2000
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [0, 1]
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+          relationship: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
+          occurrences: [0, unbounded]
     capabilities:
       host:
         type: tosca.capabilities.Container
+      mock_endpoint:
+        type: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+        occurrences: [0, unbounded]
+
   org.alien4cloud.mock.pub.nodes.AbstractMockComponent:
     description: |
       A software component hosted on GenericHost and that can connect to many other Generic.

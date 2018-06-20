@@ -1,21 +1,123 @@
-tosca_definitions_version: alien_dsl_1_4_0
+tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.mock.bash
-  template_version: 1.4.0-SNAPSHOT
-  template_author: alien4cloud
+  template_version: 2.0.1-SNAPSHOT
+  template_author: Gandalfe
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.mock.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.0.1-SNAPSHOT
 
 description: >
-  Mock types for A4C load tests.
+  Mock types with bash implementation.
 
 # TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
 node_types:
 
-  org.alien4cloud.mock.bash.nodes.BashMockHost:
+  org.alien4cloud.mock.bash.nodes.SleepingAtStopBashMock:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        stop:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            operation: "stop"
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+
+  org.alien4cloud.mock.bash.nodes.MiniBashMock:
+    description: |
+      A mock that implements juste minimum operations to fast start & stop.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 20
+            log_length: { get_property: [ SELF, log_length ] }
+          implementation: scripts/operation.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 20
+            log_length: { get_property: [ SELF, log_length ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+  org.alien4cloud.mock.bash.nodes.FailAtStartBashMock:
+    description: |
+      Just fail at start.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/fail.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+  org.alien4cloud.mock.bash.nodes.FailAtStopBashMock:
     description: |
       A software component that hosts MockComponent.
     derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
@@ -23,103 +125,84 @@ node_types:
       Standard:
         create:
           inputs:
-            operation: "create AnsibleMockHost"
+            operation: "create"
             duration: { get_property: [ SELF, duration ] }
-            variation: { get_property: [ SELF, variation ] }
-            weight: 50
-            log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
         configure:
           inputs:
-            operation: "configure AnsibleMockHost"
+            operation: "configure"
             duration: { get_property: [ SELF, duration ] }
-            variation: { get_property: [ SELF, variation ] }
-            weight: 30
-            log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
         start:
           inputs:
-            operation: "start AnsibleMockHost"
+            operation: "start"
             duration: { get_property: [ SELF, duration ] }
-            variation: { get_property: [ SELF, variation ] }
-            weight: 20
-            log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
-        # stop:
-        #   inputs:
-        #     operation: "stop AnsibleMockHost"
-        #     sleep_time: 30
-        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
-        #     log_length: { get_property: [ SELF, log_length ] }
-        #   implementation: scripts/operation.sh
-        # delete:
-        #   inputs:
-        #     operation: "delete AnsibleMockHost"
-        #     sleep_time: 60
-        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
-        #     log_length: { get_property: [ SELF, log_length ] }
-        #   implementation: scripts/operation.sh
-    artifacts:
-      - data:
-          file: data/data.txt
-          type: tosca.artifacts.File
-  org.alien4cloud.mock.bash.nodes.BashMockComponent:
-    description: |
-      A software component hosted on GenericHost and that can connect to many other Generic.
-    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockComponent
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/fail.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
     capabilities:
       mock_endpoint:
         type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
         occurrences: [0, unbounded]
     requirements:
-      - host:
-          capability: tosca.capabilities.Container
-          relationship: org.alien4cloud.mock.bash.relationships.BashComponentHostedOnHost
-          occurrences: [1,1]
       - mock_endpoint:
           capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
           relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
           occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+
+  org.alien4cloud.mock.bash.nodes.BashMock:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
     interfaces:
       Standard:
         create:
           inputs:
-            operation: "create AnsibleMockComponent"
+            operation: "create"
             duration: { get_property: [ SELF, duration ] }
-            variation: { get_property: [ SELF, variation ] }
-            weight: 50
-            log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
         configure:
           inputs:
-            operation: "configure AnsibleMockComponent"
+            operation: "configure"
             duration: { get_property: [ SELF, duration ] }
-            variation: { get_property: [ SELF, variation ] }
-            weight: 30
-            log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
         start:
           inputs:
-            operation: "start AnsibleMockComponent"
+            operation: "start"
             duration: { get_property: [ SELF, duration ] }
-            variation: { get_property: [ SELF, variation ] }
-            weight: 20
-            log_length: { get_property: [ SELF, log_length ] }
           implementation: scripts/operation.sh
-        # stop:
-        #   inputs:
-        #     operation: "stop AnsibleMockComponent"
-        #     sleep_time: 30
-        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
-        #     log_length: { get_property: [ SELF, log_length ] }
-        #   implementation: scripts/operation.sh
-        # delete:
-        #   inputs:
-        #     operation: "delete AnsibleMockComponent"
-        #     sleep_time: 15
-        #     sleep_factor: { get_property: [ SELF, sleep_factor ] }
-        #     log_length: { get_property: [ SELF, log_length ] }
-        #   implementation: scripts/operation.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
     artifacts:
       - data:
           file: data/data.txt
@@ -127,77 +210,6 @@ node_types:
 
 relationship_types:
 
-  org.alien4cloud.mock.bash.relationships.BashComponentHostedOnHost:
-    derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost
-    valid_target_types: [ org.alien4cloud.mock.bash.nodes.BashMockHost ]
-    interfaces:
-      configure:
-        pre_configure_source:
-          inputs:
-            operation: "pre_configure_source AnsibleComponentHostedOnHost"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        pre_configure_target:
-          inputs:
-            operation: "pre_configure_target AnsibleComponentHostedOnHost"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        post_configure_source:
-          inputs:
-            operation: "post_configure_source AnsibleComponentHostedOnHost"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        post_configure_target:
-          inputs:
-            operation: "post_configure_target AnsibleComponentHostedOnHost"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        add_target:
-          inputs:
-            operation: "add_target AnsibleComponentHostedOnHost"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        add_source:
-          inputs:
-            operation: "add_source AnsibleComponentHostedOnHost"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        # remove_target:
-        #   inputs:
-        #     operation: "remove_target AnsibleComponentHostedOnHost"
-        #     sleep_time: 5
-        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
-        #     log_length: { get_property: [ SOURCE, log_length ] }
-        #   implementation: scripts/operation.sh
-        # remove_source:
-        #   inputs:
-        #     operation: "remove_source AnsibleComponentHostedOnHost"
-        #     sleep_time: 5
-        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
-        #     log_length: { get_property: [ SOURCE, log_length ] }
-        #   implementation: scripts/operation.sh
-    artifacts:
-      - data:
-          file: data/data.txt
-          type: tosca.artifacts.File
   org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent:
     derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
     valid_target_types: [ org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint ]
@@ -205,70 +217,44 @@ relationship_types:
       configure:
         pre_configure_source:
           inputs:
-            operation: "pre_configure_source AnsibleComponentConnectToComponent"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
+            operation: "pre_configure_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
         pre_configure_target:
           inputs:
-            operation: "pre_configure_target AnsibleComponentConnectToComponent"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
+            operation: "pre_configure_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
         post_configure_source:
           inputs:
-            operation: "post_configure_source AnsibleComponentConnectToComponent"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
+            operation: "post_configure_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
         post_configure_target:
           inputs:
-            operation: "post_configure_target AnsibleComponentConnectToComponent"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
+            operation: "post_configure_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
         add_target:
           inputs:
-            operation: "add_target AnsibleComponentConnectToComponent"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
+            operation: "add_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
         add_source:
           inputs:
-            operation: "add_source AnsibleComponentConnectToComponent"
-            duration: 2
-            variation: { get_property: [ SOURCE, variation ] }
-            weight: 30
-            log_length: { get_property: [ SOURCE, log_length ] }
-          implementation: scripts/operation.sh
-        # remove_target:
-        #   inputs:
-        #     operation: "remove_target AnsibleComponentConnectToComponent"
-        #     sleep_time: 5
-        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
-        #     log_length: { get_property: [ SOURCE, log_length ] }
-        #   implementation: scripts/operation.sh
-        # remove_source:
-        #   inputs:
-        #     operation: "remove_source AnsibleComponentConnectToComponent"
-        #     sleep_time: 5
-        #     sleep_factor: { get_property: [ SOURCE, sleep_factor ] }
-        #     log_length: { get_property: [ SOURCE, log_length ] }
-        #   implementation: scripts/operation.sh
-    artifacts:
-      - data:
-          file: data/data.txt
-          type: tosca.artifacts.File
+            operation: "add_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        remove_target:
+          inputs:
+            operation: "remove_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        remove_source:
+          inputs:
+            operation: "remove_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
 
 capability_types:
 

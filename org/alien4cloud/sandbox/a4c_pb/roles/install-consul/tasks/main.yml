@@ -13,6 +13,7 @@
   yum:
     name: unzip
     state: latest
+  become: true
 
 - name: Creates consul directory
   file:
@@ -28,7 +29,8 @@
   unarchive:
     copy: no
     src: "{{ tmp_consul.path }}/consul"
-    dest: ~/consul
+    dest: /usr/local/bin/
+  become: true
 
 - name: Remove temporary folder
   file:
@@ -38,4 +40,4 @@
 - name: Start consul
   shell:
     chdir: ~/consul
-    cmd: nohup ./consul agent -ui -client 0.0.0.0 -server -bootstrap-expect 1 -data-dir ./data &
+    cmd: nohup consul agent -ui -client 0.0.0.0 -server -bootstrap-expect 1 -data-dir ./data &

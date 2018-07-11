@@ -1,17 +1,51 @@
 
-- name: Install ansible
+- name: Install unzip
   yum:
-    name: ansible
+    name: unzip
     state: latest
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install epel-release-latest-7
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+  become: true
+
+- name: Install python
+  yum:
+    pkg: "{{ item }}"
+    state: present
+    update_cache: true
+  become: true
+  with_items:
+    - python
+    - python-pip
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install ansible
+  command: pip install ansible==2.4.1.0
+  become: true
 
 - name: Create temporary folder
   tempfile:
     state: directory
   register: temp_dir
 
+- name: Download terraform
+  get_url:
+    url: "{{ TERRAFORM_DIST_URL }}"
+    dest: "{{ temp_dir.path }}/terraform"
+    mode: 0600
+
+- name: Extract terraform
+  unarchive:
+    src: "{{ temp_dir.path }}/terraform"
+    dest: /usr/local/bin/
+    copy: no
+  become: true
+
 - name: Download Yorc
   shell:
-    chdir: ~/alien4cloud
     cmd: "curl -L {{ YORC_DIST_URL }} -o {{ temp_dir.path }}/yorc_dist"
 
 - name: Creates yorc directory

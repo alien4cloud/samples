@@ -1,0 +1,23 @@
+- name: Downloading a4c
+  get_url:
+    url: "{{ alien_dist }}"
+    dest: "/home/centos"
+    url_username: "{{ username_nexus}}"
+    url_password: "{{ password_nexus }}"
+    mode: 0600
+
+- name: Extract archive
+  unarchive:
+    src: /home/centos/alien4cloud-premium-dist-2.0.0-SM5-dist.tar.gz
+    dest: /home/centos
+    copy: no
+    extra_opts: [--strip-components=1]
+
+- name: Install latest 1.7.x jdk
+  yum:
+    name: java-1.7.0-openjdk.x86_64
+    state: latest
+
+
+- name: Start application A4C
+  shell: nohup /home/centos/alien4cloud.sh > /var/log/alien_nohup.log 2>&1 & echo $! > /var/run/alien.pid

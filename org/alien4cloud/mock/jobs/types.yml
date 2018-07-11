@@ -2,16 +2,16 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.mock.jobs
-  template_version: 2.0.1-SNAPSHOT
+  template_version: 2.1.0-SNAPSHOT
   template_author: Gandalfe
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.mock.pub:2.0.1-SNAPSHOT
-  - alien-base-types:2.0.0-SNAPSHOT
+  - org.alien4cloud.mock.pub:2.1.0-SNAPSHOT
+  - alien-base-types:2.1.0-SNAPSHOT
 
 description: >
-  Mock types with bash implementation.
+  Mock Jobs types with bash implementations.
 
 # TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
 node_types:

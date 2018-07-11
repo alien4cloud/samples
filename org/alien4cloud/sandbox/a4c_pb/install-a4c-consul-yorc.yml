@@ -1,0 +1,9 @@
+---
+- hosts: all
+  name: Setup an typical A4C with a Yorc orchestrator.
+  become: false
+
+  roles:
+    - install-a4c
+    - install-consul
+    - install-yorc

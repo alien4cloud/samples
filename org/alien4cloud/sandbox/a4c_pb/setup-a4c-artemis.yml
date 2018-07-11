@@ -1,6 +1,6 @@
 ---
-- hosts: localhost
-  name: Setup an typical A4C from a totally empty one (usefull for an Alien developer).
+- hosts: all
+  name: Setup an typical A4C with a Yorc orchestrator.
   become: false
 
   roles:

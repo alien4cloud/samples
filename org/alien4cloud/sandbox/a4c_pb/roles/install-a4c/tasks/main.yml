@@ -1,23 +1,32 @@
-- name: Downloading a4c
+
+- name: Create temporary folder
+  tempfile:
+    state: directory
+  register: a4c_dist
+
+- name: Download a4c
   get_url:
-    url: "{{ alien_dist }}"
-    dest: "/home/centos"
-    url_username: "{{ username_nexus}}"
-    url_password: "{{ password_nexus }}"
+    url: "{{ ALIEN_DIST_URL }}"
+    dest: "{{ a4c_dist.path }}/a4c-dist"
     mode: 0600
 
 - name: Extract archive
   unarchive:
-    src: /home/centos/alien4cloud-premium-dist-2.0.0-SM5-dist.tar.gz
-    dest: /home/centos
+    src: "{{ a4c_dist.path }}/a4c-dist"
+    dest: ~/
     copy: no
-    extra_opts: [--strip-components=1]
 
-- name: Install latest 1.7.x jdk
+- name: Remove temporary folder
+  file:
+    path: "{{ a4c_dist.path }}"
+    state: absent
+
+- name: Install latest jdk 1.8
   yum:
-    name: java-1.7.0-openjdk.x86_64
+    name: java-1.8.0-openjdk-headless.x86_64
     state: latest
 
-
 - name: Start application A4C
-  shell: nohup /home/centos/alien4cloud.sh > /var/log/alien_nohup.log 2>&1 & echo $! > /var/run/alien.pid
+  shell:
+    chdir: ~/alien4cloud
+    cmd: nohup ./alien4cloud.sh > alien_nohup.log 2>&1 & echo $! > alien.pid

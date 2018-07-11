@@ -2,7 +2,7 @@
 
 - hosts: all
   name: install a4c
-  become: true
+  become: false
 
   roles:
     - install-a4c

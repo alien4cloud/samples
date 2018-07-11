@@ -1,8 +1,0 @@
----
-
-
-# ip manager Cloudify ex: 52.188.25.19
-alien_url: ''
-username_nexus: 'diedhiou'
-password_nexus: 'Bineta2210'
-alien_dist: 'https://fastconnect.org/maven/content/repositories/fastconnect/alien4cloud/alien4cloud-premium-dist/2.0.0-SM5/alien4cloud-premium-dist-2.0.0-SM5-dist.tar.gz'

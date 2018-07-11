@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  name: Setup an typical A4C from a totally empty one (usefull for an Alien developer).
+  become: false
+
+  roles:
+    - { role: roles/git,
+        repositoryUrl: 'https://github.com/alien4cloud/samples',
+        repositoryUsername: '',
+        repositoryPassword: '',
+        branchId: 'master',
+        subPath: 'org/alien4cloud/mock'
+      }
+    - { role: roles/create_orchestrator,
+        orchestratorName: 'Yorc',
+        pluginId: 'alien4cloud-yorc-plugin',
+        pluginBean: 'yorc-orchestrator-factory'
+      }
+    - { role: 'roles/create_location',
+        location_name: 'AWS',
+        location_type: 'AWS'
+      }

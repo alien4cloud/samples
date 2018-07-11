@@ -1,0 +1,73 @@
+---
+
+- debug:
+    msg: "Distribution is: {{ ansible_distribution }}"
+
+- name: Add repository
+  yum:
+   name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install pip
+  yum: pkg=python-pip state=present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install system dependencies (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - python-pip
+    - python-dev
+    - build-essential
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Ensure httplib2 is installed
+  pip:
+    name: httplib2
+    state: present
+
+- name: Login on A4C
+  uri:
+    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    method: POST
+    return_content: yes
+    status_code: 302
+    validate_certs: no
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- name: Create CSAR GIT repository
+  uri:
+    url: "{{ alien_url }}/rest/latest/csarsgit"
+    method: POST
+    return_content: yes
+    validate_certs: no
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      repositoryUrl: "{{ repositoryUrl }}"
+      username: "{{ repositoryUsername }}"
+      password: "{{ repositoryPassword }}"
+      storedLocally: true
+      importLocations:
+        - branchId: "{{ branchId }}"
+          subPath: "{{ subPath }}"
+    body_format: json
+  register: result
+
+- name: "Register repository_id with value <{{ result.json.data }}> for attribute parsing"
+  set_fact:
+    repository_id: "{{ result.json.data }}"
+
+- name: Import CSAR GIT repository
+  uri:
+    url: "{{ alien_url }}/rest/latest/csarsgit/{{ repository_id }}"
+    method: POST
+    return_content: yes
+    validate_certs: no
+    HEADER_cookie: "{{ session_id }}"
+    timeout: 60
+  register: result

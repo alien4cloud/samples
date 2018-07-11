@@ -56,7 +56,7 @@
 - set_fact:
     url: "{{ alien_url }}/rest/latest/orchestrators"
 
-- name: "Create Orchestrator using {{url}}"
+- name: "Create Orchestrator {{ orchestratorName }} using {{url}}"
   uri:
     url: "{{url}}"
     method: POST
@@ -64,7 +64,7 @@
     validate_certs: no
     HEADER_cookie: "{{ session_id }}"
     body:
-      name: "{{ name }}"
+      name: "{{ orchestratorName }}"
       pluginId: "{{ pluginId }}"
       pluginBean: "{{ pluginBean }}"
     body_format: json

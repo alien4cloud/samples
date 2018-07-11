@@ -1,4 +1,5 @@
 {
 "ALIEN_DIST_URL": "http://54.246.249.105/dist/2.1.0-SM5/alien4cloud-artemis-dist-2.1.0-SM5-dist.tar.gz",
+"CONSUL_DIST_URL": "https://releases.hashicorp.com/consul/1.0.6/consul_1.0.6_linux_amd64.zip",
 
 "EOF": "" }

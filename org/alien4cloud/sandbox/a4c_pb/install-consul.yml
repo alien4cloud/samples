@@ -2,7 +2,7 @@
 
 - hosts: all
   name: install consul
-  become: true
+  become: false
 
   roles:
     - install-consul

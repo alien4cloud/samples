@@ -1,0 +1,17 @@
+{
+  "resources_prefix": "YORC_",
+  "infrastructures": {
+    "aws": {
+      "access_key": "{{ AWS_ACCESS_KEY }}",
+      "secret_key": "{{ AWS_SECRET_KEY }}",
+      "region": "{{ AWS_REGION }}"
+    }
+  },
+  "ansible": {
+    "use_openssh": true,
+    "connection_retries": 3,
+    "hosted_operations": {
+      "unsandboxed_operations_allowed": true
+    }
+  }
+}

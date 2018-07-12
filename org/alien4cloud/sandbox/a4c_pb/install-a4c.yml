@@ -1,8 +1,0 @@
----
-
-- hosts: all
-  name: install a4c
-  become: false
-
-  roles:
-    - install-a4c

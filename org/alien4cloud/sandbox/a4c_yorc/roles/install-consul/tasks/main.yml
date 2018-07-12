@@ -1,0 +1,43 @@
+- name: Create temporary folder
+  tempfile:
+    state: directory
+  register: tmp_consul
+
+- name: Download consul
+  get_url:
+    url: "{{ CONSUL_DIST_URL }}"
+    dest: "{{ tmp_consul.path }}/consul"
+    mode: 0600
+
+- name: Install unzip
+  yum:
+    name: unzip
+    state: latest
+  become: true
+
+- name: Creates consul directory
+  file:
+    path: ~/consul
+    state: directory
+
+- name: Creates consul data directory
+  file:
+    path: ~/consul/data
+    state: directory
+
+- name: Extract archive
+  unarchive:
+    copy: no
+    src: "{{ tmp_consul.path }}/consul"
+    dest: /usr/local/bin/
+  become: true
+
+- name: Remove temporary folder
+  file:
+    path: "{{ tmp_consul.path }}"
+    state: absent
+
+- name: Start consul
+  shell:
+    chdir: ~/consul
+    cmd: nohup consul agent -ui -client 0.0.0.0 -server -bootstrap-expect 1 -data-dir ./data &

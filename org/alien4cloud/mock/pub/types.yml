@@ -23,7 +23,7 @@ node_types:
           The total duration for all operations (create, configure, start) in seconds.
           Each one is pondered in implementation.
         required: true
-        default: 120
+        default: 3
       variation:
         type: integer
         description: |

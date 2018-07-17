@@ -1,7 +1,7 @@
 # Rename inputs.json.tpl to inputs.json
 # You need the following vars:
 # - REMOTE_IP_ADDRESS: 34.247.177.225
-# - REMOTE_USER: 34.247.177.225
+# - REMOTE_USER: centos
 # - PRIVATE_KEY_PATH: ~/work/env/aws/keys/vicos-awsproductteam.pem
 
 # Install all stack on the remote machine

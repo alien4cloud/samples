@@ -1,0 +1,143 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: artemis.demo.common
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - alien-base-types:2.1.0-SM5
+  - artemis.kafka.topic:2.1.0-SNAPSHOT
+  - artemis.spark.pub:2.1.0-SNAPSHOT
+  - artemis.hadoop.pub:2.1.0-SNAPSHOT
+  - artemis.hadoop.repository:2.1.0-SNAPSHOT
+  - artemis.elasticsearch.pub:2.1.0-SNAPSHOT
+
+node_types:
+
+  artemis.demo.common.nodes.MoyenDeStockageHDFS:
+    derived_from: artemis.hadoop.pub.nodes.HDFSService
+    abstract: true
+    description: |
+      Moyen de Stockage – HDFS – Ce composant abstrait représente l’un des moyens de stockages HDFS déployé sur une des plateformes ARTEMIS.
+      Il est nécessaire entre autre pour la création des espaces de stockage HDFS temporaire qui sont créé sur ce moyen de Stockage.
+
+  artemis.demo.common.nodes.RepertoireHDFSTemp:
+    derived_from: artemis.hadoop.repository.nodes.HdfsRepository
+    description: |
+      Espace de Stockage – HDFS – Ce composant est destinée à avoir une durée de vie identique à celle de l’application.
+      Il est utilisé comme moyen de communication entre module de traitement massif.
+      Il est créé dynamiquement à la création de l’application, détruit automatiquement également à la desactivation de l’application.
+
+  artemis.demo.common.nodes.RepertoireHDFS:
+    derived_from: artemis.hadoop.pub.nodes.HdfsRepositoryService
+    abstract: true
+    description: |
+      Espace de Stockage – HDFS – Ce composant abstrait permet de référencer des services ‘espaces de stockages’ HDFS et est utilisé dans une application comme source ou espace de stockage inter-applicatif.
+
+  # artemis.demo.nodes.EspaceEchange:
+  #   derived_from: artemis.kafka.topic.nodes.KafkaTopic
+
+  artemis.demo.common.nodes.MoteurExecutionSpark:
+    derived_from: artemis.spark.pub.nodes.SparkService
+    abstract: true
+    description: |
+      Moteur D’éxécution – SPARK – Ce composant abstrait  représente un moteur d’exécution spark déployé sur une des plateformes ARTEMIS.
+      Il est nécessaire entre autre pour connecter des modules utilisant ce moteur d’exécution pour executer leurs différentes tâches.
+
+  artemis.demo.common.nodes.EspaceStockageIndexeElastic:
+    derived_from: artemis.elasticsearch.pub.nodes.ElasticSearchService
+    abstract: true
+    description: |
+      Espace de stockage – Elastic Search – Ce composant abstrait représente un espace de stockage pouvant être instancié en tant que service ‘espace de stockage’ elasticsearch contenant effectivement de la donnée.
+      Il est utilisé dans une application comme source ou espace de stockage inter-applicatif.
+
+  artemis.demo.common.nodes.SparkJob:
+    derived_from: org.alien4cloud.nodes.Job
+    abstract: true
+    metadata:
+      icon: /images/spark.png
+    properties:
+      class_name:
+        type: string
+      memory:
+        type: integer
+        default: 1
+      cores:
+        type: integer
+        default: 1
+      app_args:
+        type: string
+        required: false
+    artifacts:
+      - jar_file:
+          file: test.jar
+          type: tosca.artifacts.File
+    requirements:
+      - spark:
+          capability: artemis.spark.pub.capabilities.SparkEndpoint
+          relationship: artemis.demo.common.relationships.TraitementConnect2Spark
+          occurrences: [ 1, 1 ]
+      - hdfs:
+          capability: artemis.hadoop.pub.capabilities.HDFSEndpoint
+          relationship: artemis.demo.common.relationships.TraitementConnect2Hdfs
+          occurrences: [ 1, 1 ]
+
+relationship_types:
+
+  artemis.demo.common.relationships.TraitementConnect2Spark:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [artemis.spark.pub.nodes.SparkService]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            SPARK_URL: { concat: [get_property: [TARGET, spark_endpoint, protocol], "://", get_attribute: [TARGET, spark_endpoint, ip_address], ":", get_property: [TARGET, spark_endpoint, port]] }
+          implementation: scripts/TraitementConnect2Spark/pre_configure_source.sh
+
+  artemis.demo.common.relationships.TraitementConnect2Hdfs:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [artemis.hadoop.pub.nodes.HDFSService]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            HDFS_URL: { concat: [get_property: [TARGET, hdfs_endpoint, protocol], "://", get_attribute: [TARGET, hdfs_endpoint, ip_address], ":", get_property: [TARGET, hdfs_endpoint, port]] }
+          implementation: scripts/TraitementConnect2Hdfs/pre_configure_source.sh
+
+  artemis.demo.common.relationships.SparkApp2HdfsRepoInput:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [artemis.hadoop.pub.capabilities.HdfsRepository]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            HDFS_URL: { get_attribute: [TARGET, hdfs_folder_url] }
+            HDFS_PATH: { get_attribute: [TARGET, hdfs_folder_path] }
+            REL_TYPE: "Input"
+          implementation: scripts/io.sh
+
+  artemis.demo.common.relationships.SparkApp2HdfsRepoOutput:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [artemis.hadoop.pub.capabilities.HdfsRepository]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            HDFS_URL: { get_attribute: [TARGET, hdfs_folder_url] }
+            HDFS_PATH: { get_attribute: [TARGET, hdfs_folder_path] }
+            REL_TYPE: "Output"
+          implementation: scripts/io.sh
+
+  artemis.demo.common.relationships.SparkApp2HdfsRepoError:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [artemis.hadoop.pub.capabilities.HdfsRepository]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            HDFS_URL: { get_attribute: [TARGET, hdfs_folder_url] }
+            HDFS_PATH: { get_attribute: [TARGET, hdfs_folder_path] }
+            REL_TYPE: "Error"
+          implementation: scripts/io.sh

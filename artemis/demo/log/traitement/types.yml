@@ -1,0 +1,59 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: artemis.demo.log.traitement
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - artemis.kafka.topic:2.1.0-SNAPSHOT
+  - artemis.spark.pub:2.1.0-SNAPSHOT
+  - artemis.hadoop.pub:2.1.0-SNAPSHOT
+  - artemis.hadoop.repository:2.1.0-SNAPSHOT
+  - artemis.demo.common:2.1.0-SNAPSHOT
+
+node_types:
+
+  artemis.demo.log.traitement.nodes.TraitementLogBatch:
+    derived_from: artemis.demo.common.nodes.SparkJob
+    metadata:
+      icon: /images/images.jpeg
+    description: |
+      Module – Traitement – Batch – SPARK - Ce module de parser un fichier de logs proxi et d’en tagger les données important pour traitement dans un deuxième temps.
+    properties:
+      class_name:
+        type: string
+        default: demo.MockParser
+        constraints:
+          - equal: demo.MockParser
+    attributes:
+      input_file_url: { get_operation_output: [ SELF, Standard, configure, INPUT_FILE_URL ] }
+      output_file_url: { get_operation_output: [ SELF, Standard, configure, OUTPUT_FILE_URL ] }
+      hdfs_url: { get_operation_output: [ SELF, Standard, configure, HDFS_URL ] }
+      spark_url: { get_operation_output: [ SELF, Standard, configure, SPARK_URL ] }
+    requirements:
+      - input_repository:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: artemis.demo.common.relationships.SparkApp2HdfsRepoInput
+          occurrences: [ 1, 1 ]
+      - output_repository:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: artemis.demo.common.relationships.SparkApp2HdfsRepoOutput
+          occurrences: [ 1, 1 ]
+    interfaces:
+      Standard:
+        configure:
+          implementation: scripts/configure.sh
+      tosca.interfaces.node.lifecycle.Runnable:
+        run:
+          inputs:
+            SPARK_URL: { get_attribute: [SELF, spark_url] }
+            HDFS_URL: { get_attribute: [SELF, hdfs_url] }
+            CLASS_NAME: { get_property: [SELF, class_name] }
+            MEMORY: { get_property: [SELF, memory] }
+            CORES: { get_property: [SELF, cores] }
+            INPUT_FILE_URL: { get_attribute: [SELF, input_file_url] }
+            OUTPUT_FILE_URL: { get_attribute: [SELF, output_file_url] }
+            APP_ARGS: { get_property: [SELF, app_args] }
+          implementation: scripts/run.sh

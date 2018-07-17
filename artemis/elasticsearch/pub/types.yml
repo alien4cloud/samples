@@ -1,0 +1,60 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.elasticsearch.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.elasticsearch.pub.nodes.ElasticSearchService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: images/elasticsearch.png
+    capabilities:
+      elasticsearch:
+        type: artemis.elasticsearch.pub.capabilities.ElasticSearchTransportAPI
+        occurrences: [ 0, UNBOUNDED ]
+      http:
+        type: artemis.elasticsearch.pub.capabilities.ElasticSearchRestAPI
+        occurrences: [ 0, UNBOUNDED ]
+
+capability_types:
+
+  artemis.elasticsearch.pub.capabilities.ElasticSearchTransportAPI:
+    derived_from: tosca.capabilities.Endpoint
+    description: >
+      Exposed by a ElasticSearch node for internal Transport connection.
+      Read more on transport client at https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/transport-client.html
+    properties:
+      port:
+        type: integer
+        description: The port of the elasticsearch Transport endpoint.
+        required: true
+        default: 9300
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        required: true
+        default: tcp
+  artemis.elasticsearch.pub.capabilities.ElasticSearchRestAPI:
+    derived_from: tosca.capabilities.Endpoint
+    description: >
+      The HTTP endpoint exposed by elasticsearch.
+    properties:
+      port:
+        type: integer
+        description: The port of the elasticsearch HTTP endpoint.
+        required: true
+        default: 9200
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        required: true
+        default: http

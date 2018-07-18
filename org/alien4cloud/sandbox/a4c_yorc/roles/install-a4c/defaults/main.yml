@@ -1,0 +1,7 @@
+a4c_port: 8088
+ssl_enabled: false
+ssl_keystore_source_location:
+a4c_ssl_dir: /home/centos/alien4cloud/ssl
+ssl_src_keystore_password:
+ssl_dest_keystore_password:
+ssl_key_password:

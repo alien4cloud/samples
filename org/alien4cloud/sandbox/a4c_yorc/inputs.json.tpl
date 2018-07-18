@@ -7,8 +7,14 @@
 "AWS_SECRET_KEY": "",
 "AWS_REGION": "eu-west-1",
 "alien_url": "http://34.247.177.225:8088",
-"alien_user": "admin",
-"alien_password": "admin",
+"a4c_admin_usr": "admin",
+"a4c_admin_pwd": "4dm1n",
 "discriminator": "ART_YORK_",
+"a4c_port": 8088,
+"ssl_enabled": false,
+"ssl_keystore_source_location": "/var/folders/2d/3krvvvn538ggxjx8mtvwmj_c0000gn/T/tmp.vaCqIRYH/server-keystore.p12",
+"ssl_src_keystore_password": "changeIt!",
+"ssl_dest_keystore_password": "changeIt!",
+"ssl_key_password": "changeIt!",
 
 "EOF": "" }

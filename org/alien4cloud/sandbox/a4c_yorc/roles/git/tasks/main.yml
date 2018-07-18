@@ -29,7 +29,7 @@
 
 - name: Login on A4C
   uri:
-    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    url: "{{ alien_url }}/login?username={{ a4c_admin_usr }}&password={{ a4c_admin_pwd }}&submit=Login"
     method: POST
     return_content: yes
     status_code: 302

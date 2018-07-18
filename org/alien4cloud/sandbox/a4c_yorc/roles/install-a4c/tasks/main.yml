@@ -2,24 +2,19 @@
 - name: Create temporary folder
   tempfile:
     state: directory
-  register: a4c_dist
+  register: temp_dir
 
 - name: Download a4c
   get_url:
     url: "{{ ALIEN_DIST_URL }}"
-    dest: "{{ a4c_dist.path }}/a4c-dist"
+    dest: "{{ temp_dir.path }}/a4c-dist"
     mode: 0600
 
 - name: Extract archive
   unarchive:
-    src: "{{ a4c_dist.path }}/a4c-dist"
+    src: "{{ temp_dir.path }}/a4c-dist"
     dest: ~/
     copy: no
-
-- name: Remove temporary folder
-  file:
-    path: "{{ a4c_dist.path }}"
-    state: absent
 
 - name: Install latest jdk 1.8
   yum:
@@ -27,7 +22,37 @@
     state: latest
   become: true
 
+- name: Copy server keystore
+  copy:
+    src: "{{ ssl_keystore_source_location }}"
+    dest: "{{ temp_dir.path }}/server-keystore.p12"
+    mode: 0600
+  when: ssl_enabled == true
+
+- name: Creates SSL directory
+  file:
+    path: "{{ a4c_ssl_dir }}"
+    state: directory
+  when: ssl_enabled == true
+
+- name: Generate key store
+  shell:
+    cmd: "keytool -importkeystore -destkeystore {{ a4c_ssl_dir }}/server-keystore.jks -srckeystore {{ temp_dir.path }}/server-keystore.p12 -srcstoretype pkcs12 -alias server -deststorepass {{ ssl_dest_keystore_password }} -srckeypass {{ ssl_key_password }} -srcstorepass {{ ssl_src_keystore_password }}"
+  become: true
+  when: ssl_enabled == true
+
+- name: Configure A4C
+  template:
+    src: alien4cloud-config.yml.j2
+    dest: ~/alien4cloud/config/alien4cloud-config.yml
+    force: yes
+
 - name: Start application A4C
   shell:
     chdir: ~/alien4cloud
     cmd: nohup ./alien4cloud.sh > alien_nohup.log 2>&1 & echo $! > alien.pid
+
+- name: Remove temporary folder
+  file:
+    path: "{{ temp_dir.path }}"
+    state: absent

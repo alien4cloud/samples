@@ -1,7 +1,7 @@
 ---
 
 - set_fact:
-    url: "{{ alien_url }}/login?username={{ alien_user }}&password={{ alien_password }}&submit=Login"
+    url: "{{ alien_url }}/login?username={{ a4c_admin_usr }}&password={{ a4c_admin_pwd }}&submit=Login"
 
 - name: "Login onto A4C using {{url}}"
   uri:

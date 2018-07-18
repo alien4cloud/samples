@@ -1,5 +1,7 @@
 ---
-
+- set_fact:
+    alien_url: "{{ a4c_protocol }}://{{ a4c_ip }}:{{ a4c_port }}"
+    
 - set_fact:
     url: "{{ alien_url }}/login?username={{ a4c_admin_usr }}&password={{ a4c_admin_pwd }}&submit=Login"
 

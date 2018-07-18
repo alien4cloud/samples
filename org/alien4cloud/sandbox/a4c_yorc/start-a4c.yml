@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  name: start a4c
+  become: false
+
+  roles:
+    - start-a4c

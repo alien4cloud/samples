@@ -1,21 +1,24 @@
-# Rename inputs.json.tpl to inputs.json
-# You need the following vars:
-# - REMOTE_IP_ADDRESS: 34.245.10.8
-# - REMOTE_USER: centos
-# - PRIVATE_KEY_PATH: ~/work/env/aws/keys/vicos-awsproductteam.pem
+# You need a linux box with centos (tried on a EC2 ami-3548444c t2.medium)
 
-# if you want to activate SSL for A4C (HTTPS) you need to set 'ssl_enabled' to true and to generate a keystore
-# the script resources/ssl.sh will generate all autosigned stuff
+# You need the following vars:
+# - REMOTE_IP_ADDRESS: ie. 34.245.10.8
+# - REMOTE_USER: ie. centos
+# - PRIVATE_KEY_PATH: ie. ~/work/env/aws/keys/vicos-awsproductteam.pem
+
+# Rename inputs.json.tpl to inputs.json and setup few things (a minima 'a4c_ip').
+
+# if you want to activate SSL for A4C (HTTPS) you need to set 'a4c_protocol' to 'https' and to generate a keystore
+# the script resources/ssl.sh will generate all autosigned stuff for you
 ./resources/ssl.sh $REMOTE_IP_ADDRESS changeIt!
 # if it prompt for a pwassword, it needs the root password of your own machine !
 # it will finally echo you something like :
 > Generated key store in : /var/folders/2d/3krvvvn538ggxjx8mtvwmj_c0000gn/T/tmp.vaCqIRYH/server-keystore.p12
-# fill the ssl_keystore_source_location in inputs.json file using this subPath
+# fill the 'ssl_keystore_source_location' in inputs.json file using this path
 
 # Install all stack on the remote machine
 ansible-playbook -i $REMOTE_IP_ADDRESS, install-a4c-consul-yorc.yml --private-key $PRIVATE_KEY_PATH --user $REMOTE_USER --extra-vars "@inputs.json" -v
 
-# change alien_url in inputs.json (ie. http://34.247.177.225:8088)
+# Configure A4C
 ansible-playbook -i $REMOTE_IP_ADDRESS, setup-a4c-artemis.yml --private-key $PRIVATE_KEY_PATH --user $REMOTE_USER --extra-vars "@inputs.json" -v
 
 # That's all folk, the full system will be available

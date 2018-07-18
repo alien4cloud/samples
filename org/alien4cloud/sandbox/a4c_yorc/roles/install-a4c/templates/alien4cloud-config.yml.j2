@@ -4,7 +4,7 @@ server:
   # Should be true when running behind a proxy (H.A. setting for example).
   use-forward-headers: true
   # If you want to enable SSL comment the previous line and un-comment the following lines.
-{% if ssl_enabled %}
+{% if a4c_protocol == 'https' %}
   ssl:
     key-store: {{ a4c_ssl_dir }}/server-keystore.jks
     key-store-password: {{ ssl_dest_keystore_password }}

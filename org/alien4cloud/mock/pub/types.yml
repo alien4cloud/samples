@@ -39,6 +39,16 @@ node_types:
         default: 2000
         description: |
           Words count in the generated logs.
+      comment:
+        type: string
+        required: false
+        description: |
+          A simple comment.
+      description:
+        type: string
+        required: false
+        description: |
+          A simple description.
 
   org.alien4cloud.mock.pub.nodes.AbstractMockHost:
     description: |

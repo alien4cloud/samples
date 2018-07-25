@@ -1,15 +1,10 @@
 
-- name: Install unzip
-  yum:
-    name: unzip
-    state: latest
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
-
 - name: Install epel-release-latest-7
   yum:
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     state: present
   become: true
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
 
 - name: Install python
   yum:
@@ -18,9 +13,26 @@
     update_cache: true
   become: true
   with_items:
+    - unzip
     - python
     - python-pip
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+# # Install system dependencies (Ubuntu)
+# - name: Preprare apt cache
+#   apt:
+#     update_cache: yes
+#   when: ansible_distribution == 'Ubuntu'
+
+- name: Install system dependencies (Ubuntu)
+  apt: name={{item}} state=present
+  with_items:
+    - unzip
+    - python-pip
+    - python-dev
+    - build-essential
+  become: true
+  when: ansible_distribution == 'Ubuntu'
 
 - name: Install ansible
   command: pip install ansible==2.4.1.0

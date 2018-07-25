@@ -9,11 +9,19 @@
     dest: "{{ tmp_consul.path }}/consul"
     mode: 0600
 
-- name: Install unzip
+- name: Install unzip (CentOS)
   yum:
     name: unzip
     state: latest
   become: true
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install unzip (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - unzip
+  become: true
+  when: ansible_distribution == 'Ubuntu'
 
 - name: Creates consul directory
   file:

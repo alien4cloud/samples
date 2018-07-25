@@ -16,11 +16,19 @@
     dest: ~/
     copy: no
 
-- name: Install latest jdk 1.8
+- name: Install latest jdk 1.8 (CentOS)
   yum:
     name: java-1.8.0-openjdk-headless.x86_64
     state: latest
   become: true
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install latest jdk 1.8 (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - openjdk-8-jdk
+  become: true
+  when: ansible_distribution == 'Ubuntu'
 
 - name: Copy server keystore
   copy:

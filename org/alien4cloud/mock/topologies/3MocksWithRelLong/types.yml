@@ -8,9 +8,9 @@ metadata:
 description: "3 mocks with many relations: lot of concurrent operations & long duration of operations (30s)"
 
 imports:
-  - org.alien4cloud.mock.pub:2.0.1-SNAPSHOT
+  - org.alien4cloud.mock.pub:2.1.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.mock.bash:2.0.1-SNAPSHOT
+  - org.alien4cloud.mock.bash:2.1.0-SNAPSHOT
 
 topology_template:
   node_templates:

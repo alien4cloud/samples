@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # FIXME: setup on manager
-export PATH=$PATH:/opt/ext/hadoop/hadoop-2.9.0/bin
-export PATH=$PATH:/opt/ext/spark/spark-2.2.1-bin-hadoop2.7/bin
-export JAVA_HOME=/opt/java/jdk1.8.0_131
+# export PATH=$PATH:/opt/ext/hadoop/hadoop-2.9.0/bin
+# export PATH=$PATH:/opt/ext/spark/spark-2.2.1-bin-hadoop2.7/bin
+# export JAVA_HOME=/opt/java/jdk1.8.0_131
 
 echo "Creating folder ${HDFS_URL}/${HDFS_PATH}/${INSTANCE}"
 hdfs dfs -Dfs.defaultFS=${HDFS_URL} -Ddfs.client.use.datanode.hostname=true -mkdir -p ${HDFS_PATH}/${INSTANCE}

@@ -23,7 +23,7 @@ node_types:
 capability_types:
 
   artemis.mysql.pub.capabilities.MysqlDbEndpoint:
-    derived_from: tosca.capabilities.Root
+    derived_from: tosca.capabilities.Endpoint
     properties:
       port:
         type: integer
@@ -42,6 +42,6 @@ capability_types:
       password:
         type: string
         required: true
-      ip_address:
-        type: string
-        required: true
+      # ip_address:
+      #   type: string
+      #   required: true

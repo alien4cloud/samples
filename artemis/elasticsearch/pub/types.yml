@@ -43,7 +43,7 @@ capability_types:
         required: true
         default: tcp
   artemis.elasticsearch.pub.capabilities.ElasticSearchRestAPI:
-    derived_from: tosca.capabilities.Root
+    derived_from: tosca.capabilities.Endpoint
     description: >
       The HTTP endpoint exposed by elasticsearch.
     properties:
@@ -58,5 +58,5 @@ capability_types:
         type: string
         required: true
         default: http
-      ip_address:
-        type: string
+      # ip_address:
+      #   type: string

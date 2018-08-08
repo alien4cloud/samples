@@ -53,7 +53,7 @@ capability_types:
           - equal: hdfs
 
   artemis.hadoop.pub.capabilities.HDFSHttpEndpoint:
-    derived_from: tosca.capabilities.Root
+    derived_from: tosca.capabilities.Endpoint
     properties:
       port:
         type: integer
@@ -66,8 +66,6 @@ capability_types:
         default: http
         constraints:
           - equal: http
-      ip_address:
-        type: string
 
   artemis.hadoop.pub.capabilities.HdfsRepository:
     derived_from: tosca.capabilities.Root

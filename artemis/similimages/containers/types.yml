@@ -7,7 +7,7 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - docker-types:2.1.0-SM5
+  - docker-types:2.1.0-SNAPSHOT
   - artemis.mysql.pub:2.1.0-SNAPSHOT
   - artemis.elasticsearch.pub:2.1.0-SNAPSHOT
   - artemis.hadoop.pub:2.1.0-SNAPSHOT
@@ -31,7 +31,7 @@ node_types:
     requirements:
       - my_sql_search:
           capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
-          relationship: tosca.relationships.Root
+          relationship: tosca.relationships.ConnectsTo
           occurrences: [1, 1]
       # - my_sql_annot_faces:
       #     capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
@@ -39,23 +39,23 @@ node_types:
       #     occurrences: [1, 1]
       - text_se:
           capability: artemis.elasticsearch.pub.capabilities.ElasticSearchRestAPI
-          relationship: tosca.relationships.Root
+          relationship: tosca.relationships.ConnectsTo
           occurrences: [1, 1]
       - hadoop01:
           capability: artemis.hadoop.pub.capabilities.HDFSHttpEndpoint
-          relationship: tosca.relationships.Root
+          relationship: tosca.relationships.ConnectsTo
           occurrences: [1, 1]
     interfaces:
       Standard:
         create:
           inputs:
-            ENV_ACTUAL_ES_HOST_PORT: "http://192.168.1.126:9200/"
-            ENV_ACTUAL_HDFS_HOST_PORT: "http://192.168.1.24:8020"
-            ENV_MYSQL_DATABASE: similimage_search
-            ENV_MYSQL_HOST: 192.168.1.35
-            ENV_MYSQL_PASSWORD: elise_db_pwd
-            ENV_MYSQL_PORT: 3306
-            ENV_MYSQL_USER: elise_db_user
+            ENV_ACTUAL_ES_HOST_PORT: { concat: [ get_attribute: [TARGET, text_se, http, protocol], "://", get_attribute: [TARGET, text_se, http, ip_address], ":", get_attribute: [TARGET, text_se, http, port], "/"] }
+            ENV_ACTUAL_HDFS_HOST_PORT: { concat: [ get_attribute: [TARGET, hadoop01, http_endpoint, protocol], "://", get_attribute: [TARGET, hadoop01, http_endpoint, ip_address], ":", get_attribute: [TARGET, hadoop01, http_endpoint, port]] }
+            ENV_MYSQL_DATABASE: { get_attribute: [TARGET, my_sql_search, db, database] }
+            ENV_MYSQL_HOST: { get_attribute: [TARGET, my_sql_search, db, ip_address] }
+            ENV_MYSQL_PASSWORD: { get_attribute: [TARGET, my_sql_search, db, password] }
+            ENV_MYSQL_PORT: { get_attribute: [TARGET, my_sql_search, db, port] }
+            ENV_MYSQL_USER: { get_attribute: [TARGET, my_sql_search, db, user] }
             # ENV_MYSQL_FACE_DATABASE: { get_property: [TARGET, my_sql_annot_faces, database] }
             # ENV_MYSQL_FACE_HOST: { get_property: [TARGET, my_sql_annot_faces, ip_address] }
             # ENV_MYSQL_FACE_PASSWORD: { get_property: [TARGET, my_sql_annot_faces, password] }

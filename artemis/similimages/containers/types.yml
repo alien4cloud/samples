@@ -66,6 +66,46 @@ node_types:
             repository: docker
             type: tosca.artifacts.Deployment.Image.Container.Docker
 
+  artemis.similimages.containers.nodes.EliseInterface:
+    derived_from: tosca.nodes.Container.Application.DockerContainer
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "/var/www/initialize_config.sh && apache2-foreground"
+    capabilities:
+      http:
+        type: tosca.capabilities.Endpoint
+        properties:
+          port: 80
+      https:
+        type: tosca.capabilities.Endpoint
+        properties:
+          port: 443
+    requirements:
+      - elise_search:
+          capability: artemis.similimages.containers.capabilities.EliseSearchEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - my_sql_annotface:
+          capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ENV_ELISE_HOST: { get_attribute: [TARGET, elise_search, web_service, ip_address] }
+            ENV_ELISE_PORT: { get_attribute: [TARGET, elise_search, web_service, port] }
+            ENV_MYSQL_DATABASE: { get_attribute: [TARGET, my_sql_annotface, db, database] }
+            ENV_MYSQL_HOST: { get_attribute: [TARGET, my_sql_annotface, db, ip_address] }
+            ENV_MYSQL_PASSWORD: { get_attribute: [TARGET, my_sql_annotface, db, password] }
+            ENV_MYSQL_PORT: { get_attribute: [TARGET, my_sql_annotface, db, port] }
+            ENV_MYSQL_USER: { get_attribute: [TARGET, my_sql_annotface, db, user] }
+          implementation:
+            file: registry.artemis.public/artemis/httpd_similimage:0.1
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker
+
 capability_types:
 
   artemis.similimages.containers.capabilities.EliseSearchEndpoint:

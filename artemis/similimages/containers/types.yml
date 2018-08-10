@@ -56,11 +56,11 @@ node_types:
             ENV_MYSQL_PASSWORD: { get_attribute: [TARGET, my_sql_search, db, password] }
             ENV_MYSQL_PORT: { get_attribute: [TARGET, my_sql_search, db, port] }
             ENV_MYSQL_USER: { get_attribute: [TARGET, my_sql_search, db, user] }
-            ENV_MYSQL_FACE_DATABASE: { get_property: [TARGET, my_sql_annot_faces, db, database] }
-            ENV_MYSQL_FACE_HOST: { get_property: [TARGET, my_sql_annot_faces, db, ip_address] }
-            ENV_MYSQL_FACE_PASSWORD: { get_property: [TARGET, my_sql_annot_faces, db, password] }
-            ENV_MYSQL_FACE_PORT: { get_property: [TARGET, my_sql_annot_faces, db, port] }
-            ENV_MYSQL_FACE_USER: { get_property: [TARGET, my_sql_annot_faces, db, user] }
+            ENV_MYSQL_FACE_DATABASE: { get_attribute: [TARGET, my_sql_annot_faces, db, database] }
+            ENV_MYSQL_FACE_HOST: { get_attribute: [TARGET, my_sql_annot_faces, db, ip_address] }
+            ENV_MYSQL_FACE_PASSWORD: { get_attribute: [TARGET, my_sql_annot_faces, db, password] }
+            ENV_MYSQL_FACE_PORT: { get_attribute: [TARGET, my_sql_annot_faces, db, port] }
+            ENV_MYSQL_FACE_USER: { get_attribute: [TARGET, my_sql_annot_faces, db, user] }
           implementation:
             file: registry.artemis.public/artemis/elise:0.5.1
             repository: docker

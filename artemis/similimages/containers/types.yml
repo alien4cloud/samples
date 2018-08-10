@@ -33,10 +33,10 @@ node_types:
           capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
           relationship: tosca.relationships.ConnectsTo
           occurrences: [1, 1]
-      # - my_sql_annot_faces:
-      #     capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
-      #     relationship: tosca.relationships.Root
-      #     occurrences: [1, 1]
+      - my_sql_annot_faces:
+          capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
       - text_se:
           capability: artemis.elasticsearch.pub.capabilities.ElasticSearchRestAPI
           relationship: tosca.relationships.ConnectsTo
@@ -56,13 +56,13 @@ node_types:
             ENV_MYSQL_PASSWORD: { get_attribute: [TARGET, my_sql_search, db, password] }
             ENV_MYSQL_PORT: { get_attribute: [TARGET, my_sql_search, db, port] }
             ENV_MYSQL_USER: { get_attribute: [TARGET, my_sql_search, db, user] }
-            # ENV_MYSQL_FACE_DATABASE: { get_property: [TARGET, my_sql_annot_faces, database] }
-            # ENV_MYSQL_FACE_HOST: { get_property: [TARGET, my_sql_annot_faces, ip_address] }
-            # ENV_MYSQL_FACE_PASSWORD: { get_property: [TARGET, my_sql_annot_faces, password] }
-            # ENV_MYSQL_FACE_PORT: { get_property: [TARGET, my_sql_annot_faces, port] }
-            # ENV_MYSQL_FACE_USER: { get_property: [TARGET, my_sql_annot_faces, user] }
+            ENV_MYSQL_FACE_DATABASE: { get_property: [TARGET, my_sql_annot_faces, db, database] }
+            ENV_MYSQL_FACE_HOST: { get_property: [TARGET, my_sql_annot_faces, db, ip_address] }
+            ENV_MYSQL_FACE_PASSWORD: { get_property: [TARGET, my_sql_annot_faces, db, password] }
+            ENV_MYSQL_FACE_PORT: { get_property: [TARGET, my_sql_annot_faces, db, port] }
+            ENV_MYSQL_FACE_USER: { get_property: [TARGET, my_sql_annot_faces, db, user] }
           implementation:
-            file: registry.artemis.public/artemis/elise:0.4
+            file: registry.artemis.public/artemis/elise:0.5.1
             repository: docker
             type: tosca.artifacts.Deployment.Image.Container.Docker
 
@@ -96,13 +96,13 @@ node_types:
           inputs:
             ENV_ELISE_HOST: { get_attribute: [TARGET, elise_search, web_service, ip_address] }
             ENV_ELISE_PORT: { get_attribute: [TARGET, elise_search, web_service, port] }
-            ENV_MYSQL_DATABASE: { get_attribute: [TARGET, my_sql_annotface, db, database] }
-            ENV_MYSQL_HOST: { get_attribute: [TARGET, my_sql_annotface, db, ip_address] }
-            ENV_MYSQL_PASSWORD: { get_attribute: [TARGET, my_sql_annotface, db, password] }
-            ENV_MYSQL_PORT: { get_attribute: [TARGET, my_sql_annotface, db, port] }
-            ENV_MYSQL_USER: { get_attribute: [TARGET, my_sql_annotface, db, user] }
+            ENV_MYSQL_FACE_DATABASE: { get_attribute: [TARGET, my_sql_annotface, db, database] }
+            ENV_MYSQL_FACE_HOST: { get_attribute: [TARGET, my_sql_annotface, db, ip_address] }
+            ENV_MYSQL_FACE_PASSWORD: { get_attribute: [TARGET, my_sql_annotface, db, password] }
+            ENV_MYSQL_FACE_PORT: { get_attribute: [TARGET, my_sql_annotface, db, port] }
+            ENV_MYSQL_FACE_USER: { get_attribute: [TARGET, my_sql_annotface, db, user] }
           implementation:
-            file: registry.artemis.public/artemis/httpd_similimage:0.1
+            file: registry.artemis.public/artemis/httpd_similimage:0.2
             repository: docker
             type: tosca.artifacts.Deployment.Image.Container.Docker
 

@@ -65,7 +65,54 @@ node_types:
             file: registry.artemis.public/artemis/elise:0.5.1
             repository: docker
             type: tosca.artifacts.Deployment.Image.Container.Docker
-
+            
+  artemis.similimages.containers.nodes.EliseIndex:
+    derived_from: tosca.nodes.Container.Application.DockerContainer
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "/elise/wait-for-db.sh && /elise/scripts/start_elise_index.sh"
+    capabilities:
+      web_service:
+        type: artemis.similimages.containers.capabilities.EliseSearchEndpoint
+    requirements:
+      - my_sql_search:
+          capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - my_sql_annot_faces:
+          capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - text_se:
+          capability: artemis.elasticsearch.pub.capabilities.ElasticSearchRestAPI
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - hadoop01:
+          capability: artemis.hadoop.pub.capabilities.HDFSHttpEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            ENV_ACTUAL_ES_HOST_PORT: { concat: [ get_attribute: [TARGET, text_se, http, protocol], "://", get_attribute: [TARGET, text_se, http, ip_address], ":", get_attribute: [TARGET, text_se, http, port], "/"] }
+            ENV_ACTUAL_HDFS_HOST_PORT: { concat: [ get_attribute: [TARGET, hadoop01, http_endpoint, protocol], "://", get_attribute: [TARGET, hadoop01, http_endpoint, ip_address], ":", get_attribute: [TARGET, hadoop01, http_endpoint, port]] }
+            ENV_MYSQL_DATABASE: { get_attribute: [TARGET, my_sql_search, db, database] }
+            ENV_MYSQL_HOST: { get_attribute: [TARGET, my_sql_search, db, ip_address] }
+            ENV_MYSQL_PASSWORD: { get_attribute: [TARGET, my_sql_search, db, password] }
+            ENV_MYSQL_PORT: { get_attribute: [TARGET, my_sql_search, db, port] }
+            ENV_MYSQL_USER: { get_attribute: [TARGET, my_sql_search, db, user] }
+            ENV_MYSQL_FACE_DATABASE: { get_attribute: [TARGET, my_sql_annot_faces, db, database] }
+            ENV_MYSQL_FACE_HOST: { get_attribute: [TARGET, my_sql_annot_faces, db, ip_address] }
+            ENV_MYSQL_FACE_PASSWORD: { get_attribute: [TARGET, my_sql_annot_faces, db, password] }
+            ENV_MYSQL_FACE_PORT: { get_attribute: [TARGET, my_sql_annot_faces, db, port] }
+            ENV_MYSQL_FACE_USER: { get_attribute: [TARGET, my_sql_annot_faces, db, user] }
+          implementation:
+            file: registry.artemis.public/artemis/elise:0.5.1
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker
+            
   artemis.similimages.containers.nodes.EliseInterface:
     derived_from: tosca.nodes.Container.Application.DockerContainer
     properties:
@@ -109,6 +156,13 @@ node_types:
 capability_types:
 
   artemis.similimages.containers.capabilities.EliseSearchEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        default: 8081
+        
+  artemis.similimages.containers.capabilities.EliseIndexEndpoint:
     derived_from: tosca.capabilities.Endpoint
     properties:
       port:

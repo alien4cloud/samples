@@ -1,0 +1,34 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.ais.converter
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:2.1.0-SNAPSHOT
+  - artemis.hadoop.pub:2.1.0-SNAPSHOT
+
+repositories:
+  docker:
+    url: https://hub.docker.com/
+    type: http
+
+node_types:
+
+  artemis.ais.containers.nodes.RawConverter:
+    derived_from: tosca.nodes.Container.Application.DockerContainer
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "/opt/bigdata/bin/start.sh"
+    requirements:
+      - hdfs_input:
+          capability: artemis.hadoop.pub.capabilities.HDFSEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - hdfs_output:
+          capability: artemis.hadoop.pub.capabilities.HDFSEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]

@@ -19,15 +19,9 @@ repositories:
 
 node_types:
 
-  artemis.similimages.containers.nodes.EliseSearch:
+  artemis.similimages.containers.nodes.EliseBackend:
     derived_from: tosca.nodes.Container.Application.DockerContainer
-    properties:
-      docker_run_cmd:
-        type: string
-        default: "/elise/wait-for-db.sh && /elise/scripts/start_elise_search.sh"
-    capabilities:
-      web_service:
-        type: artemis.similimages.containers.capabilities.EliseSearchEndpoint
+    abstract: true
     requirements:
       - my_sql_search:
           capability: artemis.mysql.pub.capabilities.MysqlDbEndpoint
@@ -66,6 +60,26 @@ node_types:
             repository: docker
             type: tosca.artifacts.Deployment.Image.Container.Docker
 
+  artemis.similimages.containers.nodes.EliseSearch:
+    derived_from: artemis.similimages.containers.nodes.EliseBackend
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "/elise/wait-for-db.sh && /elise/scripts/start_elise_search.sh"
+    capabilities:
+      web_service:
+        type: artemis.similimages.containers.capabilities.EliseSearchEndpoint
+
+  artemis.similimages.containers.nodes.EliseIndex:
+    derived_from: artemis.similimages.containers.nodes.EliseBackend
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "/elise/wait-for-db.sh && /elise/scripts/start_elise_index.sh"
+    capabilities:
+      web_service:
+        type: artemis.similimages.containers.capabilities.EliseIndexEndpoint
+            
   artemis.similimages.containers.nodes.EliseInterface:
     derived_from: tosca.nodes.Container.Application.DockerContainer
     properties:
@@ -109,6 +123,13 @@ node_types:
 capability_types:
 
   artemis.similimages.containers.capabilities.EliseSearchEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        default: 8081
+
+  artemis.similimages.containers.capabilities.EliseIndexEndpoint:
     derived_from: tosca.capabilities.Endpoint
     properties:
       port:

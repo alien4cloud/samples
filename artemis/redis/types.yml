@@ -1,0 +1,32 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.redis.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.redis.pub.nodes   .RedisService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/redis.png
+    capabilities:
+      redis_endpoint:
+        type: artemis.redis.pub.capabilities.Redis
+
+capability_types:
+
+  artemis.redis.pub.capabilities.Redis:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 6379
+        constraints:
+          - in_range: [ 1, 65535 ]

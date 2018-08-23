@@ -1,0 +1,137 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: AisInjectionProducer
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: ""
+
+imports:
+- tosca-normative-types:1.0.0-ALIEN20
+- artemis.kafka.topic:2.1.0-SNAPSHOT
+- artemis.kafka.pub:2.1.0-SNAPSHOT
+- docker-types:2.1.0-SNAPSHOT
+- artemis.ais.producer:2.1.1-SNAPSHOT
+- artemis.zookeeper.pub:2.1.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    ContainerDeploymentUnit:
+      metadata:
+        a4c_edit_x: "-52"
+        a4c_edit_y: "-35"
+      type: org.alien4cloud.extended.container.types.ContainerDeploymentUnit
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    ContainerRuntime:
+      type: org.alien4cloud.extended.container.types.ContainerRuntime
+      requirements:
+      - hostedOnContainerDeploymentUnitHost:
+          type_requirement: host
+          node: ContainerDeploymentUnit
+          capability: tosca.capabilities.Container.Docker
+          relationship: tosca.relationships.HostedOn
+    Producer:
+      type: artemis.ais.containers.nodes.Producer
+      properties:
+        docker_run_cmd: "/opt/bigdata/bin/start.sh"
+        config_settings:
+        - input_prefix: "CFG_"
+          mount_path: "/config"
+          config_path: configs
+        cpu_share: 1.0
+        mem_share: "1 GB"
+      requirements:
+      - connectsToOutputTopicKafka_topic:
+          type_requirement: output_topic
+          node: output_topic
+          capability: artemis.kafka.pub.capabilities.KafkaTopic
+          relationship: tosca.relationships.ConnectsTo
+      - connectsToInputTopicKafka_topic:
+          type_requirement: input_topic
+          node: input_topic
+          capability: artemis.kafka.pub.capabilities.KafkaTopic
+          relationship: tosca.relationships.ConnectsTo
+      - hostedOnContainerRuntimeContainerRuntimeHost:
+          type_requirement: host
+          node: ContainerRuntime
+          capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
+          relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    output_topic:
+      metadata:
+        a4c_edit_x: 338
+        a4c_edit_y: "-160"
+      type: artemis.kafka.topic.nodes.KafkaTopic
+      properties:
+        topic_name: "ais-message-topic"
+      requirements:
+      - Producer_input_topic_kafka_broker:
+          type_requirement: kafka_broker
+          node: Producer_input_topic_kafka_broker
+          capability: artemis.kafka.pub.capabilities.KafkaBroker
+          relationship: artemis.kafka.topic.relationships.KafkaTopicConnectToBroker
+      - Producer_input_topic_zookeeper:
+          type_requirement: zookeeper
+          node: Producer_input_topic_zookeeper
+          capability: artemis.zookeeper.pub.capabilities.Zookeeper
+          relationship: artemis.kafka.topic.relationships.KafkaTopicConnectToZookeeper
+      capabilities:
+        kafka_topic:
+          properties:
+            protocol: tcp
+            port: 9092
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    input_topic:
+      metadata:
+        a4c_edit_x: 340
+        a4c_edit_y: "-341"
+      type: artemis.kafka.pub.nodes.TopicService
+      properties:
+        topic_name: "ais-replay"
+      capabilities:
+        kafka_topic:
+          properties:
+            protocol: tcp
+            port: 9092
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Producer_input_topic_zookeeper:
+      metadata:
+        a4c_edit_x: 794
+        a4c_edit_y: "-183"
+      type: artemis.zookeeper.pub.nodes.ZookeeperService
+      capabilities:
+        zookeeper_endpoint:
+          properties:
+            port: 2181
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Producer_input_topic_kafka_broker:
+      metadata:
+        a4c_edit_x: 795
+        a4c_edit_y: "-116"
+      type: artemis.kafka.pub.nodes.KafkaService
+      capabilities:
+        kafka_endpoint:
+          properties:
+            port: 9092
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source

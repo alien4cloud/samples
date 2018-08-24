@@ -10,7 +10,7 @@ imports:
 
 node_types:
 
-  artemis.redis.pub.nodes   .RedisService:
+  artemis.redis.pub.nodes.RedisService:
     derived_from: tosca.nodes.Root
     abstract: true
     tags:

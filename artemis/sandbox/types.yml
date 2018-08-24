@@ -1,0 +1,73 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.sandbox
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:2.1.0-SNAPSHOT
+  - artemis.hadoop.pub:2.1.0-SNAPSHOT
+
+repositories:
+  docker:
+    url: https://hub.docker.com/
+    type: http
+
+node_types:
+
+  artemis.sandbox.nodes.Apache:
+    derived_from: tosca.nodes.Container.Application.ConfigurableDockerContainer
+    capabilities:
+      http_endpoint:
+        type: tosca.capabilities.Endpoint
+    properties:
+      any_prop:
+        type: string
+        default: "any_value"
+      config_settings:
+        type: list
+        required: false
+        entry_schema:
+          type: org.alien4cloud.extended.container.datatypes.ConfigSetting
+        default:
+          - mount_path: /config
+            input_prefix: CFG_
+            config_path: configFiles
+    requirements:
+      - hdfs_input:
+          capability: artemis.hadoop.pub.capabilities.HDFSEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - hdfs_output:
+          capability: artemis.hadoop.pub.capabilities.HDFSEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            CFG_ACTUAL_ES_HOST_PORT: "value1"
+            CFG_SELF_ANY_PROP: { get_property: [SELF, any_prop] }
+            CFG_HDFS_INPUT_IP: { get_attribute: [TARGET, hdfs_input, hdfs_endpoint, ip_address] }
+            CFG_HDFS_INPUT_PORT: { get_attribute: [TARGET, hdfs_input, hdfs_endpoint, port] }
+            CFG_HDFS_OUTPUT_IP: { get_attribute: [TARGET, hdfs_output, hdfs_endpoint, ip_address] }
+            CFG_HDFS_OUTPUT_PORT: { get_attribute: [TARGET, hdfs_output, hdfs_endpoint, port] }
+          implementation:
+            file: httpd:latest
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker
+
+  artemis.sandbox.nodes.MiniBashMock:
+    description: |
+      A mock that implements juste minimum operations to fast start & stop.
+    derived_from: tosca.nodes.Root
+    interfaces:
+      Standard:
+        start:
+          implementation: scripts/mock.sh
+    artifacts:
+      - data:
+          file: data/fileInType.txt
+          type: tosca.artifacts.File

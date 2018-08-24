@@ -24,6 +24,7 @@ node_types:
       kafka_broker_endpoint: { get_operation_output: [ SELF, Standard, start, KAFKA_BROKER_ENDPOINT ] }
       zookeeper_endpoint: { get_operation_output: [ SELF, Standard, start, ZOOKEEPER_ENDPOINT ] }
       topic_name: { get_operation_output: [ SELF, Standard, start, TOPIC_NAME ] }
+      ip_address: { get_operation_output: [ SELF, Standard, configure, KAFKA_IP ] }
     capabilities:
       kafka_topic:
         type: artemis.kafka.pub.capabilities.KafkaTopic
@@ -42,6 +43,8 @@ node_types:
           inputs:
             TOPIC_NAME: { get_property: [SELF, topic_name] }
           implementation: scripts/KafkaTopic/start.sh
+        configure:
+          implementation: scripts/KafkaTopic/configure.sh
         delete:
           inputs:
             TOPIC_NAME: { get_attribute: [SELF, topic_name] }

@@ -19,6 +19,19 @@ node_types:
       kafka_endpoint:
         type: artemis.kafka.pub.capabilities.KafkaBroker
 
+  artemis.kafka.pub.nodes.TopicService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/pipeline.png
+    properties:
+      topic_name:
+        type: string
+        required: true
+    capabilities:
+      kafka_topic:
+        type: artemis.kafka.pub.capabilities.KafkaTopic
+
 capability_types:
 
   artemis.kafka.pub.capabilities.KafkaBroker:

@@ -19,7 +19,7 @@ repositories:
 
 node_types:
 
-  artemis.similimages.containers.nodes.EliseBackend:
+  artemis.similimage.containers.nodes.EliseBackend:
     derived_from: tosca.nodes.Container.Application.DockerContainer
     abstract: true
     requirements:

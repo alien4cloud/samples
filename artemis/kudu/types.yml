@@ -27,6 +27,6 @@ capability_types:
       port:
         type: integer
         required: true
-        default: 8050
+        default: 7051
         constraints:
           - in_range: [ 1, 65535 ]

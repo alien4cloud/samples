@@ -31,7 +31,7 @@ node_types:
         default:
         - mount_path: /config
           input_prefix: CFG_
-          config_path: configFiles
+          config_path: configs
       raw0_home_dir:
         type: string
         default: "/aisliv/data/ais/raw0"

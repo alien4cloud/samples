@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>%date{yyyy-MM-dd}T%X{akkaTimestamp} %-5level[%X{akkaSource}] %logger{0} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE_PARTITION_COMMIT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>%date{yyyy-MM-dd}T%X{akkaTimestamp} %-5level[%X{akkaSource}] %X{actor-log-name}[%X{actor-state}][topic: %X{topic}, partition: %X{partition}] - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <appender name="CONSOLE_PARTITION" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>%date{yyyy-MM-dd}T%X{akkaTimestamp} %-5level[%X{akkaSource}] %X{actor-log-name}[%X{actor-state}][topic: %X{topic}, partition: %X{partition}] - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <appender name="CONSOLE_VESSEL" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>%date{yyyy-MM-dd}T%X{akkaTimestamp} %-5level[%X{akkaSource}] %X{actor-log-name}[%X{actor-state}][topic: %X{topic}, partition: %X{partition}, vesselId: %X{vesselId}] - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <logger name="akka" level="DEBUG"/>
+    <logger name="fr.cls.bigdata.core.ais.consumer.actors.KafkaPartitionCommitActor" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE_PARTITION_COMMIT"/>
+    </logger>
+    <logger name="fr.cls.bigdata.core.ais.consumer.actors.KafkaPartitionActor" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE_PARTITION"/>
+    </logger>
+    <logger name="fr.cls.bigdata.core.ais.consumer.actors.VesselActor" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE_VESSEL"/>
+    </logger>
+    <logger name="org.apache.kafka.clients.consumer" level="DEBUG" additivity="false"/>
+    <root level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

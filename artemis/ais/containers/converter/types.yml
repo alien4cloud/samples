@@ -18,11 +18,38 @@ repositories:
 node_types:
 
   artemis.ais.containers.nodes.RawConverter:
-    derived_from: tosca.nodes.Container.Application.DockerContainer
+    derived_from: tosca.nodes.Container.Application.ConfigurableDockerContainer
     properties:
       docker_run_cmd:
         type: string
         default: "/opt/bigdata/bin/start.sh"
+      config_settings:
+        type: list
+        required: false
+        entry_schema:
+          type: org.alien4cloud.extended.container.datatypes.ConfigSetting
+        default:
+        - mount_path: /config
+          input_prefix: CFG_
+          config_path: configFiles
+      raw0_home_dir:
+        type: string
+        default: "/aisliv/data/ais/raw0"
+      raw0_incoming_subdir:
+          type: string
+          default: "incoming"
+      raw0_inprogress_subdir:
+        type: string
+        default: "inprogress"
+      raw0_converted_subdir:
+        type: string
+        default: "converted"
+      raw0_failed_subdir:
+        type: string
+        default: "failed"
+      raw1_dir:
+        type: string
+        default: "/aisliv/data/ais/raw1"
     requirements:
       - hdfs_input:
           capability: artemis.hadoop.pub.capabilities.HDFSEndpoint
@@ -32,3 +59,21 @@ node_types:
           capability: artemis.hadoop.pub.capabilities.HDFSEndpoint
           relationship: tosca.relationships.ConnectsTo
           occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            CFG_INPUT_HDFS_IP: { get_attribute: [TARGET, hdfs_input, hdfs_endpoint, ip_address] }
+            CFG_INPUT_HDFS_PORT: { get_attribute: [TARGET, hdfs_input, hdfs_endpoint, port] }
+            CFG_OUTPUT_HDFS_IP: { get_attribute: [TARGET, hdfs_output, hdfs_endpoint, ip_address] }
+            CFG_OUTPUT_HDFS_PORT: { get_attribute: [TARGET, hdfs_output, hdfs_endpoint, port] }
+            CFG_RAW0_HOME_DIR: { get_property: [SELF, raw0_home_dir] }
+            CFG_RAW0_INCOMING_SUBDIR: { get_property: [SELF, raw0_incoming_subdir] }
+            CFG_RAW0_INPROGRESS_SUBDIR: { get_property: [SELF, raw0_inprogress_subdir] }
+            CFG_RAW0_CONVERTED_SUBDIR: { get_property: [SELF, raw0_converted_subdir] }
+            CFG_RAW0_FAILED_SUBDIR: { get_property: [SELF, raw0_failed_subdir] }
+            CFG_RAW1_DIR: { get_property: [SELF, raw1_dir] }
+          implementation:
+            file: registry.artemis.public/fbouy/ais/bigdata-core-ais-raw1-converter:1.3.00-ARTEMIS-SNAPSHOT
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker

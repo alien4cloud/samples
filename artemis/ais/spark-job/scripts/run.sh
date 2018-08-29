@@ -1,18 +1,23 @@
 #!/usr/bin/env bash
 
-echo "MAIN_JAR_URL=${MAIN_JAR_URL}" #hdfs:///aisliv/fatjar/bigdata-toolbox-spark-1.0.00-SNAPSHOT-jar-with-dependencies.jar
-echo "MAIN_CLASS=${MAIN_CLASS}" #fr.cls.bigdata.toolbox.spark.raw.Raw1ToRaw2
-echo "HIVE_SITE_URL=${HIVE_SITE_URL}" #http://hdfs-5.novalocal/hdfs-config/hive-site.xml
-echo "DRIVER_MEMORY=${DRIVER_MEMORY}"
-echo "EXECUTOR_MEMORY=${EXECUTOR_MEMORY}"
-echo "APP_ARGS=${APP_ARGS}" #day-2018001 0
+echo "DCOS_AUTH_TOKEN=${DCOS_AUTH_TOKEN}" #--custom-auth-token=DCOS_AUTH_TOKEN
+echo "DCOS_URL=${DCOS_URL}" #--custom-dcos-url=DCOS_URI/DCOS_URL
+echo "MAIN_JAR_URL=${MAIN_JAR_URL}" #hdfs:///aisliv/fatjar/bigdata-core-spark-1.3.00-ARTEMIS-SNAPSHOT-jar-with-dependencies-a4c.jar
+echo "MAIN_CLASS=${MAIN_CLASS}" #fr.cls.bigdata.core.spark.jobs.ais.histo.Raw1ToRaw2
+echo "HIVE_SITE_URL=${HIVE_SITE_URL}" #http://hdfs-5.novalocal/hdfs-config/hive-site.xml hdfs:///aisliv/conf/application_a4c.conf
+echo "DRIVER_MEMORY=${DRIVER_MEMORY}G" #4
+echo "EXECUTOR_MEMORY=${EXECUTOR_MEMORY}G" #8
+echo "APP_ARGS=${APP_ARGS}" #--day 2018001 --not-use-previous
 
 #dcos --log-level=INFO spark --verbose run --submit-args="--class fr.cls.bigdata.toolbox.spark.raw.Raw1ToRaw2 --driver-memory 1G --executor-memory 1G --conf spark.kryoserializer.buffer.max=512M hdfs:///aisliv/fatjar/bigdata-toolbox-spark-1.0.00-SNAPSHOT-jar-with-dependencies.jar day-2018001 0"
 
 WAIT="true"
 tmpnam=$(mktemp)
 # Running the job
-dcos spark run --submit-args="
+dcos spark \
+    --custom-auth-token=${DCOS_AUTH_TOKEN} \
+    --custom-dcos-url=${DCOS_URL} \
+    run --submit-args="
     --conf spark.mesos.uris=${HIVE_SITE_URL}
     --conf spark.driver.extraClassPath=./
     --conf spark.executor.extraClassPath=./

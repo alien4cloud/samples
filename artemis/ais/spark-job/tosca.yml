@@ -16,6 +16,10 @@ node_types:
     metadata:
       icon: /images/spark.png
     properties:
+      dcos_auth_token:
+        type: string
+      dcos_url:
+        type: string
       hive_site_url:
         type: string
       main_jar_url:
@@ -40,6 +44,8 @@ node_types:
       tosca.interfaces.node.lifecycle.Runnable:
         run:
           inputs:
+            DCOS_AUTH_TOKEN: { get_property: [SELF, dcos_auth_token] }
+            DCOS_URL: { get_property: [SELF, dcos_url] }
             HIVE_SITE_URL: { get_property: [SELF, hive_site_url] }
             MAIN_JAR_URL: { get_property: [SELF, main_jar_url] }
             MAIN_CLASS: { get_property: [SELF, class_name] }

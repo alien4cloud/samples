@@ -8,7 +8,7 @@ metadata:
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.mock.pub:2.1.0-SNAPSHOT
-  - alien-base-types:2.1.0-SM5
+  - alien-base-types:2.1.0-SNAPSHOT
 
 description: >
   Mock Jobs types with bash implementations.
@@ -28,6 +28,8 @@ node_types:
           Each one is pondered in implementation.
         required: true
         default: 10
+    attributes:
+      submission_id: { get_operation_output: [ SELF, tosca.interfaces.node.lifecycle.Runnable, run, SUBMISSION_ID ] }
     interfaces:
       tosca.interfaces.node.lifecycle.Runnable:
         run:

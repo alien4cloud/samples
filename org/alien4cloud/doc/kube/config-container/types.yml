@@ -1,0 +1,47 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.ConfigContainer
+  template_version: 2.1.0-SNAPSHOT
+  template_author: Atos
+
+imports:
+- tosca-normative-types:1.0.0-ALIEN20
+- docker-types:2.1.0-SNAPSHOT
+
+repositories:
+  docker:
+    url: https://hub.docker.com/
+    type: http
+
+node_types:
+
+  artemis.ais.containers.nodes.Ubuntu:
+    derived_from: tosca.nodes.Container.Application.ConfigurableDockerContainer
+    properties:
+      docker_run_cmd:
+        type: list
+        entry_schema:
+          type: string
+      docker_run_args:
+        type: list
+        entry_schema:
+          type: string
+      config_settings:
+        type: list
+        required: false
+        entry_schema:
+          type: org.alien4cloud.extended.container.datatypes.ConfigSetting
+        default:
+        - mount_path: /config
+          input_prefix: CFG_
+          config_path: configFiles
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            CFG_IP: { get_attribute: [SELF, ip_address] }
+          implementation:
+            file: ubuntu:18.04
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker

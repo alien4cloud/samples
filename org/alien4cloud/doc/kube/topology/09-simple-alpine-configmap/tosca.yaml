@@ -5,6 +5,8 @@ metadata:
   template_version: 2.1.0-SNAPSHOT
   template_author: alien4cloud
 
+description: ""
+
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.doc.kube.ConfigContainer:2.1.0-SNAPSHOT
@@ -15,13 +17,31 @@ topology_template:
     Container:
       type: org.alien4cloud.extended.container.types.ContainerRuntime
     Ubuntu:
-      type: artemis.ais.containers.nodes.Ubuntu
+      type: org.alien4cloud.doc.kube.containers.nodes.Alpine
       properties:
+        container_name: alpine
+        docker_run_cmd:
+          - ls
+        docker_run_args:
+          - "-lh"
+        config_settings:
+          - input_prefix: "CFG_"
+            mount_path: "/config"
+            config_path: configFiles
         cpu_share: 1.0
         mem_share: "128 MB"
+        docker_bash_cmd:
+          - "/bin/bash"
+          - "-c"
       requirements:
         - hostedOnContainerRuntimeContainerHost:
             type_requirement: host
             node: Container
             capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
             relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1

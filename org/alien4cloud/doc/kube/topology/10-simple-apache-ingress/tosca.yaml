@@ -1,0 +1,55 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.topology.10-simple-apache-ingress
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: ""
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.IngressContainer:2.1.0-SNAPSHOT
+  - docker-types:2.1.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    Container:
+      type: org.alien4cloud.extended.container.types.ContainerRuntime
+    Apache:
+      type: org.alien4cloud.doc.kube.containers.nodes.IngressContainer
+      properties:
+        container_name: apache
+        docker_run_cmd:
+          - ls
+        docker_run_args:
+          - "-lh"
+        config_settings:
+          - input_prefix: "CFG_"
+            mount_path: "/config"
+            config_path: configFiles
+        cpu_share: 1.0
+        mem_share: "128 MB"
+        docker_bash_cmd:
+          - "/bin/bash"
+          - "-c"
+      requirements:
+        - hostedOnContainerRuntimeContainerHost:
+            type_requirement: host
+            node: Container
+            capability: org.alien4cloud.extended.container.capabilities.ApplicationHost
+            relationship: org.alien4cloud.extended.container.relationships.HostedOnContainerRuntime
+      capabilities:
+        web_service:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+

@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.ConfigContainer
+  template_name: org.alien4cloud.doc.kube.IngressContainer
   template_version: 2.1.0-SNAPSHOT
   template_author: Atos
 
@@ -16,12 +16,12 @@ repositories:
 
 node_types:
 
-  org.alien4cloud.doc.kube.containers.nodes.Alpine:
+  org.alien4cloud.doc.kube.containers.nodes.IngressContainer:
     derived_from: tosca.nodes.Container.Application.ConfigurableDockerContainer
     properties:
       container_name:
         type: string
-        default: "alpine"
+        default: "apache"
       docker_run_cmd:
         type: list
         entry_schema:
@@ -39,12 +39,24 @@ node_types:
         - mount_path: /config
           input_prefix: CFG_
           config_path: configFiles
+    capabilities:
+      web_service:
+        type: org.alien4cloud.doc.kube.containers.capabilities.ExternalEndpoint
     interfaces:
       Standard:
         create:
           inputs:
             CFG_NAME: { get_property: [SELF, container_name] }
           implementation:
-            file: alpine:latest
+            file: httpd:latest
             repository: docker
             type: tosca.artifacts.Deployment.Image.Container.Docker
+
+capability_types:
+
+  org.alien4cloud.doc.kube.containers.capabilities.ExternalEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        default: 80

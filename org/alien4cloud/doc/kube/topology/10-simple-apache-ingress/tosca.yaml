@@ -14,16 +14,17 @@ imports:
 
 topology_template:
   node_templates:
-    Container:
+    ApacheContainer:
       type: org.alien4cloud.extended.container.types.ContainerRuntime
     Apache:
       type: org.alien4cloud.doc.kube.containers.nodes.IngressContainer
       properties:
         container_name: apache
         docker_run_cmd:
-          - ls
+          - "/bin/sh"
         docker_run_args:
-          - "-lh"
+          - "-c"
+          - "sleep 60m"
         config_settings:
           - input_prefix: "CFG_"
             mount_path: "/config"

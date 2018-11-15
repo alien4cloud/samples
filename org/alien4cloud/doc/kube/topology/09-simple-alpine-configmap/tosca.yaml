@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.topology.09-simple-ubuntu-configmap
+  template_name: org.alien4cloud.doc.kube.topology.09-simple-alpine-configmap
   template_version: 2.1.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -14,16 +14,17 @@ imports:
 
 topology_template:
   node_templates:
-    Container:
+    AlpineContainer:
       type: org.alien4cloud.extended.container.types.ContainerRuntime
-    Ubuntu:
+    Alpine:
       type: org.alien4cloud.doc.kube.containers.nodes.Alpine
       properties:
         container_name: alpine
         docker_run_cmd:
-          - ls
+          - "/bin/sh"
         docker_run_args:
-          - "-lh"
+          - "-c"
+          - "sleep 60m"
         config_settings:
           - input_prefix: "CFG_"
             mount_path: "/config"

@@ -32,3 +32,9 @@ topology_template:
         duration: 3
         variation: 20
         log_length: 2000
+      requirements:
+        - bashComponentConnectToComponentBashMockMock_endpoint:
+            type_requirement: mock_endpoint
+            node: BashMock
+            capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+            relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent

@@ -12,6 +12,11 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.mock.pub:2.1.0-SNAPSHOT
 
+repositories:
+  TestHTTP:
+    url: https://fastconnect.org/maven/service/local/repositories/opensource/content
+    type: http
+
 topology_template:
   node_templates:
     BashMock:
@@ -25,5 +30,6 @@ topology_template:
         log_length: 2000
       artifacts:
         data:
-          file: wmp.ico
+          file: /tomcat-war/warFiles/helloWord.war
           type: tosca.artifacts.File
+          repository: TestHTTP

@@ -16,8 +16,8 @@ topology_template:
   node_templates:
     BashMock:
       metadata:
-        a4c_edit_x: 21
-        a4c_edit_y: "-12"
+        a4c_edit_x: 246
+        a4c_edit_y: "-119"
       type: org.alien4cloud.mock.bash.nodes.BashMock
       properties:
         duration: 3
@@ -25,9 +25,9 @@ topology_template:
         log_length: 2000
     BashMock_2:
       metadata:
-        a4c_edit_x: 83
-        a4c_edit_y: "-88"
-      type: org.alien4cloud.mock.bash.nodes.BashMock
+        a4c_edit_x: "-3"
+        a4c_edit_y: "-103"
+      type: org.alien4cloud.mock.bash.nodes.FailAtStartBashMock
       properties:
         duration: 3
         variation: 20
@@ -38,3 +38,7 @@ topology_template:
             node: BashMock
             capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
             relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+      artifacts:
+        data:
+          file: data/data.txt
+          type: tosca.artifacts.File

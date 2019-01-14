@@ -11,7 +11,6 @@ imports:
   - org.alien4cloud.mock.bash:2.1.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.mock.pub:2.1.0-SNAPSHOT
-  - apache-type:2.1.0-SM7
 
 topology_template:
   node_templates:
@@ -24,22 +23,7 @@ topology_template:
         duration: 3
         variation: 20
         log_length: 2000
-    BashMock_2:
-      metadata:
-        a4c_edit_x: "-3"
-        a4c_edit_y: "-103"
-      type: org.alien4cloud.mock.bash.nodes.FailAtStartBashMock
-      properties:
-        duration: 3
-        variation: 20
-        log_length: 2000
-      requirements:
-        - bashComponentConnectToComponentBashMockMock_endpoint:
-            type_requirement: mock_endpoint
-            node: BashMock
-            capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
-            relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
       artifacts:
         data:
-          file: data/data.txt
+          file: wmp.ico
           type: tosca.artifacts.File

@@ -1,0 +1,15 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: test-archive-1
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: This archive contains an Apache server tosca node type.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN12
+
+node_types:
+  org.alien4cloud.tests.nodes.TestArchive1:
+    derived_from: tosca.nodes.Root

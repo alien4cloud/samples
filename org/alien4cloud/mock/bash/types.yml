@@ -195,6 +195,16 @@ node_types:
     description: |
       A software component that hosts MockComponent.
     derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    attributes:
+      att_ppid: { get_operation_output: [ SELF, Standard, create, ATT_PPID ] }
+      att_hostname: { get_operation_output: [ SELF, Standard, create, ATT_HOSTNAME ] }
+      att_pwd: { get_operation_output: [ SELF, Standard, create, ATT_PWD ] }
+      att_date: { get_operation_output: [ SELF, Standard, configure, ATT_DATE ] }
+      att_ssh_connection: { get_operation_output: [ SELF, Standard, configure, ATT_SSH_CONNECTION ] }
+      att_logname: { get_operation_output: [ SELF, Standard, configure, ATT_LOGNAME ] }
+      att_current_pid: { get_operation_output: [ SELF, Standard, start, ATT_CURRENT_PID ] }
+      att_home: { get_operation_output: [ SELF, Standard, start, ATT_HOME ] }
+      att_ssh_client: { get_operation_output: [ SELF, Standard, start, ATT_SSH_CLIENT ] }
     interfaces:
       Standard:
         create:

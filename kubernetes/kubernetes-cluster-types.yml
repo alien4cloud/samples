@@ -36,7 +36,7 @@ node_types:
         type: version
         default: 2.2.1
     capabilities:
-      - etcd: org.alien4cloud.capabilities.kubernetes.ETCD
+      etcd: org.alien4cloud.capabilities.kubernetes.ETCD
     requirements:
       - host:
           capability: org.alien4cloud.capabilities.DockerHost
@@ -65,7 +65,7 @@ node_types:
         type: boolean
         default: true
     capabilities:
-      - flannel:
+      flannel:
           type: org.alien4cloud.capabilities.flannel.Connectivity
     requirements:
       - host:
@@ -118,9 +118,9 @@ node_types:
     attributes:
       api_endpoint: { concat:  ["http://", get_attribute: [HOST, public_ip_address], ":8080"] }
     capabilities:
-      - kube_master:
+      kube_master:
           type: org.alien4cloud.capabilities.kubernetes.MasterHost
-      - configuration:
+      configuration:
           type: org.alien4cloud.capabilities.kubernetes.MasterConfiguration
     interfaces:
       Standard:
@@ -139,7 +139,7 @@ node_types:
     metadata:
       icon: images/kube.png
     capabilities:
-      - namespace:
+      namespace:
           type: org.alien4cloud.capabilities.kubernetes.Namespace
     requirements:
       - host:

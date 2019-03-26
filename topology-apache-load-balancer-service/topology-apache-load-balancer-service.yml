@@ -15,7 +15,7 @@ topology_template:
   substitution_mappings:
     node_type: tosca.nodes.LoadBalancer
     requirements:
-      application: [ ApacheLoadBalancer, application, org.alien4cloud.relationships.RoutesToApacheLoadBalancerService ]
+      - application: [ ApacheLoadBalancer, application, org.alien4cloud.relationships.RoutesToApacheLoadBalancerService ]
   node_templates:
     ApacheLoadBalancer:
       type: org.alien4cloud.nodes.ApacheLoadBalancer

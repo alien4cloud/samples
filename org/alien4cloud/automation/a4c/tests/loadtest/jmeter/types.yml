@@ -24,7 +24,7 @@ node_types:
     properties:
       rampup:
         type: string
-        description: A CSV list of user count for rampup (ex: 10,20,50,100)
+        description: 'A CSV list of user count for rampup (ex: 10,20,50,100)'
         default: 10,20,30,40,50
         required: true
       test_name_prefix:

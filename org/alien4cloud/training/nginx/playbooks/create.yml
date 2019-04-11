@@ -16,7 +16,6 @@
       yum:
         name: nginx
         state: latest
-        update_cache: true
 
     - name: Authorize httpd to connect
       shell:

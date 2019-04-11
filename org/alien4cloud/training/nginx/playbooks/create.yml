@@ -6,8 +6,11 @@
   become_method: sudo
   tasks:
 
-    - name: upgrade all packages
-      yum: name=* state=latest
+    - name: Install epel-release
+      yum:
+        name: epel-release
+        state: latest
+        update_cache: true
 
     - name: Install nginx
       yum:

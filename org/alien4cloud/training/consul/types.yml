@@ -1,0 +1,59 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.training.consul
+  template_version: 2.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - yorc-types:1.0.0
+
+node_types:
+  org.alien4cloud.training.consul.nodes.ConsulAgent:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      Base Consul discovery service installation.
+    tags:
+      icon: /images/consul.png
+    capabilities:
+      http_endpoint:
+        type: org.alien4cloud.training.consul.capabilities.ConsulHttpEndpoint
+    properties:
+      download_url:
+        description: The URL to download the consul archive.
+        type: string
+        required: true
+        default: https://releases.hashicorp.com/consul/1.0.6/consul_1.0.6_linux_amd64.zip
+      install_dir:
+        description: The path where to install consul.
+        type: string
+        required: true
+        default: /opt/consul
+    attributes:
+      url: { concat: ["http://", get_attribute: [ HOST, public_ip_address ], ":", get_property: [ SELF, http_endpoint, port ]]}
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            DOWNLOAD_URL: { get_property: [SELF, download_url] }
+            INSTALL_DIR: { get_property: [SELF, install_dir] }
+          implementation: playbooks/create.yml
+        configure:
+          inputs:
+            INSTALL_DIR: { get_property: [SELF, install_dir] }
+            HTTP_PORT: { get_property: [SELF, http_endpoint, port] }
+          implementation: playbooks/configure.yml
+        start: playbooks/start.yml
+
+capability_types:
+  org.alien4cloud.training.consul.capabilities.ConsulHttpEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    description: >
+      A consul agent exposes this capability.
+    properties:
+      port:
+        type: integer
+        description: Port for http/https API.
+        required: true
+        default: 8500

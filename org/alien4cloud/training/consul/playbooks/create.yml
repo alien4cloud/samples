@@ -1,0 +1,48 @@
+
+- name: Install Consul
+  hosts: all
+  strategy: free
+  become: true
+  become_method: sudo
+  tasks:
+
+    - name: create consul group
+      group: name=consul
+
+    - name: create consul user
+      user:
+        name: consul
+        system: true
+        group: consul
+        home: "{{ INSTALL_DIR }}"
+
+    - name: Create consul dir
+      file:
+        path: "{{ INSTALL_DIR }}"
+        state: directory
+        owner: consul
+        group: consul
+        mode: "u=rwx,g=rwx,o=rx"
+
+    - name: Install needed package
+      yum:
+        name: "{{ item }}"
+        state: latest
+      become: true
+      with_items:
+        - unzip
+        - wget
+
+    - name: Creates consul data directory
+      file:
+        path: "{{ INSTALL_DIR }}/data"
+        state: directory
+        owner: consul
+        group: consul
+        mode: "u=rwx,g=rwx,o=rx"
+
+    - name: Extract archive from remote source
+      unarchive:
+        src: "{{ DOWNLOAD_URL }}"
+        dest: "{{ INSTALL_DIR }}"
+        remote_src: yes

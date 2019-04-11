@@ -1,0 +1,43 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.training.consul-client
+  template_version: 2.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+  org.alien4cloud.training.consul-client.nodes.KVClient:
+    derived_from: tosca.nodes.Root
+    description: >
+      A simple client that writes a KV pair.
+    requirements:
+      - consul_endpoint:
+          capability: tosca.capabilities.Endpoint
+          relationship: org.alien4cloud.training.consul-client.relationships.ConsulClientConnectsToConsul
+          occurrences: [1, 1]
+    properties:
+      key_name:
+        description: The name of the key into this client will write
+        type: string
+        required: true
+      key_value:
+        description: The value this client will put in the key.
+        type: string
+        required: true
+
+relationship_types:
+  org.alien4cloud.training.consul-client.relationships.ConsulClientConnectsToConsul:
+    derived_from: tosca.relationships.ConnectsTo
+    description: Relationship that connects a client to a consul server.
+    valid_target_types: [ tosca.capabilities.Endpoint ]
+    interfaces:
+      configure:
+        add_target:
+          inputs:
+            KEY_NAME: { get_property: [SOURCE, key_name] }
+            KEY_VALUE: { get_property: [SOURCE, key_value] }
+            CONSUL_URL: { get_attribute: [TARGET, url] }
+          implementation: scripts/connect.sh

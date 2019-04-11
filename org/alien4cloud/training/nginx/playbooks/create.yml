@@ -6,6 +6,9 @@
   become_method: sudo
   tasks:
 
+    - name: upgrade all packages
+      yum: name=* state=latest
+
     - name: Install nginx
       yum:
         name: nginx

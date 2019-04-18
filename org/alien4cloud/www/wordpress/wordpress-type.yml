@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
-  template_name: org.alien4cloudorg.www.wordpress
+  template_name: org.alien4cloud.www.wordpress
   template_version: 1.4.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -9,7 +9,7 @@ description: Wordpress TOSCA node type to be hosted on an apache webserver.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloudorg.www.apache:1.4.0-SNAPSHOT
+  - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
   - mysql-type:1.4.0-SNAPSHOT
   - php-type:1.4.0-SNAPSHOT
 

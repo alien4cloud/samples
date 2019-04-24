@@ -297,9 +297,10 @@ topology_template:
             relationship: org.alien4cloud.automation.cloudify.config.offline_plugin.relationships.ConnectsToCfy
       capabilities:
         app_endpoint:
-          secure: false
-          network_name: PRIVATE
-          initiator: source
+          properties:
+            secure: false
+            network_name: PRIVATE
+            initiator: source
     Apache:
       type: org.alien4cloud.nodes.Apache
       properties:

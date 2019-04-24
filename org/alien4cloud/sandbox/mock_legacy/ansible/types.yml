@@ -76,7 +76,7 @@ node_types:
     capabilities:
       mock_endpoint:
         type: org.alien4cloud.mock.ansible.capabilities.AnsibleComponentEndpoint
-        occurrences: [0, unbounded]
+        occurrences: [0, UNBOUNDED]
     requirements:
       - host:
           type: tosca.capabilities.Container
@@ -85,7 +85,7 @@ node_types:
       - mock_endpoint:
           type: org.alien4cloud.mock.ansible.capabilities.AnsibleComponentEndpoint
           relationship: org.alien4cloud.mock.ansible.relationships.AnsibleComponentConnectToComponent
-          occurrences: [0, unbounded]
+          occurrences: [0, UNBOUNDED]
     interfaces:
       Standard:
         create:

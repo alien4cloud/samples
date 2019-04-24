@@ -10,6 +10,7 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN20SM4
   - org.alien4cloud.doc.kube.containers:2.0.0-SNAPSHOT
   - docker-types:2.0.0-SM4
+  - nodecellar-sample-types:2.0.0
 
 topology_template:
   node_templates:

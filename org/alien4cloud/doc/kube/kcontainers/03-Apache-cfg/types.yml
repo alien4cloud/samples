@@ -56,6 +56,13 @@ topology_template:
         container:
           imagePullPolicy: Always
           image: "httpd:latest"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - "echo $(sed -n '/^ma_config: /s///p' /tmp/cfg/input.properties)  > /usr/local/apache2/htdocs/index.html"
         config_settings:
           - input_prefix: "CFG_"
             mount_path: "/tmp/cfg"

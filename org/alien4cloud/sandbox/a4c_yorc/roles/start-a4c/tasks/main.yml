@@ -1,0 +1,45 @@
+
+- name: Start application A4C
+  shell:
+    chdir: ~/alien4cloud
+    cmd: nohup ./alien4cloud.sh > alien_nohup.log 2>&1 & echo $! > alien.pid
+
+- set_fact:
+    alien_url: "{{ a4c_protocol }}://{{ a4c_ip }}:{{ a4c_port }}"
+
+- name: Add repository
+  yum:
+   name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+   state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install pip
+  yum: pkg=python-pip state=present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install system dependencies (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - python-pip
+    - python-dev
+    - build-essential
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Ensure httplib2 is installed
+  pip:
+    name: httplib2
+    state: present
+  become: true
+
+- name: "Wait for a4c to be reachable at {{ alien_url }}"
+  uri:
+    url: "{{ alien_url }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 10
+  delay: 10
+  ignore_errors: yes

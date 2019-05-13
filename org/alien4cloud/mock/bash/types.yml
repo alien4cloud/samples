@@ -2,15 +2,15 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.mock.bash
-  template_version: 2.0.1-SNAPSHOT
+  template_version: 2.1.0-SNAPSHOT
   template_author: Gandalfe
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.mock.pub:2.0.1-SNAPSHOT
+  - org.alien4cloud.mock.pub:2.1.0-SNAPSHOT
 
 description: >
-  Mock types with bash implementation.
+  Mock types with bash implementations.
 
 # TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
 node_types:
@@ -35,6 +35,34 @@ node_types:
           capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
           relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
           occurrences: [0, unbounded]
+
+  org.alien4cloud.mock.bash.nodes.MiniBashFailFastMock:
+    description: |
+      A mock that implements juste minimum operations to fast start & stop.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 20
+            log_length: { get_property: [ SELF, log_length ] }
+          implementation: scripts/fail.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
 
   org.alien4cloud.mock.bash.nodes.MiniBashMock:
     description: |
@@ -167,6 +195,16 @@ node_types:
     description: |
       A software component that hosts MockComponent.
     derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    attributes:
+      att_ppid: { get_operation_output: [ SELF, Standard, create, ATT_PPID ] }
+      att_hostname: { get_operation_output: [ SELF, Standard, create, ATT_HOSTNAME ] }
+      att_pwd: { get_operation_output: [ SELF, Standard, create, ATT_PWD ] }
+      att_date: { get_operation_output: [ SELF, Standard, configure, ATT_DATE ] }
+      att_ssh_connection: { get_operation_output: [ SELF, Standard, configure, ATT_SSH_CONNECTION ] }
+      att_logname: { get_operation_output: [ SELF, Standard, configure, ATT_LOGNAME ] }
+      att_current_pid: { get_operation_output: [ SELF, Standard, start, ATT_CURRENT_PID ] }
+      att_home: { get_operation_output: [ SELF, Standard, start, ATT_HOME ] }
+      att_ssh_client: { get_operation_output: [ SELF, Standard, start, ATT_SSH_CLIENT ] }
     interfaces:
       Standard:
         create:

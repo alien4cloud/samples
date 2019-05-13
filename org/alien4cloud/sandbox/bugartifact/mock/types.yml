@@ -1,0 +1,45 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.sandbox.bugartifact.mock
+  template_version: 2.1.0-SNAPSHOT
+  template_author: slt
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.sandbox.bugartifact.mockabstract:2.1.0-SNAPSHOT
+
+description: >
+  Custom mock types.
+
+node_types:
+
+  org.alien4cloud.sample.SampleMock:
+    description: |
+      Sample mock v5...
+    derived_from: org.alien4cloud.sample.SampleMockAbstract
+    # interfaces:
+    #   Standard:
+    #     start:
+    #       inputs:
+    #         operation: "start"
+    #         duration: { get_property: [ SELF, duration ] }
+    #         variation: { get_property: [ SELF, variation ] }
+    #         weight: 20
+    #         log_length: { get_property: [ SELF, log_length ] }
+    #       implementation: scripts.operation.sh
+    #     stop:
+    #       inputs:
+    #         operation: "stop"
+    #         duration: { get_property: [ SELF, duration ] }
+    #         variation: { get_property: [ SELF, variation ] }
+    #         weight: 20
+    #         log_length: { get_property: [ SELF, log_length ] }
+    #       implementation: scripts/operation.sh
+    # artifacts:
+    #   - data1:
+    #       file: data/data1.txt
+    #       type: tosca.artifacts.File
+    #   - data2:
+    #       file: data/data2.txt
+    #       type: tosca.artifacts.File

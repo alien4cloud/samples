@@ -1,0 +1,71 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.hadoop.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.hadoop.pub.nodes.HDFSService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/hdfs.jpeg
+    capabilities:
+      hdfs_endpoint:
+        type: artemis.hadoop.pub.capabilities.HDFSEndpoint
+      http_endpoint:
+        type: artemis.hadoop.pub.capabilities.HDFSHttpEndpoint
+
+  artemis.hadoop.pub.nodes.HdfsRepositoryService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    metadata:
+      icon: /images/hdfs.jpeg
+    # properties:
+    #   hdfs_folder_url:
+    #     type: string
+    #   hdfs_folder_path:
+    #     type: string
+    capabilities:
+      hdfs_repository:
+        type: artemis.hadoop.pub.capabilities.HdfsRepository
+
+capability_types:
+
+  artemis.hadoop.pub.capabilities.HDFSEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 9000
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        default: hdfs
+        constraints:
+          - equal: hdfs
+
+  artemis.hadoop.pub.capabilities.HDFSHttpEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 50070
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        default: http
+        constraints:
+          - equal: http
+
+  artemis.hadoop.pub.capabilities.HdfsRepository:
+    derived_from: tosca.capabilities.Root

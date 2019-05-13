@@ -1,0 +1,25 @@
+
+- name: Configure Consul
+  hosts: all
+  strategy: free
+  become: true
+  become_method: sudo
+  tasks:
+
+    - name: Consul config file
+      template:
+        src: server-config.json.j2
+        dest: "{{ INSTALL_DIR }}/server-config.json"
+        mode: 0666
+        force: yes
+
+    - name: Usage of consul jinja2 template for service creation
+      template:
+        src: consul-service.j2
+        dest: /etc/systemd/system/consul.service
+        mode: 0444
+        force: yes
+
+    - name: Reload the deamon before starting the service
+      systemd:
+        daemon_reload: yes

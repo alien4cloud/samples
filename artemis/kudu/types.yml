@@ -1,0 +1,32 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.kudu.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.kudu.pub.nodes.KuduService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/apachekudu.png
+    capabilities:
+      kudu_endpoint:
+        type: artemis.kudu.pub.capabilities.Kudu
+
+capability_types:
+
+  artemis.kudu.pub.capabilities.Kudu:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 7051
+        constraints:
+          - in_range: [ 1, 65535 ]

@@ -1,0 +1,30 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.postgre.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.pub.nodes.PostgreService:
+    derived_from: tosca.nodes.Root
+    abstract: true	
+    tags:
+      icon: /images/postgre.png
+    capabilities:
+      postgre_endpoint:
+        type: artemis.postgre.pub.capabilities.PostgreEndpoint
+
+capability_types:
+
+  artemis.postgre.pub.capabilities.PostgreEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 5432

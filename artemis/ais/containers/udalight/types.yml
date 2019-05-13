@@ -1,0 +1,82 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.ais.containers.udalight
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:2.1.0-SNAPSHOT
+  - artemis.postgre.pub:2.1.0-SNAPSHOT
+  - artemis.ais.containers.rest:2.1.0-SNAPSHOT
+
+repositories:
+  docker:
+    url: https://hub.docker.com/
+    type: http
+
+node_types:
+
+  artemis.ais.containers.nodes.UdaLight:
+    derived_from: tosca.nodes.Container.Application.ConfigurableDockerContainer
+
+    requirements:
+      - postgre_udalight:
+          capability: artemis.postgre.pub.capabilities.PostgreEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - uda_masbgd:
+          capability: artemis.ais.containers.rest.capabilities.UdaMasbgdEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+    capabilities:
+      http:
+        type: tosca.capabilities.Endpoint
+        properties:
+          port: 8080
+      https:
+        type: tosca.capabilities.Endpoint
+        properties:
+          port: 443
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            CFG_POSTGRE_HOST: { concat: [ get_attribute: [TARGET, postgre_udalight, http, protocol], "://", get_attribute: [TARGET, postgre_udalight, http, ip_address], ":", get_attribute: [TARGET, postgre_udalight, http, port], "/"] }
+#            CFG_POSTGRE_USER: {get_attribute: [TARGET,postgre_udalight, user]}
+#            CFG_POSTGRE_PORT: {get_attribute: [TARGET,postgre_udalight, port] }
+          implementation:
+            file: registry.artemis.public/fbouy/ais/mas-uda-light:1.3.00-ARTEMIS-SNAPSHOT
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker
+
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "/tmp/run-appli.sh"
+      docker_run_args:
+        type: string
+        default: "-Xmx512M"
+      config_settings:
+        type: list
+        required: false
+        entry_schema:
+          type: org.alien4cloud.extended.container.datatypes.ConfigSetting
+        default:
+        - mount_path: /config
+          input_prefix: CFG_
+          config_path: configFiles
+          
+    capabilities:
+      web_service:
+        type: artemis.ais.containers.capabilities.UdaLightEndpoint
+
+capability_types:
+
+  artemis.ais.containers.capabilities.UdaLightEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        default: 8081

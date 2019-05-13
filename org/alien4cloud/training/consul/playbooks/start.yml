@@ -1,0 +1,13 @@
+
+- name: Start Consul
+  hosts: all
+  strategy: free
+  become: true
+  become_method: sudo
+  tasks:
+
+    - name: Start consul service
+      service:
+        name: consul
+        state: started
+        enabled: yes

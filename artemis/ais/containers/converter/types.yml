@@ -1,0 +1,74 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.ais.converter
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:2.1.0-SNAPSHOT
+  - artemis.hadoop.pub:2.1.0-SNAPSHOT
+
+repositories:
+  docker:
+    url: https://hub.docker.com/
+    type: http
+
+node_types:
+
+  artemis.ais.containers.nodes.RawConverter:
+    derived_from: tosca.nodes.Container.Application.ConfigurableDockerContainer
+    properties:
+      docker_run_cmd:
+        type: string
+        default: "/opt/bigdata/bin/start.sh"
+      config_settings:
+        type: list
+        required: false
+        entry_schema:
+          type: org.alien4cloud.extended.container.datatypes.ConfigSetting
+        default:
+        - mount_path: /config
+          input_prefix: CFG_
+          config_path: configs
+    requirements:
+      - raw0_home_dir:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - raw0_incoming_subdir:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - raw0_inprogress_subdir:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - raw0_converted_subdir:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - raw0_failed_subdir:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+      - raw1_dir:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            CFG_HDFS_URL: { get_attribute: [TARGET, raw0_home_dir, hdfs_url] }
+            CFG_RAW0_HOME_DIR: { get_attribute: [TARGET, raw0_home_dir, hdfs_folder_path] }
+            CFG_RAW0_INCOMING_SUBDIR: { get_attribute: [TARGET, raw0_incoming_subdir, hdfs_folder_path] }
+            CFG_RAW0_INPROGRESS_SUBDIR: { get_attribute: [TARGET, raw0_inprogress_subdir, hdfs_folder_path] }
+            CFG_RAW0_CONVERTED_SUBDIR: { get_attribute: [TARGET, raw0_converted_subdir, hdfs_folder_path] }
+            CFG_RAW0_FAILED_SUBDIR: { get_attribute: [TARGET, raw0_failed_subdir, hdfs_folder_path] }
+            CFG_RAW1_DIR: { get_attribute: [TARGET, raw1_dir, hdfs_folder_path] }
+          implementation:
+            file: registry.artemis.public/fbouy/ais/bigdata-core-ais-raw1-converter:1.3.00-ARTEMIS-SNAPSHOT
+            repository: docker
+            type: tosca.artifacts.Deployment.Image.Container.Docker

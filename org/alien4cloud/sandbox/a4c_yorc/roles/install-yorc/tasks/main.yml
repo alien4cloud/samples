@@ -1,0 +1,88 @@
+
+- name: Install epel-release-latest-7
+  yum:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    state: present
+  become: true
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install python
+  yum:
+    pkg: "{{ item }}"
+    state: present
+    update_cache: true
+  become: true
+  with_items:
+    - unzip
+    - python
+    - python-pip
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+# # Install system dependencies (Ubuntu)
+# - name: Preprare apt cache
+#   apt:
+#     update_cache: yes
+#   when: ansible_distribution == 'Ubuntu'
+
+- name: Install system dependencies (Ubuntu)
+  apt: name={{item}} state=present
+  with_items:
+    - unzip
+    - python-pip
+    - python-dev
+    - build-essential
+  become: true
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install ansible
+  command: pip install ansible==2.4.1.0
+  become: true
+
+- name: Create temporary folder
+  tempfile:
+    state: directory
+  register: temp_dir
+
+- name: Download terraform
+  get_url:
+    url: "{{ TERRAFORM_DIST_URL }}"
+    dest: "{{ temp_dir.path }}/terraform"
+    mode: 0600
+
+- name: Extract terraform
+  unarchive:
+    src: "{{ temp_dir.path }}/terraform"
+    dest: /usr/local/bin/
+    copy: no
+  become: true
+
+- name: Download Yorc
+  shell:
+    cmd: "curl -L {{ YORC_DIST_URL }} -o {{ temp_dir.path }}/yorc_dist"
+
+- name: Creates yorc directory
+  file:
+    path: ~/yorc
+    state: directory
+
+- name: Extract archive
+  unarchive:
+    src: "{{ temp_dir.path }}/yorc_dist"
+    dest: ~/yorc
+    copy: no
+
+- name: Remove temporary folder
+  file:
+    path: "{{ temp_dir.path }}"
+    state: absent
+
+- name: Configure Yorc
+  template:
+    src: config.yorc.json.j2
+    dest: ~/yorc/config.yorc.json
+    force: yes
+
+- name: Start Yorc
+  shell:
+    chdir: ~/yorc
+    cmd: nohup ./yorc server > yorc.log 2>&1 & echo $! > yorc.pid

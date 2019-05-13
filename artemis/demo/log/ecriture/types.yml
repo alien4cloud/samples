@@ -1,0 +1,80 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.demo.log.ecriture
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - artemis.kafka.topic:2.1.0-SNAPSHOT
+  - artemis.spark.pub:2.1.0-SNAPSHOT
+  - artemis.hadoop.pub:2.1.0-SNAPSHOT
+  - artemis.hadoop.repository:2.1.0-SNAPSHOT
+  - artemis.elasticsearch.pub:2.1.0-SNAPSHOT
+  - artemis.demo.common:2.1.0-SNAPSHOT
+
+node_types:
+
+  artemis.demo.log.ecriture.nodes.EcritureLogBatch:
+    derived_from: artemis.demo.common.nodes.SparkJob
+    metadata:
+      icon: /images/images.png
+    description: |
+      Module – Ecriture – Batch – SPARK - Ce module permet de réaliser une écriture générique depuis un fichier au format JSON entreposé sur HDFS vers une base de donnée Elastic Search.
+    properties:
+      class_name:
+        type: string
+        default: demo.MockWriter
+        constraints:
+          - equal: demo.MockWriter
+      index_name:
+        type: string
+      type_name:
+        type: string
+    attributes:
+      hdfs_url: { get_operation_output: [ SELF, Standard, configure, HDFS_URL ] }
+      spark_url: { get_operation_output: [ SELF, Standard, configure, SPARK_URL ] }
+      input_file_url: { get_operation_output: [ SELF, Standard, configure, INPUT_FILE_URL ] }
+      es_url: { get_operation_output: [ SELF, Standard, configure, ES_URL ] }
+    requirements:
+      - input_repository:
+          capability: artemis.hadoop.pub.capabilities.HdfsRepository
+          relationship: artemis.demo.common.relationships.SparkApp2HdfsRepoInput
+          occurrences: [ 1, 1 ]
+      - stockage:
+          capability: artemis.elasticsearch.pub.capabilities.ElasticSearchRestAPI
+          relationship: artemis.demo.log.ecriture.relationships.Ecriture2Elasticsearch
+          occurrences: [ 1, 1 ]
+    interfaces:
+      Standard:
+        configure:
+          inputs:
+            DEFAULT_INPUT_FILE_URL: { get_property: [SELF, default_input_file_url] }
+          implementation: scripts/configure.sh
+      tosca.interfaces.node.lifecycle.Runnable:
+        run:
+          inputs:
+            SPARK_URL: { get_attribute: [SELF, spark_url] }
+            HDFS_URL: { get_attribute: [SELF, hdfs_url] }
+            CLASS_NAME: { get_property: [SELF, class_name] }
+            MEMORY: { get_property: [SELF, memory] }
+            CORES: { get_property: [SELF, cores] }
+            INPUT_FILE_URL: { get_attribute: [SELF, input_file_url] }
+            ES_URL: { get_attribute: [SELF, es_url] }
+            INDEX_NAME: { get_property: [SELF, index_name] }
+            TYPE_NAME: { get_property: [SELF, type_name] }
+            APP_ARGS: { get_property: [SELF, app_args] }
+          implementation: scripts/run.sh
+
+relationship_types:
+
+  artemis.demo.log.ecriture.relationships.Ecriture2Elasticsearch:
+    derived_from: tosca.relationships.ConnectsTo
+    valid_target_types: [artemis.elasticsearch.pub.capabilities.ElasticSearchRestAPI]
+    interfaces:
+      Configure:
+        pre_configure_source:
+          inputs:
+            ES_URL: { concat: [get_property: [TARGET, http, protocol], "://", get_attribute: [TARGET, http, ip_address], ":", get_property: [TARGET, http, port]] }
+          implementation: scripts/Ecriture2Elasticsearch/pre_configure_source.sh

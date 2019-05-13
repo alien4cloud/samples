@@ -1,0 +1,24 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.sandbox.bugartifact.SampleTopo
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: "This archive has been created with alien4cloud."
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.sandbox.bugartifact.mock:2.1.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    SampleMock:
+      metadata:
+        a4c_edit_x: 8
+        a4c_edit_y: "-16"
+      type: org.alien4cloud.sample.SampleMock
+      artifacts:
+        overridable:
+          file: readme.txt
+          type: tosca.artifacts.File

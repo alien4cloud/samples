@@ -1,0 +1,54 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.spark.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.spark.pub.nodes.SparkService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/spark.png
+    capabilities:
+      spark_endpoint:
+        type: artemis.spark.pub.capabilities.SparkEndpoint
+      http_endpoint:
+        type: artemis.spark.pub.capabilities.HttpEndpoint
+
+capability_types:
+
+  artemis.spark.pub.capabilities.SparkEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 6066
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        default: spark
+        constraints:
+          - equal: spark
+
+  artemis.spark.pub.capabilities.HttpEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 8080
+        constraints:
+          - in_range: [ 1, 65535 ]
+      protocol:
+        type: string
+        default: http
+        constraints:
+          - equal: http

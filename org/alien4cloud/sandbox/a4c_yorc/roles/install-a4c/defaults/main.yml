@@ -1,0 +1,9 @@
+a4c_protocol: http
+a4c_port: 8088
+a4c_admin_usr: admin
+a4c_admin_pwd: admin
+ssl_keystore_source_location:
+a4c_ssl_dir: /home/centos/alien4cloud/ssl
+ssl_src_keystore_password:
+ssl_dest_keystore_password:
+ssl_key_password:

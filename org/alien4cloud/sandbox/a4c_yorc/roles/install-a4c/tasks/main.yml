@@ -1,0 +1,61 @@
+
+- name: Create temporary folder
+  tempfile:
+    state: directory
+  register: temp_dir
+
+- name: Download a4c
+  get_url:
+    url: "{{ ALIEN_DIST_URL }}"
+    dest: "{{ temp_dir.path }}/a4c-dist"
+    mode: 0600
+
+- name: Extract archive
+  unarchive:
+    src: "{{ temp_dir.path }}/a4c-dist"
+    dest: ~/
+    copy: no
+
+- name: Install latest jdk 1.8 (CentOS)
+  yum:
+    name: java-1.8.0-openjdk-headless.x86_64
+    state: latest
+  become: true
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+
+- name: Install latest jdk 1.8 (Ubuntu)
+  apt: name={{item}} state=installed
+  with_items:
+    - openjdk-8-jdk
+  become: true
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Copy server keystore
+  copy:
+    src: "{{ ssl_keystore_source_location }}"
+    dest: "{{ temp_dir.path }}/server-keystore.p12"
+    mode: 0600
+  when: a4c_protocol == 'https'
+
+- name: Creates SSL directory
+  file:
+    path: "{{ a4c_ssl_dir }}"
+    state: directory
+  when: a4c_protocol == 'https'
+
+- name: Generate key store
+  shell:
+    cmd: "keytool -importkeystore -destkeystore {{ a4c_ssl_dir }}/server-keystore.jks -srckeystore {{ temp_dir.path }}/server-keystore.p12 -srcstoretype pkcs12 -alias server -deststorepass {{ ssl_dest_keystore_password }} -srckeypass {{ ssl_key_password }} -srcstorepass {{ ssl_src_keystore_password }}"
+  become: true
+  when: a4c_protocol == 'https'
+
+- name: Configure A4C
+  template:
+    src: alien4cloud-config.yml.j2
+    dest: ~/alien4cloud/config/alien4cloud-config.yml
+    force: yes
+
+- name: Remove temporary folder
+  file:
+    path: "{{ temp_dir.path }}"
+    state: absent

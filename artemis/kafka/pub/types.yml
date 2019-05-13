@@ -1,0 +1,48 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.kafka.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.kafka.pub.nodes.KafkaService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/kafka-logo-no-text.png
+    capabilities:
+      kafka_endpoint:
+        type: artemis.kafka.pub.capabilities.KafkaBroker
+
+  artemis.kafka.pub.nodes.TopicService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/pipeline.png
+    properties:
+      topic_name:
+        type: string
+        required: true
+    capabilities:
+      kafka_topic:
+        type: artemis.kafka.pub.capabilities.KafkaTopic
+
+capability_types:
+
+  artemis.kafka.pub.capabilities.KafkaBroker:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 9092
+        constraints:
+          - in_range: [ 1, 65535 ]
+
+  artemis.kafka.pub.capabilities.KafkaTopic:
+    derived_from: tosca.capabilities.Endpoint

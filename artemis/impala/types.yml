@@ -1,0 +1,32 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.impala.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.impala.pub.nodes.ImpalaService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/impala.png
+    capabilities:
+      impala_endpoint:
+        type: artemis.impala.pub.capabilities.Impala
+
+capability_types:
+
+  artemis.impala.pub.capabilities.Impala:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 15001
+        constraints:
+          - in_range: [ 1, 65535 ]

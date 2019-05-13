@@ -1,0 +1,109 @@
+---
+- set_fact:
+    alien_url: "{{ a4c_protocol }}://{{ a4c_ip }}:{{ a4c_port }}"
+    
+- set_fact:
+    url: "{{ alien_url }}/login?username={{ a4c_admin_usr }}&password={{ a4c_admin_pwd }}&submit=Login"
+
+- name: "Login onto A4C using {{url}}"
+  uri:
+    url: "{{url}}"
+    method: POST
+    return_content: yes
+    validate_certs: no
+    status_code: 302
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+  register: login
+
+- set_fact:
+    session_id: "{{ login.set_cookie.split(';')[0] }}"
+
+- set_fact:
+    url: "{{ alien_url }}/rest/latest/orchestrators"
+
+- name: "Create Orchestrator {{ orchestratorName }} using {{url}}"
+  uri:
+    url: "{{url}}"
+    method: POST
+    return_content: yes
+    validate_certs: no
+    HEADER_cookie: "{{ session_id }}"
+    body:
+      name: "{{ orchestratorName }}"
+      pluginId: "{{ pluginId }}"
+      pluginBean: "{{ pluginBean }}"
+    body_format: json
+    status_code: 201
+  register: result
+
+- set_fact:
+    content: "{{ result.content }}"
+
+- set_fact:
+    orchestratorId: "{{ content.data }}"
+
+- name: Get orchestrator configuration
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/configuration"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    HEADER_cookie: "{{ session_id }}"
+    status_code: 200
+  register: result
+
+- debug:
+    var: result.json
+
+- set_fact:
+    content: "{{ result.content }}"
+- set_fact:
+    orchestratorConfiguration: "{{ content.data.configuration }}"
+
+- name: Update orchestrator deployment name pattern
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}"
+    method: PUT
+    return_content: yes
+    validate_certs: no
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    body:
+      deploymentNamePattern: "('{{ discriminator }}-' + application.name + '-' + environment.name).replaceAll('[^\\w\\-_]', '_')"
+    body_format: json
+    status_code: 200
+  register: result
+
+- name: Activate orchestrator
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}/instance"
+    method: POST
+    validate_certs: no
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+
+- name: Wait for orchestrator to be started
+  uri:
+    url: "{{ alien_url }}/rest/latest/orchestrators/{{ orchestratorId }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    HEADER_cookie: "{{ session_id }}"
+    HEADER_Content-Type: "application/json"
+    status_code: 200
+  register: result
+  until: result.json.data.state == "CONNECTED"
+  retries: 10
+  delay: 5
+  ignore_errors: yes
+
+- set_fact:
+    orchestrator_state: "{{ result.json.data.state }}"
+
+- debug:
+    msg: "Orchestrator {{ result.json.data.id }} is in state {{ orchestrator_state }}"
+
+- fail:
+    msg: "The orchestrator # {{ cfy_user }}:{{ cfy_password }}@{{ cfy_url }} is not connected ({{ orchestrator_state }}), something went wrong !"
+  when: orchestrator_state != "CONNECTED"

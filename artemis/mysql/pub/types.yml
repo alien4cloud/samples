@@ -1,0 +1,47 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.mysql.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  artemis.mysql.pub.nodes.MysqlDbService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: images/mysql.png
+    capabilities:
+      db:
+        type: artemis.mysql.pub.capabilities.MysqlDbEndpoint
+        occurrences: [ 0, UNBOUNDED ]
+
+capability_types:
+
+  artemis.mysql.pub.capabilities.MysqlDbEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        description: The port of the mysql server.
+        required: true
+        default: 3306
+        constraints:
+          - in_range: [ 1, 65535 ]
+      database:
+        type: string
+        description: The database name.
+        required: true
+      user:
+        type: string
+        required: true
+      password:
+        type: string
+        required: true
+      # ip_address:
+      #   type: string
+      #   required: true

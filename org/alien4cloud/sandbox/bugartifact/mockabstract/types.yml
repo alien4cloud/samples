@@ -1,0 +1,27 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.sandbox.bugartifact.mockabstract
+  template_version: 2.1.0-SNAPSHOT
+  template_author: slt
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+description: >
+  Custom mock types...
+
+node_types:
+
+  org.alien4cloud.sample.SampleMockAbstract:
+    description: |
+      Sample mock v5....
+    derived_from: tosca.nodes.Root
+    abstract: true
+    artifacts:
+      - from_type:
+          file: from_type.txt
+          type: tosca.artifacts.File
+      - overridable:
+          file: from_type.txt
+          type: tosca.artifacts.File

@@ -38,6 +38,13 @@ topology_template:
         container:
           imagePullPolicy: Always
           image: "httpd:latest"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - "echo $ANYARG > /usr/local/apache2/htdocs/index.html"
       requirements:
         - hostedOnApacheDeploymentHost:
             type_requirement: host

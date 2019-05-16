@@ -18,20 +18,14 @@ repositories:
 
 node_types:
 
-  org.alien4cloud.doc.kube.kcontainers.nodes.BusyboxBash:
-    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
-    properties:
-      docker_run_cmd:
-        type: string
-        default: "echo 'Hello World'"
-    interfaces:
-      Standard:
-        create:
-          implementation:
-            file: blang/busybox-bash
-            repository: docker
-            type: tosca.artifacts.Deployment.Image.Container.Docker
-
+#  org.alien4cloud.doc.kube.kcontainers.nodes.BusyboxBash:
+#    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
+#    properties:
+#      container:
+#        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
+#        default:
+#          imagePullPolicy: Always
+#          image: "blang/busybox-bash"
 
   org.alien4cloud.doc.kube.kcontainers.05-Apache-emptyDir.nodes.Apache:
     derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
@@ -44,28 +38,21 @@ node_types:
     capabilities:
       http_endpoint:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
-    interfaces:
-      Standard:
-        inputs:
-          ENV_ANYARG: 'kikoooo'
-
 
 topology_template:
   node_templates:
 
     BusyboxBash:
-      type: org.alien4cloud.doc.kube.kcontainers.nodes.BusyboxBash
+      type: org.alien4cloud.kubernetes.api.types.KubeContainer
       properties:
         container:
           imagePullPolicy: Always
-          image: "httpd:latest"
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - "/bin/bash"
-                  - "-c"
-                  - "echo This is a test for emptyDir Volume > /tmp/emptyDir/index.html && while true; do sleep 30; done;"
+          image: "blang/busybox-bash"
+          command:
+            - "/bin/bash"
+          args:
+            - "-c"
+            - "echo This is a test for emptyDir Volume > /tmp/emptyDir/index.html  && while true; do sleep 30; done;"
       requirements:
         - hostedOnApacheDeploymentHost:
             type_requirement: host
@@ -102,27 +89,23 @@ topology_template:
             node: BusyBoxDeployment
             capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
             relationship: tosca.relationships.HostedOn
-        - mountDockerVolumeApache02Attach:
+        - mountDockerBusyBoxAttach:
             type_requirement: attachment
             node: BusyboxBash
             capability: org.alien4cloud.capabilities.DockerVolumeAttachment
             relationship: org.alien4cloud.relationships.MountDockerVolume
             properties:
               container_path: "/tmp/emptyDir"
+        - mountDockerVolumeApache05Attach:
+            type_requirement: attachment
+            node: Apache05
+            capability: org.alien4cloud.capabilities.DockerVolumeAttachment
+            relationship: org.alien4cloud.relationships.MountDockerVolume
+            properties:
+              container_path: "/usr/local/apache2/htdocs"
 
     Apache05:
       type: org.alien4cloud.doc.kube.kcontainers.05-Apache-emptyDir.nodes.Apache
-      properties:
-        container:
-          imagePullPolicy: Always
-          image: "httpd:latest"
-          lifecycle:
-            postStart:
-              exec:
-                command:
-                  - "/bin/bash"
-                  - "-c"
-                  - "echo $(sed '' /tmp/emptyDir/index.html)  > /usr/local/apache2/htdocs/index.html"
       requirements:
         - hostedOnApacheDeploymentHost:
             type_requirement: host

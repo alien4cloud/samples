@@ -12,6 +12,7 @@ imports:
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
   - docker-types:2.2.0-SNAPSHOT
   - alien-base-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.01-Apache:2.2.0-SNAPSHOT  
 
 node_types:
 
@@ -26,6 +27,99 @@ node_types:
     capabilities:
       http_ext:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+
+topology_template:
+  node_templates:
+    Apache:
+      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.nodes.Apache
+      properties:
+        container: 
+          imagePullPolicy: Always
+          image: "httpd:latest"
+          name: c1
+      requirements:
+        - hostedOnApacheAndNginxHost:
+            type_requirement: host
+            node: ApacheAndTomcat
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_endpoint:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Tomcat:
+      type: org.alien4cloud.doc.kube.kcontainers.30-Tomcat.nodes.Tomcat
+      properties:
+        container: 
+          imagePullPolicy: Always
+          image: "tomcat:8.0-alpine"
+      requirements:
+        - hostedOnApacheAndNginxHost:
+            type_requirement: host
+            node: ApacheAndTomcat
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_ext:
+          properties:
+            port: 8080
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    ApacheAndTomcat:
+      metadata:
+        a4c_edit_x: 86
+        a4c_edit_y: 0
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+        spec: 
+          replicas: 1
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    sapache:
+      metadata:
+        a4c_edit_x: "-143"
+        a4c_edit_y: "-81"
+      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+      properties:
+        spec: 
+          service_type: NodePort
+        apiVersion: v1
+        kind: Service
+      requirements:
+        - connectsToApacheHttp_endpoint:
+            type_requirement: expose
+            node: Apache
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+    stomcat:
+      metadata:
+        a4c_edit_x: "-151"
+        a4c_edit_y: 59
+      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+      properties:
+        spec: 
+          service_type: NodePort
+        apiVersion: v1
+        kind: Service
+      requirements:
+        - connectsToTomcatHttp_ext:
+            type_requirement: expose
+            node: Tomcat
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        
      
 
 

@@ -1,0 +1,95 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: PersistentVolumeClaimWithStorageClass
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: ""
+
+imports:
+  - org.alien4cloud.doc.kube.kcontainers.01-Apache:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.kubernetes.api.types.volume.PersistentVolumeClaimStorageClassSource:
+    derived_from: org.alien4cloud.kubernetes.api.types.volume.PersistentVolumeClaimSource
+    description: |
+      An extension of PersistentVolumeClaimSource that allows to specify a storageClass.
+      If no volume that match this claim is found in the PersistentVolume pool, a volume will be allocated in the IAAS.
+      When using this kind of volume, your Kube admin should ensure to have a storageClass defined in the cluster.
+    properties:
+      storageClassName:
+        type: string
+        default: default
+
+
+topology_template:
+  node_templates:
+
+
+    KubeDeployment:
+      metadata:
+        a4c_edit_x: "-14"
+        a4c_edit_y: "-136"
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+        spec:
+          replicas: 1
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+
+
+    Apache:
+      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.nodes.Apache
+      properties:
+        container:
+          imagePullPolicy: Always
+          image: "httpd:latest"
+      requirements:
+        - hostedOnKubeDeploymentHost:
+            type_requirement: host
+            node: KubeDeployment
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_endpoint:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+
+    PersistentVolumeClaimSource:
+      type: org.alien4cloud.kubernetes.api.types.volume.PersistentVolumeClaimSource
+      properties:
+        volume_type: persistentVolumeClaim
+        accessModes: ReadWriteOnce
+        name: "test-default-persistent-volume-pvcs"
+        size: "1.5 GB"
+      requirements:
+        - hostedOnKubeDeploymentHost:
+            type_requirement: host
+            node: KubeDeployment
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+        - mountDockerVolumeApacheAttach:
+            type_requirement: attachment
+            node: Apache
+            capability: org.alien4cloud.capabilities.DockerVolumeAttachment
+            relationship: org.alien4cloud.relationships.MountDockerVolume
+            properties:
+              container_path: "/tmp"
+              readonly: false

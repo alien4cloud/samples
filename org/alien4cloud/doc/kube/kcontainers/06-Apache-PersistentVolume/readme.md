@@ -18,8 +18,7 @@ ATTACHING VOLUME (https://docs.aws.amazon.com/fr_fr/AWSEC2/latest/UserGuide/ebs-
 4.Dans le champ Instance, saisissez le nom ou l'ID de l'instance.
   Sélectionnez l'instance dans la liste des options (seules les instances qui sont dans la même
   zone de disponibilité que le volume sont affichées).
-5.Pour Dispositif, vous pouvez conserver le nom d'appareil suggéré ou entrer un autre nom d'appareil pris en charge.
-   Pour plus d'informations, consultez Noms d'appareil pour les instances Linux.
+5.Pour Dispositif, vous pouvez conserver le nom d'appareil suggéré (/dev/xvdf)
 6.Choisissez Attacher.
 7.Connectez-vous à votre instance et montez le volume. Pour plus d'informations,
   consultez Rendre un volume Amazon EBS disponible à l'utilisation sur le Linux.

@@ -1,0 +1,176 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.20-Proxy
+  template_version: 2.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.doc.kube.kcontainers.20-Proxy.nodes.ApacheServer:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
+    properties:
+      container:
+        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
+        default:
+          imagePullPolicy: Always
+          image: "httpd:latest"
+      server_msg:
+        type: string
+    capabilities:
+      server_endpoint:
+        type: org.alien4cloud.doc.kube.kcontainers.20-Proxy.capabilities.ApacheServer
+
+  org.alien4cloud.doc.kube.kcontainers.20-Proxy.nodes.ApacheClient:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
+    properties:
+      container:
+        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
+        default:
+          imagePullPolicy: Always
+          image: "httpd:latest"
+    capabilities:
+      http_endpoint:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+    requirements:
+      - server:
+          capability: org.alien4cloud.doc.kube.kcontainers.20-Proxy.capabilities.ApacheServer
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+    interfaces:
+      Standard:
+        inputs:
+          ENV_SERVER_IP: { get_attribute: [TARGET, server, server_endpoint, ip_address] }
+          ENV_SERVER_PORT: { get_property: [TARGET, server, server_endpoint, port] }
+          ENV_SERVER_USERNAME: { get_property: [TARGET, server, server_endpoint, username] }
+          ENV_SERVER_MESSAGE: { get_property: [TARGET, server, server_msg] }
+
+capability_types:
+
+  org.alien4cloud.doc.kube.kcontainers.20-Proxy.capabilities.ApacheServer:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 80
+      username:
+        type: string
+
+
+topology_template:
+  node_templates:
+    ApacheServer:
+      type: org.alien4cloud.doc.kube.kcontainers.20-Proxy.nodes.ApacheServer
+      properties:
+        container:
+          imagePullPolicy: Always
+          image: "httpd:latest"
+        server_msg: "What's up ?!?"
+      requirements:
+        - hostedOnKubeDeploymentHost:
+            type_requirement: host
+            node: ServerDeployment
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        server_endpoint:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+            username: JohnDoe
+    ServerDeployment:
+      metadata:
+        a4c_edit_x: 609
+        a4c_edit_y: "-80"
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    ClientDeployment:
+      metadata:
+        a4c_edit_x: 291
+        a4c_edit_y: 39
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    ApacheClient:
+      type: org.alien4cloud.doc.kube.kcontainers.20-Proxy.nodes.ApacheClient
+      properties:
+        container:
+          imagePullPolicy: Always
+          image: "httpd:latest"
+      requirements:
+        - hostedOnClientDeploymentHost:
+            type_requirement: host
+            node: ClientDeployment
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+        - connectsToApacheServerServer_endpoint:
+            type_requirement: server
+            node: ServerService
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeServiceEndpoint
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        http_endpoint:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    ServerService:
+      metadata:
+        a4c_edit_x: 197
+        a4c_edit_y: "-78"
+      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+      properties:
+        spec:
+          service_type: ClusterIP
+        apiVersion: v1
+        kind: Service
+      requirements:
+        - connectsToApacheServerServer_endpoint:
+            type_requirement: expose
+            node: ApacheServer
+            capability: org.alien4cloud.doc.kube.kcontainers.20-Proxy.capabilities.ApacheServer
+            relationship: tosca.relationships.ConnectsTo
+    ClientService:
+      metadata:
+        a4c_edit_x: "-64"
+        a4c_edit_y: 155
+      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+      properties:
+        spec:
+          service_type: ClusterIP
+        apiVersion: v1
+        kind: Service
+      requirements:
+        - connectsToApacheClientHttp_endpoint:
+            type_requirement: expose
+            node: ApacheClient
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo

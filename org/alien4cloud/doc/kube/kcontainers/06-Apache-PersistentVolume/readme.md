@@ -9,9 +9,7 @@ NB: The volume size specified in deployment is the minimum size needed.
     If the size specified in deployment is low or greater that the available volume created on aws ,
     kubernetes will use all the available volume even if is not enough for specified size.
     If the available volume size on aws is not enough, the deployment will crash.
-    Be aware that when you declare a volume size in GB on AWS , this is approximation,
-    there are unkwown extra or less mega : ex  : 100GB  declared   is 98GB in real.
-    So this may cause lack of volume size if declared so ( 100 GB)  in deployment topology.
+
 
     You can check the size of volume mounted on pod using command :
     # df -Th

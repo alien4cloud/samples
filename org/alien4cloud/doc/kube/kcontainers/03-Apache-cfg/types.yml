@@ -29,7 +29,7 @@ node_types:
       Standard:
         inputs:
           ENV_ANYARG: 'kikoooo'
-          CFG_ANYCONF: 'ThisWillBeFoundInConfigMap'
+          CFG_ANYCONF: 'This Will Be Found In Config Map'
 
 
 topology_template:

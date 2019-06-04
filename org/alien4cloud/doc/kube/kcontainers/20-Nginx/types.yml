@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.20-Ngnix
+  template_name: org.alien4cloud.doc.kube.kcontainers.20-Nginx
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -15,7 +15,7 @@ imports:
 
 node_types:
 
-  org.alien4cloud.doc.kube.kcontainers.20-Ngnix.nodes.Ngnix:
+  org.alien4cloud.doc.kube.kcontainers.20-Nginx.nodes.Nginx:
     derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
     properties:
       container:

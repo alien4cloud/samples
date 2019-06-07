@@ -1,0 +1,125 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: 23.Https-Ingress-ServiceManagement
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: ""
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.kcontainers.10-Apache-Ingress:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    ApacheDeployment10A:
+      metadata:
+        a4c_edit_x: 274
+        a4c_edit_y: 18
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        spec:
+          replicas: 1
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    ApacheService10A:
+      metadata:
+        a4c_edit_x: "-73"
+        a4c_edit_y: 128
+      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+      properties:
+        spec:
+          service_type: ClusterIP
+        apiVersion: v1
+        kind: Service
+      requirements:
+        - connectsToApache10Http_endpoint:
+            type_requirement: expose
+            node: Apache10A
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Apache10A:
+      type: org.alien4cloud.doc.kube.kcontainers.10-Apache-Ingress.nodes.Apache
+      properties:
+        container:
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/sh"
+                  - "-c"
+                  - "cd /usr/local/apache2/htdocs && mkdir ssl && echo \"<html><body><h2>Welcome on ssl<h2/></body></html>\" > ssl/index.html"
+          imagePullPolicy: Always
+          image: "httpd:latest"
+      requirements:
+        - hostedOnApacheDeployment10Host:
+            type_requirement: host
+            node: ApacheDeployment10A
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_endpoint:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    EmptyDirVolume10A:
+      type: org.alien4cloud.kubernetes.api.types.volume.EmptyDirVolumeSource
+      properties:
+        volume_type: emptyDir
+        name: "empty-volume"
+        size: "12 MIB"
+      requirements:
+        - hostedOnApacheDeployment10Host:
+            type_requirement: host
+            node: ApacheDeployment10A
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+        - mountDockerVolumeApache10Attach:
+            type_requirement: attachment
+            node: Apache10A
+            capability: org.alien4cloud.capabilities.DockerVolumeAttachment
+            relationship: org.alien4cloud.relationships.MountDockerVolume
+            properties:
+              container_path: "/usr/local/apache2/htdocs"
+              readonly: false
+    IngressSingle:
+      metadata:
+        a4c_edit_x: "-377"
+        a4c_edit_y: 29
+      type: org.alien4cloud.kubernetes.api.types.KubeIngress
+      properties:
+        apiVersion: v1
+        kind: Ingress
+        tls_crt: "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"
+        tls_key: "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"
+      requirements:
+        - connectUrlToApacheService10A1Service_endpoint:
+            type_requirement: expose
+            node: ApacheService10A
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeServiceEndpoint
+            relationship: org.alien4cloud.kubernetes.api.relationships.ConnectUrlTo
+            properties:
+              host: "ec2-34-253-164-250.eu-west-1.compute.amazonaws.com"
+              path: "/ssl"

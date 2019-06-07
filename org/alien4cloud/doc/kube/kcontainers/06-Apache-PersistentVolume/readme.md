@@ -2,7 +2,7 @@ In this example,
 We ll demonstate how to attach/detach Persistent volume to a node.
 We will use AWS EBS volume for sample. The EBS was created already on AWS.
 (for this example, its id is: vol-042a55a30150dfdde). This id is set in aws source node_template
-(AWSElasticBlockStoreVolumeSource)of our topologie.
+(AWSElasticBlockStoreVolumeSource)of our topologie. The Aws volume must be on same zone as the container (ex: eu-west-1b)
 When deploying the topologie, don't forget to change it and set your own volume id.
 
 NB: The volume size specified in deployment is the minimum size needed.

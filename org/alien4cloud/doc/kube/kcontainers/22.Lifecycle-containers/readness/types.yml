@@ -41,7 +41,7 @@ topology_template:
             - "touch /tmp/healthy; sleep 80; rm -rf /tmp/healthy; sleep 160"
           imagePullPolicy: Always
           image: "httpd:latest"
-          ReadnessProbe:
+          readnessProbe:
             periodSeconds: 5
             initialDelaySeconds: 5
             exec:

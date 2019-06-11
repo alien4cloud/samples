@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: ReadnessPodtesting
+  template_name: ReadinessPodtesting
   template_version: 0.1.0-SNAPSHOT
   template_author: admin
 
@@ -17,7 +17,7 @@ imports:
 
 topology_template:
   node_templates:
-    ReadnessKubeDeployment:
+    ReadinessKubeDeployment:
       metadata:
         a4c_edit_x: "-7"
         a4c_edit_y: "-7"
@@ -31,7 +31,7 @@ topology_template:
             min_instances: 1
             max_instances: 1
             default_instances: 1
-    ReadnessApache:
+    ReadinessApache:
       type: org.alien4cloud.doc.kube.kcontainers.01-Apache.nodes.Apache
       properties:
         container:
@@ -41,7 +41,7 @@ topology_template:
             - "touch /tmp/healthy; sleep 80; rm -rf /tmp/healthy; sleep 160"
           imagePullPolicy: Always
           image: "httpd:latest"
-          readnessProbe:
+          readinessProbe:
             periodSeconds: 5
             initialDelaySeconds: 5
             exec:
@@ -51,7 +51,7 @@ topology_template:
       requirements:
         - hostedOnKubeDeploymentHost:
             type_requirement: host
-            node: ReadnessKubeDeployment
+            node: ReadinessKubeDeployment
             capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
             relationship: tosca.relationships.HostedOn
       capabilities:

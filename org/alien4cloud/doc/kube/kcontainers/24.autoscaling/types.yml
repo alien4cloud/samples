@@ -1,0 +1,91 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: HorizontalPodAutoscaling
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: ""
+
+imports:
+  - org.alien4cloud.doc.kube.kcontainers.01-Apache:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+  - HorizontalPodAutoscalerSp:0.1.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    AutoscalingKubeDeployment:
+      metadata:
+        a4c_edit_x: 110
+        a4c_edit_y: "-370"
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    AutoscalingApache:
+      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.nodes.Apache
+      properties:
+        container:
+          imagePullPolicy: Always
+          image: "httpd:latest"
+      requirements:
+        - hostedOnAutoscalingKubeDeploymentHost:
+            type_requirement: host
+            node: AutoscalingKubeDeployment
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_endpoint:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    KubeNodeportService:
+      metadata:
+        a4c_edit_x: "-206"
+        a4c_edit_y: "-257"
+      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+      properties:
+        spec:
+          service_type: NodePort
+        apiVersion: v1
+        kind: Service
+      requirements:
+        - connectsToAutoscalingApacheHttp_endpoint:
+            type_requirement: expose
+            node: AutoscalingApache
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+  policies:
+    - AutoscalingPolicy:
+        type: org.alien4cloud.kubernetes.api.policies.AutoscalingPolicy
+        targets: [ AutoscalingKubeDeployment ]
+        properties:
+          spec:
+            maxReplicas: 5
+            minReplicas: 1
+            metrics:
+              - resource:
+                  targetAverageUtilization: 50
+                  name: cpu
+                type: Resource

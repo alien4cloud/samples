@@ -38,6 +38,11 @@ topology_template:
         container:
           imagePullPolicy: Always
           image: "httpd:latest"
+          resources:
+            limits:
+              cpu: 2
+            requests:
+              cpu: 2
       requirements:
         - hostedOnAutoscalingKubeDeploymentHost:
             type_requirement: host

@@ -1,0 +1,1 @@
+Ingress http with two Services on apaches

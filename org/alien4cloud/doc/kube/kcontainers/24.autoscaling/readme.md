@@ -1,0 +1,1 @@
+This example shows how to autoscale a pod using CPU as  metric

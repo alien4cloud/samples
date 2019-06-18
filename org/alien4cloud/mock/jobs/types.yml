@@ -2,18 +2,16 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.mock.jobs
-  template_version: 2.1.0-SNAPSHOT
-  template_author: Gandalfe
+  template_version: 2.2.0-SNAPSHOT
+  template_author: slt
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.mock.pub:2.1.0-SNAPSHOT
-  - alien-base-types:2.1.0-SNAPSHOT
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
 
 description: >
   Mock Jobs types with bash implementations..
-
-# TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
 node_types:
 
   org.alien4cloud.mock.jobs.nodes.SimpleJobMock:
@@ -29,40 +27,18 @@ node_types:
         required: true
         default: 10
     attributes:
-      submission_id: { get_operation_output: [ SELF, tosca.interfaces.node.lifecycle.Runnable, run, SUBMISSION_ID ] }
-    interfaces:
-      tosca.interfaces.node.lifecycle.Runnable:
-        run:
-          inputs:
-            duration: { get_property: [ SELF, duration ] }
-            operation: "run"
-          implementation: scripts/operation.sh
-
-  org.alien4cloud.mock.jobs.nodes.DualOpeJobMock:
-    description: |
-      A mock job.
-    derived_from: org.alien4cloud.nodes.Job
-    properties:
-      duration:
-        type: integer
-        description: |
-          The total duration for all operations (create, configure, start) in seconds.
-          Each one is pondered in implementation.
-        required: true
-        default: 10
-    attributes:
-      submission_id: { get_operation_output: [ SELF, tosca.interfaces.node.lifecycle.Runnable, submit, SUBMISSION_ID ] }
+      submission_id: { get_operation_output: [ SELF, tosca.interfaces.node.lifecycle.Runnable, submit, TOSCA_JOB_ID ] }
     interfaces:
       tosca.interfaces.node.lifecycle.Runnable:
         submit:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            operation: "run"
           implementation: scripts/submit.sh
         run:
           inputs:
             duration: { get_property: [ SELF, duration ] }
-            SUBMISSION_ID: { get_attribute: [ SELF, submission_id ] }
             operation: "run"
-          implementation: scripts/operation.sh
-        cancel:
-          inputs:
-            SUBMISSION_ID: { get_attribute: [ SELF, submission_id ] }
-          implementation: scripts/cancel.sh
+          implementation: scripts/run.sh
+
+

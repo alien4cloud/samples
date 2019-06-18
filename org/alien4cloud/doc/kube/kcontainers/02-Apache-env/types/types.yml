@@ -14,7 +14,7 @@ imports:
 
 node_types:
 
-  org.alien4cloud.doc.kube.kcontainers.02-Apache-env.nodes.Apache:
+  org.alien4cloud.doc.kube.kcontainers.02-Apache-env.nodes.ApacheEnv:
     derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
     properties:
       container:

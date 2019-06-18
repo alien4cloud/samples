@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg
+  template_name: org.alien4cloud.doc.kube.kcontainers.05-Apache-EmptyDir
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -11,11 +11,15 @@ imports:
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
 
+repositories:
+  docker:
+    url: https://hub.docker.com/
+    type: http
 
 node_types:
 
-  org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.nodes.ApacheConfigMap:
-    derived_from: org.alien4cloud.kubernetes.api.types.KubeConfigurableContainer
+  org.alien4cloud.doc.kube.kcontainers.05-Apache-emptyDir.nodes.ApacheEmptyDir:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
     properties:
       container:
         type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
@@ -25,9 +29,3 @@ node_types:
     capabilities:
       http_endpoint:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
-    interfaces:
-      Standard:
-        inputs:
-          ENV_ANYARG: 'kikoooo'
-          CFG_ANYCONF: 'This Will Be Found In Config Map'
-

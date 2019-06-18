@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.05-Apache-EmptyDir
+  template_name: org.alien4cloud.doc.kube.kcontainers.05-Apache-EmptyDir-topology
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -10,34 +10,12 @@ imports:
   - docker-types:2.2.0-SNAPSHOT
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.05-Apache-EmptyDir:2.2.0-SNAPSHOT
 
 repositories:
   docker:
     url: https://hub.docker.com/
     type: http
-
-node_types:
-
-#  org.alien4cloud.doc.kube.kcontainers.nodes.BusyboxBash:
-#    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
-#    properties:
-#      container:
-#        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
-#        default:
-#          imagePullPolicy: Always
-#          image: "blang/busybox-bash"
-
-  org.alien4cloud.doc.kube.kcontainers.05-Apache-emptyDir.nodes.Apache:
-    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
-    properties:
-      container:
-        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
-        default:
-          imagePullPolicy: Always
-          image: "httpd:latest"
-    capabilities:
-      http_endpoint:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
 
 topology_template:
   node_templates:

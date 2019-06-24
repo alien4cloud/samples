@@ -20,7 +20,7 @@ imports:
 topology_template:
   node_templates:
     Apache:
-      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.Apache
+      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.ApacheSimple
       properties:
         container: 
           imagePullPolicy: Always

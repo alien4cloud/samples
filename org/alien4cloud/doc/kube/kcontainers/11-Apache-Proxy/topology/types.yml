@@ -12,7 +12,7 @@ imports:
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
   - docker-types:2.2.0-SNAPSHOT
   - alien-base-types:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.20-Proxy.types:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types:2.2.0-SNAPSHOT
 
 
 

@@ -145,7 +145,7 @@ topology_template:
             network_name: PRIVATE
             initiator: source
     Apache10B:
-      type: org.alien4cloud.doc.kube.kcontainers.10-Apache-Ingress.nodes.Apache
+      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.ApacheSimple
       properties:
         container:
           lifecycle:

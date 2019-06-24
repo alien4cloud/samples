@@ -33,7 +33,7 @@ topology_template:
             max_instances: 1
             default_instances: 1
     AutoscalingApache:
-      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.Apache
+      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.ApacheSimple
       properties:
         container:
           imagePullPolicy: Always

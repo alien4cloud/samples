@@ -16,7 +16,7 @@ imports:
 
 node_types:
 
-  org.alien4cloud.doc.kube.kcontainers.30-Tomcat.nodes.Tomcat:
+  org.alien4cloud.doc.kube.kcontainers.30-Tomcat.types.nodes.Tomcat:
     derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
     properties:
       container:

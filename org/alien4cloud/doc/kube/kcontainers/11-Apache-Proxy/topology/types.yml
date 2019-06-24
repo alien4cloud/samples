@@ -19,7 +19,7 @@ imports:
 topology_template:
   node_templates:
     ApacheServer:
-      type: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy..types.nodes.ApacheServer
+      type: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types.nodes.ApacheServer
       properties:
         container:
           imagePullPolicy: Always
@@ -69,7 +69,7 @@ topology_template:
             max_instances: 1
             default_instances: 1
     ApacheClient:
-      type: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy..types.nodes.ApacheClient
+      type: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types.nodes.ApacheClient
       properties:
         container:
           imagePullPolicy: Always
@@ -107,7 +107,7 @@ topology_template:
         - connectsToApacheServerServer_endpoint:
             type_requirement: expose
             node: ApacheServer
-            capability: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy..types.capabilities.ApacheServer
+            capability: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types.capabilities.ApacheServer
             relationship: tosca.relationships.ConnectsTo
     ClientService:
       metadata:

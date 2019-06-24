@@ -31,7 +31,7 @@ topology_template:
             max_instances: 1
             default_instances: 1
     ApacheConfigmap03:
-      type: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.types.nodes.ApacheConfigmap
+      type: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.types.nodes.ApacheConfigMap
       properties:
         container:
           imagePullPolicy: Always

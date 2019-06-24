@@ -1,0 +1,123 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.23-Ingress-Service-Management.http-SingleService.topology
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: ""
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.kcontainers.01-Apache.types:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    ApacheDeployment10A:
+      metadata:
+        a4c_edit_x: 274
+        a4c_edit_y: 18
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        spec:
+          replicas: 1
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    ApacheService10A:
+      metadata:
+        a4c_edit_x: "-73"
+        a4c_edit_y: 128
+      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+      properties:
+        spec:
+          service_type: ClusterIP
+        apiVersion: v1
+        kind: Service
+      requirements:
+        - connectsToApache10Http_endpoint:
+            type_requirement: expose
+            node: Apache10A
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Apache10A:
+      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.ApacheSimple
+      properties:
+        container:
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/sh"
+                  - "-c"
+                  - "cd /usr/local/apache2/htdocs && mkdir p1 && mkdir p2 && echo \"<html><body>Welcome on P1</body></html>\" > p1/index.html && echo \"<html><body>Welcome on P2</body></html>\" > p2/index.html"
+          imagePullPolicy: Always
+          image: "httpd:latest"
+      requirements:
+        - hostedOnApacheDeployment10Host:
+            type_requirement: host
+            node: ApacheDeployment10A
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_endpoint:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    EmptyDirVolume10A:
+      type: org.alien4cloud.kubernetes.api.types.volume.EmptyDirVolumeSource
+      properties:
+        volume_type: emptyDir
+        name: "empty-volume"
+        size: "12 MIB"
+      requirements:
+        - hostedOnApacheDeployment10Host:
+            type_requirement: host
+            node: ApacheDeployment10A
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+        - mountDockerVolumeApache10Attach:
+            type_requirement: attachment
+            node: Apache10A
+            capability: org.alien4cloud.capabilities.DockerVolumeAttachment
+            relationship: org.alien4cloud.relationships.MountDockerVolume
+            properties:
+              container_path: "/usr/local/apache2/htdocs"
+              readonly: false
+    IngressSingle:
+      metadata:
+        a4c_edit_x: "-377"
+        a4c_edit_y: 27
+      type: org.alien4cloud.kubernetes.api.types.KubeIngress
+      properties:
+        apiVersion: v1
+        kind: Ingress
+      requirements:
+        - connectUrlToApacheService10A1Service_endpoint:
+            type_requirement: expose
+            node: ApacheService10A
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeServiceEndpoint
+            relationship: org.alien4cloud.kubernetes.api.relationships.ConnectUrlTo
+            properties:
+              host: ""
+              path: "/p1"

@@ -1,21 +1,22 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.02-Apache-env-topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.02-Apache-env.topology
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
+description: "This topology  deploys an apache container, exposes it with a NodePort services and has an environnement variable"    
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
   - docker-types:2.2.0-SNAPSHOT
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.02-Apache-env:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.02-Apache-env.types:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:
     Apache02:
-      type: org.alien4cloud.doc.kube.kcontainers.02-Apache-env.nodes.Apache
+      type: org.alien4cloud.doc.kube.kcontainers.02-Apache-env.types.nodes.ApacheEnv
       properties:
         container:
           imagePullPolicy: Always

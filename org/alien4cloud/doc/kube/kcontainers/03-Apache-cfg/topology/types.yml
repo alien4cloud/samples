@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg-topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.topology
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -10,7 +10,7 @@ imports:
   - docker-types:2.2.0-SNAPSHOT
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.types:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:
@@ -31,7 +31,7 @@ topology_template:
             max_instances: 1
             default_instances: 1
     ApacheConfigmap03:
-      type: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.nodes.ApacheConfigmap
+      type: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.types.nodes.ApacheConfigmap
       properties:
         container:
           imagePullPolicy: Always

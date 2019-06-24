@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.02-Apache-env.types
+  template_name: org.alien4cloud.doc.kube.kcontainers.21-Nginx-cfg.types
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -14,18 +14,25 @@ imports:
 
 node_types:
 
-  org.alien4cloud.doc.kube.kcontainers.02-Apache-env.types.nodes.ApacheEnv:
-    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
+  org.alien4cloud.doc.kube.kcontainers.21-Nginx-cfg.types.nodes.NginxConfigmap:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeConfigurableContainer
     properties:
       container:
         type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
         default:
           imagePullPolicy: Always
-          image: "httpd:latest"
+          image: "nginx:1.14-alpine"
+      PortVOSTF:
+        type: integer
+        default: 88
+        required: true  
     capabilities:
-      http_endpoint:
+      http_ext:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+      http_int:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http   
     interfaces:
       Standard:
         inputs:
-          ENV_ANYARG: 'kikoooo'
+          CFG_SECPORT: { get_property: [SELF, PortVOSTF] }
+          CFG_AUTRE: "Hi"         

@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.02-Apache-env.types
+  template_name: org.alien4cloud.doc.kube.kcontainers.01-Apache.types
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -10,11 +10,12 @@ imports:
   - docker-types:2.2.0-SNAPSHOT
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
-
+  - docker-types:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
 
 node_types:
 
-  org.alien4cloud.doc.kube.kcontainers.02-Apache-env.types.nodes.ApacheEnv:
+  org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.ApacheSimple:
     derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
     properties:
       container:
@@ -25,7 +26,3 @@ node_types:
     capabilities:
       http_endpoint:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
-    interfaces:
-      Standard:
-        inputs:
-          ENV_ANYARG: 'kikoooo'

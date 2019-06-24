@@ -1,0 +1,72 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.07-Apache-PersistentVolumeClaimDefaultStorage.topology
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: "This topology  deploys an apache container, with  a default persistant volume"      
+
+imports:
+  - org.alien4cloud.doc.kube.kcontainers.01-Apache.types:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    KubeDeployment:
+      metadata:
+        a4c_edit_x: 112
+        a4c_edit_y: "-64"
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+        spec:
+          replicas: 1
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    Apache:
+      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.ApacheSimple
+      requirements:
+        - hostedOnKubeDeploymentHost:
+            type_requirement: host
+            node: KubeDeployment
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_ext:
+          properties:
+            port: 80
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    PersistentVolumeClaimSource:
+      type: org.alien4cloud.kubernetes.api.types.volume.PersistentVolumeClaimSource
+      properties:
+        volume_type: persistentVolumeClaim
+        accessModes: ReadWriteOnce
+        name: "persistent-volume-claim-default-class"
+        size: "1 GB"
+      requirements:
+        - hostedOnKubeDeploymentHost:
+            type_requirement: host
+            node: KubeDeployment
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+        - mountDockerVolumeApacheAttach:
+            type_requirement: attachment
+            node: Apache
+            capability: org.alien4cloud.capabilities.DockerVolumeAttachment
+            relationship: org.alien4cloud.relationships.MountDockerVolume
+            properties:
+              container_path: "/mnt/data"
+              readonly: false

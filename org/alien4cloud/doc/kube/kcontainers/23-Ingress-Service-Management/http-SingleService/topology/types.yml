@@ -1,11 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.23-Ingress-Service-Management.http-SingleService.topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.23-Ingress-Service-Management.http-SingleService.topology.23-Ingress-Service-Managemeent-http-SingleService
   template_version: 0.1.0-SNAPSHOT
   template_author: admin
 
-description: ""
+description: "This topology deploys an Apache container with a http ingress service"
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20

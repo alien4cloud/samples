@@ -1,9 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.30-Tomcat.topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.30-Tomcat.topology.30-Tomcat
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
+
+description: "This topology  deploys 2 containers Tomcat and Apache in the same pod"      
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20

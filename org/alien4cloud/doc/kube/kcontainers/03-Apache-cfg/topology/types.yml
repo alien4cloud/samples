@@ -1,9 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.topology.03-Apache-cfg
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
+
+description: "This topology  deploys an apache container, exposes it with a NodePort services and has configMap configuration whose content displayed in Apache welcome page"      
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20

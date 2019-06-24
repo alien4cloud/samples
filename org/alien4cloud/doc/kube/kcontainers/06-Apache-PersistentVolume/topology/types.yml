@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.06-Apache-PersistentVolume.topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.06-Apache-PersistentVolume.topology.06-Apache-PersistentVolume
   template_version: 0.1.0-SNAPSHOT
   template_author: admin
 

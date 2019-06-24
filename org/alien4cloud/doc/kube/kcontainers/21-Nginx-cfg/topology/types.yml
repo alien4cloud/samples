@@ -1,10 +1,12 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.21-Nginx-cfg.topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.21-Nginx-cfg.topology.21-Nginx-cfg
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
+description: "This topology  deploys a Nginx container which exposes 2 ports, one default, the other one set by configMap"        
+  
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
   - docker-types:2.2.0-SNAPSHOT

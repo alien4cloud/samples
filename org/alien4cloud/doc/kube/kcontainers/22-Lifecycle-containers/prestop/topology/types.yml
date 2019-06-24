@@ -1,11 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.22-Lifecycle-containers.prestop.topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.22-Lifecycle-containers.prestop.topology.22-Lifecycle-prestop
   template_version: 0.1.0-SNAPSHOT
   template_author: admin
 
-description: ""
+description: "This topology deploys an Apache container that has a preStop command"
 
 imports:
   - org.alien4cloud.doc.kube.kcontainers.01-Apache.types:2.2.0-SNAPSHOT

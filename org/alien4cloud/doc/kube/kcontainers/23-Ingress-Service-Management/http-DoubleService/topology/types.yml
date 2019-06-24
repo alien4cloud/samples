@@ -1,11 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.23-Ingress-Service-Management.http-DoubleService.topology
+  template_name: org.alien4cloud.doc.kube.kcontainers.23-Ingress-Service-Management.http-DoubleService.topology.23-Ingress-Service-http-DoubleService
   template_version: 0.1.0-SNAPSHOT
   template_author: admin
 
-description: ""
+description: "This topology deploys 2 Apaches container with the same ingress service"
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20

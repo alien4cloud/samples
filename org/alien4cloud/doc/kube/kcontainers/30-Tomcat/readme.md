@@ -1,1 +1,1 @@
-In this example, we just deploy a tomcat and expose it via a NodePort services.
+In this example, we just deploy a tomcat and apache container in the same pod and expose them via  NodePort services.

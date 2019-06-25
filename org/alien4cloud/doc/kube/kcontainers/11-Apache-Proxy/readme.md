@@ -1,0 +1,1 @@
+This topology  deploys 2 apache containers. Client one is displaying property data from server one

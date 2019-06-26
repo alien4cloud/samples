@@ -17,17 +17,25 @@ node_types:
   org.alien4cloud.doc.kube.kcontainers.03-Apache-cfg.types.nodes.ApacheConfigMap:
     derived_from: org.alien4cloud.kubernetes.api.types.KubeConfigurableContainer
     properties:
+      content:
+        type: string
+        default: "Hello ConfigMap !"
       container:
         type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
         default:
           imagePullPolicy: Always
           image: "httpd:latest"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - "echo $(sed -n '/^my_content: /s///p' /tmp/cfg/input.properties)  > /usr/local/apache2/htdocs/index.html"
     capabilities:
       http_endpoint:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
     interfaces:
       Standard:
         inputs:
-          ENV_ANYARG: 'kikoooo'
-          CFG_ANYCONF: 'This Will Be Found In Config Map'
-
+          CFG_CONTENT: { get_property: [SELF, content] }

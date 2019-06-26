@@ -7,6 +7,7 @@ It is displayed in the *index.html* file by using a *postStart exec command* in 
 * Container into a Deployment
 * NodePort Service that expose a container's endpoint
 * Usage of container environment variable to configure it
+* postStart exec command of a container
 
 ## How to deploy
 

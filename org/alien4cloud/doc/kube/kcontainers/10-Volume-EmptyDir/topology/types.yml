@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.10-Apache-EmptyDir.topology.10-Apache-EmptyDir
+  template_name: org.alien4cloud.doc.kube.kcontainers.10-Volume-EmptyDir.topology.10-Volume-EmptyDir
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -12,7 +12,7 @@ imports:
   - docker-types:2.2.0-SNAPSHOT
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.10-Apache-EmptyDir.types:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.10-Volume-EmptyDir.types:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:
@@ -78,7 +78,7 @@ topology_template:
               container_path: "/usr/local/apache2/htdocs"
               readonly: false
     Apache10:
-      type: org.alien4cloud.doc.kube.kcontainers.10-Apache-EmptyDir.types.nodes.ApacheSimple
+      type: org.alien4cloud.doc.kube.kcontainers.10-Volume-EmptyDir.types.nodes.ApacheSimple
       properties:
         container:
           imagePullPolicy: Always

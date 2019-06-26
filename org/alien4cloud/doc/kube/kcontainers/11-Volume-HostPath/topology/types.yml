@@ -1,7 +1,7 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.11-Apache-HostPath.topology.11-Apache-HostPath
+  template_name: org.alien4cloud.doc.kube.kcontainers.11-Volume-HostPath.topology.11-Volume-HostPath
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
@@ -13,13 +13,13 @@ imports:
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - alien-base-types:2.2.0-SNAPSHOT
   - docker-types:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.11-Apache-HostPath.types:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.11-Volume-HostPath.types:2.2.0-SNAPSHOT
 
 
 topology_template:
   node_templates:
     Apache11:
-      type: org.alien4cloud.doc.kube.kcontainers.11-Apache-HostPath.types.nodes.ApacheSimple
+      type: org.alien4cloud.doc.kube.kcontainers.11-Volume-HostPath.types.nodes.ApacheSimple
       properties:
         container:
           imagePullPolicy: Always

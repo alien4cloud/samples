@@ -11,8 +11,6 @@ A volume of type HostPath is attached to the container and `/var/log` from the h
 
 Deploy the topology, the NodePort service port will appear in the Deployment Info page, test the application using the IP address of one of the nodes of the K8S cluster.
 
-You can alternatively change the value of the property 'content' of the container in the topology and see the result after deployment.
-
 ## Expected result
 
 When you test the url http://nodeIp:nodePort you should see something like this (content of the K8S node's /var/log) :

@@ -13,4 +13,4 @@ Deploy the topology, the NodePort service port will appear in the Deployment Inf
 
 When you test the url http://nodeIp:nodePort you should see :
 
-![It works!](/images/itworks.png "It works!")
+![It works!](images/itworks.png "It works!")

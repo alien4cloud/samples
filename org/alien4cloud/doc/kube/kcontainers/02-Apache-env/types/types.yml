@@ -17,15 +17,25 @@ node_types:
   org.alien4cloud.doc.kube.kcontainers.02-Apache-env.types.nodes.ApacheEnv:
     derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
     properties:
+      content:
+        type: string
+        default: "Hello World !"
       container:
         type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
         default:
           imagePullPolicy: Always
           image: "httpd:latest"
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - "echo $CONTENT > /usr/local/apache2/htdocs/index.html"
     capabilities:
       http_endpoint:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
     interfaces:
       Standard:
         inputs:
-          ENV_ANYARG: 'kikoooo'
+          ENV_CONTENT: { get_property: [SELF, content] }

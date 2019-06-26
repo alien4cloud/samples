@@ -2,7 +2,7 @@ In this example, we just deploy an apache and expose it via a NodePort services.
 
 ## What is tested
 
-* Container into a deployement
+* Container into a Deployment
 * NodePort Service that expose a container's endpoint
 
 ## How to deploy

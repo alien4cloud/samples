@@ -1,3 +1,21 @@
 In this example, we just deploy an apache and expose it via a NodePort services.
-The apache container has an environnement variable, ANYARG.
+The apache container has an environnement variable, CONTENT.
 It is displayed in the index.html file by using postStart command in the deployment
+
+## What is tested
+
+* Container into a Deployment
+* NodePort Service that expose a container's endpoint
+* Usage of container environment variable to configure it
+
+## How to deploy
+
+Deploy the topology, the NodePort service port will appear in the Deployment Info page, test the application using the IP address of one of the nodes of the K8S cluster.
+
+You can alternatively change the value of the property 'content' of the container in the topology and see the result after deployment.
+
+## Expected result
+
+When you test the url http://nodeIp:nodePort you should see :
+
+![It works!](images/itworks.png "It works!")

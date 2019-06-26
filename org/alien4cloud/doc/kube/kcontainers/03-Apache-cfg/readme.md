@@ -7,8 +7,8 @@ It is displayed in the index.html file by using postStart exec command in the co
 
 * Container into a Deployment
 * NodePort Service that expose a container's endpoint
-* Usage of ConfiMap configure a container
-* Fill a configMap file with a node property.
+* Usage of confiMap to configure a container
+* Fill a configMap file with a node property value.
 * postStart exec command of a container
 
 ## How to deploy

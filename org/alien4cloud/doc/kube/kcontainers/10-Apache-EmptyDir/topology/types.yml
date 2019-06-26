@@ -12,7 +12,6 @@ imports:
   - docker-types:2.2.0-SNAPSHOT
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.01-Apache.types:2.2.0-SNAPSHOT
 
 repositories:
   docker:

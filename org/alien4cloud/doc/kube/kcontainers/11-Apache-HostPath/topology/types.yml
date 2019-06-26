@@ -1,11 +1,11 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.04-Apache-HostPath.topology.04-Apache-HostPath
+  template_name: org.alien4cloud.doc.kube.kcontainers.11-Apache-HostPath.topology.11-Apache-HostPath
   template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
-description: "This topology  deploys an apache container, with an hostPath volume"      
+description: "This topology  deploys an apache container, with an hostPath volume"
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
@@ -13,13 +13,13 @@ imports:
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - alien-base-types:2.2.0-SNAPSHOT
   - docker-types:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.01-Apache.types:2.2.0-SNAPSHOT  
+  - org.alien4cloud.doc.kube.kcontainers.11-Apache-HostPath.types:2.2.0-SNAPSHOT
 
 
 topology_template:
   node_templates:
-    Apache04:
-      type: org.alien4cloud.doc.kube.kcontainers.01-Apache.types.nodes.ApacheSimple
+    Apache11:
+      type: org.alien4cloud.doc.kube.kcontainers.11-Apache-HostPath.types.nodes.ApacheSimple
       properties:
         container:
           imagePullPolicy: Always
@@ -38,11 +38,11 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
-    ApacheService04:
+    ApacheService11:
       metadata:
         a4c_edit_x: "-48"
         a4c_edit_y: "-65"
-      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+      type: org.alien4cloud.kubernetes.api.types.KubeService
       properties:
         spec:
           service_type: NodePort
@@ -51,7 +51,7 @@ topology_template:
       requirements:
         - connectsToApacheHttp_endpoint:
             type_requirement: expose
-            node: Apache04
+            node: Apache11
             capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
             relationship: tosca.relationships.ConnectsTo
     ApacheDeployment04:
@@ -86,7 +86,7 @@ topology_template:
             relationship: tosca.relationships.HostedOn
         - mountDockerVolumeApache02Attach:
             type_requirement: attachment
-            node: Apache04
+            node: Apache11
             capability: org.alien4cloud.capabilities.DockerVolumeAttachment
             relationship: org.alien4cloud.relationships.MountDockerVolume
             properties:

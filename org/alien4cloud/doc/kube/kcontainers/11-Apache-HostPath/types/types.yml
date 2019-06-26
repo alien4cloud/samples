@@ -1,0 +1,28 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.11-Apache-HostPath.types
+  template_version: 2.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.doc.kube.kcontainers.11-Apache-HostPath.types.nodes.ApacheSimple:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
+    properties:
+      container:
+        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
+        default:
+          imagePullPolicy: Always
+          image: "httpd:latest"
+    capabilities:
+      http_endpoint:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http

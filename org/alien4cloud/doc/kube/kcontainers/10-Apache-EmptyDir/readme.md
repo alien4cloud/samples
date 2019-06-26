@@ -1,6 +1,6 @@
 In this example :
-* we deploy a sidecar busybox which will add a message in an `index.html` file in a emptyDir volume
-* on same deployment we add a apache that will expose the content of the same emptyDir as it's `/usr/local/apache2/htdocs`
+* we deploy a sidecar busybox that add a message in an `index.html` file in a emptyDir volume
+* on same deployment we add a apache that expose the content of the same emptyDir as it's `/usr/local/apache2/htdocs`
 
 As a result, the message written by the sidecar is viewable in the website.
 

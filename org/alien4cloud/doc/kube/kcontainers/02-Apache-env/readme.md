@@ -1,6 +1,6 @@
-In this example, we deploy an apache and expose it via a NodePort services.
+In this example, we deploy an apache and expose it via a NodePort service.
 The apache container has an environment variable, `CONTENT`, linked to a node property `content`.
-It is displayed in the index.html file by using postStart exec command in the container.
+It is displayed in the *index.html* file by using a *postStart exec command* in the container.
 
 ## What is tested
 
@@ -18,4 +18,4 @@ You can alternatively change the value of the property 'content' of the containe
 
 When you test the url http://nodeIp:nodePort you should see :
 
-!(images/HelloWorld.png)
+![Hello World!](images/HelloWorld.png)

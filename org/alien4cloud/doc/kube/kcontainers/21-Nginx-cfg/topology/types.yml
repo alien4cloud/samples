@@ -1,62 +1,90 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.21-Nginx-cfg.topology.21-Nginx-cfg
+  template_name: org.alien4cloud.doc.kube.kcontainers.21-Nginx-cfg.toppology.21-Nginx-cfg
   template_version: 2.2.0-SNAPSHOT
-  template_author: alien4cloud
+  template_author: admin
 
-description: "This topology  deploys a Nginx container which exposes 2 ports, one default, the other one set by configMap"        
-  
+description: "This toppology deploys a Nginx container exposing an Apache welcome page"
+
 imports:
-  - tosca-normative-types:1.0.0-ALIEN20
-  - docker-types:2.2.0-SNAPSHOT
-  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.21-Nginx-cfg.types:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types:2.2.0-SNAPSHOT
 
-
-
-          
 topology_template:
+  inputs:
+    PortVOSTF:
+      type: integer
+      required: true
+      default: 88
   node_templates:
-    Nginx2ServicesCfgMap:
+    KubeCluster:
       metadata:
-        a4c_edit_x: 150
-        a4c_edit_y: "-68"
+        a4c_edit_x: 458
+        a4c_edit_y: "-137"
+      type: org.alien4cloud.kubernetes.api.types.nodes.KubeCluster
+      capabilities:
+        k8s_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    NginxDeploy:
+      metadata:
+        a4c_edit_x: 573
+        a4c_edit_y: 62
       type: org.alien4cloud.kubernetes.api.types.KubeDeployment
       properties:
-        apiVersion: "apps/v1beta1"
-        kind: Deployment
         spec: 
           replicas: 1
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
       capabilities:
         scalable:
           properties:
             min_instances: 1
             max_instances: 1
             default_instances: 1
-    Nginx2Ports:
-      type: org.alien4cloud.doc.kube.kcontainers.21-Nginx-cfg.types.nodes.NginxConfigmap
+    NginxClientApache:
+      type: org.alien4cloud.doc.kube.kcontainers.21-Nginx-client.types.nodes.NginxClientApache
       properties:
         container: 
           imagePullPolicy: Always
           image: "nginx:1.14-alpine"
-        PortVOSTF: 88
+          lifecycle: 
+            postStart: 
+              exec: 
+                command: 
+                  - "/bin/sh"
+                  - "-c"
+                  - "wget -O /usr/share/nginx/html/index.html $FULL_URL"
+        PortVOSTF: { get_input: PortVOSTF }
         config_settings: 
-          - mount_path: "/etc/nginx/nginx.conf"
+          - input_prefix: "CFG_"
+            mount_path: "/etc/nginx/nginx.conf"
             mount_subPath: "nginx.conf"
-            input_prefix: "CFG_"
             config_path: config
-          - mount_path: "/var/ind2.html"
+          - input_prefix: "CFG_"
+            mount_path: "/var/ind2.html"
             mount_subPath: "ind2.html"
-            input_prefix: "CFG_"
             config_path: ind2
       requirements:
-        - hostedOnNginx2ServicesCfgMapHost:
+        - hostedOnNginxDeployHost:
             type_requirement: host
-            node: Nginx2ServicesCfgMap
+            node: NginxDeploy
             capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
             relationship: tosca.relationships.HostedOn
+        - connectsToApacheServerServer_endpoint:
+            type_requirement: server
+            node: ApacheServer
+            capability: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types.capabilities.ApacheServer
+            relationship: tosca.relationships.ConnectsTo
       capabilities:
         http_ext:
           properties:
@@ -67,41 +95,97 @@ topology_template:
             initiator: source
         http_int:
           properties:
-            port: 88
+            port: { get_input: PortVOSTF }
             protocol: tcp
             secure: false
             network_name: PRIVATE
             initiator: source
-    S1:
+    DefaultPort:
       metadata:
-        a4c_edit_x: 73
-        a4c_edit_y: "-154"
-      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
+        a4c_edit_x: 227
+        a4c_edit_y: 53
+      type: org.alien4cloud.kubernetes.api.types.KubeService
       properties:
-        spec: 
-          service_type: NodePort
         apiVersion: v1
         kind: Service
-      requirements:
-        - connectsToNginx2PortsHttp_ext:
-            type_requirement: expose
-            node: Nginx2Ports
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
-            relationship: tosca.relationships.ConnectsTo
-    S2:
-      metadata:
-        a4c_edit_x: 42
-        a4c_edit_y: 113
-      type: org.alien4cloud.kubernetes.api.types.KubeNodeportService
-      properties:
         spec: 
           service_type: NodePort
-        apiVersion: v1
-        kind: Service
       requirements:
-        - connectsToNginx2PortsHttp_int:
+        - connectsToNginxClientApacheHttp_ext:
             type_requirement: expose
-            node: Nginx2Ports
+            node: NginxClientApache
             capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
             relationship: tosca.relationships.ConnectsTo
-          
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    CustomPort:
+      metadata:
+        a4c_edit_x: 234
+        a4c_edit_y: 138
+      type: org.alien4cloud.kubernetes.api.types.KubeService
+      properties:
+        apiVersion: v1
+        kind: Service
+        spec: 
+          service_type: NodePort
+      requirements:
+        - connectsToNginxClientApacheHttp_int:
+            type_requirement: expose
+            node: NginxClientApache
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    ApacheServerDeploy:
+      metadata:
+        a4c_edit_x: 901
+        a4c_edit_y: 67
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        spec: 
+          replicas: 1
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    ApacheServer:
+      metadata:
+        a4c_edit_x: 223
+        a4c_edit_y: 291
+      type: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types.nodes.ApacheServer
+      properties:
+        container: 
+          imagePullPolicy: Always
+          image: "httpd:latest"
+        server_msg: Hi
+      requirements:
+        - hostedOnApacheServerDeployHost:
+            type_requirement: host
+            node: ApacheServerDeploy
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        server_endpoint:
+          properties:
+            port: 80
+            username: fch
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source

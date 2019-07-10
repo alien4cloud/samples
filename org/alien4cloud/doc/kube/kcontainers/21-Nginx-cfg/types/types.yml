@@ -10,7 +10,7 @@ imports:
   - docker-types:2.2.0-SNAPSHOT
   - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
-
+  - org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types:2.2.0-SNAPSHOT
 
 node_types:
 
@@ -31,8 +31,42 @@ node_types:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
       http_int:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http   
+
     interfaces:
       Standard:
         inputs:
           CFG_SECPORT: { get_property: [SELF, PortVOSTF] }
-          CFG_AUTRE: "Hi"         
+          CFG_AUTRE: "Hi"
+
+  org.alien4cloud.doc.kube.kcontainers.21-Nginx-client.types.nodes.NginxClientApache:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeConfigurableContainer
+    properties:
+      container:
+        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
+        default:
+          imagePullPolicy: Always
+          image: "nginx:1.14-alpine"
+      PortVOSTF:
+        type: integer
+        default: 88
+        required: true  
+    capabilities:
+      http_ext:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+      http_int:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http   
+    requirements:
+      - server:
+          capability: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types.capabilities.ApacheServer
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+
+    interfaces:
+      Standard:
+        inputs:
+          CFG_SECPORT: { get_property: [SELF, PortVOSTF] }
+          CFG_SERVER_IP: { get_attribute: [TARGET, server, server_endpoint, ip_address] }
+          CFG_SERVER_PORT: { get_property: [TARGET, server, server_endpoint, port] }
+          ENV_FULL_URL: { concat: [ "http://", get_attribute: [TARGET, server, server_endpoint, ip_address], ":", get_property: [TARGET, server, server_endpoint, port]] }
+
+          

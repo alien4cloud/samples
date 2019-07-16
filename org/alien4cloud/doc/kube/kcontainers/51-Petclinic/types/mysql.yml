@@ -1,0 +1,48 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql
+  template_version: 2.2.0-SNAPSHOT
+  template_author: Atos
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+
+  org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql.nodes.MysqlDbService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    capabilities:
+      db:
+        type: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql.capabilities.MysqlDbEndpoint
+        occurrences: [ 0, UNBOUNDED ]
+
+capability_types:
+
+  org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql.capabilities.MysqlDbEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+        description: The port of the mysql server.
+        required: true
+        default: 3306
+        constraints:
+          - in_range: [ 1, 65535 ]
+      database:
+        type: string
+        description: The database name.
+        required: true
+      user:
+        type: string
+        required: true
+      password:
+        type: string
+        required: true
+      datastoreID:
+        type: string
+        required: true
+      ip_address:
+        type: string
+        required: true

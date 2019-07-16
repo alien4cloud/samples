@@ -1,0 +1,79 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.types
+  template_version: 2.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql:2.2.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.doc.kube.kcontainers.51-Petclinic.types.nodes.Petclinic:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
+    properties:
+      container:
+        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
+        default:
+          imagePullPolicy: Always
+          image: "stuntv/tomcat-petclinic:1.0"
+      mem_share:
+        type: scalar-unit.size
+        required: true
+        default: 768 MB
+        constraints:
+          - greater_or_equal: 768 MB
+      nexus_base_url:
+        type: string
+        default: https://fastconnect.org/maven/content/repositories/opensource-snapshot/
+      nexus_group:
+        type: string
+        default: org.springframework.samples
+      nexus_artifact:
+        type: string
+        default: spring-petclinic
+      nexus_version:
+        type: string
+        default: 4.2.6-SNAPSHOT          
+    capabilities:
+      http_endpoint:
+        type: alien.capabilities.endpoint.docker.Petclinic
+    requirements:
+      - database:
+          capability: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql.capabilities.MysqlDbEndpoint
+          relationship: tosca.relationships.ConnectsTo
+          occurrences: [1, 1]
+    attributes:
+      petclinic_url: { concat:  [get_attribute: [SELF, endpoint], "/petclinic"] }          
+    interfaces:
+      Standard:
+        inputs:
+            ENV_NEXUS_BASE: { get_property: [SELF, nexus_base_url] }
+            ENV_NEXUS_GROUP: { get_property: [SELF, nexus_group] }
+            ENV_NEXUS_ARTIFACT: { get_property: [SELF, nexus_artifact] }
+            ENV_NEXUS_VERSION: { get_property: [SELF, nexus_version] }        
+            ENV_DB_IP: { get_property: [TARGET, database, db, ip_address] }
+            #ENV_DB_IP: "34.247.89.198"
+            ENV_DB_PORT: { get_property: [TARGET, database, db,  port] }
+            ENV_DB_NAME: { get_property: [TARGET, database, db, database] }
+            ENV_DB_USER: { get_property: [TARGET, database, db, user] }
+            ENV_DB_PASS: { get_property: [TARGET, database, db, password] }
+            
+capability_types:
+  alien.capabilities.endpoint.docker.Petclinic:
+    derived_from: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+    properties:
+      docker_bridge_port_mapping:
+        type: integer
+        description: Port used to bridge to the container's endpoint.
+        default: 0
+      port:
+        type: integer
+        default: 8080            

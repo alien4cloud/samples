@@ -1,0 +1,120 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.topology.51-Petclinic
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: "A  petclinic container that connects to an a4c service matched to a MySQL database"
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.51-Petclinic.types:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    Petclinic:
+      type: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.types.nodes.Petclinic
+      properties:
+        container: 
+          imagePullPolicy: Always
+          image: "stuntv/tomcat-petclinic:1.0"
+        mem_share: "768 MB"
+        nexus_base_url: "https://fastconnect.org/maven/content/repositories/opensource-snapshot/"
+        nexus_group: "org.springframework.samples"
+        nexus_artifact: "spring-petclinic"
+        nexus_version: "4.2.6-SNAPSHOT"
+      requirements:
+        - hostedOnKubeDeploymentHost:
+            type_requirement: host
+            node: PetclinicDeploy
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+        - connectsToMysqlDbServiceDb:
+            type_requirement: database
+            node: MysqlDbService
+            capability: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql.capabilities.MysqlDbEndpoint
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        http_endpoint:
+          properties:
+            docker_bridge_port_mapping: 0
+            port: 8080
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    MysqlDbService:
+      metadata:
+        a4c_edit_x: 375
+        a4c_edit_y: "-4"
+      type: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql.nodes.MysqlDbService
+      capabilities:
+        db:
+          properties:
+            port: 3306
+            datastoreID: datastorepetclinic
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    KubeService:
+      metadata:
+        a4c_edit_x: 48
+        a4c_edit_y: 191
+      type: org.alien4cloud.kubernetes.api.types.KubeService
+      properties:
+        apiVersion: v1
+        kind: Service
+        spec: 
+          service_type: NodePort
+      requirements:
+        - connectsToPetclinicHttp_endpoint:
+            type_requirement: expose
+            node: Petclinic
+            capability: alien.capabilities.endpoint.docker.Petclinic
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    KubeCluster:
+      metadata:
+        a4c_edit_x: 384
+        a4c_edit_y: 172
+      type: org.alien4cloud.kubernetes.api.types.nodes.KubeCluster
+      capabilities:
+        k8s_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    PetclinicDeploy:
+      metadata:
+        a4c_edit_x: "-3"
+        a4c_edit_y: 19
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        spec: 
+          replicas: 1
+        apiVersion: "apps/v1beta1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+  outputs:
+    Petclinic_petclinic_url:
+      value: { get_attribute: [ Petclinic, petclinic_url ] }

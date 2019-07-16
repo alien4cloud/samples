@@ -12,7 +12,7 @@ imports:
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
   - docker-types:2.2.0-SNAPSHOT
   - alien-base-types:2.2.0-SNAPSHOT
-  - org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.51-Petclinic.pub:2.2.0-SNAPSHOT
 
 node_types:
 
@@ -47,7 +47,7 @@ node_types:
         type: alien.capabilities.endpoint.docker.Petclinic
     requirements:
       - database:
-          capability: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.mysql.capabilities.MysqlDbEndpoint
+          capability: org.alien4cloud.doc.kube.kcontainers.51-Petclinic.pub.capabilities.MysqlDbEndpoint
           relationship: tosca.relationships.ConnectsTo
           occurrences: [1, 1]
     attributes:

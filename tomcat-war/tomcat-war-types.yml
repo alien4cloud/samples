@@ -120,7 +120,7 @@ relationship_types:
           inputs:
             CONTEXT_PATH: { get_property: [SOURCE, app_endpoint, url_path] }
             TOMCAT_HOME: { get_property: [TARGET, tomcat_home] }
-            TOMCAT_PORT: { get_property: [TARGET, port] }
+            TOMCAT_PORT: { get_property: [TARGET, data_endpoint, port] }
           implementation: scripts/tomcat_install_war.sh
 
 capability_types:

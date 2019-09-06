@@ -119,3 +119,7 @@ capability_types:
   org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint:
     derived_from: tosca.capabilities.Root
     abstract: true
+
+policy_types:
+   org.alien4cloud.mock.pub.policies.MockPerformancePolicy:
+     derived_from: tosca.policies.Performance

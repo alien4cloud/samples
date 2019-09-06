@@ -36,6 +36,30 @@ node_types:
           relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
           occurrences: [0, unbounded]
 
+  org.alien4cloud.mock.bash.nodes.MockWithRequiredProperty:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    properties:
+      toto:
+        type: string
+    interfaces:
+      Standard:
+        stop:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            operation: "stop"
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+
   org.alien4cloud.mock.bash.nodes.MiniBashFailFastMock:
     description: |
       A mock that implements juste minimum operations to fast start & stop.
@@ -63,6 +87,14 @@ node_types:
       - data:
           file: data/data.txt
           type: tosca.artifacts.File
+
+  org.alien4cloud.mock.bash.nodes.MiniBashMockWithRequiredProperty:
+    description: |
+      A mock that implements juste minimum operations to fast start & stop.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    properties:
+      my_required:
+        type: string
 
   org.alien4cloud.mock.bash.nodes.MiniBashMock:
     description: |
@@ -230,6 +262,114 @@ node_types:
         delete:
           inputs:
             operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+  org.alien4cloud.mock.bash.nodes.BashMockWithManyArtifacts:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data0:
+          file: data/data.txt
+          type: tosca.artifacts.File
+      - data1:
+          file: data/data.txt
+          type: tosca.artifacts.File
+      - data2:
+          file: data/data.txt
+          type: tosca.artifacts.File
+      - data3:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+
+  org.alien4cloud.mock.bash.nodes.BashMockWithProperties:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    properties:
+      type_name:
+        type: string
+        description: A pattern constraint
+        default: abc
+        required: false
+        # constraints:
+        #   - pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
+      name:
+        type: integer
+        description:
+        default: 2
+        constraints:
+          - equal: 2
+      is_secure:
+        type: boolean
+        description: a boolean property.
+        required: true
+      port:
+        type: integer
+        description: an in range constraint property.
+        required: true
+        default: 9300
+        constraints:
+          - in_range: [ 1, 65535 ]
+      gender:
+        type: string
+        required: true
+        description: a valid vales constraint property without default value.
+        constraints:
+            - valid_values: [male, female]
+      memory:
+        type: scalar-unit.size
+        description: a valid vales constraint property without default value.
+      frequency:
+        type: scalar-unit.frequency
+        default: 3 GHz
+        description: a valid vales constraint property without default value.
+      time:
+        type: scalar-unit.time
+        description: a valid vales constraint property without default value.
+      class:
+        type: string
+        required: true
+        description: a valid vales constraint property.
+        constraints:
+            - valid_values: [db.t1.micro , db.m1.small , db.m1.medium , db.m1.large , db.m1.xlarge , db.m2.xlarge , db.m2.2xlarge , db.m2.4xlarge , db.cr1.8xlarge , db.m3.medium , db.m3.large , db.m3.xlarge , db.m3.2xlarge , db.r3.large , db.r3.xlarge , db.r3.2xlarge , db.r3.4xlarge , db.r3.8xlarge , db.t2.micro , db.t2.small , db.t2.medium , db.t2.large , db.m4.large , db.m4.xlarge , db.m4.2xlarge , db.m4.4xlarge , db.m4.10xlarge]
+        default: db.t2.micro
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
             duration: { get_property: [ SELF, duration ] }
           implementation: scripts/operation.sh
     capabilities:

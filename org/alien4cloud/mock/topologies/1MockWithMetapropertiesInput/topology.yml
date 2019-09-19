@@ -1,0 +1,34 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: 1MockWithMetapropertiesInput
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: ""
+
+imports:
+  - org.alien4cloud.mock.bash:2.1.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.1.0-SNAPSHOT
+
+topology_template:
+  inputs:
+    app_meta_Meta1:
+      type: string
+      required: false
+    loc_meta_Meta2:
+      type: string
+      required: false
+  node_templates:
+    BashMock:
+      metadata:
+        a4c_edit_x: 11
+        a4c_edit_y: "-31"
+      type: org.alien4cloud.mock.bash.nodes.BashMock
+      properties:
+        duration: 3
+        variation: 20
+        log_length: 2000
+        comment: { get_input: app_meta_Meta1 }
+        description: { get_input: loc_meta_Meta2 }

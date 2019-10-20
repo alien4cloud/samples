@@ -59,12 +59,6 @@ topology_template:
     CustomApache_apache_url:
       value: { get_attribute: [ CustomApache, apache_url ] }
   workflows:
-    Stop:
-      steps:
-        CustomApache_arret:
-          target: CustomApache
-          activities:
-            - call_operation: my_custom_interface.arret
     customWorkflow:
       steps:
         CustomApache_demarrage:

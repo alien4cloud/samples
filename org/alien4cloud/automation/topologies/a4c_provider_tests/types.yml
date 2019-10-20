@@ -173,8 +173,8 @@ topology_template:
         jolokia:
           properties:
             port: 8778
-      artifacts:
-        alien_dist:
-          file: alien4cloud:alien4cloud-premium-dist:2.2.0-SNAPSHOT:dist@tar.gz
-          type: tosca.artifacts.File
-          repository: fastconnect-staging
+#      artifacts:
+#        alien_dist:
+#          file: alien4cloud:alien4cloud-premium-dist:2.2.0-SNAPSHOT:dist@tar.gz
+#          type: tosca.artifacts.File
+#          repository: fastconnect-staging

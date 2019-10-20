@@ -39,8 +39,8 @@ node_types:
           implementation: scripts/alien.sh
           inputs:
             CMD: stop
-    artifacts:
-      - bin:
-          file: alien4cloud:alien4cloud-postdeployment-rest:1.4.0-RC3@war
-          repository: fastconnect_nexus
-          type: tosca.artifacts.File
+#    artifacts:
+#      - bin:
+#          file: alien4cloud:alien4cloud-postdeployment-rest:1.4.0-RC3@war
+#          repository: fastconnect_nexus
+#          type: tosca.artifacts.File

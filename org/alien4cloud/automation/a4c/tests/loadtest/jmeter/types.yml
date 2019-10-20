@@ -39,11 +39,11 @@ node_types:
         description: In conjonction with a single value rampup, you can loop.
         default: 1
         required: true
-    requirements:
-      - alien_rest_api:
-          capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
-          relationship: org.alien4cloud.automation.a4c.tests.loadtest.relationships.LoadtestConnectToAlien
-          occurrences: [ 1, 1 ]
+#    requirements:
+#      - alien_rest_api:
+#          capability: org.alien4cloud.automation.a4c.pub.capabilities.A4cRestApi
+#          relationship: org.alien4cloud.automation.a4c.tests.loadtest.relationships.LoadtestConnectToAlien
+#          occurrences: [ 1, 1 ]
     interfaces:
       Standard:
         create:

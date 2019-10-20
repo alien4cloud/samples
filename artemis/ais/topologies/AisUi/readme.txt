@@ -1,1 +1,0 @@
-TOSCA topology created by Alien4Cloud.

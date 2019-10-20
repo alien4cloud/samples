@@ -2,15 +2,15 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.automation.a4c.config.location_resources.cfy_byon
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 imports:
-  - alien-base-types:1.4.0
-  - org.alien4cloud.automation.a4c.config.location:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
+  - alien-base-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.location:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
 
 node_types:
 

@@ -2,16 +2,16 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.automation.cloudify.patches.change_max_fd
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: Fix AMQP client patch.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.patches.pub:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - alien-base-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.patches.pub:2.2.0-SNAPSHOT
 
 node_types:
 

@@ -2,13 +2,13 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.sandbox.services.dummy.pub
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: Dummy service and capabilities definitions.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 node_types:
 

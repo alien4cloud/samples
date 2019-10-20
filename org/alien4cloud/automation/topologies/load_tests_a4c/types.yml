@@ -2,12 +2,12 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.automation.topologies.load_tests_a4c
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: >
   A4C monitored and connected to a CloudifyManagerService, ready to use for load tests.
-  You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+  You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:2.2.0-SNAPSHOT:dist@tar.gz
   The apache installed is here to manager offline plugins (to avoid massive attacks on github from cfy).
   The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
   This topology has been tested on a Ubuntu ami-47a23a30 (t2.medium).
@@ -15,37 +15,37 @@ description: >
 
 
 imports:
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.ubuntu:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.csar:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.www.apache.linux_sh:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.hostpool.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.config.offline_plugin:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.location:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.www.apache.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.orchestrator.cfy:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0
-  - org.alien4cloud.monitoring.diamond.collectors:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.webapp:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.config.location_resources.cfy_byon:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
-  - apache-type:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.ubuntu:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.csar:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.www.apache.linux_sh:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.hostpool.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.config.offline_plugin:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.location:2.2.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.www.apache.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.orchestrator.cfy:2.2.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - alien-base-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.collectors:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.webapp:2.2.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.agent_linux:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.2.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.config.location_resources.cfy_byon:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:2.2.0-SNAPSHOT
+  - apache-type:2.2.0-SNAPSHOT
 
 topology_template:
   description: >
     A4C monitored and connected to a CloudifyManagerService, ready to use for load tests.
-    You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:1.4.0-SNAPSHOT:dist@tar.gz
+    You'll need to provide the A4C dist package, eg. using the maven repo https://fastconnect.org/maven/content/repositories/fastconnect-snapshot  with artifact alien4cloud:alien4cloud-premium-dist:2.2.0-SNAPSHOT:dist@tar.gz
     The apache installed is here to manager offline plugins (to avoid massive attacks on github from cfy).
     The workflow has been changed to avoid parallel operations (Ansible + Bash conflicts).
     This topology has been tested on a Ubuntu ami-47a23a30 (t2.medium).
@@ -105,7 +105,7 @@ topology_template:
       type: org.alien4cloud.automation.a4c.webapp.nodes.Alien4Cloud
       properties:
         context_root: "/"
-        component_version: "1.4.0-SNAPSHOT"
+        component_version: "2.2.0-SNAPSHOT"
         data_dir: "/opt/alien4cloud/data"
       requirements:
         - java:

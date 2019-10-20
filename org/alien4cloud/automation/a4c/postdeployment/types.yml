@@ -2,15 +2,15 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.automation.a4c.postdeployment
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: Alien Post-Deployment application.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.automation.a4c.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.2.0-SNAPSHOT
 
 repositories:
   fastconnect_nexus:

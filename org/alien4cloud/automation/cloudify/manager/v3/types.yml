@@ -2,18 +2,18 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.automation.cloudify.manager.v3
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: TOSCA template that contains a basic node type to install a cloudify manager.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.v4:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.messaging.rabbitmq.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.v4:2.2.0-SNAPSHOT
 
 node_types:
 

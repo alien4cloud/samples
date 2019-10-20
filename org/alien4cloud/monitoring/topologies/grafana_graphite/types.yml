@@ -2,7 +2,7 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: org.alien4cloud.monitoring.topologies.grafana_graphite
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: |
@@ -10,20 +10,20 @@ description: |
   Tested on a Centos ami-4c4b003b (t2.small).
 
 imports:
-  - org.alien4cloud.monitoring.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.cloudify.manager.pub:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
-  - org.alien4cloud.monitoring.grafana:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.agent_linux:1.4.0-SNAPSHOT
-  - alien-base-types:1.4.0
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jmx.jolokia:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.diamond.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.storage.elasticsearch.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.automation.a4c.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.db.postgresql.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.messaging.rabbitmq.pub:1.4.0-SNAPSHOT
-  - org.alien4cloud.monitoring.graphite:1.4.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.cloudify.manager.pub:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.monitoring.grafana:2.2.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.agent_linux:2.2.0-SNAPSHOT
+  - alien-base-types:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jmx.jolokia:2.2.0-SNAPSHOT
+  - org.alien4cloud.monitoring.diamond.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.storage.elasticsearch.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.db.postgresql.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.messaging.rabbitmq.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.monitoring.graphite:2.2.0-SNAPSHOT
 
 topology_template:
   description: |

@@ -1,0 +1,63 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.bashComplexproperties
+  template_version: 2.2.0-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT
+
+description: >
+  Mock types with bash implementations with a complex property with datas displayed at create step and with empty values as default values.
+
+# TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
+node_types:
+  org.alien4cloud.mock.bashComplex.nodes.BashMockComplexProperties:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.bash.nodes.BashMock
+    properties:
+      alias_dns:
+        description: Rien
+        type: org.alien4cloud.mock.bashComplex.datatypes.aliasdns          
+        default: 
+                alias_zone: ""
+                alias_name: ""        
+        required: false
+        
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+
+
+
+data_types:    
+  org.alien4cloud.mock.bashComplex.datatypes.aliasdns:
+    derived_from: tosca.datatypes.Root
+    description: dns
+    properties:
+      alias_name: 
+        description: The short name of the alias (ex dpgalxtestalias)
+        type: string 
+        required: false
+      alias_zone: 
+        description: The domain name of the alias (exdns21socgen)
+        type: string 
+        required: false

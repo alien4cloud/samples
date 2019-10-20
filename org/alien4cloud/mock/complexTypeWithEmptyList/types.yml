@@ -1,0 +1,30 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.complexTypeWithEmptyList
+  template_version: 2.2.0-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+description: >
+  ComplexDataType sample with empty list value
+
+node_types:
+
+  org.alien4cloud.mock.complexType.nodes.ComplexDataTypeWithEmptyList:
+    derived_from: tosca.nodes.Root  
+    properties:
+      wan_consul_cluster_dns:
+        type: list
+        default: []
+        required: false
+        entry_schema:
+          description : DNS des noeuds du cluster wan auquel faut faire les synchronisation multi-AZ
+          type: string
+          required: false
+          constraints:
+            max_length: 24
+
+  

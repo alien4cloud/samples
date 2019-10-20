@@ -2,7 +2,7 @@ tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
   template_name: org.alien4cloud.mock.pub
-  template_version: 2.1.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: Gandalfe
 
 imports:
@@ -119,7 +119,3 @@ capability_types:
   org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint:
     derived_from: tosca.capabilities.Root
     abstract: true
-
-policy_types:
-   org.alien4cloud.mock.pub.policies.MockPerformancePolicy:
-     derived_from: tosca.policies.Performance

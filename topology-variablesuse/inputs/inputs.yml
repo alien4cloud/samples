@@ -1,0 +1,3 @@
+comment:
+  Commentaire: varapplication - "${varapplication}" +  typescope - "${vartypescope}
+    + scopeseulement - "${varscopeonly}"

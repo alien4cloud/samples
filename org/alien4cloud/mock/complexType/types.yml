@@ -1,0 +1,29 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.complexType
+  template_version: 2.2.0-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+description: >
+  ComplexDataType sample
+
+node_types:
+
+  org.alien4cloud.mock.complexType.nodes.ComplexDataType:
+    derived_from: tosca.nodes.Root  
+    properties:
+      nested:
+        type: string
+      nested_array:
+        type: list
+        entry_schema:
+          type: string
+      nested_map:
+        type: map
+        entry_schema:
+          type: string
+

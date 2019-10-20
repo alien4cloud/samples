@@ -1,0 +1,71 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: custom-apache-type
+  template_version: 2.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+description: This archive contains an Apache server tosca node type.
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+node_types:
+  org.alien4cloud.nodes.CustomApache:
+    derived_from: tosca.nodes.WebServer
+    description: >
+      The TOSCA Apache Node Type represents an apache component
+      that can be managed and run by a TOSCA Compute Node Type.
+    capabilities:
+      host: org.alien4cloud.capabilities.ApacheContainer
+    attributes:
+      apache_url: { concat: ["http://", get_attribute: [HOST, public_ip_address], ":", get_property: [SELF, port], "/"] }
+    metadata:
+      icon: /images/Apache_PoweredBy.png
+    properties:
+      component_version:
+        type: version
+        default: 2.4
+        constraints:
+          - equal: 2.4
+      port:
+        type: integer
+        description: Port for the Apache server
+        default: 80
+        constraints:
+          - greater_or_equal: 1
+      document_root:
+          type: string
+          default: "/var/www"
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            PORT: { get_property: [SELF, port] }
+            DOC_ROOT: { get_property: [SELF, document_root] }
+          implementation: scripts/install_apache.sh
+        start: scripts/start_apache.sh
+      my_custom_interface:
+        my_custom_op:
+          inputs:
+            operation: "my_custom_op"
+            PORT: { get_property: [SELF, port] }
+            DOC_ROOT: { get_property: [SELF, document_root] }
+            APACHE_URL: { get_attribute: [SELF, apache_url] }
+          implementation: scripts/cust.sh
+        arret:
+          inputs:
+            operation: "arret"
+            PORT: { get_property: [SELF, port] }
+            DOC_ROOT: { get_property: [SELF, document_root] }
+          implementation: scripts/stop_apache.sh
+        demarrage:
+          inputs:
+            operation: "demarrage"
+            PORT: { get_property: [SELF, port] }
+            DOC_ROOT: { get_property: [SELF, document_root] }
+          implementation: scripts/start_apache.sh            
+
+capability_types:
+  org.alien4cloud.capabilities.ApacheContainer:
+      derived_from: tosca.capabilities.Container

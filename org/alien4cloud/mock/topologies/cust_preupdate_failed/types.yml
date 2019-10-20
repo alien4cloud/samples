@@ -1,0 +1,34 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.topologies.custopreupdatefail
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: "1 custom mock with custom interfaces with a custom workflows pre_update that fails when deployment update is launched"
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.customBash:2.2.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    CustomCommandFailedBashMock:
+      metadata:
+        a4c_edit_x: "-31"
+        a4c_edit_y: "-23"
+      type: org.alien4cloud.mock.bash.nodes.CustomCommandFailedBashMock
+      properties:
+        duration: 3
+        variation: 20
+        log_length: 2000
+        comment: "Commentaire final en erreur"
+  workflows:
+    pre_update:
+      steps:
+        CustomCommandFailedBashMock_my_custom_fail_op:
+          target: CustomCommandFailedBashMock
+          activities:
+            - call_operation: my_custom_interface.my_custom_fail_op

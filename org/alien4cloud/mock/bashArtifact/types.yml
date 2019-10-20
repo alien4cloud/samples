@@ -1,0 +1,88 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.bashArtifact
+  template_version: 2.2.0-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT  
+
+description: >
+  Mock types with bash implementations, that has 3 artifacts of alll types
+
+
+repositories:
+  MyRepository:
+    url: https://fastconnect.org/maven/service/local/repositories/opensource/content/
+    type: http
+  aliengithub:
+    url: https://github.com/alien4cloud/samples.git
+    type: git
+  fastconnect_nexus:
+    url: https://fastconnect.org/maven/content/repositories/opensource
+    type: maven      
+  
+node_types:
+
+  org.alien4cloud.mock.bash.nodes.bashArtifact:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.bash.nodes.BashMock
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - http_artifact:
+          file: archetype-catalog.xml
+          type: tosca.artifacts.File
+          repository: MyRepository
+#      - maven_artifact:
+#          file: alien4cloud:alien4cloud-cloudify3-provider:1.2.0@zip
+#          repository: fastconnect_nexus
+#          type: tosca.artifacts.File
+#      - git_artifact:
+#          file: master:demo-repository/artifacts/settings.properties
+#          repository: aliengithub
+#          type: tosca.artifacts.File
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File          
+

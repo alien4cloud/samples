@@ -9,7 +9,7 @@ description: Wordpress TOSCA node type to be hosted on an apache webserver.
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.www.apache.pub:2.2.0-SNAPSHOT
+  - apache-type:2.2.0-SNAPSHOT
   - mysql-type:2.2.0-SNAPSHOT
   - php-type:2.2.0-SNAPSHOT
 

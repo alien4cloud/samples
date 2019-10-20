@@ -10,7 +10,7 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - alien-base-types:2.2.0-SNAPSHOT
+  - alien-base-types:3.0.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:2.2.0-SNAPSHOT
 
 node_types:

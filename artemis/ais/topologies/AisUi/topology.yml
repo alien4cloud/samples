@@ -15,7 +15,7 @@ imports:
   - artemis.ais.containers.rest:2.1.0-SNAPSHOT
   - artemis.postgre.pub:2.1.0-SNAPSHOT
   - artemis.redis.pub:2.1.0-SNAPSHOT
-  - docker-types:2.1.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:

@@ -13,7 +13,7 @@ imports:
   - artemis.similimages.containers:2.1.0-SNAPSHOT
   - artemis.elasticsearch.pub:2.1.0-SNAPSHOT
   - artemis.mysql.pub:2.1.0-SNAPSHOT
-  - docker-types:2.1.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:

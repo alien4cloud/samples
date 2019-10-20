@@ -6,8 +6,8 @@ metadata:
   template_author: alien4cloud
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN20SM4
-  - docker-types:2.0.0-SM4
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:2.2.0-SNAPSHOT
 
 repositories:
   docker:

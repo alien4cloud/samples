@@ -11,7 +11,7 @@ imports:
   - tosca-normative-types:1.0.0-ALIEN20
   - artemis.ais.converter:2.1.0-SNAPSHOT
   - artemis.hadoop.pub:2.1.0-SNAPSHOT
-  - docker-types:2.1.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:

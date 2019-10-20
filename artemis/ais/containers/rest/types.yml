@@ -6,7 +6,7 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - docker-types:2.1.0-SNAPSHOT
+  - docker-types:2.2.0-SNAPSHOT
   - artemis.redis.pub:2.1.0-SNAPSHOT
   - artemis.kudu.pub:2.1.0-SNAPSHOT
   - artemis.impala.pub:2.1.0-SNAPSHOT

@@ -7,10 +7,10 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - docker-types:2.2.0-SNAPSHOT
-  - org.alien4cloud.kubernetes.api:2.2.0-SNAPSHOT
+  - docker-types:3.0.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:3.0.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
-  - docker-types:2.2.0-SNAPSHOT
+  - docker-types:3.0.0-SNAPSHOT
   - alien-base-types:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.51-Petclinic.pub:2.2.0-SNAPSHOT
 

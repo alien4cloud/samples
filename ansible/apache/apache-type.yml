@@ -8,8 +8,8 @@ metadata:
 description: This archive contains an Apache webserver node installed through ansible scripts.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - alien-base-types:1.4.0
+  - tosca-normative-types:1.0.0-ALIEN20
+  - alien-base-types:2.2.0-SNAPSHOT
 
 node_types:
   alien.nodes.AnsibleApache:

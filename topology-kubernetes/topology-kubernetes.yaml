@@ -2,14 +2,14 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: kubernetes-cluster
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: Topology to deploy a kubernetes cluster.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - kubernetes-cluster-types:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - kubernetes-cluster-types:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:

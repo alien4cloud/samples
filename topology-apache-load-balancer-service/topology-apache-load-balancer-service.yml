@@ -2,14 +2,14 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: apache-lb-service-topology
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: Fastconnect
 
 description: "A topology to expose an apache load balancer as a service"
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - apache-load-balancer-type:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - apache-load-balancer-type:2.2.0-SNAPSHOT
 
 topology_template:
   substitution_mappings:

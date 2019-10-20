@@ -2,16 +2,16 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: tomcat-war-service-topology
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: Fastconnect
 
 description: "A topology to install an web app on Tomcat and uses an existing load balancer"
 
 imports:
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - tosca-normative-types:1.0.0-ALIEN14
-  - tomcat-war-types:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:1.4.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.1.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - tomcat-war-types:2.1.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.1.0-SNAPSHOT
 
 topology_template:
   node_templates:

@@ -2,18 +2,18 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: PetclinicPostgres
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: admin
 
 description: "A sample topology of a Petclinic application hosted on a Tomcat server and connected to a Postgresql database."
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - petclinic-war-type:1.4.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:1.4.0-SNAPSHOT
-  - mysql-type:1.4.0-SNAPSHOT
-  - tomcat-war-types:1.4.0-SNAPSHOT
-  - postgresql-type:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - petclinic-war-type:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.1.0-SNAPSHOT
+  - mysql-type:2.2.0-SNAPSHOT
+  - tomcat-war-types:2.1.0-SNAPSHOT
+  - postgresql-type:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:

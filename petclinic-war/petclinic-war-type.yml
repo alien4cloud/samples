@@ -8,10 +8,10 @@ metadata:
 description: A petclinic war component
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - tomcat-war-types:1.4.0-SNAPSHOT
-  - mysql-type:1.4.0-SNAPSHOT
-  - postgresql-type:1.4.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - tomcat-war-types:2.1.0-SNAPSHOT
+  - mysql-type:2.2.0-SNAPSHOT
+  - postgresql-type:2.2.0-SNAPSHOT
 
 repositories:
   fastconnect_nexus:

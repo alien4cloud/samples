@@ -2,13 +2,13 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: mysql-type
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: MySQL RDBMS installation on a specific mounted volume path.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
+  - tosca-normative-types:1.0.0-ALIEN20
 
 node_types:
   org.alien4cloud.nodes.AbstractMysql:

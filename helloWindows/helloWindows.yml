@@ -2,14 +2,14 @@ tosca_definitions_version: alien_dsl_1_4_0
 
 metadata:
   template_name: hello-windows-types
-  template_version: 1.4.0-SNAPSHOT
+  template_version: 2.2.0-SNAPSHOT
   template_author: alien4cloud
 
 description: Hello World type for windows.
 
 imports:
-  - tosca-normative-types:1.0.0-ALIEN14
-  - "alien-base-types:1.4.0"
+  - tosca-normative-types:1.0.0-ALIEN20
+  - alien-base-types:2.2.0-SNAPSHOT
 
 node_types:
   org.alien4cloud.nodes.HelloWindows:

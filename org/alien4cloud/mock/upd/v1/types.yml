@@ -1,0 +1,58 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.upd
+  template_version: 1.0.0-SNAPSHOT
+  template_author: SLT
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+
+description: >
+  Mock types with bash implementations and with custom operation check which displays data.txt files data. In version 1, it logs v1
+
+
+node_types:
+
+  org.alien4cloud.mock.upd.nodes.MockUpdate:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+      org.alien4cloud.Custom:
+        check:
+          inputs:
+            operation: "check"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/check.sh
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File

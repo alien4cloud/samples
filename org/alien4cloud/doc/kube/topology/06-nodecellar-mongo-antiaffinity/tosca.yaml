@@ -7,10 +7,10 @@ metadata:
 
 
 imports:
-  - alien-base-types:2.0.0-SM4
-  - tosca-normative-types:1.0.0-ALIEN20SM4
+  - alien-base-types:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.doc.kube.containers:2.0.0-SNAPSHOT
-  - docker-types:2.0.0-SM4
+  - docker-types:2.2.0-SNAPSHOT
 
 topology_template:
   node_templates:

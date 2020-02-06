@@ -37,6 +37,10 @@ node_types:
       document_root:
           type: string
           default: "/var/www"
+    artifacts:
+      - site:
+          type: tosca.artifacts.File
+          file: artifacts/site.zip          
     interfaces:
       Standard:
         create:

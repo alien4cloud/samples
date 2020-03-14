@@ -9,8 +9,8 @@ description: "An apache container with an emptyDir volume"
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - docker-types:3.0.0-SNAPSHOT
-  - org.alien4cloud.kubernetes.api:3.0.0-SNAPSHOT
+  - docker-types:3.0
+  - org.alien4cloud.kubernetes.api:3.0
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.10-Volume-EmptyDir.types:2.2.0-SNAPSHOT
 

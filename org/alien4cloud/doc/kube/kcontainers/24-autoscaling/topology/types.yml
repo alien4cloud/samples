@@ -11,9 +11,9 @@ imports:
   - org.alien4cloud.doc.kube.kcontainers.01-Apache.types:2.2.0-SNAPSHOT
   - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
-  - org.alien4cloud.kubernetes.api:3.0.0-SNAPSHOT
-  - docker-types:3.0.0-SNAPSHOT
-  - alien-base-types:3.0.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:3.0
+  - docker-types:3.0
+  - alien-base-types:3.0
   - HorizontalPodAutoscalerSp:0.1.0-SNAPSHOT
 
 topology_template:

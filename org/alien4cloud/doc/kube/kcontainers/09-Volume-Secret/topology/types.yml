@@ -5,7 +5,7 @@ metadata:
   template_version: 0.1.0-SNAPSHOT
   template_author: admin
 
-description: ""
+description: "This topology deploys an apache container and expose it via a NodePort service with a secret "
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20

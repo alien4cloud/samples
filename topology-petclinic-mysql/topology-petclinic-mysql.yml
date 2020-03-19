@@ -10,9 +10,9 @@ description: "A sample topology of a Petclinic application hosted on a Tomcat se
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
   - petclinic-war-type:2.2.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.1.0-SNAPSHOT
   - mysql-type:2.2.0-SNAPSHOT
-  - tomcat-war-types:2.2.0-SNAPSHOT
+  - tomcat-war-types:2.1.0-SNAPSHOT
   - postgresql-type:2.2.0-SNAPSHOT
 
 topology_template:

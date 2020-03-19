@@ -18,7 +18,7 @@ imports:
   - org.alien4cloud.automation.a4c.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.db.postgresql.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.messaging.rabbitmq.pub:2.2.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.1.0-SNAPSHOT
 
 repositories:
   fastconnect-staging:

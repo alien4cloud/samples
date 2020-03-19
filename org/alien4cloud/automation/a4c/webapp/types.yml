@@ -7,8 +7,8 @@ metadata:
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
-  - org.alien4cloud.automation.a4c.pub:2.2.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:2.2.0-SNAPSHOT
+  - org.alien4cloud.automation.a4c.pub:2.1.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.1.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.lang.java.jmx.jolokia:2.2.0-SNAPSHOT
 

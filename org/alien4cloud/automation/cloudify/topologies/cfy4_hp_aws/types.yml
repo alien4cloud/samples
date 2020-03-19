@@ -15,7 +15,7 @@ description: >
 imports:
   - org.alien4cloud.automation.cloudify.hostpool.service:2.2.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.awsfeeder:2.2.0-SNAPSHOT
-  - org.alien4cloud.monitoring.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.monitoring.pub:2.1.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.v4:2.2.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond.pub:2.2.0-SNAPSHOT

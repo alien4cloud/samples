@@ -19,7 +19,7 @@ imports:
   - org.alien4cloud.storage.elasticsearch.ubuntu:2.2.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.manager.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.csar:2.2.0-SNAPSHOT
-  - org.alien4cloud.lang.java.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.1.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.www.apache.linux_sh:2.2.0-SNAPSHOT
   - org.alien4cloud.automation.cloudify.hostpool.pub:2.2.0-SNAPSHOT
@@ -35,7 +35,7 @@ imports:
   - org.alien4cloud.lang.java.jmx.jolokia:2.2.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.webapp:2.2.0-SNAPSHOT
   - org.alien4cloud.monitoring.diamond.agent_linux:2.2.0-SNAPSHOT
-  - org.alien4cloud.lang.java.jdk.linux:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.1.0-SNAPSHOT
   - org.alien4cloud.storage.elasticsearch.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.config.location_resources.cfy_byon:2.2.0-SNAPSHOT
   - org.alien4cloud.automation.a4c.pub:2.2.0-SNAPSHOT

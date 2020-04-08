@@ -78,5 +78,5 @@ capability_types:
         type: integer
         default: 8080
       url_path:
-        type: integer
+        type: string
         default: "/petclinic"

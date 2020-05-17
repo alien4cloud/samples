@@ -1,0 +1,85 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.bashWithPropertyNameForbidden
+  template_version: 2.2.0-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT  
+
+description: >
+  Mock types with bash implementations with description of a property with special characters 
+
+# TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
+node_types:
+
+
+  org.alien4cloud.mock.bash.nodes.bashWithPropertyNameForbidden:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.bash.nodes.BashMock
+    properties:
+      typedef:
+        type: org.alien4cloud.mock.bashWithPropertyNameForbidden.datatypes.osblk
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+data_types:
+  org.alien4cloud.mock.bashWithPropertyNameForbidden.datatypes.osblk:
+    derived_from: tosca.datatypes.Root
+    description: OpenStack block storage
+    properties:
+      type:
+        description: "Type of storage: \nXwing: High performance offer, for I/O-intensive\
+          \ NoSQL and relational databases.\nTieFighter: Limited performance offer,\
+          \ for low-latency interactive apps."
+        type: string
+        constraints:
+        - valid_values: [tiefighter, xwing]
+        default: tiefighter
+      size: {description: Size in GB of the filesystem /DATA/<random_name>, type: integer}          
+
+
+          

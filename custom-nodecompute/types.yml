@@ -1,0 +1,19 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: custom-nodecompute
+  template_version: 2.2.0-SNAPSHOT
+  template_author: a4c
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+description: >
+  Custom compute
+  
+node_types:
+
+  custom-nodecompute.CustomCompute:
+    derived_from: tosca.nodes.Compute
+    description: Customized compute.
+

@@ -12,7 +12,7 @@ imports:
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.51-Petclinic.types:2.2.0-SNAPSHOT
   - org.alien4cloud.doc.kube.kcontainers.51-Petclinic.pub:2.2.0-SNAPSHOT
-  - org.alien4cloud.kubernetes.api:3.0.0
+  - org.alien4cloud.kubernetes.api:3.1.0
   - docker-types:3.0.0
   - alien-base-types:3.0.0
 

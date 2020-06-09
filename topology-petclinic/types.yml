@@ -1,0 +1,152 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: PetClinicTemplate
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: "The topology template of petclinic with mysql database and a local war file"
+
+imports:
+  - tomcat-war-types:2.1.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - petclinic-war-type:2.2.0-SNAPSHOT
+  - postgresql-type:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.pub:2.1.0-SNAPSHOT
+  - mysql-type:2.2.0-SNAPSHOT
+  - org.alien4cloud.lang.java.jdk.linux:2.1.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    OracleJDK:
+      type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK
+      properties:
+        java_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
+        java_home: "/opt/java"
+        component_version: "1.8.0-131-b11"
+      requirements:
+        - hostedOnComputeHost:
+            type_requirement: host
+            node: Front
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+    Tomcat:
+      type: org.alien4cloud.nodes.Tomcat
+      properties:
+        tomcat_home: "/opt/tomcat"
+        download_url: "https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.39/bin/apache-tomcat-8.0.39.tar.gz"
+        component_version: "8.0.39"
+      requirements:
+        - javaSoftwareHostedOnJdkOracleJdkJdk:
+            type_requirement: host
+            node: OracleJDK
+            capability: org.alien4cloud.lang.java.pub.capabilities.JDK
+            relationship: org.alien4cloud.lang.java.pub.relationships.JavaSoftwareHostedOnJDK
+      capabilities:
+        data_endpoint:
+          properties:
+            protocol: http
+            port: 80
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        admin_endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    Petclinic:
+      type: alien.nodes.Petclinic
+      requirements:
+        - warHostedOnTomcatTomcatHost:
+            type_requirement: host
+            node: Tomcat
+            capability: org.alien4cloud.capabilities.WarContainer
+            relationship: org.alien4cloud.relationships.WarHostedOnTomcat
+        - petclinicConnectsToMysqlMysqlDatabase_endpoint:
+            type_requirement: database
+            node: Mysql
+            capability: org.alien4cloud.capabilities.MysqlDatabaseEndpoint
+            relationship: alien.relationships.PetclinicConnectsToMysql
+      capabilities:
+        app_endpoint:
+          properties:
+            protocol: { get_property: [HOST, data_endpoint, protocol] }
+            port: { get_property: [HOST, data_endpoint, port] }
+            secure: false
+            url_path: hello
+            network_name: PRIVATE
+            initiator: source
+    Mysql:
+      type: org.alien4cloud.nodes.Mysql
+      properties:
+        port: 3306
+        name: wordpress
+        db_user: pass
+        db_password: pass
+        bind_address: true
+        storage_path: "/mountedStorage"
+      requirements:
+        - hostedOnCompute2Host:
+            type_requirement: host
+            node: Back
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        database_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    Front:
+      metadata:
+        a4c_edit_x: 0
+        a4c_edit_y: "-17"
+      type: tosca.nodes.Compute
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+    Back:
+      metadata:
+        a4c_edit_x: 340
+        a4c_edit_y: 42
+      type: tosca.nodes.Compute
+      capabilities:
+        os:
+          properties:
+            architecture: "x86_64"
+            type: linux
+            distribution: ubuntu
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+        endpoint:
+          properties:
+            secure: true
+            protocol: tcp
+            network_name: PRIVATE
+            initiator: source
+  outputs:
+    Petclinic_local_application_url:
+      value: { get_attribute: [ Petclinic, local_application_url ] }
+    Petclinic_tosca_name:
+      value: { get_attribute: [ Petclinic, tosca_name ] }
+    Petclinic_state:
+      value: { get_attribute: [ Petclinic, state ] }
+    Petclinic_application_url:
+      value: { get_attribute: [ Petclinic, application_url ] }
+    Petclinic_tosca_id:
+      value: { get_attribute: [ Petclinic, tosca_id ] }

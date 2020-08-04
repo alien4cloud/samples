@@ -1,7 +1,0 @@
----
-- hosts: all
-  name: Do configure git csar
-  become: true
-
-  roles:
-    - start

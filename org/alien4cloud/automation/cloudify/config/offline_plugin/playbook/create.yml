@@ -1,9 +1,0 @@
----
-- hosts: all
-  name: Configure
-  become: true
-
-  roles:
-    - setup
-    - create
-    - { role: publish_att }

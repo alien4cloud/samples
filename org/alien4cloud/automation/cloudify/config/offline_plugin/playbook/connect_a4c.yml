@@ -1,9 +1,0 @@
----
-- hosts: all
-  name: Connect to alien
-  become: true
-
-  roles:
-    - setup
-    - { role: get_att, attribute_name: 'offline_plugin_url' }
-    - connect_a4c

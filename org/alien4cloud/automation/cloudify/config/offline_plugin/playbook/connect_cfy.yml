@@ -1,8 +1,0 @@
----
-- hosts: all
-  name: Connect to cfy manager
-  become: true
-
-  roles:
-    - setup
-    - connect_cfy

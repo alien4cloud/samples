@@ -1,8 +1,0 @@
----
-- hosts: all
-  name: Add and configure orchestrator
-  become: true
-
-  roles:
-    - setup
-    - create_orchestrator

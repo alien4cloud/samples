@@ -1,12 +1,12 @@
 tosca_definitions_version: alien_dsl_2_0_0
 
 metadata:
-  template_name: org.alien4cloud.doc.kube.kcontainers.11-Apache-ProxyDependancies.topology.11-Apache-ProxyDependancies
-  template_version: 2.2.0-SNAPSHOT
-  template_author: alien4cloud
+  template_name: Alien3507
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
 
-description: "This topology  deploys 2 apache containers. Client one is getting apache home page data from server one with a wget command"
-        
+description: ""
+
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
   - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
@@ -21,15 +21,15 @@ topology_template:
       type: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types.nodes.ApacheServer
       properties:
         container: 
-          imagePullPolicy: Always
-          image: "httpd:latest"
           lifecycle: 
             postStart: 
               exec: 
                 command: 
-                  - "/bin/bash"
+                  - "/bin/sh"
                   - "-c"
                   - "sleep 120"
+          imagePullPolicy: Always
+          image: "httpd:2.4-alpine"
         server_msg: "Static property of Apache container"
       requirements:
         - hostedOnKubeDeploymentHost:
@@ -82,11 +82,11 @@ topology_template:
             postStart: 
               exec: 
                 command: 
-                  - "/bin/bash"
+                  - "/bin/sh"
                   - "-c"
                   - "wget http://$SERVER_IP:$SERVER_PORT -O /usr/local/apache2/htdocs/index2.html"
           imagePullPolicy: Always
-          image: "httpd:latest"
+          image: "httpd:2.4-alpine"
       requirements:
         - hostedOnClientDeploymentHost:
             type_requirement: host

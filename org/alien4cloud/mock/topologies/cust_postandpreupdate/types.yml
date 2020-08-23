@@ -24,8 +24,8 @@ topology_template:
         duration: 3
         variation: 20
         log_length: 2000
-        comment: "Nouveau commentaire"
-        description: "2\u00E8me champ"
+        comment: "Initial comment"
+        description: "2nd property"
   workflows:
     pre_update:
       steps:

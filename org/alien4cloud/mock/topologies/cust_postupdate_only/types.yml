@@ -24,7 +24,7 @@ topology_template:
         duration: 3
         variation: 20
         log_length: 2000
-        comment: nouvelle
+        comment: initial
   workflows:
     post_update:
       steps:

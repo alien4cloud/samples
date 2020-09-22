@@ -1,4 +1,4 @@
-# this folder includes a serie of Mock components in order to :
+# This folder includes a serie of Mock components in order to :
 
 - check the topology designer with various types (nodes, relations, data types, ..)
 - checking the full Stack (A4C and its orchestrator) is running correctly, in particular with the deployments

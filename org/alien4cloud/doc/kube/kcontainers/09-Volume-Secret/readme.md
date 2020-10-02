@@ -18,5 +18,6 @@ Deploy the topology, the NodePort service port will appear in the Deployment Inf
 ## Expected result
 
 When you test the url http://nodeIp:nodePort you should see :
+**This is Apache welcome as a Kubernetes secret**
 
 

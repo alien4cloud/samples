@@ -16,7 +16,7 @@ description: >
 
 repositories:
   MyRepository:
-    url: https://fastconnect.org/maven/service/local/repositories/opensource/content/
+    url: https://www.portaildulibre.fr/nexus/repository/opensource-snapshots/org/alien4cloud/alien4cloud-ha/
     type: http
   aliengithub:
     url: https://github.com/alien4cloud/samples.git
@@ -71,7 +71,7 @@ node_types:
           occurrences: [0, unbounded]
     artifacts:
       - http_artifact:
-          file: archetype-catalog.xml
+          file: maven-metadata.xml
           type: tosca.artifacts.File
           repository: MyRepository
 #      - maven_artifact:

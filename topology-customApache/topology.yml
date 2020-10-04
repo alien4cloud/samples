@@ -12,6 +12,8 @@ imports:
   - custom-apache-type:2.2.0-SNAPSHOT
 
 topology_template:
+  tags:
+    "A4C_META_TopologyType": "ApacheHostedOnCompute"
   node_templates:
     CustomApache:
       metadata:

@@ -15,6 +15,8 @@ imports:
   - alien-base-types:3.0.0
 
 topology_template:
+  tags:
+    "A4C_META_TopologyType": "MockAnsible"
   inputs:
     duration:
       type: integer

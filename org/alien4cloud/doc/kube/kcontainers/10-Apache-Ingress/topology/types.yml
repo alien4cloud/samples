@@ -17,6 +17,8 @@ imports:
 
 
 topology_template:
+  tags:
+    "A4C_META_TopologyType": "K8S"
   node_templates:
     ApacheDeployment10A:
       metadata:

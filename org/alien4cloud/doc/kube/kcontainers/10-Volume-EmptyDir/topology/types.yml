@@ -15,6 +15,8 @@ imports:
   - org.alien4cloud.doc.kube.kcontainers.10-Volume-EmptyDir.types:2.2.0-SNAPSHOT
 
 topology_template:
+  tags:
+    "A4C_META_TopologyType": "K8S"
   node_templates:
     BusyboxBash:
       type: org.alien4cloud.kubernetes.api.types.KubeContainer

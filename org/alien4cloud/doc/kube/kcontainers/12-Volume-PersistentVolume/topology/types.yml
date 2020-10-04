@@ -16,6 +16,8 @@ imports:
   - docker-types:3.0.0
 
 topology_template:
+  tags:
+    "A4C_META_TopologyType": "K8S"
   inputs:
     spec:
       type: org.alien4cloud.kubernetes.api.datatypes.volumes.AWSElasticBlockStoreVolumeSpec

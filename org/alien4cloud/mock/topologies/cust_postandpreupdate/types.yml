@@ -14,6 +14,8 @@ imports:
   - org.alien4cloud.mock.customBash:2.2.0-SNAPSHOT
 
 topology_template:
+  tags:
+    "A4C_META_TopologyType": "MockUpdate"
   node_templates:
     CustomCommandFailedBashMock:
       metadata:

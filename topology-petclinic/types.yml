@@ -17,6 +17,8 @@ imports:
   - org.alien4cloud.lang.java.jdk.linux:2.1.0-SNAPSHOT
 
 topology_template:
+  tags:
+    "A4C_META_TopologyType": "Full Web application"
   node_templates:
     OracleJDK:
       type: org.alien4cloud.lang.java.jdk.linux.nodes.OracleJDK

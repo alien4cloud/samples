@@ -13,6 +13,8 @@ imports:
   - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT
 
 topology_template:
+  tags:
+    "A4C_META_TopologyType": "Mock"
   node_templates:
     A_Mock:
       type: org.alien4cloud.mock.bash.nodes.BashMock

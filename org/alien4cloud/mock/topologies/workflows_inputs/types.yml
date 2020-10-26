@@ -1,0 +1,240 @@
+tosca_definitions_version: alien_dsl_3_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.topologies.wfinputs
+  template_version: 0.1.0-SNAPSHOT
+  template_author: a4c
+
+description: "A topology with a custom worflow with 3 inputs, using bashWfInputs mock operation Custom"
+
+imports:
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.bashWfInputs:2.2.0-SNAPSHOT 
+
+topology_template:
+  inputs:
+    comment:
+      type: string
+      required: false
+      description: "A simple comment."
+  node_templates:
+    BashWfInputMock:
+      metadata:
+        a4c_edit_x: 23
+        a4c_edit_y: 10
+        location: Default
+      type: org.alien4cloud.mock.bashWfInputs.nodes.BashWfInputMock
+      properties:
+        duration: 3
+        variation: 20
+        log_length: 2000
+        comment: topooooo
+  workflows:
+    customWorkflow:
+      inputs:
+        comment:
+          type: string
+          required: true
+          description: "Just a string"
+        an_int:
+          type: integer
+          required: true
+          default: 10
+          description: "An integer with a default value"
+        another_int:
+          type: integer
+          required: true
+          constraints:
+          - greater_than: 0
+          description: "Another integer that should be > 0"
+        big_string:
+          type: string
+          required: true
+          constraints:
+          - min_length: 5
+          description: "A string with a length >= 5"
+      steps:
+        BashWfInputMock_custom:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Custom.custom          
+    customWorkflowSample:
+      inputs:
+        comment:
+          type: string
+          required: true
+          description: "Just a string"
+        data:
+          type: string
+          required: true
+          constraints:
+          - min_length: 5
+          description: "A string with a length >= 5"          
+      steps:
+        BashWfInputMock_custom:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Custom.custom
+    customWorkflow_noInput:
+      steps:
+        BashWfInputMock_custom:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Custom.custom
+    customWorkflow_partialInput:
+      inputs:
+        an_int:
+          type: integer
+          required: true
+          default: 10
+          description: "An integer with a default value"
+      steps:
+        BashWfInputMock_custom:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Custom.custom
+    install:
+      steps:
+        BashWfInputMock_starting:
+          target: BashWfInputMock
+          activities:
+            - set_state: starting
+          on_success:
+            - BashWfInputMock_start
+        BashWfInputMock_initial:
+          target: BashWfInputMock
+          activities:
+            - set_state: initial
+          on_success:
+            - BashWfInputMock_creating
+        BashWfInputMock_configured:
+          target: BashWfInputMock
+          activities:
+            - set_state: configured
+          on_success:
+            - BashWfInputMock_starting
+        BashWfInputMock_configuring:
+          target: BashWfInputMock
+          activities:
+            - set_state: configuring
+          on_success:
+            - BashWfInputMock_configure
+        BashWfInputMock_creating:
+          target: BashWfInputMock
+          activities:
+            - set_state: creating
+          on_success:
+            - BashWfInputMock_create
+        BashWfInputMock_start:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Standard.start
+          on_success:
+            - BashWfInputMock_started
+        BashWfInputMock_created:
+          target: BashWfInputMock
+          activities:
+            - set_state: created
+          on_success:
+            - BashWfInputMock_configuring
+        BashWfInputMock_create:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Standard.create
+          on_success:
+            - BashWfInputMock_created
+        BashWfInputMock_started:
+          target: BashWfInputMock
+          activities:
+            - set_state: started
+        BashWfInputMock_configure:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Standard.configure
+          on_success:
+            - BashWfInputMock_configured
+    uninstall:
+      steps:
+        BashWfInputMock_deleted:
+          target: BashWfInputMock
+          activities:
+            - set_state: deleted
+        BashWfInputMock_stopping:
+          target: BashWfInputMock
+          activities:
+            - set_state: stopping
+          on_success:
+            - BashWfInputMock_stop
+        BashWfInputMock_deleting:
+          target: BashWfInputMock
+          activities:
+            - set_state: deleting
+          on_success:
+            - BashWfInputMock_delete
+        BashWfInputMock_stop:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Standard.stop
+          on_success:
+            - BashWfInputMock_stopped
+        BashWfInputMock_delete:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Standard.delete
+          on_success:
+            - BashWfInputMock_deleted
+        BashWfInputMock_stopped:
+          target: BashWfInputMock
+          activities:
+            - set_state: stopped
+          on_success:
+            - BashWfInputMock_deleting
+    start:
+      steps:
+        BashWfInputMock_starting:
+          target: BashWfInputMock
+          activities:
+            - set_state: starting
+          on_success:
+            - BashWfInputMock_start
+        BashWfInputMock_start:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Standard.start
+          on_success:
+            - BashWfInputMock_started
+        BashWfInputMock_started:
+          target: BashWfInputMock
+          activities:
+            - set_state: started
+    stop:
+      steps:
+        BashWfInputMock_stopping:
+          target: BashWfInputMock
+          activities:
+            - set_state: stopping
+          on_success:
+            - BashWfInputMock_stop
+        BashWfInputMock_stop:
+          target: BashWfInputMock
+          operation_host: ORCHESTRATOR
+          activities:
+            - call_operation: Standard.stop
+          on_success:
+            - BashWfInputMock_stopped
+        BashWfInputMock_stopped:
+          target: BashWfInputMock
+          activities:
+            - set_state: stopped

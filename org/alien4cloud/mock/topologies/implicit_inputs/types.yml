@@ -1,0 +1,70 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.topologies.implicitinputs
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: "This topology displays a node type with many complex properties, for use of implicit and explicit inputs"
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.bashMultiComplexDT:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+
+topology_template:
+  inputs:
+    duration:
+      type: integer
+      required: true
+      default: 3
+      description: |
+        The total duration for all operations (create, configure, start) in seconds.
+        Each one is pondered in implementation.
+    description:
+      type: string
+      required: false
+      description: "A simple description."
+    comment:
+      type: string
+      required: false
+      description: "A simple comment."
+  node_templates:
+    BashMultiComplexDT:
+      metadata:
+        a4c_edit_x: "-24"
+        a4c_edit_y: "-9"
+      type: org.alien4cloud.mock.bashMultiComplexDT.nodes.BashMultiComplexDT
+      properties:
+        morecomplex: 
+          field1: 
+            numb1: 112
+            flag1: true
+            name2: "#{duration}"
+            name1: "a11 : #{nickname}\""
+          alist2: 
+            - a31
+            - a32
+          alist1: 
+            - numb1: 2
+              name2: a22
+              name1: "a21 : #{description} : hi my name is  #{firstname} #{name} mon nickname is \"#{nickname}\""
+          name2: a01
+          field2: 
+            numb1: 2
+            name2: "#{description}"
+            name1: "a11 : #{comment}"
+          name1: a00
+          amap2: 
+            0: "\u00E0 plat"
+          amap1: 
+            0: 
+              numb1: 4
+              flag1: true
+              name2: "a42 : #{comment}"
+              name1: a41
+        duration: { get_input: duration }
+        variation: 20
+        log_length: 2000
+        comment: { get_input: comment }
+        description: { get_input: description }

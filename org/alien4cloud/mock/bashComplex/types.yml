@@ -31,6 +31,7 @@ node_types:
           inputs:
             operation: "create"
             duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
             complexTest: { get_property: [SELF, propComplex] }
             COMPLEX: { get_property: [ SELF, "complex_prop" ] }
             NESTED: { get_property: [ SELF, "complex_prop.nested" ] }
@@ -41,6 +42,7 @@ node_types:
           inputs:
             operation: "configure"
             duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
             complexTest: { get_property: [SELF, propComplex] }
             COMPLEX: { get_property: [ SELF, "complex_prop" ] }
             NESTED: { get_property: [ SELF, "complex_prop.nested" ] }
@@ -51,6 +53,7 @@ node_types:
           inputs:
             operation: "start"
             duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
             complexTest: { get_property: [SELF, propComplex] }
             COMPLEX: { get_property: [ SELF, "complex_prop" ] }
             NESTED: { get_property: [ SELF, "complex_prop.nested" ] }

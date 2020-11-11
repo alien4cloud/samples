@@ -54,6 +54,9 @@ node_types:
       mock_endpoint:
         type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
         occurrences: [0, unbounded]
+      custommock_endpoint: 
+        type: org.alien4cloud.mock.bashExtended.capabilities.BashCustomComponentEndpoint
+        occurrences: [0, unbounded]        
     requirements:
       - mock_endpoint:
           capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
@@ -65,7 +68,34 @@ node_types:
           type: tosca.artifacts.File
 
 relationship_types:
-
+  org.alien4cloud.mock.bash.relationships.CustomPropertiesBashComponentConnectToComponent:
+    derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
+    properties:
+      field1:
+        type: string
+        required: false
+      field2:
+        type: string
+        required: false
+    valid_target_types: [ org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint ]
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:
+            operation: "pre_configure_source"
+            duration: { get_property: [ SOURCE, duration ] }
+            field1: { get_property: [ SELF, field1 ] }
+            field2: { get_property: [ SELF, field2 ] }
+          implementation: scripts/custom_relation_properties_display.sh
+        pre_configure_target:
+          inputs:
+            operation: "pre_configure_target"
+            duration: { get_property: [ SOURCE, duration ] }
+            field1: { get_property: [ SELF, field1 ] }
+            field2: { get_property: [ SELF, field2 ] }
+            prop1: { get_property: [ TARGET, custommock_endpoint, prop1 ] }   
+          implementation: scripts/custom_relation_properties_display.sh
+        
   org.alien4cloud.mock.bash.relationships.PostConfigureFailBashComponentConnectToComponent:
     derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
     valid_target_types: [ org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint ]
@@ -113,3 +143,12 @@ relationship_types:
           implementation: scripts/relation_operation.sh
           
           
+capability_types:
+
+  org.alien4cloud.mock.bashExtended.capabilities.BashCustomComponentEndpoint:
+    derived_from: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+    properties:
+      prop1:
+        type: string
+        required: true
+        default: customprop

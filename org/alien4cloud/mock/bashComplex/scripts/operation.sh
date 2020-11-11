@@ -1,7 +1,8 @@
 #!/bin/bash -e
 echo "${NODE}.${duration} sleep: ${duration} sec"
 /bin/sleep $duration
-echo "Test varibable de type complexe"
+# simple property - comment property
+echo "Comment with instanciated variables : ${comment}"
 # simple property
 echo "Nom variable complexe : ${complexTest}" 
 #complex property. Will results into the json serialization of the property value

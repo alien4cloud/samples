@@ -86,6 +86,7 @@ relationship_types:
             duration: { get_property: [ SOURCE, duration ] }
             field1: { get_property: [ SELF, field1 ] }
             field2: { get_property: [ SELF, field2 ] }
+            prop1: { get_property: [ TARGET, custommock_endpoint, prop1 ] }               
           implementation: scripts/custom_relation_properties_display.sh
         pre_configure_target:
           inputs:

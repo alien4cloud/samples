@@ -22,7 +22,7 @@ repositories:
     url: https://github.com/alien4cloud/samples.git
     type: git
   fastconnect_nexus:
-    url: https://fastconnect.org/maven/content/repositories/opensource
+    url: https://www.portaildulibre.fr/nexus/repository
     type: maven      
   
 node_types:

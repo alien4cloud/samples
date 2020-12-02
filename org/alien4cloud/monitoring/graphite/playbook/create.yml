@@ -1,8 +1,0 @@
----
-
-- hosts: all
-  name: Install graphite
-  become: true
-
-  roles:
-    - create

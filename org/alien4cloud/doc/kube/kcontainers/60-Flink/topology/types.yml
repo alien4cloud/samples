@@ -1,0 +1,258 @@
+tosca_definitions_version: alien_dsl_3_0_0
+
+metadata:
+  template_name: Flink
+  template_version: 0.1.0-SNAPSHOT
+  template_author: admin
+
+description: ""
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager:2.2.0-SNAPSHOT
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.kubernetes.api:3.1.0
+  - docker-types:3.0.0
+  - alien-base-types:3.0.0
+  - org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager:2.2.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    KubeCluster:
+      metadata:
+        a4c_edit_x: 354
+        a4c_edit_y: "-109"
+      type: org.alien4cloud.kubernetes.api.types.nodes.KubeCluster
+      capabilities:
+        k8s_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    JobManager:
+      type: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.nodes.JobManager
+      properties:
+        RpcAddress: flinkjobmanager
+        container: 
+          args: 
+            - jobmanager
+          imagePullPolicy: Always
+          image: "flink:latest"
+          resources: 
+            limits: 
+              memory: "512 MIB"
+              cpu: 0.500
+      requirements:
+        - hostedOnKubeDeploymentHost:
+            type_requirement: host
+            node: DU_JobManager
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        rpc:
+          properties:
+            port: 6123
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        blob:
+          properties:
+            port: 6124
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        query:
+          properties:
+            port: 6125
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        ui:
+          properties:
+            port: 8081
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    ui:
+      metadata:
+        a4c_edit_x: 768
+        a4c_edit_y: "-66"
+      type: org.alien4cloud.kubernetes.api.types.KubeService
+      properties:
+        apiVersion: v1
+        kind: Service
+        spec: 
+          service_type: NodePort
+      requirements:
+        - connectsToJobManagerUi:
+            type_requirement: expose
+            node: JobManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    DU_JobManager:
+      metadata:
+        a4c_edit_x: 405
+        a4c_edit_y: 193
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        spec: 
+          template: 
+            metadata: 
+              labels: 
+                app: flink
+                component: jobmanager
+        apiVersion: "apps/v1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    DU_TaskManager:
+      metadata:
+        a4c_edit_x: 845
+        a4c_edit_y: 304
+      type: org.alien4cloud.kubernetes.api.types.KubeDeployment
+      properties:
+        apiVersion: "apps/v1"
+        kind: Deployment
+      capabilities:
+        scalable:
+          properties:
+            min_instances: 1
+            max_instances: 1
+            default_instances: 1
+    TaskManager:
+      metadata:
+        a4c_edit_x: 970
+        a4c_edit_y: 373
+      type: org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.nodes.TaskManager
+      properties:
+        RpcAddress: flinkjobmanager
+        container: 
+          args: 
+            - taskmanager
+            - "-Dtaskmanager.host=$(K8S_POD_IP)"
+          imagePullPolicy: Always
+          image: "flink:latest"
+          resources: 
+            limits: 
+              memory: "512 MIB"
+              cpu: 0.5
+      requirements:
+        - hostedOnDuTaskManagerHost:
+            type_requirement: host
+            node: DU_TaskManager
+            capability: org.alien4cloud.kubernetes.api.capabilities.KubeContainerHost
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        data:
+          properties:
+            port: 6121
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        rpc:
+          properties:
+            port: 6122
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        query:
+          properties:
+            port: 6125
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    TaskSvc:
+      metadata:
+        a4c_edit_x: 1057
+        a4c_edit_y: 85
+      type: org.alien4cloud.kubernetes.api.types.KubeService
+      properties:
+        service_name: tasksvc
+        apiVersion: v1
+        kind: Service
+        spec: 
+          service_type: ClusterIP
+      requirements:
+        - connectsToTaskManagerRpc:
+            type_requirement: expose
+            node: TaskManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToTaskManagerQuery:
+            type_requirement: expose
+            node: TaskManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToTaskManagerData:
+            type_requirement: expose
+            node: TaskManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+    flinkjobmanager:
+      metadata:
+        a4c_edit_x: 114
+        a4c_edit_y: 47
+      type: org.alien4cloud.kubernetes.api.types.KubeService
+      properties:
+        service_name: flinkjobmanager
+        apiVersion: v1
+        kind: Service
+        spec: 
+          service_type: ClusterIP
+      requirements:
+        - connectsToJobManagerBlob:
+            type_requirement: expose
+            node: JobManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToJobManagerUi:
+            type_requirement: expose
+            node: JobManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToJobManagerRpc:
+            type_requirement: expose
+            node: JobManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToJobManagerQuery:
+            type_requirement: expose
+            node: JobManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+      capabilities:
+        service_endpoint:
+          properties:
+            proxy_for: expose
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source

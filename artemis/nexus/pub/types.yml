@@ -1,0 +1,33 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: artemis.nexus.pub
+  template_version: 2.1.0-SNAPSHOT
+  template_author: Atos
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - alien-base-types:3.0.0
+
+node_types:
+
+  artemis.nexus.pub.nodes.NexusService:
+    derived_from: tosca.nodes.Root
+    abstract: true
+    tags:
+      icon: /images/nexus.png
+    capabilities:
+      nexus_endpoint:
+        type: artemis.nexus.pub.capabilities.Nexus
+
+capability_types:
+
+  artemis.nexus.pub.capabilities.Nexus:
+    derived_from: org.alien4cloud.capabilities.StaticEndpoint
+    properties:
+      port:
+        type: integer
+        required: true
+        default: 443
+        constraints:
+          - in_range: [ 1, 65535 ]

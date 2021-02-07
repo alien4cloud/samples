@@ -1,0 +1,67 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager
+  template_version: 2.2.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - docker-types:3.0.0
+  - org.alien4cloud.kubernetes.api:3.1.0
+  - org.alien4cloud.doc.kube.kcontainers.pub:2.2.0-SNAPSHOT
+
+
+node_types:
+
+  org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.nodes.JobManager:
+    derived_from: org.alien4cloud.kubernetes.api.types.KubeContainer
+    properties:
+      RpcAddress:
+        type: string
+        default: "flink-jobmanager"
+      container:
+        type: org.alien4cloud.kubernetes.api.datatypes.ContainerSpec
+        default:
+          imagePullPolicy: Always
+          image: "flink:latest"
+    capabilities:
+      rpc:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+      blob:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+      query:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+      ui:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http        
+    interfaces:
+      Standard:
+        inputs:
+          ENV_JOB_MANAGER_RPC_ADDRESS: { get_property: [SELF, RpcAddress] }
+          
+capability_types:
+
+  org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.rpc:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6123  
+  org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.blob:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6124
+  org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.query:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6125 
+  org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.ui:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 8081          

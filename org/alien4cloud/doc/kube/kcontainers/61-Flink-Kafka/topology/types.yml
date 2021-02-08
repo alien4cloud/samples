@@ -5,7 +5,7 @@ metadata:
   template_version: 0.1.0-SNAPSHOT
   template_author: admin
 
-description: ""
+description: "description"
 
 imports:
   - org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.types:2.2.0-SNAPSHOT
@@ -72,6 +72,9 @@ topology_template:
           - input_prefix: "CFG_"
             mount_path: "/tmp/cfg"
             config_path: config
+          - mount_path: "/opt/flink/conf"
+            input_prefix: "CFG_"
+            config_path: flink
       requirements:
         - hostedOnDuJobManagerHost:
             type_requirement: host
@@ -117,6 +120,13 @@ topology_template:
             secure: false
             network_name: PRIVATE
             initiator: source
+        metrics:
+          properties:
+            port: 50100
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
     TaskManager:
       metadata:
         a4c_edit_x: 201
@@ -131,6 +141,10 @@ topology_template:
           imagePullPolicy: Always
           image: "flink:latest"
         proxysvc: { get_input: proxysvc }
+        config_settings: 
+          - mount_path: "/opt/flink/conf"
+            config_path: flink
+            input_prefix: "CFG_"
       requirements:
         - hostedOnDuTaskManagerHost:
             type_requirement: host
@@ -155,6 +169,13 @@ topology_template:
         query:
           properties:
             port: 6125
+            protocol: tcp
+            secure: false
+            network_name: PRIVATE
+            initiator: source
+        metrics:
+          properties:
+            port: 50100
             protocol: tcp
             secure: false
             network_name: PRIVATE
@@ -186,8 +207,8 @@ topology_template:
             initiator: source
     Tasksvc:
       metadata:
-        a4c_edit_x: 543
-        a4c_edit_y: "-259"
+        a4c_edit_x: 550
+        a4c_edit_y: "-256"
       type: org.alien4cloud.kubernetes.api.types.KubeService
       properties:
         service_name: { get_input: tasksvc }
@@ -197,6 +218,21 @@ topology_template:
           service_type: ClusterIP
       requirements:
         - connectsToTaskManagerData:
+            type_requirement: expose
+            node: TaskManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToTaskManagerMetrics:
+            type_requirement: expose
+            node: TaskManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToTaskManagerRpc:
+            type_requirement: expose
+            node: TaskManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToTaskManagerQuery:
             type_requirement: expose
             node: TaskManager
             capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
@@ -264,7 +300,7 @@ topology_template:
     JobSvc:
       metadata:
         a4c_edit_x: 433
-        a4c_edit_y: "-142"
+        a4c_edit_y: "-143"
       type: org.alien4cloud.kubernetes.api.types.KubeService
       properties:
         service_name: { get_input: jobsvc }
@@ -273,22 +309,22 @@ topology_template:
         spec: 
           service_type: ClusterIP
       requirements:
-        - connectsToKafkaJobManagerQuery:
-            type_requirement: expose
-            node: KafkaJobManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
-            relationship: tosca.relationships.ConnectsTo
         - connectsToKafkaJobManagerRpc:
             type_requirement: expose
             node: KafkaJobManager
             capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
             relationship: tosca.relationships.ConnectsTo
-        - connectsToKafkaJobManagerUi:
+        - connectsToKafkaJobManagerBlob:
             type_requirement: expose
             node: KafkaJobManager
             capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
             relationship: tosca.relationships.ConnectsTo
-        - connectsToKafkaJobManagerBlob:
+        - connectsToKafkaJobManagerQuery:
+            type_requirement: expose
+            node: KafkaJobManager
+            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToKafkaJobManagerUi:
             type_requirement: expose
             node: KafkaJobManager
             capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http

@@ -36,6 +36,8 @@ node_types:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
       ui:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+      metrics:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http          
     requirements:
       - nexus:
           capability: artemis.nexus.pub.capabilities.Nexus
@@ -49,6 +51,7 @@ node_types:
       Standard:
         inputs:
           ENV_JOB_MANAGER_RPC_ADDRESS: { get_property: [SELF, RpcAddress] }
+          CFG_JOB_MANAGER_RPC_ADDRESS: { get_property: [SELF, RpcAddress] }
           CFG_KAFKA_SERVER: { get_attribute: [TARGET, kafka, kafka_topic, ip_address] }
           CFG_NEXUS_SRV: { get_attribute: [TARGET, nexus, nexus_endpoint, ip_address] }
           CFG_URL_PATH: { get_property: [TARGET, nexus, nexus_endpoint, url_path] }
@@ -73,9 +76,12 @@ node_types:
       rpc:
         type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
       query:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http      
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+      metrics:
+        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http        
     interfaces:
       Standard:
         inputs:
           ENV_JOB_MANAGER_RPC_ADDRESS: { get_property: [SELF, RpcAddress] }
+          CFG_JOB_MANAGER_RPC_ADDRESS: { get_property: [SELF, RpcAddress] }
           ENV_K8S_POD_IP: { get_property: [SELF, proxysvc] }          

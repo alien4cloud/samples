@@ -1,0 +1,88 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.wfmock
+  template_version: 2.2.0-SNAPSHOT
+  template_author: SLT
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT    
+  
+description: "WfMock with custom interface."
+
+node_types:
+  org.alien4cloud.mock.wfmock.nodes.WfMock:
+    description: "A mock type derived_from standard bash mock and with a custom interface"
+    derived_from: org.alien4cloud.mock.bash.nodes.BashMock
+    properties:
+      chance:
+        type: integer
+        description: |
+          The percentage of success of a maybe operation.
+        required: true
+    interfaces:
+      wftoolbox:
+        always:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        never:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/never.sh
+        sometimes:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+            CHANCE: { get_property: [ SELF, chance ] }
+          implementation: scripts/sometimes.sh
+      bigtoolbox:
+        op01:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op02:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op03:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op04:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op05:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op06:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op07:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op08:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op09:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh

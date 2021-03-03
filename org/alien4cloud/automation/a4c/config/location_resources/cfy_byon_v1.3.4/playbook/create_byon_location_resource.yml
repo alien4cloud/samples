@@ -1,0 +1,13 @@
+---
+- hosts: all
+  name: Add BYON on-demand resource
+  become: true
+
+  pre_tasks:
+    - name: Debug vars
+      debug:
+        msg: "{{ vars | to_json }}"
+
+  roles:
+    - setup
+    - create_byon_location_resource

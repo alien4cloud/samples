@@ -27,13 +27,13 @@ node_types:
           image: "flink:latest"
     capabilities:
       rpc:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.rpc
       blob:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.blob
       query:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.query
       ui:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http        
+        type: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.ui        
     interfaces:
       Standard:
         inputs:

@@ -27,14 +27,35 @@ node_types:
           image: "flink:latest"
     capabilities:
       data:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.data
       rpc:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.rpc
       query:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http      
+        type: org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.query      
     interfaces:
       Standard:
         inputs:
           ENV_JOB_MANAGER_RPC_ADDRESS: { get_property: [SELF, RpcAddress] }
           ENV_K8S_POD_IP: "tasksvc"
+capability_types:
+
+  org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.rpc:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6122  
+  org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.data:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6121
+  org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.query:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6125 
+       
           

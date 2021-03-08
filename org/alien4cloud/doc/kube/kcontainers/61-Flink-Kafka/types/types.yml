@@ -29,15 +29,15 @@ node_types:
           image: "flink:latest"
     capabilities:
       rpc:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.rpc
       blob:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.blob
       query:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.query
       ui:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.ui
       metrics:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http          
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.metrics          
     requirements:
       - nexus:
           capability: artemis.nexus.pub.capabilities.Nexus
@@ -72,16 +72,76 @@ node_types:
         default: "tasksvc"
     capabilities:
       data:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.TaskManager.capabilities.data
       rpc:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.TaskManager.capabilities.rpc
       query:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.TaskManager.capabilities.query
       metrics:
-        type: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http        
+        type: org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.TaskManager.capabilities.metrics        
     interfaces:
       Standard:
         inputs:
           ENV_JOB_MANAGER_RPC_ADDRESS: { get_property: [SELF, RpcAddress] }
           CFG_JOB_MANAGER_RPC_ADDRESS: { get_property: [SELF, RpcAddress] }
-          ENV_K8S_POD_IP: { get_property: [SELF, proxysvc] }          
+          ENV_K8S_POD_IP: { get_property: [SELF, proxysvc] }
+
+
+
+capability_types:
+
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.rpc:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6123  
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.blob:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6124
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.query:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6125 
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.ui:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 8081
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.KafkaJobManager.capabilities.metrics:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 50100
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.TaskManager.capabilities.rpc:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6122  
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.TaskManager.capabilities.data:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6121
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.TaskManager.capabilities.query:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 6125
+  org.alien4cloud.doc.kube.kcontainers.61-Flink-Kafka.TaskManager.capabilities.metrics:
+    derived_from: org.alien4cloud.kubernetes.api.capabilities.KubeEndpoint
+    properties:
+      port:
+        type: integer
+        default: 50100         
+          

@@ -1,11 +1,11 @@
 tosca_definitions_version: alien_dsl_3_0_0
 
 metadata:
-  template_name: Flink
+  template_name: org.alien4cloud.doc.kube.kcontainers.60-Flink.topology.FlinkCluster
   template_version: 0.1.0-SNAPSHOT
   template_author: admin
 
-description: ""
+description: "This topology deploys a stand alone Flink cluster on a Kubernetes cluster"
 
 imports:
   - tosca-normative-types:1.0.0-ALIEN20
@@ -80,7 +80,7 @@ topology_template:
             initiator: source
     ui:
       metadata:
-        a4c_edit_x: 768
+        a4c_edit_x: 767
         a4c_edit_y: "-66"
       type: org.alien4cloud.kubernetes.api.types.KubeService
       properties:
@@ -92,7 +92,7 @@ topology_template:
         - connectsToJobManagerUi:
             type_requirement: expose
             node: JobManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            capability: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.ui
             relationship: tosca.relationships.ConnectsTo
       capabilities:
         service_endpoint:
@@ -193,20 +193,20 @@ topology_template:
         spec: 
           service_type: ClusterIP
       requirements:
+        - connectsToTaskManagerData:
+            type_requirement: expose
+            node: TaskManager
+            capability: org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.data
+            relationship: tosca.relationships.ConnectsTo
         - connectsToTaskManagerRpc:
             type_requirement: expose
             node: TaskManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            capability: org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.rpc
             relationship: tosca.relationships.ConnectsTo
         - connectsToTaskManagerQuery:
             type_requirement: expose
             node: TaskManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
-            relationship: tosca.relationships.ConnectsTo
-        - connectsToTaskManagerData:
-            type_requirement: expose
-            node: TaskManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            capability: org.alien4cloud.doc.kube.kcontainers.60-Flink.TaskManager.capabilities.query
             relationship: tosca.relationships.ConnectsTo
       capabilities:
         service_endpoint:
@@ -218,7 +218,7 @@ topology_template:
             initiator: source
     flinkjobmanager:
       metadata:
-        a4c_edit_x: 114
+        a4c_edit_x: 113
         a4c_edit_y: 47
       type: org.alien4cloud.kubernetes.api.types.KubeService
       properties:
@@ -228,25 +228,20 @@ topology_template:
         spec: 
           service_type: ClusterIP
       requirements:
-        - connectsToJobManagerBlob:
-            type_requirement: expose
-            node: JobManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
-            relationship: tosca.relationships.ConnectsTo
-        - connectsToJobManagerUi:
-            type_requirement: expose
-            node: JobManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
-            relationship: tosca.relationships.ConnectsTo
         - connectsToJobManagerRpc:
             type_requirement: expose
             node: JobManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            capability: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.rpc
             relationship: tosca.relationships.ConnectsTo
         - connectsToJobManagerQuery:
             type_requirement: expose
             node: JobManager
-            capability: org.alien4cloud.doc.kube.kcontainers.pub.capabilities.Http
+            capability: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.query
+            relationship: tosca.relationships.ConnectsTo
+        - connectsToJobManagerBlob:
+            type_requirement: expose
+            node: JobManager
+            capability: org.alien4cloud.doc.kube.kcontainers.60-Flink.JobManager.capabilities.blob
             relationship: tosca.relationships.ConnectsTo
       capabilities:
         service_endpoint:

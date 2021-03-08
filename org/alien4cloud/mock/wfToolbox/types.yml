@@ -86,3 +86,58 @@ node_types:
             duration: { get_property: [ SELF, duration ] }
             comment: { get_property: [ SELF, comment ] }
           implementation: scripts/always.sh
+        op10:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op11:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op12:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op13:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op14:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op15:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op16:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op17:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op18:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh
+        op19:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh        
+        op20:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/always.sh      

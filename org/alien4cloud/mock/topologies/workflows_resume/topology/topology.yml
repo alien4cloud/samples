@@ -1,0 +1,40 @@
+tosca_definitions_version: alien_dsl_3_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.topologies.wfresume
+  template_version: 3.2.0-SNAPSHOT
+  template_author: Atos
+
+description: "A topology with custom worflows with steps that random fails"
+
+imports:
+  - org.alien4cloud.mock.randomFail4ResumeMock:3.2.0-SNAPSHOT
+
+topology_template:
+  node_templates:
+    randomFail4ResumeMock:
+      type: org.alien4cloud.mock.nodes.randomFail4ResumeMock
+      properties:
+        duration: 3
+        variation: 20
+        log_length: 2000
+  workflows:
+    customWorkflow:
+      steps:
+        randomFail4ResumeMock_custom_op:
+          target: randomFail4ResumeMock
+          activities:
+            - call_operation: custom_interface.custom_op
+    customWorkflow_1:
+      steps:
+        randomFail4ResumeMock_custom_op_1:
+          target: randomFail4ResumeMock
+          activities:
+            - call_operation: custom_interface.custom_op_1
+        randomFail4ResumeMock_custom_op:
+          target: randomFail4ResumeMock
+          activities:
+            - call_operation: custom_interface.custom_op
+          on_success:
+            - randomFail4ResumeMock_custom_op_1
+

@@ -1,0 +1,28 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.randomFail4ResumeMock
+  template_version: 3.2.0-SNAPSHOT
+  template_author: Atos
+
+imports:
+  - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT  
+
+description: >
+  Mock type with bash implementations with custom operations that randomly fails 
+
+node_types:
+
+
+  org.alien4cloud.mock.nodes.randomFail4ResumeMock:
+    description: |
+      A software component that hosts MockComponent and which fails randoms on custom operation.
+    derived_from: org.alien4cloud.mock.bash.nodes.BashMock
+    interfaces:
+      custom_interface:
+        custom_op:
+          implementation: scripts/randomfail.sh
+        custom_op_1:
+          implementation: scripts/randomfail.sh
+
+          

@@ -25,6 +25,7 @@ node_types:
           image: "httpd:latest"
       server_msg:
         type: string
+        default: "message1,message2,message3"
     capabilities:
       server_endpoint:
         type: org.alien4cloud.doc.kube.kcontainers.11-Apache-Proxy.types.capabilities.ApacheServer
@@ -52,6 +53,8 @@ node_types:
           ENV_SERVER_PORT: { get_property: [TARGET, server, server_endpoint, port] }
           ENV_SERVER_USERNAME: { get_property: [TARGET, server, server_endpoint, username] }
           ENV_SERVER_MESSAGE: { get_property: [TARGET, server, server_msg] }
+          ENV_MESG1: { token: [ get_property: [ TARGET, server, server_msg ], ",", 0 ] }
+          ENV_MESG2: { token: [ get_property: [ TARGET, server, server_msg ], ",", 1 ] }
 
 capability_types:
 

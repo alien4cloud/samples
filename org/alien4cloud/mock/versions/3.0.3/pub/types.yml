@@ -1,0 +1,121 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.pub
+  template_version: 3.0.3-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+
+description: >
+  Mock types for A4C load tests.
+
+node_types:
+
+  org.alien4cloud.mock.pub.nodes.AbstractMock:
+    abstract: true
+    derived_from: tosca.nodes.Root
+    properties:
+      duration:
+        type: integer
+        description: |
+          The total duration for all operations (create, configure, start) in seconds.
+          Each one is pondered in implementation.
+        required: true
+        default: 3
+      variation:
+        type: integer
+        description: |
+          The variation percent.
+          20 means 20% of variation. Example, with an operation duration of 100s, if the
+          variation is 20%, the duration will be randomized between 80s and 120s.
+        required: true
+        default: 20
+        constraints:
+          - in_range: [ 1, 100 ]
+      log_length:
+        type: integer
+        default: 2000
+        description: |
+          Words count in the generated logs.
+      comment:
+        type: string
+        required: false
+        description: |
+          A simple comment.
+      description:
+        type: string
+        required: false
+        description: |
+          A simple description.
+
+  org.alien4cloud.mock.pub.nodes.AbstractMockHost:
+    description: |
+      A mock that can be hosted and that can also host other mocks.
+    abstract: true
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMock
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          node: tosca.nodes.Compute
+          relationship: tosca.relationships.HostedOn
+          occurrences: [0, 1]
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+          relationship: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
+          occurrences: [0, unbounded]
+    capabilities:
+      host:
+        type: tosca.capabilities.Container
+      mock_endpoint:
+        type: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+        occurrences: [0, unbounded]
+
+  org.alien4cloud.mock.pub.nodes.AbstractMockComponent:
+    description: |
+      A software component hosted on GenericHost and that can connect to many other Generic.
+    abstract: true
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMock
+    # properties:
+    #   duration:
+    #     type: integer
+    #     required: true
+    #     default: 10
+    #   variation:
+    #     type: integer
+    #     required: true
+    #     default: 20
+    #   log_length:
+    #     type: integer
+    #     default: 2000
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - host:
+          capability: tosca.capabilities.Container
+          relationship: org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost
+          occurrences: [1,1]
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint
+          relationship: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
+          occurrences: [0, unbounded]
+
+relationship_types:
+
+  org.alien4cloud.mock.pub.relationships.AbstractComponentHostedOnHost:
+    derived_from: tosca.relationships.HostedOn
+    abstract: true
+    valid_target_types: [ org.alien4cloud.mock.pub.nodes.AbstractMockHost ]
+  org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent:
+    derived_from: tosca.relationships.ConnectsTo
+    abstract: true
+    valid_target_types: [ org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint ]
+
+capability_types:
+
+  org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint:
+    derived_from: tosca.capabilities.Root
+    abstract: true

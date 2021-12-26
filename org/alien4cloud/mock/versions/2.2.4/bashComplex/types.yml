@@ -1,0 +1,80 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.bashComplex
+  template_version: 2.2.4-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+  - org.alien4cloud.mock.bash:2.2.0-SNAPSHOT
+  
+
+description: >
+  Mock types with bash implementations, with a complex property with datas displayed at create step.
+
+# TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
+node_types:
+  org.alien4cloud.mock.bashComplex.nodes.BashMockComplex:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.bash.nodes.BashMock
+    properties:
+      propComplex:
+        type: string
+      complex_prop:
+        type: org.alien4cloud.mock.bashComplex.datatypes.ComplexDataType
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+            complexTest: { get_property: [SELF, propComplex] }
+            COMPLEX: { get_property: [ SELF, "complex_prop" ] }
+            NESTED: { get_property: [ SELF, "complex_prop.nested" ] }
+            #NESTED_ARRAY_ELEMENT: { get_property: [ SELF, "complex_prop.nested_array[[0]]" ] }
+            NESTED_MAP_ELEMENT: { get_property: [ SELF, "complex_prop.nested_map.tata" ] }              
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+            complexTest: { get_property: [SELF, propComplex] }
+            COMPLEX: { get_property: [ SELF, "complex_prop" ] }
+            NESTED: { get_property: [ SELF, "complex_prop.nested" ] }
+            #NESTED_ARRAY_ELEMENT: { get_property: [ SELF, "complex_prop.nested_array[[0]]" ] }
+            NESTED_MAP_ELEMENT: { get_property: [ SELF, "complex_prop.nested_map.tata" ] }              
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+            complexTest: { get_property: [SELF, propComplex] }
+            COMPLEX: { get_property: [ SELF, "complex_prop" ] }
+            NESTED: { get_property: [ SELF, "complex_prop.nested" ] }
+            #NESTED_ARRAY_ELEMENT: { get_property: [ SELF, "complex_prop.nested_array[[0]]" ] }
+            NESTED_MAP_ELEMENT: { get_property: [ SELF, "complex_prop.nested_map.tata" ] }              
+
+          implementation: scripts/operation.sh
+
+
+
+data_types:    
+  org.alien4cloud.mock.bashComplex.datatypes.ComplexDataType:
+    derived_from: tosca.datatypes.Root  
+    properties:
+      nested:
+        type: string
+      nested_array:
+        type: list
+        entry_schema:
+          type: string
+      nested_map:
+        type: map
+        entry_schema:
+          type: string

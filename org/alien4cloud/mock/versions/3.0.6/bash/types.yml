@@ -1,0 +1,339 @@
+tosca_definitions_version: alien_dsl_2_0_0
+
+metadata:
+  template_name: org.alien4cloud.mock.bash
+  template_version: 3.0.6-SNAPSHOT
+  template_author: Gandalfe
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN20
+  - org.alien4cloud.mock.pub:2.2.0-SNAPSHOT
+
+description: >
+  Mock types with bash implementations.
+
+# TODO: apache port attribute should be used by RegistryConfigurer, and Generic & GenericHost
+node_types:
+
+  org.alien4cloud.mock.bash.nodes.SleepingAtStopBashMock:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        stop:
+          inputs:
+            duration: { get_property: [ SELF, duration ] }
+            operation: "stop"
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+
+  org.alien4cloud.mock.bash.nodes.MiniBashFailFastMock:
+    description: |
+      A mock that implements juste minimum operations to fast start & stop.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 20
+            log_length: { get_property: [ SELF, log_length ] }
+          implementation: scripts/fail.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+  org.alien4cloud.mock.bash.nodes.MiniBashMock:
+    description: |
+      A mock that implements juste minimum operations to fast start & stop.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 20
+            log_length: { get_property: [ SELF, log_length ] }
+          implementation: scripts/operation.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+            variation: { get_property: [ SELF, variation ] }
+            weight: 20
+            log_length: { get_property: [ SELF, log_length ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+  org.alien4cloud.mock.bash.nodes.FailAtStartBashMock:
+    description: |
+      Just fail at start.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/fail.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+  org.alien4cloud.mock.bash.nodes.FailAtStopBashMock:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/fail.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+
+  org.alien4cloud.mock.bash.nodes.BashMock:
+    description: |
+      A software component that hosts MockComponent.
+    derived_from: org.alien4cloud.mock.pub.nodes.AbstractMockHost
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            operation: "create"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/operation.sh
+        configure:
+          inputs:
+            operation: "configure"
+            duration: { get_property: [ SELF, duration ] }
+            comment: { get_property: [ SELF, comment ] }
+          implementation: scripts/operation.sh
+        start:
+          inputs:
+            operation: "start"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        stop:
+          inputs:
+            operation: "stop"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+        delete:
+          inputs:
+            operation: "delete"
+            duration: { get_property: [ SELF, duration ] }
+          implementation: scripts/operation.sh
+    capabilities:
+      mock_endpoint:
+        type: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+        occurrences: [0, unbounded]
+    requirements:
+      - mock_endpoint:
+          capability: org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint
+          relationship: org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent
+          occurrences: [0, unbounded]
+    artifacts:
+      - data:
+          file: data/data.txt
+          type: tosca.artifacts.File
+
+relationship_types:
+
+  org.alien4cloud.mock.bash.relationships.BashComponentConnectToComponent:
+    derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
+    valid_target_types: [ org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint ]
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:
+            operation: "pre_configure_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        pre_configure_target:
+          inputs:
+            operation: "pre_configure_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        post_configure_source:
+          inputs:
+            operation: "post_configure_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        post_configure_target:
+          inputs:
+            operation: "post_configure_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        add_target:
+          inputs:
+            operation: "add_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        add_source:
+          inputs:
+            operation: "add_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        remove_target:
+          inputs:
+            operation: "remove_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        remove_source:
+          inputs:
+            operation: "remove_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+
+  org.alien4cloud.mock.bash.relationships.PostConfigureFailBashComponentConnectToComponent:
+    derived_from: org.alien4cloud.mock.pub.relationships.AbstractComponentConnectToComponent
+    valid_target_types: [ org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint ]
+    interfaces:
+      configure:
+        pre_configure_source:
+          inputs:
+            operation: "pre_configure_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        pre_configure_target:
+          inputs:
+            operation: "pre_configure_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        post_configure_source:
+          inputs:
+            operation: "post_configure_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/fail.sh
+        post_configure_target:
+          inputs:
+            operation: "post_configure_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        add_target:
+          inputs:
+            operation: "add_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        add_source:
+          inputs:
+            operation: "add_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        remove_target:
+          inputs:
+            operation: "remove_target"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+        remove_source:
+          inputs:
+            operation: "remove_source"
+            duration: { get_property: [ SOURCE, duration ] }
+          implementation: scripts/relation_operation.sh
+          
+          
+capability_types:
+
+  org.alien4cloud.mock.bash.capabilities.BashComponentEndpoint:
+    derived_from: org.alien4cloud.mock.pub.capabilities.AbstractComponentEndpoint

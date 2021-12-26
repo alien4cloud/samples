@@ -25,7 +25,7 @@ topology_template:
         container: 
           imagePullPolicy: Always
           image: "httpd:latest"
-        server_msg: "Static property of Apache container"
+        server_msg: "message1,message2,message3"
       requirements:
         - hostedOnKubeDeploymentHost:
             type_requirement: host
